@@ -1,37 +1,37 @@
-#standardSQL
+# standardSQL
 # 16_04a_3rd_party: Requests with a content age older than its TTL by party
-CREATE TEMPORARY FUNCTION toTimestamp(date_string STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function totimestamp(date_string string)
+returns int64 language js
+as '''
   try {
     var timestamp = Math.round(new Date(date_string).getTime() / 1000);
     return isNaN(timestamp) ? -1 : timestamp;
   } catch (e) {
     return -1;
   }
-''';
+'''
+;
 
-SELECT
-  client,
-  party,
-  COUNT(0) AS total_req,
-  COUNTIF(diff < 0) AS req_too_short_cache,
-  ROUND(COUNTIF(diff < 0) * 100 / COUNT(0), 2) AS perc_req_too_short_cache
-FROM
-  (
-    SELECT
-      client,
-      IF(STRPOS(NET.HOST(url), REGEXP_EXTRACT(NET.REG_DOMAIN(page), r'([\w-]+)')) > 0, 1, 3) AS party,
-      expAge - (startedDateTime - toTimestamp(resp_last_modified)) AS diff
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2019-07-01' AND
-      resp_last_modified != '' AND
-      expAge > 0
-  )
-GROUP BY
-  client,
-  party
-ORDER BY
-  client,
-  party
+select
+    client,
+    party,
+    count(0) as total_req,
+    countif(diff < 0) as req_too_short_cache,
+    round(countif(diff < 0) * 100 / count(0), 2) as perc_req_too_short_cache
+from
+    (
+        select
+            client,
+            if(
+                strpos(
+                    net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)')
+                ) > 0,
+                1,
+                3
+            ) as party,
+            expage - (starteddatetime - totimestamp(resp_last_modified)) as diff
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01' and resp_last_modified != '' and expage > 0
+    )
+group by client, party
+order by client, party

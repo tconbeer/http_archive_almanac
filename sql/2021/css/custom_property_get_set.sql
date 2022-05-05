@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCustomPropertyUsage(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcustompropertyusage(payload string)
+returns array < struct < name string,
+freq int64 >> language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(vars) {
     let ret = {
@@ -37,24 +37,21 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  name AS usage,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    usage.name,
-    usage.freq
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getCustomPropertyUsage(payload)) AS usage)
-GROUP BY
-  client,
-  usage
-ORDER BY
-  pct DESC
+select
+    client,
+    name as usage,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select _table_suffix as client, usage.name, usage.freq
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(getcustompropertyusage(payload)) as usage
+    )
+group by client, usage
+order by pct desc

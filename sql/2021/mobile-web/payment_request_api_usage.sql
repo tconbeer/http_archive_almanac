@@ -1,33 +1,24 @@
-#standardSQL
+# standardSQL
 # Payment request api usage on ecommerce pages
-SELECT
-  client,
-  COUNT(0) AS total_ecommerce,
-  COUNTIF(uses_payment_requst) AS total_using_payment_request,
+select
+    client,
+    count(0) as total_ecommerce,
+    countif(uses_payment_requst) as total_using_payment_request,
 
-  COUNTIF(uses_payment_requst) / COUNT(0) AS pct_using_payment_request
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url
-    FROM
-      `httparchive.technologies.2021_07_01_*`
-    WHERE
-      category = 'Ecommerce'
-  )
-LEFT OUTER JOIN
-  (
-    SELECT
-      client,
-      url,
-      TRUE AS uses_payment_requst
-    FROM
-      `httparchive.blink_features.features`
-    WHERE
-      yyyymmdd = CAST('2021-07-01' AS DATE) AND
-      feature = 'PaymentRequestInitialized'
-  )
-USING (client, url)
-GROUP BY
-  client
+    countif(uses_payment_requst) / count(0) as pct_using_payment_request
+from
+    (
+        select _table_suffix as client, url
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'Ecommerce'
+    )
+left outer join
+    (
+        select client, url, true as uses_payment_requst
+        from `httparchive.blink_features.features`
+        where
+            yyyymmdd = cast('2021-07-01' as date) and
+            feature = 'PaymentRequestInitialized'
+    )
+    using(client, url)
+group by client

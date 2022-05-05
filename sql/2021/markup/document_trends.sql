@@ -1,45 +1,28 @@
-#standardSQL
+# standardSQL
 # summary_pages trends grouped by device
+with
+    summary_requests as (
+        select '2019' as year, _table_suffix as client, *
+        from `httparchive.summary_pages.2019_07_01_*`
+        union all
+        select '2020' as year, _table_suffix as client, *
+        from `httparchive.summary_pages.2020_08_01_*`
+        union all
+        select '2021' as year, _table_suffix as client, *
+        from `httparchive.summary_pages.2021_07_01_*`
+    )
 
-WITH summary_requests AS (
-  SELECT
-    '2019' AS year,
-    _TABLE_SUFFIX AS client,
-    *
-  FROM
-    `httparchive.summary_pages.2019_07_01_*`
-  UNION ALL
-  SELECT
-    '2020' AS year,
-    _TABLE_SUFFIX AS client,
-    *
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  UNION ALL
-  SELECT
-    '2021' AS year,
-    _TABLE_SUFFIX AS client,
-    *
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-)
-
-SELECT
-  year,
-  client,
-  COUNTIF(TRIM(doctype) != '') AS freq_doctype,
-  COUNTIF(TRIM(doctype) != '') / COUNT(0) AS pct_doctype,
-  MIN(bytesHtml) AS min_bytes_html,
-  MAX(bytesHtml) AS max_bytes_html,
-  APPROX_QUANTILES(bytesHtml, 1000)[OFFSET(500)] AS median_bytes_html,
-  COUNTIF(bytesHtml = 0) AS freq_zero_bytes_html,
-  COUNTIF(bytesHtml = 0) / COUNT(0) AS pct_zero_bytes_html,
-  COUNT(0) AS total
-FROM
-  summary_requests
-GROUP BY
-  year,
-  client
-ORDER BY
-  year,
-  client
+select
+    year,
+    client,
+    countif(trim(doctype) != '') as freq_doctype,
+    countif(trim(doctype) != '') / count(0) as pct_doctype,
+    min(byteshtml) as min_bytes_html,
+    max(byteshtml) as max_bytes_html,
+    approx_quantiles(byteshtml, 1000) [offset (500)] as median_bytes_html,
+    countif(byteshtml = 0) as freq_zero_bytes_html,
+    countif(byteshtml = 0) / count(0) as pct_zero_bytes_html,
+    count(0) as total
+from summary_requests
+group by year, client
+order by year, client

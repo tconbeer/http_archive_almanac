@@ -1,16 +1,15 @@
-#standardSQL
+# standardSQL
 # percientile data from wpt_bodies per device
-
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  comment_count INT64,
-  conditional_comment_count INT64,
-  head_size INT64,
-  no_h1 BOOL,
-  target_blank_total INT64,
-  target_blank_noopener_noreferrer_total INT64
-> LANGUAGE js AS '''
+create temporary function get_wpt_bodies_info(wpt_bodies_string string)
+returns struct < comment_count int64,
+conditional_comment_count int64,
+head_size int64,
+no_h1 bool,
+target_blank_total int64,
+target_blank_noopener_noreferrer_total int64
+> language js
+as '''
 var result = {};
 try {
     var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -32,32 +31,38 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  COUNT(DISTINCT url) AS total,
-
-  # Comments per page
-  APPROX_QUANTILES(wpt_bodies_info.comment_count, 1000)[OFFSET(percentile * 10)] AS comment_count_m103,
-  APPROX_QUANTILES(wpt_bodies_info.conditional_comment_count, 1000)[OFFSET(percentile * 10)] AS conditional_comment_count_m105,
-
-  # size of the head section in characters
-  APPROX_QUANTILES(wpt_bodies_info.head_size, 1000)[OFFSET(percentile * 10)] AS head_size_m234
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
     percentile,
-    url,
-    get_wpt_bodies_info(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies')) AS wpt_bodies_info
-  FROM
-    `httparchive.pages.2020_08_01_*`,
-    UNNEST([10, 25, 50, 75, 90]) AS percentile
-)
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    client,
+    count(distinct url) as total,
+
+    # Comments per page
+    approx_quantiles(wpt_bodies_info.comment_count, 1000) [
+        offset (percentile * 10)
+    ] as comment_count_m103,
+    approx_quantiles(wpt_bodies_info.conditional_comment_count, 1000) [
+        offset (percentile * 10)
+    ] as conditional_comment_count_m105,
+
+    # size of the head section in characters
+    approx_quantiles(wpt_bodies_info.head_size, 1000) [
+        offset (percentile * 10)
+    ] as head_size_m234
+from
+    (
+        select
+            _table_suffix as client,
+            percentile,
+            url,
+            get_wpt_bodies_info(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as wpt_bodies_info
+        from
+            `httparchive.pages.2020_08_01_*`,
+            unnest( [10, 25, 50, 75, 90]) as percentile
+    )
+group by percentile, client
+order by percentile, client

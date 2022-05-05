@@ -1,35 +1,43 @@
-#standardSQL
-# usage of allow and sandbox attribute of iframe elements, per page and over all iframe elements
-SELECT
-  client,
-  COUNT(0) AS total_iframes,
-  COUNTIF(allow IS NOT NULL) AS freq_allow,
-  COUNTIF(allow IS NOT NULL) / COUNT(0) AS pct_allow_frames,
-  COUNTIF(sandbox IS NOT NULL) AS freq_sandbox,
-  COUNTIF(sandbox IS NOT NULL) / COUNT(0) AS pct_sandbox_frames,
-  COUNTIF(allow IS NOT NULL AND sandbox IS NOT NULL) AS freq_both_frames,
-  COUNTIF(allow IS NOT NULL AND sandbox IS NOT NULL) / COUNT(0) AS pct_both_frames,
-  COUNT(DISTINCT url) AS total_urls,
-  COUNT(DISTINCT IF(allow IS NOT NULL, url, NULL)) AS allow_freq_urls,
-  COUNT(DISTINCT IF(allow IS NOT NULL, url, NULL)) / COUNT(DISTINCT url) AS allow_pct_urls,
-  COUNT(DISTINCT IF(sandbox IS NOT NULL, url, NULL)) AS sandbox_freq_urls,
-  COUNT(DISTINCT IF(sandbox IS NOT NULL, url, NULL)) / COUNT(DISTINCT url) AS sandbox_pct_urls
-FROM (
-  SELECT
+# standardSQL
+# usage of allow and sandbox attribute of iframe elements, per page and over all
+# iframe elements
+select
     client,
-    url,
-    JSON_EXTRACT_SCALAR(iframeAttr, '$.allow') AS allow,
-    JSON_EXTRACT_SCALAR(iframeAttr, '$.sandbox') AS sandbox
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url,
-      JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.iframe-allow-sandbox') AS iframeAttrs
-    FROM
-      `httparchive.pages.2020_08_01_*`)
-  LEFT JOIN UNNEST(iframeAttrs) AS iframeAttr
-  )
-GROUP BY
-  client
-ORDER BY
-  client
+    count(0) as total_iframes,
+    countif(allow is not null) as freq_allow,
+    countif(allow is not null) / count(0) as pct_allow_frames,
+    countif(sandbox is not null) as freq_sandbox,
+    countif(sandbox is not null) / count(0) as pct_sandbox_frames,
+    countif(allow is not null and sandbox is not null) as freq_both_frames,
+    countif(allow is not null and sandbox is not null) / count(0) as pct_both_frames,
+    count(distinct url) as total_urls,
+    count(distinct if(allow is not null, url, null)) as allow_freq_urls,
+    count(distinct if(allow is not null, url, null)) / count(
+        distinct url
+    ) as allow_pct_urls,
+    count(distinct if(sandbox is not null, url, null)) as sandbox_freq_urls,
+    count(distinct if(sandbox is not null, url, null)) / count(
+        distinct url
+    ) as sandbox_pct_urls
+from
+    (
+        select
+            client,
+            url,
+            json_extract_scalar(iframeattr, '$.allow') as allow,
+            json_extract_scalar(iframeattr, '$.sandbox') as sandbox
+        from
+            (
+                select
+                    _table_suffix as client,
+                    url,
+                    json_extract_array(
+                        json_extract_scalar(payload, '$._security'),
+                        '$.iframe-allow-sandbox'
+                    ) as iframeattrs
+                from `httparchive.pages.2020_08_01_*`
+            )
+        left join unnest(iframeattrs) as iframeattr
+    )
+group by client
+order by client

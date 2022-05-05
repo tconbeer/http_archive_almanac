@@ -1,37 +1,26 @@
-#standardSQL
+# standardSQL
 # 14_15e: Requests and weight of all content on CMS pages by type
-SELECT
-  percentile,
-  client,
-  type,
-  APPROX_QUANTILES(requests, 1000)[OFFSET(percentile * 10)] AS requests,
-  ROUND(APPROX_QUANTILES(bytes, 1000)[OFFSET(percentile * 10)] / 1024, 2) AS kbytes
-FROM (
-  SELECT
+select
+    percentile,
     client,
     type,
-    COUNT(0) AS requests,
-    SUM(respSize) AS bytes
-  FROM
-    `httparchive.almanac.summary_requests`
-  JOIN (
-    SELECT _TABLE_SUFFIX AS client, url AS page
-    FROM `httparchive.technologies.2019_07_01_*`
-    WHERE category = 'CMS')
-  USING
-    (client, page)
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    type,
-    page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  type
-ORDER BY
-  percentile,
-  client,
-  kbytes DESC
+    approx_quantiles(requests, 1000) [offset (percentile * 10)] as requests,
+    round(approx_quantiles(bytes, 1000) [offset (percentile * 10)] / 1024, 2) as kbytes
+from
+    (
+        select client, type, count(0) as requests, sum(respsize) as bytes
+        from `httparchive.almanac.summary_requests`
+        join
+            (
+                select _table_suffix as client, url as page
+                from `httparchive.technologies.2019_07_01_*`
+                where category = 'CMS'
+            )
+            using
+            (client, page)
+        where date = '2019-07-01'
+        group by client, type, page
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client, type
+order by percentile, client, kbytes desc

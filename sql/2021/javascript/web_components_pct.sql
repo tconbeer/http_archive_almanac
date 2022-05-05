@@ -1,24 +1,38 @@
-SELECT
-  client,
-  custom_elements,
-  shadow_roots,
-  templates,
-  total,
-  custom_elements / total AS pct_custom_elements,
-  shadow_roots / total AS pct_shadow_roots,
-  templates / total AS pct_templates
-FROM (
-  SELECT
+select
     client,
-    COUNT(0) AS total,
-    COUNTIF(ARRAY_LENGTH(JSON_EXTRACT_ARRAY(js, '$.web_component_specs.custom_elements')) > 0) AS custom_elements,
-    COUNTIF(ARRAY_LENGTH(JSON_EXTRACT_ARRAY(js, '$.web_component_specs.shadow_roots')) > 0) AS shadow_roots,
-    COUNTIF(ARRAY_LENGTH(JSON_EXTRACT_ARRAY(js, '$.web_component_specs.template')) > 0) AS templates
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      JSON_EXTRACT_SCALAR(payload, '$._javascript') AS js
-    FROM
-      `httparchive.pages.2021_09_01_*`)
-  GROUP BY
-    client)
+    custom_elements,
+    shadow_roots,
+    templates,
+    total,
+    custom_elements / total as pct_custom_elements,
+    shadow_roots / total as pct_shadow_roots,
+    templates / total as pct_templates
+from
+    (
+        select
+            client,
+            count(0) as total,
+            countif(
+                array_length(
+                    json_extract_array(js, '$.web_component_specs.custom_elements')
+                ) > 0
+            ) as custom_elements,
+            countif(
+                array_length(
+                    json_extract_array(js, '$.web_component_specs.shadow_roots')
+                ) > 0
+            ) as shadow_roots,
+            countif(
+                array_length(
+                    json_extract_array(js, '$.web_component_specs.template')
+                ) > 0
+            ) as templates
+        from
+            (
+                select
+                    _table_suffix as client,
+                    json_extract_scalar(payload, '$._javascript') as js
+                from `httparchive.pages.2021_09_01_*`
+            )
+        group by client
+    )

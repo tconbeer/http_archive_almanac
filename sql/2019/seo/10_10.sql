@@ -1,27 +1,36 @@
-#standardSQL
+# standardSQL
 # 10_10: linking - extract <a href> count per page (internal + external + hash)
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(internal, 1000)[OFFSET(percentile * 10)] AS internal,
-  APPROX_QUANTILES(external, 1000)[OFFSET(percentile * 10)] AS external,
-  APPROX_QUANTILES(_hash, 1000)[OFFSET(percentile * 10)] AS _hash
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    CAST(JSON_EXTRACT_SCALAR(almanac, "$['seo-anchor-elements'].internal") AS INT64) AS internal,
-    CAST(JSON_EXTRACT_SCALAR(almanac, "$['seo-anchor-elements'].external") AS INT64) AS external,
-    CAST(JSON_EXTRACT_SCALAR(almanac, "$['seo-anchor-elements'].hash") AS INT64) AS _hash
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      JSON_EXTRACT_SCALAR(payload, '$._almanac') AS almanac
-    FROM
-      `httparchive.pages.2019_07_01_*`)),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(internal, 1000) [offset (percentile * 10)] as internal,
+    approx_quantiles(external, 1000) [offset (percentile * 10)] as external,
+    approx_quantiles(_hash, 1000) [offset (percentile * 10)] as _hash
+from
+    (
+        select
+            client,
+            cast(
+                json_extract_scalar(
+                    almanac, "$['seo-anchor-elements'].internal"
+                ) as int64
+            ) as internal,
+            cast(
+                json_extract_scalar(
+                    almanac, "$['seo-anchor-elements'].external"
+                ) as int64
+            ) as external,
+            cast(
+                json_extract_scalar(almanac, "$['seo-anchor-elements'].hash") as int64
+            ) as _hash
+        from
+            (
+                select
+                    _table_suffix as client,
+                    json_extract_scalar(payload, '$._almanac') as almanac
+                from `httparchive.pages.2019_07_01_*`
+            )
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

@@ -1,20 +1,14 @@
-#standardSQL
-SELECT
-  REPLACE(SUBSTR(_TABLE_SUFFIX, 0, 10), '_', '') AS date,
-  IF(ENDS_WITH(_TABLE_SUFFIX, 'desktop'), 'desktop', 'mobile') AS client,
-  ROUND(APPROX_QUANTILES(bytesTotal, 1000)[OFFSET(100)] / 1024, 2) AS p10,
-  ROUND(APPROX_QUANTILES(bytesTotal, 1000)[OFFSET(250)] / 1024, 2) AS p25,
-  ROUND(APPROX_QUANTILES(bytesTotal, 1000)[OFFSET(500)] / 1024, 2) AS p50,
-  ROUND(APPROX_QUANTILES(bytesTotal, 1000)[OFFSET(750)] / 1024, 2) AS p75,
-  ROUND(APPROX_QUANTILES(bytesTotal, 1000)[OFFSET(900)] / 1024, 2) AS p90
-FROM
-  `httparchive.summary_pages.*`
-WHERE
-  bytesTotal > 0 AND
-  SUBSTR(_TABLE_SUFFIX, 9, 2) = '01' -- ignore mid-month figures as not always available and throws off chart
-GROUP BY
-  date,
-  client
-ORDER BY
-  date DESC,
-  client
+# standardSQL
+select
+    replace(substr(_table_suffix, 0, 10), '_', '') as date,
+    if(ends_with(_table_suffix, 'desktop'), 'desktop', 'mobile') as client,
+    round(approx_quantiles(bytestotal, 1000) [offset (100)] / 1024, 2) as p10,
+    round(approx_quantiles(bytestotal, 1000) [offset (250)] / 1024, 2) as p25,
+    round(approx_quantiles(bytestotal, 1000) [offset (500)] / 1024, 2) as p50,
+    round(approx_quantiles(bytestotal, 1000) [offset (750)] / 1024, 2) as p75,
+    round(approx_quantiles(bytestotal, 1000) [offset (900)] / 1024, 2) as p90
+from `httparchive.summary_pages.*`
+-- ignore mid-month figures as not always available and throws off chart
+where bytestotal > 0 and substr(_table_suffix, 9, 2) = '01'
+group by date, client
+order by date desc, client

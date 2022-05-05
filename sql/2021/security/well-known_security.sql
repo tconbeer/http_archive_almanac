@@ -1,32 +1,54 @@
-#standardSQL
-# Prevalence of (signed) /.well-known/security.txt endpoints and prevalence of included attributes (canonical, encryption, expires, policy).
-SELECT
-  client,
-  COUNT(DISTINCT page) AS total_pages,
-  COUNTIF(has_security_txt = 'true') AS count_security_txt,
-  COUNTIF(has_security_txt = 'true') / COUNT(DISTINCT page) AS pct_security_txt,
-  COUNTIF(signed = 'true') AS count_signed,
-  COUNTIF(signed = 'true') / COUNTIF(has_security_txt = 'true') AS pct_signed,
-  COUNTIF(canonical IS NOT NULL) AS canonical,
-  COUNTIF(canonical IS NOT NULL) / COUNTIF(has_security_txt = 'true') AS pct_canonical,
-  COUNTIF(encryption IS NOT NULL) AS encryption,
-  COUNTIF(encryption IS NOT NULL) / COUNTIF(has_security_txt = 'true') AS pct_encryption,
-  COUNTIF(expires IS NOT NULL) AS expires,
-  COUNTIF(expires IS NOT NULL) / COUNTIF(has_security_txt = 'true') AS pct_expires,
-  COUNTIF(policy IS NOT NULL) AS policy,
-  COUNTIF(policy IS NOT NULL) / COUNTIF(has_security_txt = 'true') AS pct_policy
-FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url AS page,
-      JSON_VALUE(JSON_VALUE(payload, '$._well-known'), '$."/.well-known/security.txt".found') AS has_security_txt,
-      JSON_QUERY(JSON_VALUE(payload, '$._well-known'), '$."/.well-known/security.txt".data.signed') AS signed,
-      JSON_QUERY(JSON_VALUE(payload, '$._well-known'), '$."/.well-known/security.txt".data.canonical') AS canonical,
-      JSON_QUERY(JSON_VALUE(payload, '$._well-known'), '$."/.well-known/security.txt".data.encryption') AS encryption,
-      JSON_QUERY(JSON_VALUE(payload, '$._well-known'), '$."/.well-known/security.txt".data.expires') AS expires,
-      JSON_QUERY(JSON_VALUE(payload, '$._well-known'), '$."/.well-known/security.txt".data.policy') AS policy
-    FROM
-      `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
+# standardSQL
+# Prevalence of (signed) /.well-known/security.txt endpoints and prevalence of
+# included attributes (canonical, encryption, expires, policy).
+select
+    client,
+    count(distinct page) as total_pages,
+    countif(has_security_txt = 'true') as count_security_txt,
+    countif(has_security_txt = 'true') / count(distinct page) as pct_security_txt,
+    countif(signed = 'true') as count_signed,
+    countif(signed = 'true') / countif(has_security_txt = 'true') as pct_signed,
+    countif(canonical is not null) as canonical,
+    countif(canonical is not null) / countif(
+        has_security_txt = 'true'
+    ) as pct_canonical,
+    countif(encryption is not null) as encryption,
+    countif(encryption is not null) / countif(
+        has_security_txt = 'true'
+    ) as pct_encryption,
+    countif(expires is not null) as expires,
+    countif(expires is not null) / countif(has_security_txt = 'true') as pct_expires,
+    countif(policy is not null) as policy,
+    countif(policy is not null) / countif(has_security_txt = 'true') as pct_policy
+from
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            json_value(
+                json_value(payload, '$._well-known'),
+                '$."/.well-known/security.txt".found'
+            ) as has_security_txt,
+            json_query(
+                json_value(payload, '$._well-known'),
+                '$."/.well-known/security.txt".data.signed'
+            ) as signed,
+            json_query(
+                json_value(payload, '$._well-known'),
+                '$."/.well-known/security.txt".data.canonical'
+            ) as canonical,
+            json_query(
+                json_value(payload, '$._well-known'),
+                '$."/.well-known/security.txt".data.encryption'
+            ) as encryption,
+            json_query(
+                json_value(payload, '$._well-known'),
+                '$."/.well-known/security.txt".data.expires'
+            ) as expires,
+            json_query(
+                json_value(payload, '$._well-known'),
+                '$."/.well-known/security.txt".data.policy'
+            ) as policy
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

@@ -1,7 +1,11 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION get_images(images_string STRING)
-RETURNS ARRAY<STRUCT<url STRING>>
-LANGUAGE js AS '''
+# standardSQL
+create temporary function get_images(images_string string)
+returns array
+< struct
+< url string
+>>
+language js
+as '''
 var result = [];
 try {
   var images = JSON.parse(images_string);
@@ -12,23 +16,25 @@ try {
   }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(DISTINCT pageUrl) AS pages,
-  COUNT(0) AS images,
-  SAFE_DIVIDE(COUNTIF(imgcdn1), COUNT(0)) AS img_with_cdn1_pct,
-  SAFE_DIVIDE(COUNTIF(imgcdn2), COUNT(0)) AS img_with_cdn2_pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    a.url AS pageUrl,
-    imageurl.url,
-    REGEXP_CONTAINS(imageurl.url, r'.*[,\/]w_\d+.*') AS imgcdn1,
-    REGEXP_CONTAINS(imageurl.url, r'\?.*w=.*') AS imgcdn2
-  FROM
-    `httparchive.pages.2021_07_01_*` AS a,
-    UNNEST(get_images(JSON_EXTRACT_SCALAR(payload, '$._Images'))) AS imageurl)
-GROUP BY
-  client
+select
+    client,
+    count(distinct pageurl) as pages,
+    count(0) as images,
+    safe_divide(countif(imgcdn1), count(0)) as img_with_cdn1_pct,
+    safe_divide(countif(imgcdn2), count(0)) as img_with_cdn2_pct
+from
+    (
+        select
+            _table_suffix as client,
+            a.url as pageurl,
+            imageurl.url,
+            regexp_contains(imageurl.url, r'.*[,\/]w_\d+.*') as imgcdn1,
+            regexp_contains(imageurl.url, r'\?.*w=.*') as imgcdn2
+        from
+            `httparchive.pages.2021_07_01_*` as a,
+            unnest(get_images(json_extract_scalar(payload, '$._Images'))) as imageurl
+    )
+group by client

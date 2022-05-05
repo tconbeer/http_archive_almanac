@@ -1,25 +1,19 @@
-#standardSQL
+# standardSQL
 # 14_13d: Distribution of image stats per CMS
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  app,
-  COUNT(DISTINCT url) AS pages,
-  APPROX_QUANTILES(reqImg, 1000)[OFFSET(percentile * 10)] AS image_count,
-  ROUND(APPROX_QUANTILES(bytesImg, 1000)[OFFSET(percentile * 10)] / 1024, 2) AS image_kbytes
-FROM
-  `httparchive.summary_pages.2019_07_01_*`
-JOIN
-  `httparchive.technologies.2019_07_01_*`
-USING (_TABLE_SUFFIX, url),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-WHERE
-  category = 'CMS'
-GROUP BY
-  percentile,
-  client,
-  app
-ORDER BY
-  percentile,
-  client,
-  pages DESC
+select
+    percentile,
+    _table_suffix as client,
+    app,
+    count(distinct url) as pages,
+    approx_quantiles(reqimg, 1000) [offset (percentile * 10)] as image_count,
+    round(
+        approx_quantiles(bytesimg, 1000) [offset (percentile * 10)] / 1024, 2
+    ) as image_kbytes
+from `httparchive.summary_pages.2019_07_01_*`
+join
+    `httparchive.technologies.2019_07_01_*`
+    using(_table_suffix, url),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+where category = 'CMS'
+group by percentile, client, app
+order by percentile, client, pages desc

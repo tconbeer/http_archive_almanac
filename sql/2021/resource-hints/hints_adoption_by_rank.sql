@@ -1,9 +1,15 @@
-#standardSQL
+# standardSQL
 # % of sites that use each type of resource hint grouped by rank
-
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload BOOLEAN, prefetch BOOLEAN, preconnect BOOLEAN, prerender BOOLEAN, `dns-prefetch` BOOLEAN, `modulepreload` BOOLEAN>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns struct < preload boolean,
+prefetch boolean,
+preconnect boolean,
+prerender boolean,
+`dns-prefetch` boolean,
+`modulepreload` boolean
+>
+language js
+as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 try {
   var $ = JSON.parse(payload);
@@ -18,48 +24,38 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  rank,
-  COUNT(0) AS total,
-  COUNTIF(hints.preload) AS preload,
-  COUNTIF(hints.preload) / COUNT(0) AS pct_preload,
-  COUNTIF(hints.prefetch) AS prefetch,
-  COUNTIF(hints.prefetch) / COUNT(0) AS pct_prefetch,
-  COUNTIF(hints.preconnect) AS preconnect,
-  COUNTIF(hints.preconnect) / COUNT(0) AS pct_preconnect,
-  COUNTIF(hints.prerender) AS prerender,
-  COUNTIF(hints.prerender) / COUNT(0) AS pct_prerender,
-  COUNTIF(hints.`dns-prefetch`) AS dns_prefetch,
-  COUNTIF(hints.`dns-prefetch`) / COUNT(0) AS pct_dns_prefetch,
-  COUNTIF(hints.modulepreload) AS modulepreload,
-  COUNTIF(hints.modulepreload) / COUNT(0) AS pct_modulepreload
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    getResourceHints(payload) AS hints
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-JOIN (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url AS page,
-      rank AS _rank
-    FROM
-      `httparchive.summary_pages.2021_07_01_*`
-)
-USING
-  (client, page),
-  UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank
-WHERE
-  _rank <= rank
-GROUP BY
-  client,
-  rank
-ORDER BY
-  client,
-  rank
+select
+    client,
+    rank,
+    count(0) as total,
+    countif(hints.preload) as preload,
+    countif(hints.preload) / count(0) as pct_preload,
+    countif(hints.prefetch) as prefetch,
+    countif(hints.prefetch) / count(0) as pct_prefetch,
+    countif(hints.preconnect) as preconnect,
+    countif(hints.preconnect) / count(0) as pct_preconnect,
+    countif(hints.prerender) as prerender,
+    countif(hints.prerender) / count(0) as pct_prerender,
+    countif(hints.`dns-prefetch`) as dns_prefetch,
+    countif(hints.`dns-prefetch`) / count(0) as pct_dns_prefetch,
+    countif(hints.modulepreload) as modulepreload,
+    countif(hints.modulepreload) / count(0) as pct_modulepreload
+from
+    (
+        select _table_suffix as client, url as page, getresourcehints(payload) as hints
+        from `httparchive.pages.2021_07_01_*`
+    )
+join
+    (
+        select _table_suffix as client, url as page, rank as _rank
+        from `httparchive.summary_pages.2021_07_01_*`
+    )
+    using
+    (client, page),
+    unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank
+where _rank <= rank
+group by client, rank
+order by client, rank

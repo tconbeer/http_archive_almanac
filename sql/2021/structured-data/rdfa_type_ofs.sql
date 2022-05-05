@@ -1,55 +1,52 @@
 # standardSQL
 # Count RDFa Type Ofs
-CREATE TEMP FUNCTION getRDFaTypeOfs(rendered STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS """
+create temp function getrdfatypeofs(rendered string)
+returns array
+< string
+>
+language js
+as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.rdfa_typeofs.map(typeOf => typeOf.toLowerCase().trim().split(/\s+/)).flat();
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
-WITH
-rendered_data AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    getRDFaTypeOfs(JSON_EXTRACT(JSON_VALUE(JSON_EXTRACT(payload, '$._structured-data')), '$.structured_data.rendered')) AS rdfa_type_ofs
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+with
+    rendered_data as (
+        select
+            _table_suffix as client,
+            url,
+            getrdfatypeofs(
+                json_extract(
+                    json_value(json_extract(payload, '$._structured-data')),
+                    '$.structured_data.rendered'
+                )
+            ) as rdfa_type_ofs
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-page_totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-)
+    page_totals as (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
 
-SELECT
-  client,
-  rdfa_type_of,
-  COUNT(rdfa_type_of) AS freq_rdfa_type_of,
-  SUM(COUNT(rdfa_type_of)) OVER (PARTITION BY client) AS total_rdfa_type_of,
-  COUNT(rdfa_type_of) / SUM(COUNT(rdfa_type_of)) OVER (PARTITION BY client) AS pct_rdfa_type_of,
-  COUNT(DISTINCT url) AS freq_pages,
-  total_pages,
-  COUNT(DISTINCT url) / total_pages AS pct_pages
-FROM
-  rendered_data,
-  UNNEST(rdfa_type_ofs) AS rdfa_type_of
-JOIN
-  page_totals
-USING (client)
-GROUP BY
-  client,
-  rdfa_type_of,
-  total_pages
-ORDER BY
-  pct_rdfa_type_of DESC,
-  client
+select
+    client,
+    rdfa_type_of,
+    count(rdfa_type_of) as freq_rdfa_type_of,
+    sum(count(rdfa_type_of)) over (partition by client) as total_rdfa_type_of,
+    count(rdfa_type_of) / sum(
+        count(rdfa_type_of)
+    ) over (partition by client) as pct_rdfa_type_of,
+    count(distinct url) as freq_pages,
+    total_pages,
+    count(distinct url) / total_pages as pct_pages
+from rendered_data, unnest(rdfa_type_ofs) as rdfa_type_of
+join page_totals using(client)
+group by client, rdfa_type_of, total_pages
+order by pct_rdfa_type_of desc, client

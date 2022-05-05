@@ -1,31 +1,26 @@
 # standardSQL
 # HTTP/2+ support per CDN by page and request
-SELECT
-  client,
-  CDN,
-  COUNTIF(firstHTML) AS pages,
-  COUNTIF(http2_3 AND firstHTML) AS http2_3_pages,
-  SAFE_DIVIDE(COUNTIF(http2_3 AND firstHTML), COUNTIF(firstHTML)) AS http2_3_page_pct,
-  COUNTIF(http2_3) AS http2_3_requests,
-  COUNTIF(http2_3) / COUNT(0) AS http2_3_request_pct
-FROM
-  (
-    SELECT
-      client,
-      page,
-      firstHTML,
-      IFNULL(REGEXP_EXTRACT(_cdn_provider, r'^([^,]*).*'), '') AS CDN,
-      url,
-      LOWER(protocol) IN ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050') AS http2_3
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2021-07-01'
-  )
-GROUP BY
-  client,
-  CDN
-ORDER BY
-  http2_3_request_pct DESC,
-  client,
-  CDN
+select
+    client,
+    cdn,
+    countif(firsthtml) as pages,
+    countif(http2_3 and firsthtml) as http2_3_pages,
+    safe_divide(countif(http2_3 and firsthtml), countif(firsthtml)) as http2_3_page_pct,
+    countif(http2_3) as http2_3_requests,
+    countif(http2_3) / count(0) as http2_3_request_pct
+from
+    (
+        select
+            client,
+            page,
+            firsthtml,
+            ifnull(regexp_extract(_cdn_provider, r'^([^,]*).*'), '') as cdn,
+            url,
+            lower(protocol) in (
+                'http/2', 'http/3', 'quic', 'h3-29', 'h3-q050'
+            ) as http2_3
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+    )
+group by client, cdn
+order by http2_3_request_pct desc, client, cdn

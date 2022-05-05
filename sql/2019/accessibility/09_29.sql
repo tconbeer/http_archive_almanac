@@ -1,14 +1,23 @@
-#standardSQL
+# standardSQL
 # 09_29: Sites with sufficient text color contrast with its background
-SELECT
-  COUNT(0) AS total_sites,
-  COUNTIF(color_contrast_score IS NOT NULL) AS total_applicable,
-  COUNTIF(CAST(color_contrast_score AS NUMERIC) = 1) AS total_sufficient,
-  ROUND(COUNTIF(CAST(color_contrast_score AS NUMERIC) = 1) * 100 / COUNTIF(color_contrast_score IS NOT NULL), 2) AS perc_in_applicable,
-  ROUND(COUNTIF(CAST(color_contrast_score AS NUMERIC) = 1) * 100 / COUNT(0), 2) AS perc_in_all_sites
-FROM (
-  SELECT
-    JSON_EXTRACT_SCALAR(report, '$.audits.color-contrast.score') AS color_contrast_score
-  FROM
-    `httparchive.lighthouse.2019_07_01_mobile`
-)
+select
+    count(0) as total_sites,
+    countif(color_contrast_score is not null) as total_applicable,
+    countif(cast(color_contrast_score as numeric) = 1) as total_sufficient,
+    round(
+        countif(cast(color_contrast_score as numeric) = 1) * 100 / countif(
+            color_contrast_score is not null
+        ),
+        2
+    ) as perc_in_applicable,
+    round(
+        countif(cast(color_contrast_score as numeric) = 1) * 100 / count(0), 2
+    ) as perc_in_all_sites
+from
+    (
+        select
+            json_extract_scalar(
+                report, '$.audits.color-contrast.score'
+            ) as color_contrast_score
+        from `httparchive.lighthouse.2019_07_01_mobile`
+    )

@@ -1,7 +1,8 @@
 # standardSQL
 # Detailed alt-svc headers
-CREATE TEMPORARY FUNCTION getUpgradeHeader(payload STRING)
-RETURNS STRING LANGUAGE js AS """
+create temporary function getupgradeheader(payload string)
+returns string language js
+as """
 try {
   var $ = JSON.parse(payload);
   var headers = $.response.headers;
@@ -9,28 +10,20 @@ try {
 } catch (e) {
   return '';
 }
-""";
+"""
+;
 
-SELECT
-  client,
-  firstHtml,
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') AS protocol,
-  IF(url LIKE 'https://%', 'https', 'http') AS http_or_https,
-  NORMALIZE_AND_CASEFOLD(getUpgradeHeader(payload)) AS upgrade,
-  COUNT(0) AS num_requests,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2020-08-01'
-GROUP BY
-  client,
-  firstHtml,
-  protocol,
-  http_or_https,
-  upgrade
-HAVING
-  num_requests >= 100
-ORDER BY
-  num_requests DESC
+select
+    client,
+    firsthtml,
+    json_extract_scalar(payload, '$._protocol') as protocol,
+    if(url like 'https://%', 'https', 'http') as http_or_https,
+    normalize_and_casefold(getupgradeheader(payload)) as upgrade,
+    count(0) as num_requests,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from `httparchive.almanac.requests`
+where date = '2020-08-01'
+group by client, firsthtml, protocol, http_or_https, upgrade
+having num_requests >= 100
+order by num_requests desc

@@ -1,23 +1,24 @@
-#standardSQL
+# standardSQL
 # 07_22: Percentiles of paint CPU time
-#where the main thread of the browser was busy
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(paint_cpu_time, 1000)[OFFSET(percentile * 10)] AS paint_cpu_time
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+# where the main thread of the browser was busy
+select
+    percentile,
+    client,
+    approx_quantiles(paint_cpu_time, 1000) [offset (percentile * 10)] as paint_cpu_time
+from
     (
-      CAST(IFNULL(JSON_EXTRACT(payload, "$['_cpu.Paint']"), '0') AS INT64) +
-      CAST(IFNULL(JSON_EXTRACT(payload, "$['_cpu.UpdateLayerTree']"), '0') AS INT64)
-    ) AS paint_cpu_time
-  FROM
-    `httparchive.pages.2019_07_01_*`),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+        select
+            _table_suffix as client,
+            (
+                cast(ifnull(json_extract(payload, "$['_cpu.Paint']"), '0') as int64) +
+                cast(
+                    ifnull(
+                        json_extract(payload, "$['_cpu.UpdateLayerTree']"), '0'
+                    ) as int64
+                )
+            ) as paint_cpu_time
+        from `httparchive.pages.2019_07_01_*`
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

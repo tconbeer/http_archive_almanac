@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCustomPropertyValueTypes(payload STRING)
-RETURNS ARRAY<STRUCT<type STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcustompropertyvaluetypes(payload string)
+returns array < struct < type string,
+freq int64 >> language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(vars) {
     function walkElements(node, callback) {
@@ -136,26 +136,33 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT DISTINCT
-  client,
-  type,
-  COUNT(DISTINCT IF(type IS NULL, NULL, page)) OVER (PARTITION BY client, type) AS pages,
-  COUNT(DISTINCT page) OVER (PARTITION BY client) AS total_pages,
-  COUNT(DISTINCT IF(type IS NULL, NULL, page)) OVER (PARTITION BY client, type) / COUNT(DISTINCT page) OVER (PARTITION BY client) AS pct_pages,
-  SUM(freq) OVER (PARTITION BY client, type) AS freq,
-  SUM(freq) OVER (PARTITION BY client) AS total,
-  SUM(freq) OVER (PARTITION BY client, type) / SUM(freq) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    value.type,
-    value.freq
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  LEFT JOIN
-    UNNEST(getCustomPropertyValueTypes(JSON_EXTRACT_SCALAR(payload, "$['_css-variables']"))) AS value)
-ORDER BY
-  pct DESC
+select distinct
+    client,
+    type,
+    count(distinct if(type is null, null, page)) over (
+        partition by client, type
+    ) as pages,
+    count(distinct page) over (partition by client) as total_pages,
+    count(distinct if(type is null, null, page)) over (
+        partition by client, type
+    ) / count(distinct page) over (partition by client) as pct_pages,
+    sum(freq) over (partition by client, type) as freq,
+    sum(freq) over (partition by client) as total,
+    sum(freq) over (partition by client, type) / sum(freq) over (
+        partition by client
+    ) as pct
+from
+    (
+        select _table_suffix as client, url as page, value.type, value.freq
+        from `httparchive.pages.2021_07_01_*`
+        left join
+            unnest(
+                getcustompropertyvaluetypes(
+                    json_extract_scalar(payload, "$['_css-variables']")
+                )
+            ) as value
+    )
+order by pct desc

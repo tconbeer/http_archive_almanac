@@ -1,9 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getAnimatedCustomProperties(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getanimatedcustomproperties(css string)
+returns array < string > language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   const ast = JSON.parse(css);
   let ret = new Set();
@@ -22,10 +21,14 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION getCustomPropertiesWithComputedStyle(payload STRING) RETURNS
-ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getcustompropertieswithcomputedstyle(payload string) returns
+array
+< string
+> language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var vars = JSON.parse($['_css-variables']);
@@ -63,30 +66,25 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(DISTINCT page) AS pages
-FROM (
-  SELECT
-    client,
-    page,
-    prop
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getAnimatedCustomProperties(css)) AS prop
-  WHERE
-    date = '2021-07-01')
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    prop
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getCustomPropertiesWithComputedStyle(payload)) AS prop)
-USING
-  (client, page, prop)
-GROUP BY
-  client
+select client, count(distinct page) as pages
+from
+    (
+        select client, page, prop
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getanimatedcustomproperties(css)) as prop
+        where date = '2021-07-01'
+    )
+join
+    (
+        select _table_suffix as client, url as page, prop
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(getcustompropertieswithcomputedstyle(payload)) as prop
+    )
+    using
+    (client, page, prop)
+group by client

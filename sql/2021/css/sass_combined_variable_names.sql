@@ -1,6 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCombinedVariableNames(payload STRING) RETURNS
-ARRAY<STRING> LANGUAGE js AS '''
+# standardSQL
+create temporary function getcombinedvariablenames(payload string) returns
+array
+< string
+> language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -12,23 +15,22 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  *
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    name,
-    COUNT(0) AS freq,
-    SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-    COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS pct
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getCombinedVariableNames(payload)) AS name
-  GROUP BY
-    client,
-    name)
-ORDER BY
-  pct DESC
-LIMIT 100
+select *
+from
+    (
+        select
+            _table_suffix as client,
+            name,
+            count(0) as freq,
+            sum(count(0)) over (partition by _table_suffix) as total,
+            count(0) / sum(count(0)) over (partition by _table_suffix) as pct
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(getcombinedvariablenames(payload)) as name
+        group by client, name
+    )
+order by pct desc
+limit 100

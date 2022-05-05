@@ -1,52 +1,38 @@
-#standardSQL
+# standardSQL
 # CMS adoption per rank
-SELECT
-  client,
-  cms,
-  rank,
-  COUNT(DISTINCT url) AS pages,
-  ANY_VALUE(total) AS total,
-  COUNT(DISTINCT url) / ANY_VALUE(total) AS pct
-FROM (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    app AS cms,
-    url
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'CMS')
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    rank_magnitude AS rank
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`,
-    UNNEST([1e3, 1e4, 1e5, 1e6, 1e7]) AS rank_magnitude
-  WHERE
-    rank <= rank_magnitude)
-USING
-  (client, url)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    rank_magnitude AS rank,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`,
-    UNNEST([1e3, 1e4, 1e5, 1e6, 1e7]) AS rank_magnitude
-  WHERE
-    rank <= rank_magnitude
-  GROUP BY
-    _TABLE_SUFFIX,
-    rank_magnitude)
-USING
-  (client, rank)
-GROUP BY
-  client,
-  cms,
-  rank
-ORDER BY
-  rank,
-  pages DESC
+select
+    client,
+    cms,
+    rank,
+    count(distinct url) as pages,
+    any_value(total) as total,
+    count(distinct url) / any_value(total) as pct
+from
+    (
+        select distinct _table_suffix as client, app as cms, url
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'CMS'
+    )
+join
+    (
+        select _table_suffix as client, url, rank_magnitude as rank
+        from
+            `httparchive.summary_pages.2021_07_01_*`,
+            unnest( [1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_magnitude
+        where rank <= rank_magnitude
+    )
+    using
+    (client, url)
+join
+    (
+        select _table_suffix as client, rank_magnitude as rank, count(0) as total
+        from
+            `httparchive.summary_pages.2021_07_01_*`,
+            unnest( [1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_magnitude
+        where rank <= rank_magnitude
+        group by _table_suffix, rank_magnitude
+    )
+    using
+    (client, rank)
+group by client, cms, rank
+order by rank, pages desc

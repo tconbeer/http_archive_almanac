@@ -1,16 +1,18 @@
-#standardSQL
+# standardSQL
 # page almanac metrics grouped by device for video tags
-
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64) returns float64 as (
+    round(safe_divide(freq, total), 4)
+)
+;
 
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_info(almanac_string STRING)
-RETURNS STRUCT<
-  videos_total INT64
-> LANGUAGE js AS '''
+create temporary function get_almanac_info(almanac_string string)
+returns struct
+<
+videos_total int64
+> language js
+as '''
 var result = {
   videos_total: 0
 };
@@ -24,23 +26,22 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # Pages with videos
-  COUNTIF(almanac_info.videos_total > 0) AS has_videos,
-  AS_PERCENT(COUNTIF(almanac_info.videos_total > 0), COUNT(0)) AS pct_has_videos
+    # Pages with videos
+    countif(almanac_info.videos_total > 0) as has_videos,
+    as_percent(countif(almanac_info.videos_total > 0), count(0)) as pct_has_videos
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_almanac_info(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-  )
-GROUP BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            get_almanac_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

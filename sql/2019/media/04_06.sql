@@ -1,28 +1,30 @@
-#standardSQL
+# standardSQL
 # 04_06: Pages with source[sizes]
-SELECT
-  client,
-  COUNTIF(hasSizes) AS hasSizes,
-  COUNTIF(hasSrcSet) AS hasSrcSet,
-  COUNTIF(hasPicture) AS hasPicture,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(hasSizes) * 100 / COUNT(0), 2) AS pctSizes,
-  ROUND(COUNTIF(hasSrcSet) * 100 / COUNT(0), 2) AS pctSrcSet,
-  ROUND(COUNTIF(hasPicture) * 100 / COUNT(0), 2) AS pctPicture,
-  ROUND(COUNTIF(hasPicture OR hasSrcSet OR hasSizes) * 100 / COUNT(0), 2) AS anyRespImg
-FROM (
-  SELECT
+select
     client,
-    REGEXP_CONTAINS(body, r'(?is)<(?:img|source)[^>]*sizes=[\'"]?([^\'"]*)') AS hasSizes,
-    REGEXP_CONTAINS(body, r'(?is)<(?:img|source)[^>]*srcset=[\'"]?([^\'"]*)') AS hasSrcSet,
-    REGEXP_CONTAINS(body, r'(?si)<picture.*?<img.*?/picture>') AS hasPicture
-  FROM
-    `httparchive.almanac.summary_response_bodies`
-  WHERE
-    date = '2019-07-01' AND
-    firstHtml
-)
-GROUP BY
-  client
-ORDER BY
-  client DESC
+    countif(hassizes) as hassizes,
+    countif(hassrcset) as hassrcset,
+    countif(haspicture) as haspicture,
+    count(0) as total,
+    round(countif(hassizes) * 100 / count(0), 2) as pctsizes,
+    round(countif(hassrcset) * 100 / count(0), 2) as pctsrcset,
+    round(countif(haspicture) * 100 / count(0), 2) as pctpicture,
+    round(
+        countif(haspicture or hassrcset or hassizes) * 100 / count(0), 2
+    ) as anyrespimg
+from
+    (
+        select
+            client,
+            regexp_contains(
+                body, r'(?is)<(?:img|source)[^>]*sizes=[\'"]?([^\'"]*)'
+            ) as hassizes,
+            regexp_contains(
+                body, r'(?is)<(?:img|source)[^>]*srcset=[\'"]?([^\'"]*)'
+            ) as hassrcset,
+            regexp_contains(body, r'(?si)<picture.*?<img.*?/picture>') as haspicture
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    )
+group by client
+order by client desc

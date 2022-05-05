@@ -1,36 +1,24 @@
 # standardSQL
 # Measure number of TCP Connections per site.
-SELECT
-  percentile,
-  client,
-  protocol,
-  COUNT(0) AS num_pages,
-  APPROX_QUANTILES(_connections, 1000)[OFFSET(percentile * 10)] AS connections
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
-    JSON_EXTRACT_SCALAR(payload, '$._protocol') AS protocol
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01' AND
-    firstHtml)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    _connections
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`)
-USING
-  (client, page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  protocol
-ORDER BY
-  percentile,
-  client,
-  protocol
+    protocol,
+    count(0) as num_pages,
+    approx_quantiles(_connections, 1000) [offset (percentile * 10)] as connections
+from
+    (
+        select client, page, json_extract_scalar(payload, '$._protocol') as protocol
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01' and firsthtml
+    )
+join
+    (
+        select _table_suffix as client, url as page, _connections
+        from `httparchive.summary_pages.2020_08_01_*`
+    )
+    using
+    (client, page),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client, protocol
+order by percentile, client, protocol

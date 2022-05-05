@@ -1,7 +1,8 @@
 # standardSQL
 # Detailed alt-svc headers per request
-CREATE TEMPORARY FUNCTION extractHTTPHeader(HTTPheaders STRING, header STRING)
-RETURNS STRING LANGUAGE js AS """
+create temporary function extracthttpheader(httpheaders string, header string)
+returns string language js
+as """
 try {
   var headers = JSON.parse(HTTPheaders);
 
@@ -12,26 +13,20 @@ try {
 } catch (e) {
   return "";
 }
-""";
+"""
+;
 
-SELECT
-  client,
-  protocol,
-  IF(url LIKE 'https://%', 'https', 'http') AS http_or_https,
-  NORMALIZE_AND_CASEFOLD(extractHTTPHeader(response_headers, 'alt-svc')) AS altsvc,
-  COUNT(0) AS num_requests,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2021-07-01'
-GROUP BY
-  client,
-  protocol,
-  http_or_https,
-  altsvc
-QUALIFY -- Use QUALIFY rather than HAVING to allow total column to work
-  num_requests >= 100
-ORDER BY
-  num_requests DESC
+select
+    client,
+    protocol,
+    if(url like 'https://%', 'https', 'http') as http_or_https,
+    normalize_and_casefold(extracthttpheader(response_headers, 'alt-svc')) as altsvc,
+    count(0) as num_requests,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from `httparchive.almanac.requests`
+where date = '2021-07-01'
+group by client, protocol, http_or_https, altsvc
+-- Use QUALIFY rather than HAVING to allow total column to work
+qualify num_requests >= 100
+order by num_requests desc
