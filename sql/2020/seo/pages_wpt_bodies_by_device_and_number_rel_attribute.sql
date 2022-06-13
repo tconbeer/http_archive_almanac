@@ -1,17 +1,22 @@
-#standardSQL
+# standardSQL
 # page wpt_bodies metrics grouped by device and rel attributes
-# Note: this query only reports if a rel attribute value was ever used on a page. It is not a per anchor report.
-
+# Note: this query only reports if a rel attribute value was ever used on a page. It
+# is not a per anchor report.
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64) returns float64 as (
+    round(safe_divide(freq, total), 4)
+)
+;
 
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  rel ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function get_wpt_bodies_info(wpt_bodies_string string)
+returns struct
+<
+rel array
+< string
+>
+> language js
+as '''
 var result = {};
 
 //Function to retrieve only keys if value is >0
@@ -37,32 +42,33 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  rel,
-  total,
-  COUNT(0) AS count,
-  AS_PERCENT(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      get_wpt_bodies_info(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies')) AS wpt_bodies_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-    JOIN
-      (
-        # to get an accurate total of pages per device. also seems fast
-        SELECT _TABLE_SUFFIX, COUNT(0) AS total
-        FROM
-          `httparchive.pages.2020_08_01_*`
-        GROUP BY _TABLE_SUFFIX
-      )
-    USING (_TABLE_SUFFIX)
-  ),
-  UNNEST(wpt_bodies_info.rel) AS rel
-GROUP BY total, rel, client
-ORDER BY count DESC
+select
+    client,
+    rel,
+    total,
+    count(0) as count,
+    as_percent(count(0), sum(count(0)) over (partition by client)) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            get_wpt_bodies_info(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as wpt_bodies_info
+        from `httparchive.pages.2020_08_01_*`
+        join
+            (
+                # to get an accurate total of pages per device. also seems fast
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2020_08_01_*`
+                group by _table_suffix
+            )
+            using(_table_suffix)
+    ),
+    unnest(wpt_bodies_info.rel) as rel
+group by total, rel, client
+order by count desc

@@ -1,7 +1,7 @@
-#standardSQL
+# standardSQL
 # LCP element node details
-
-CREATE TEMP FUNCTION getLoadingAttr(attributes STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function getloadingattr(attributes string) returns string language js
+as '''
   try {
     const data = JSON.parse(attributes);
     const loadingAttr = data.find(attr => attr["name"] === "loading")
@@ -9,9 +9,11 @@ CREATE TEMP FUNCTION getLoadingAttr(attributes STRING) RETURNS STRING LANGUAGE j
   } catch (e) {
     return "";
   }
-''';
+'''
+;
 
-CREATE TEMP FUNCTION getDecodingAttr(attributes STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function getdecodingattr(attributes string) returns string language js
+as '''
   try {
     const data = JSON.parse(attributes);
     const decodingAttr = data.find(attr => attr["name"] === "decoding")
@@ -19,9 +21,11 @@ CREATE TEMP FUNCTION getDecodingAttr(attributes STRING) RETURNS STRING LANGUAGE 
   } catch (e) {
     return "";
   }
-''';
+'''
+;
 
-CREATE TEMP FUNCTION getLoadingClasses(attributes STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function getloadingclasses(attributes string) returns string language js
+as '''
   try {
     const data = JSON.parse(attributes);
     const classes = data.find(attr => attr["name"] === "class").value
@@ -33,59 +37,82 @@ CREATE TEMP FUNCTION getLoadingClasses(attributes STRING) RETURNS STRING LANGUAG
   } catch (e) {
     return "";
   }
-''';
+'''
+;
 
-WITH
-lcp_stats AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    JSON_EXTRACT_SCALAR(payload, '$._performance.lcp_elem_stats[0].nodeName') AS nodeName,
-    JSON_EXTRACT_SCALAR(payload, '$._performance.lcp_elem_stats[0].url') AS elementUrl,
-    CAST(JSON_EXTRACT_SCALAR(payload, '$._performance.lcp_elem_stats[0].size') AS INT64) AS size,
-    CAST(JSON_EXTRACT_SCALAR(payload, '$._performance.lcp_elem_stats[0].loadTime') AS FLOAT64) AS loadTime,
-    CAST(JSON_EXTRACT_SCALAR(payload, '$._performance.lcp_elem_stats[0].startTime') AS FLOAT64) AS startTime,
-    CAST(JSON_EXTRACT_SCALAR(payload, '$._performance.lcp_elem_stats[0].renderTime') AS FLOAT64) AS renderTime,
-    JSON_EXTRACT(payload, '$._performance.lcp_elem_stats[0].attributes') AS attributes,
-    getLoadingAttr(JSON_EXTRACT(payload, '$._performance.lcp_elem_stats[0].attributes')) AS loading,
-    getDecodingAttr(JSON_EXTRACT(payload, '$._performance.lcp_elem_stats[0].attributes')) AS decoding,
-    getLoadingClasses(JSON_EXTRACT(payload, '$._performance.lcp_elem_stats[0].attributes')) AS classWithLazyload
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
+with
+    lcp_stats as (
+        select
+            _table_suffix as client,
+            url,
+            json_extract_scalar(
+                payload, '$._performance.lcp_elem_stats[0].nodeName'
+            ) as nodename,
+            json_extract_scalar(
+                payload, '$._performance.lcp_elem_stats[0].url'
+            ) as elementurl,
+            cast(
+                json_extract_scalar(
+                    payload, '$._performance.lcp_elem_stats[0].size'
+                ) as int64
+            ) as size,
+            cast(
+                json_extract_scalar(
+                    payload, '$._performance.lcp_elem_stats[0].loadTime'
+                ) as float64
+            ) as loadtime,
+            cast(
+                json_extract_scalar(
+                    payload, '$._performance.lcp_elem_stats[0].startTime'
+                ) as float64
+            ) as starttime,
+            cast(
+                json_extract_scalar(
+                    payload, '$._performance.lcp_elem_stats[0].renderTime'
+                ) as float64
+            ) as rendertime,
+            json_extract(
+                payload, '$._performance.lcp_elem_stats[0].attributes'
+            ) as attributes,
+            getloadingattr(
+                json_extract(payload, '$._performance.lcp_elem_stats[0].attributes')
+            ) as loading,
+            getdecodingattr(
+                json_extract(payload, '$._performance.lcp_elem_stats[0].attributes')
+            ) as decoding,
+            getloadingclasses(
+                json_extract(payload, '$._performance.lcp_elem_stats[0].attributes')
+            ) as classwithlazyload
+        from `httparchive.pages.2021_07_01_*`
+    )
 
-SELECT
-  client,
-  nodeName,
-  COUNT(DISTINCT url) AS pages,
-  ANY_VALUE(total) AS total,
-  COUNT(DISTINCT url) / ANY_VALUE(total) AS pct,
-  COUNTIF(elementUrl != '') AS haveImages,
-  COUNTIF(elementUrl != '') / COUNT(DISTINCT url) AS pct_haveImages,
-  COUNTIF(loading = 'eager') AS native_eagerload,
-  COUNTIF(loading = 'lazy') AS native_lazyload,
-  COUNTIF(classWithLazyload != '') AS lazyload_class,
-  COUNTIF(classWithLazyload != '' OR loading = 'lazy') AS probably_lazyLoaded,
-  COUNTIF(classWithLazyload != '' OR loading = 'lazy') / COUNT(DISTINCT url) AS pct_prob_lazyloaded,
-  COUNTIF(decoding = 'async') AS async_decoding,
-  COUNTIF(decoding = 'sync') AS sync_decoding,
-  COUNTIF(decoding = 'auto') AS auto_decoding
-FROM
-  lcp_stats
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (client)
-GROUP BY
-  client,
-  nodeName
-HAVING
-  pages > 1000
-ORDER BY
-  pct DESC
+select
+    client,
+    nodename,
+    count(distinct url) as pages,
+    any_value(total) as total,
+    count(distinct url) / any_value(total) as pct,
+    countif(elementurl != '') as haveimages,
+    countif(elementurl != '') / count(distinct url) as pct_haveimages,
+    countif(loading = 'eager') as native_eagerload,
+    countif(loading = 'lazy') as native_lazyload,
+    countif(classwithlazyload != '') as lazyload_class,
+    countif(classwithlazyload != '' or loading = 'lazy') as probably_lazyloaded,
+    countif(classwithlazyload != '' or loading = 'lazy') / count(
+        distinct url
+    ) as pct_prob_lazyloaded,
+    countif(decoding = 'async') as async_decoding,
+    countif(decoding = 'sync') as sync_decoding,
+    countif(decoding = 'auto') as auto_decoding
+from lcp_stats
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    )
+    using
+    (client)
+group by client, nodename
+having pages > 1000
+order by pct desc

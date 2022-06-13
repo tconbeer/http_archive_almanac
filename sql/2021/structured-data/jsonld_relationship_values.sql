@@ -1,8 +1,13 @@
 # standardSQL
 # Count JSON-LD relationships with their value entity types
-CREATE TEMP FUNCTION getJSONLDEntitiesRelationships(rendered STRING)
-RETURNS ARRAY<STRUCT<_from STRING, relationship STRING, _to STRING, depth NUMERIC>>
-LANGUAGE js AS """
+create temp function getjsonldentitiesrelationships(rendered string)
+returns array < struct < _from string,
+relationship string,
+_to string,
+depth numeric
+>>
+language js
+as """
   try {
     const types = new Map();
 
@@ -39,50 +44,45 @@ LANGUAGE js AS """
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
-WITH
-rendered_data AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    getJSONLDEntitiesRelationships(JSON_EXTRACT(JSON_VALUE(JSON_EXTRACT(payload, '$._structured-data')), '$.structured_data.rendered')) AS jsonld_entities_relationships
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+with
+    rendered_data as (
+        select
+            _table_suffix as client,
+            url,
+            getjsonldentitiesrelationships(
+                json_extract(
+                    json_value(json_extract(payload, '$._structured-data')),
+                    '$.structured_data.rendered'
+                )
+            ) as jsonld_entities_relationships
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-page_totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-)
+    page_totals as (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
 
-SELECT
-  client,
-  jsonld_entity_relationship.relationship,
-  jsonld_entity_relationship._to,
-  COUNT(0) AS freq_relationship,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_relationship,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_relationship,
-  COUNT(DISTINCT url) AS freq_pages,
-  total_pages,
-  COUNT(DISTINCT url) / total_pages AS pct_pages
-FROM
-  rendered_data,
-  UNNEST(jsonld_entities_relationships) AS jsonld_entity_relationship
-JOIN
-  page_totals
-USING (client)
-GROUP BY
-  client,
-  jsonld_entity_relationship.relationship,
-  jsonld_entity_relationship._to,
-  total_pages
-ORDER BY
-  pct_relationship DESC,
-  client
-LIMIT 1000
+select
+    client,
+    jsonld_entity_relationship.relationship,
+    jsonld_entity_relationship._to,
+    count(0) as freq_relationship,
+    sum(count(0)) over (partition by client) as total_relationship,
+    count(0) / sum(count(0)) over (partition by client) as pct_relationship,
+    count(distinct url) as freq_pages,
+    total_pages,
+    count(distinct url) / total_pages as pct_pages
+from rendered_data, unnest(jsonld_entities_relationships) as jsonld_entity_relationship
+join page_totals using(client)
+group by
+    client,
+    jsonld_entity_relationship.relationship,
+    jsonld_entity_relationship._to,
+    total_pages
+order by pct_relationship desc, client
+limit 1000

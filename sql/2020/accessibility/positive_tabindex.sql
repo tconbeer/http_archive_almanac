@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # Positive tabindex value occurrences
-CREATE TEMPORARY FUNCTION getTotalPositiveTabIndexes(payload STRING)
-RETURNS STRUCT<total INT64, total_positive INT64> LANGUAGE js AS '''
+create temporary function gettotalpositivetabindexes(payload string)
+returns struct < total int64,
+total_positive int64
+> language js
+as '''
 try {
   const almanac = JSON.parse(payload);
 
@@ -18,23 +21,29 @@ try {
 } catch (e) {
   return {total: 0, total_positive: 0};
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS total_sites,
-  COUNTIF(tab_index_stats.total > 0) AS total_with_tab_indexes,
-  COUNTIF(tab_index_stats.total_positive > 0) AS total_with_positive_tab_indexes,
+select
+    client,
+    count(0) as total_sites,
+    countif(tab_index_stats.total > 0) as total_with_tab_indexes,
+    countif(tab_index_stats.total_positive > 0) as total_with_positive_tab_indexes,
 
-  COUNTIF(tab_index_stats.total > 0) / COUNT(0) AS pct_with_tab_indexes,
-  COUNTIF(tab_index_stats.total_positive > 0) / COUNT(0) AS pct_with_positive_tab_indexes,
-  COUNTIF(tab_index_stats.total_positive > 0) / COUNTIF(tab_index_stats.total > 0) AS pct_positive_in_sites_with_tab_indexes
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getTotalPositiveTabIndexes(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS tab_index_stats
-  FROM
-    `httparchive.pages.2020_08_01_*`
-)
-GROUP BY
-  client
+    countif(tab_index_stats.total > 0) / count(0) as pct_with_tab_indexes,
+    countif(tab_index_stats.total_positive > 0) / count(
+        0
+    ) as pct_with_positive_tab_indexes,
+    countif(tab_index_stats.total_positive > 0) / countif(
+        tab_index_stats.total > 0
+    ) as pct_positive_in_sites_with_tab_indexes
+from
+    (
+        select
+            _table_suffix as client,
+            gettotalpositivetabindexes(
+                json_extract_scalar(payload, '$._almanac')
+            ) as tab_index_stats
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

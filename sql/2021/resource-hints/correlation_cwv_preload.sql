@@ -1,6 +1,13 @@
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload INT64, prefetch INT64, preconnect INT64, prerender INT64, `dns-prefetch` INT64, `modulepreload` INT64>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns struct < preload int64,
+prefetch int64,
+preconnect int64,
+prerender int64,
+`dns-prefetch` int64,
+`modulepreload` int64
+>
+language js
+as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 try {
   var $ = JSON.parse(payload);
@@ -17,11 +24,17 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION getGoodCwv(payload STRING)
-RETURNS STRUCT<cumulative_layout_shift BOOLEAN, first_contentful_paint BOOLEAN, first_input_delay BOOLEAN, largest_contentful_paint BOOLEAN>
-LANGUAGE js AS '''
+create temporary function getgoodcwv(payload string)
+returns struct < cumulative_layout_shift boolean,
+first_contentful_paint boolean,
+first_input_delay boolean,
+largest_contentful_paint boolean
+>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var crux = $._CrUX;
@@ -37,48 +50,66 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  device,
+select
+    device,
 
-  LEAST(hints.preload, 30) AS preload,
+    least(hints.preload, 30) as preload,
 
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY device) AS total,
+    count(0) as freq,
+    sum(count(0)) over (partition by device) as total,
 
-  COUNTIF(CrUX.largest_contentful_paint) AS lcp_good,
-  COUNTIF(CrUX.largest_contentful_paint IS NOT NULL) AS any_lcp,
-  COUNTIF(CrUX.largest_contentful_paint) / COUNTIF(CrUX.largest_contentful_paint IS NOT NULL) AS pct_lcp_good,
+    countif(crux.largest_contentful_paint) as lcp_good,
+    countif(crux.largest_contentful_paint is not null) as any_lcp,
+    countif(crux.largest_contentful_paint) / countif(
+        crux.largest_contentful_paint is not null
+    ) as pct_lcp_good,
 
-  COUNTIF(CrUX.first_input_delay) AS fid_good,
-  COUNTIF(CrUX.first_input_delay IS NOT NULL) AS any_fid,
-  COUNTIF(CrUX.first_input_delay) / COUNTIF(CrUX.first_input_delay IS NOT NULL) AS pct_fid_good,
+    countif(crux.first_input_delay) as fid_good,
+    countif(crux.first_input_delay is not null) as any_fid,
+    countif(crux.first_input_delay) / countif(
+        crux.first_input_delay is not null
+    ) as pct_fid_good,
 
-  COUNTIF(CrUX.cumulative_layout_shift) AS cls_good,
-  COUNTIF(CrUX.cumulative_layout_shift IS NOT NULL) AS any_cls,
-  COUNTIF(CrUX.cumulative_layout_shift) / COUNTIF(CrUX.cumulative_layout_shift IS NOT NULL) AS pct_cls_good,
+    countif(crux.cumulative_layout_shift) as cls_good,
+    countif(crux.cumulative_layout_shift is not null) as any_cls,
+    countif(crux.cumulative_layout_shift) / countif(
+        crux.cumulative_layout_shift is not null
+    ) as pct_cls_good,
 
-  COUNTIF(CrUX.first_contentful_paint) AS fcp_good,
-  COUNTIF(CrUX.first_contentful_paint IS NOT NULL) AS any_fcp,
-  COUNTIF(CrUX.first_contentful_paint) / COUNTIF(CrUX.first_contentful_paint IS NOT NULL) AS pct_fcp_good,
+    countif(crux.first_contentful_paint) as fcp_good,
+    countif(crux.first_contentful_paint is not null) as any_fcp,
+    countif(crux.first_contentful_paint) / countif(
+        crux.first_contentful_paint is not null
+    ) as pct_fcp_good,
 
-  COUNTIF(CrUX.largest_contentful_paint AND CrUX.first_input_delay IS NOT FALSE AND CrUX.cumulative_layout_shift) AS cwv_good,
-  COUNTIF(CrUX.largest_contentful_paint IS NOT NULL AND CrUX.cumulative_layout_shift IS NOT NULL) AS eligible_cwv,
-  COUNTIF(CrUX.largest_contentful_paint AND CrUX.first_input_delay IS NOT FALSE AND CrUX.cumulative_layout_shift) / COUNTIF(CrUX.largest_contentful_paint IS NOT NULL AND CrUX.cumulative_layout_shift IS NOT NULL) AS pct_cwv_good
-FROM (
-    SELECT
-      _TABLE_SUFFIX AS device,
-      getResourceHints(payload) AS hints,
-      getGoodCwv(payload) AS CrUX
-    FROM
-      `httparchive.pages.2021_07_01_*`
-)
-WHERE
-  CrUX IS NOT NULL
-GROUP BY
-  device,
-  preload
-ORDER BY
-  device,
-  preload
+    countif(
+        crux.largest_contentful_paint
+        and crux.first_input_delay is not false
+        and crux.cumulative_layout_shift
+    ) as cwv_good,
+    countif(
+        crux.largest_contentful_paint is not null
+        and crux.cumulative_layout_shift is not null
+    ) as eligible_cwv,
+    countif(
+        crux.largest_contentful_paint
+        and crux.first_input_delay is not false
+        and crux.cumulative_layout_shift
+    ) / countif(
+        crux.largest_contentful_paint is not null
+        and crux.cumulative_layout_shift is not null
+    ) as pct_cwv_good
+from
+    (
+        select
+            _table_suffix as device,
+            getresourcehints(payload) as hints,
+            getgoodcwv(payload) as crux
+        from `httparchive.pages.2021_07_01_*`
+    )
+where crux is not null
+group by device, preload
+order by device, preload

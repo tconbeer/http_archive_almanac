@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCalcOperators(css STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcalcoperators(css string)
+returns array < struct < name string,
+freq int64 >> language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -62,30 +62,22 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  operator,
-  COUNT(DISTINCT url) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    url,
-    operator.name AS operator,
-    operator.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getCalcOperators(css)) AS operator
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client,
-  operator
-ORDER BY
-  pct DESC
+    operator,
+    count(distinct url) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, url, operator.name as operator, operator.freq
+        from `httparchive.almanac.parsed_css`, unnest(getcalcoperators(css)) as operator
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+    )
+group by client, operator
+order by pct desc

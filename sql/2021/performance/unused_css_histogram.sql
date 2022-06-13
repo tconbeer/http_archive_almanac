@@ -1,20 +1,24 @@
-#standardSQL
+# standardSQL
 # Histogram of unused CSS bytes per page
-
-SELECT
-  IF(unused_css_kbytes <= 500, CEIL(unused_css_kbytes / 10) * 10, 500) AS unused_css_kbytes,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY 0) AS pct,
-  COUNT(0) AS pages,
-  SUM(COUNT(0)) OVER (PARTITION BY 0) AS total,
-  --only interested in last max one as a 'surprising metric'
-  MAX(unused_css_kbytes) AS max_unused_css_kb
-FROM (
-  SELECT
-    url AS page,
-    CAST(JSON_EXTRACT(report, '$.audits.unused-css-rules.details.overallSavingsBytes') AS INT64) / 1024 AS unused_css_kbytes
-  FROM
-    `httparchive.lighthouse.2021_07_01_mobile`)
-GROUP BY
-  unused_css_kbytes
-ORDER BY
-  unused_css_kbytes
+select
+    if(
+        unused_css_kbytes <= 500, ceil(unused_css_kbytes / 10) * 10, 500
+    ) as unused_css_kbytes,
+    count(0) / sum(count(0)) over (partition by 0) as pct,
+    count(0) as pages,
+    sum(count(0)) over (partition by 0) as total,
+    -- only interested in last max one as a 'surprising metric'
+    max(unused_css_kbytes) as max_unused_css_kb
+from
+    (
+        select
+            url as page,
+            cast(
+                json_extract(
+                    report, '$.audits.unused-css-rules.details.overallSavingsBytes'
+                ) as int64
+            ) / 1024 as unused_css_kbytes
+        from `httparchive.lighthouse.2021_07_01_mobile`
+    )
+group by unused_css_kbytes
+order by unused_css_kbytes

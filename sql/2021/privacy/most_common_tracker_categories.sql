@@ -1,108 +1,78 @@
-#standardSQL
+# standardSQL
 # Pages that deploy at least one tracker from a certain category
+with
+    whotracksme as (
+        select domain, category, tracker
+        from `httparchive.almanac.whotracksme`
+        where date = '2021-07-01'
+    ),
 
-WITH whotracksme AS (
-  SELECT
-    domain,
-    category,
-    tracker
-  FROM
-    `httparchive.almanac.whotracksme`
-  WHERE
-    date = '2021-07-01'
-),
+    totals as (
+        select client, count(distinct page) as total_websites
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+        group by client
+    )
 
-totals AS (
-  SELECT
+select
     client,
-    COUNT(DISTINCT page) AS total_websites
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client
-)
-
-SELECT
-  client,
-  category,
-  COUNT(DISTINCT page) AS number_of_websites,
-  total_websites,
-  COUNT(DISTINCT page) / total_websites AS pct_websites
-FROM
-  `httparchive.almanac.requests`
-JOIN
-  whotracksme
-ON (
-  NET.HOST(urlShort) = domain OR
-  ENDS_WITH(NET.HOST(urlShort), CONCAT('.', domain))
-)
-JOIN
-  totals
-USING (client)
-WHERE
-  date = '2021-07-01' AND
-  NET.REG_DOMAIN(page) != NET.REG_DOMAIN(urlShort) -- third party
-GROUP BY
-  client,
-  category,
-  total_websites
-UNION ALL
-SELECT
-  client,
-  'any' AS category,
-  COUNT(DISTINCT page) AS number_of_websites,
-  total_websites,
-  COUNT(DISTINCT page) / total_websites AS pct_websites
-FROM
-  `httparchive.almanac.requests`
-JOIN
-  whotracksme
-ON (
-  NET.HOST(urlShort) = domain OR
-  ENDS_WITH(NET.HOST(urlShort), CONCAT('.', domain))
-)
-JOIN
-  totals
-USING (client)
-WHERE
-  date = '2021-07-01' AND
-  NET.REG_DOMAIN(page) != NET.REG_DOMAIN(urlShort) -- third party
-GROUP BY
-  client,
-  total_websites
-UNION ALL
-SELECT
-  client,
-  'any_tracker' AS category,
-  COUNT(DISTINCT page) AS number_of_websites,
-  total_websites,
-  COUNT(DISTINCT page) / total_websites AS pct_websites
-FROM
-  `httparchive.almanac.requests`
-JOIN
-  whotracksme
-ON (
-  NET.HOST(urlShort) = domain OR
-  ENDS_WITH(NET.HOST(urlShort), CONCAT('.', domain))
-)
-JOIN
-  totals
-USING (client)
-WHERE
-  date = '2021-07-01' AND
-  NET.REG_DOMAIN(page) != NET.REG_DOMAIN(urlShort) AND -- third party
-  (
-    -- categories selected from https://whotracks.me/blog/tracker_categories.html
-    whotracksme.category = 'advertising' OR
-    whotracksme.category = 'pornvertising' OR
-    whotracksme.category = 'site_analytics' OR
-    whotracksme.category = 'social_media'
-  )
-GROUP BY
-  client,
-  total_websites
-ORDER BY
-  client,
-  number_of_websites DESC
+    category,
+    count(distinct page) as number_of_websites,
+    total_websites,
+    count(distinct page) / total_websites as pct_websites
+from `httparchive.almanac.requests`
+join
+    whotracksme on (
+        net.host(urlshort) = domain or ends_with(
+            net.host(urlshort), concat('.', domain)
+        )
+    )
+join totals using(client)
+-- third party
+where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
+group by client, category, total_websites
+union all
+select
+    client,
+    'any' as category,
+    count(distinct page) as number_of_websites,
+    total_websites,
+    count(distinct page) / total_websites as pct_websites
+from `httparchive.almanac.requests`
+join
+    whotracksme on (
+        net.host(urlshort) = domain or ends_with(
+            net.host(urlshort), concat('.', domain)
+        )
+    )
+join totals using(client)
+-- third party
+where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
+group by client, total_websites
+union all
+select
+    client,
+    'any_tracker' as category,
+    count(distinct page) as number_of_websites,
+    total_websites,
+    count(distinct page) / total_websites as pct_websites
+from `httparchive.almanac.requests`
+join
+    whotracksme on (
+        net.host(urlshort) = domain or ends_with(
+            net.host(urlshort), concat('.', domain)
+        )
+    )
+join totals using(client)
+where
+    -- third party
+    date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort) and
+    (
+        -- categories selected from https://whotracks.me/blog/tracker_categories.html
+        whotracksme.category = 'advertising'
+        or whotracksme.category = 'pornvertising'
+        or whotracksme.category = 'site_analytics'
+        or whotracksme.category = 'social_media'
+    )
+group by client, total_websites
+order by client, number_of_websites desc

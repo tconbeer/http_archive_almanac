@@ -1,19 +1,12 @@
-#standardSQL
-#web_fonts_usage
-SELECT
-  IF(ENDS_WITH(_TABLE_SUFFIX, 'desktop'), 'desktop', 'mobile') AS client,
-  REGEXP_REPLACE(_TABLE_SUFFIX, r'(\d+)_(\d+)_(\d+).*', r'\1-\2-\3') AS date,
-  COUNTIF(reqFont > 0) AS freq_fonts,
-  COUNT(0) AS total,
-  COUNTIF(reqFont > 0) / COUNT(0) AS pct_fonts
-FROM
-  `httparchive.summary_pages.*`
-WHERE
-  reqFont IS NOT NULL AND
-  bytesFont IS NOT NULL
-GROUP BY
-  client,
-  date
-ORDER BY
-  date DESC,
-  client
+# standardSQL
+# web_fonts_usage
+select
+    if(ends_with(_table_suffix, 'desktop'), 'desktop', 'mobile') as client,
+    regexp_replace(_table_suffix, r'(\d+)_(\d+)_(\d+).*', r'\1-\2-\3') as date,
+    countif(reqfont > 0) as freq_fonts,
+    count(0) as total,
+    countif(reqfont > 0) / count(0) as pct_fonts
+from `httparchive.summary_pages.*`
+where reqfont is not null and bytesfont is not null
+group by client, date
+order by date desc, client

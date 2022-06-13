@@ -1,16 +1,16 @@
 # standardSQL
 # Number of favicons returning a 404
-
-SELECT
-  client,
-  COUNTIF(url LIKE '%favicon.ico' AND status = 404) AS num_favicon_404s,
-  COUNTIF(status = 404) AS All404s,
-  COUNT(0) AS total_requests,
-  COUNTIF(url LIKE '%favicon.ico' AND status = 404) / COUNTIF(status = 404) AS favicon_404s_pct,
-  COUNTIF(url LIKE '%favicon.ico' AND status = 404) / COUNT(0) AS favicon_404s_pct_all_requests
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2021-07-01'
-GROUP BY
-  client
+select
+    client,
+    countif(url like '%favicon.ico' and status = 404) as num_favicon_404s,
+    countif(status = 404) as all404s,
+    count(0) as total_requests,
+    countif(url like '%favicon.ico' and status = 404) / countif(
+        status = 404
+    ) as favicon_404s_pct,
+    countif(url like '%favicon.ico' and status = 404) / count(
+        0
+    ) as favicon_404s_pct_all_requests
+from `httparchive.almanac.requests`
+where date = '2021-07-01'
+group by client

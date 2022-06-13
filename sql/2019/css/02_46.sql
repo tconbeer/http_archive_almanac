@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # 02_46: Distribution of selector class length
-CREATE TEMPORARY FUNCTION getClassChainLengths(css STRING)
-RETURNS ARRAY<INT64> LANGUAGE js AS '''
+create temporary function getclasschainlengths(css string)
+returns array
+< int64
+> language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -27,20 +30,17 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  APPROX_QUANTILES(classes, 1000)[OFFSET(100)] AS p10,
-  APPROX_QUANTILES(classes, 1000)[OFFSET(250)] AS p25,
-  APPROX_QUANTILES(classes, 1000)[OFFSET(500)] AS p50,
-  APPROX_QUANTILES(classes, 1000)[OFFSET(750)] AS p75,
-  APPROX_QUANTILES(classes, 1000)[OFFSET(900)] AS p90
-FROM
-  `httparchive.almanac.parsed_css`
-LEFT JOIN
-  UNNEST(getClassChainLengths(css)) AS classes
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client
+select
+    client,
+    approx_quantiles(classes, 1000) [offset (100)] as p10,
+    approx_quantiles(classes, 1000) [offset (250)] as p25,
+    approx_quantiles(classes, 1000) [offset (500)] as p50,
+    approx_quantiles(classes, 1000) [offset (750)] as p75,
+    approx_quantiles(classes, 1000) [offset (900)] as p90
+from `httparchive.almanac.parsed_css`
+left join unnest(getclasschainlengths(css)) as classes
+where date = '2019-07-01'
+group by client

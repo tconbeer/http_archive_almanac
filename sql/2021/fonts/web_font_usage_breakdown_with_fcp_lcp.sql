@@ -1,41 +1,39 @@
-#standardSQL
-#web_font_usage_breakdown_with_fcp_lcp
-SELECT
-  client,
-  NET.HOST(url) AS host,
-  COUNT(DISTINCT page) AS pages,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total,
-  COUNT(DISTINCT page) / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS pct,
-  APPROX_QUANTILES(fcp, 1000)[OFFSET(500)] AS median_fcp,
-  APPROX_QUANTILES(lcp, 1000)[OFFSET(500)] AS median_lcp
-FROM (
-  SELECT
+# standardSQL
+# web_font_usage_breakdown_with_fcp_lcp
+select
     client,
-    page,
-    url
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    type = 'font' AND
-    NET.HOST(page) != NET.HOST(url)
-  GROUP BY
-    client, url,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    CAST(JSON_EXTRACT_SCALAR(payload, "$['_chromeUserTiming.firstContentfulPaint']") AS INT64) AS fcp,
-    CAST(JSON_EXTRACT_SCALAR(payload, "$['_chromeUserTiming.LargestContentfulPaint']") AS INT64) AS lcp
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-USING
-  (client, page)
-GROUP BY
-  client,
-  host
-HAVING
-  pages >= 1000
-ORDER BY
-  pct DESC
+    net.host(url) as host,
+    count(distinct page) as pages,
+    sum(count(distinct page)) over (partition by client) as total,
+    count(distinct page) / sum(count(distinct page)) over (partition by client) as pct,
+    approx_quantiles(fcp, 1000) [offset (500)] as median_fcp,
+    approx_quantiles(lcp, 1000) [offset (500)] as median_lcp
+from
+    (
+        select client, page, url
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and type = 'font' and net.host(page) != net.host(url)
+        group by client, url, page
+    )
+join
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.firstContentfulPaint']"
+                ) as int64
+            ) as fcp,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.LargestContentfulPaint']"
+                ) as int64
+            ) as lcp
+        from `httparchive.pages.2021_07_01_*`
+    )
+    using
+    (client, page)
+group by client, host
+having pages >= 1000
+order by pct desc

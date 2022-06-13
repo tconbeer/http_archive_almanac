@@ -1,104 +1,62 @@
-#standardSQL
+# standardSQL
 # Adoption of image formats in SSGs
+with
+    totals as (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    ),
 
-WITH totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-),
+    ssg as (
+        select distinct _table_suffix as client, url, app as ssg_app
+        from `httparchive.technologies.2021_07_01_*`
+        where
+            lower(
+                category
+            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+    ),
 
-ssg AS (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    url,
-    app AS ssg_app
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    LOWER(category) = 'static site generator' OR
-    app = 'Next.js' OR
-    app = 'Nuxt.js'
-),
+    total_ssg as (
+        select _table_suffix as client, count(0) as ssg_total
+        from `httparchive.technologies.2021_07_01_*`
+        where
+            lower(
+                category
+            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+        group by _table_suffix
+    ),
 
-total_ssg AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS ssg_total
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    LOWER(category) = 'static site generator' OR
-    app = 'Next.js' OR
-    app = 'Nuxt.js'
-  GROUP BY
-    _TABLE_SUFFIX
-),
+    total_ssg_app as (
+        select _table_suffix as client, app as ssg_app, count(0) as ssg_app_total
+        from `httparchive.technologies.2021_07_01_*`
+        where
+            lower(
+                category
+            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+        group by _table_suffix, app
+    ),
 
-total_ssg_app AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    app AS ssg_app,
-    COUNT(0) AS ssg_app_total
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    LOWER(category) = 'static site generator' OR
-    app = 'Next.js' OR
-    app = 'Nuxt.js'
-  GROUP BY
-    _TABLE_SUFFIX,
-    app
-),
+    js as (
+        select distinct _table_suffix as client, url, app as js_app
+        from `httparchive.technologies.2021_07_01_*`
+        where category in ('JavaScript frameworks', 'JavaScript libraries')
+    )
 
-js AS (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    url,
-    app AS js_app
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category IN ('JavaScript frameworks', 'JavaScript libraries')
-)
-
-SELECT
-  client,
-  ssg_app,
-  js_app,
-  COUNT(DISTINCT url) AS num_urls,
-  ssg_app_total,
-  COUNT(DISTINCT url) / ssg_app_total AS pct_urls_app,
-  ssg_total,
-  COUNT(DISTINCT url) / ssg_total AS pct_urls_ssg,
-  total,
-  COUNT(DISTINCT url) / total AS pct_urls_total
-FROM
-  ssg
-JOIN
-  js
-USING (client, url)
-JOIN
-  totals
-USING (client)
-JOIN
-  total_ssg_app
-USING (client, ssg_app)
-JOIN
-  total_ssg
-USING (client)
-GROUP BY
-  client,
-  ssg_app,
-  ssg_app_total,
-  ssg_total,
-  js_app,
-  total
-ORDER BY
-  pct_urls_total DESC,
-  client,
-  ssg_app,
-  js_app
+select
+    client,
+    ssg_app,
+    js_app,
+    count(distinct url) as num_urls,
+    ssg_app_total,
+    count(distinct url) / ssg_app_total as pct_urls_app,
+    ssg_total,
+    count(distinct url) / ssg_total as pct_urls_ssg,
+    total,
+    count(distinct url) / total as pct_urls_total
+from ssg
+join js using(client, url)
+join totals using(client)
+join total_ssg_app using(client, ssg_app)
+join total_ssg using(client)
+group by client, ssg_app, ssg_app_total, ssg_total, js_app, total
+order by pct_urls_total desc, client, ssg_app, js_app

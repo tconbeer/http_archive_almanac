@@ -1,34 +1,38 @@
-#standardSQL
-# Breakdown of scripts using Async, Defer, Module or NoModule attributes.  Also breakdown of inline vs external scripts
-SELECT
-  client,
-  COUNT(0) AS total_scripts,
-  SUM(IF(script NOT LIKE '%src%', 1, 0)) AS inline_script,
-  SUM(IF(script LIKE '%src%', 1, 0)) AS external_script,
-  SUM(IF(script LIKE '%src%', 1, 0)) / COUNT(0) AS pct_external_script,
-  SUM(IF(script NOT LIKE '%src%', 1, 0)) / COUNT(0) AS pct_inline_script,
-  SUM(IF(script LIKE '%async%', 1, 0)) AS async,
-  SUM(IF(script LIKE '%defer%', 1, 0)) AS defer,
-  SUM(IF(script LIKE '%module%', 1, 0)) AS module,
-  SUM(IF(script LIKE '%nomodule%', 1, 0)) AS nomodule,
-  SUM(IF(script LIKE '%async%', 1, 0)) / SUM(IF(script LIKE '%src%', 1, 0)) AS pct_external_async,
-  SUM(IF(script LIKE '%defer%', 1, 0)) / SUM(IF(script LIKE '%src%', 1, 0)) AS pct_external_defer,
-  SUM(IF(script LIKE '%module%', 1, 0)) / SUM(IF(script LIKE '%src%', 1, 0)) AS pct_external_module,
-  SUM(IF(script LIKE '%nomodule%', 1, 0)) / SUM(IF(script LIKE '%src%', 1, 0)) AS pct_external_nomodule
-FROM
-  (
-    SELECT
-      client,
-      page,
-      url,
-      REGEXP_EXTRACT_ALL(LOWER(body), '(<script [^>]*)') AS scripts
-    FROM
-      `httparchive.almanac.summary_response_bodies`
-    WHERE
-      date = '2020-08-01' AND
-      firstHtml
-  )
-CROSS JOIN
-  UNNEST(scripts) AS script
-GROUP BY
-  client
+# standardSQL
+# Breakdown of scripts using Async, Defer, Module or NoModule attributes.  Also
+# breakdown of inline vs external scripts
+select
+    client,
+    count(0) as total_scripts,
+    sum(if(script not like '%src%', 1, 0)) as inline_script,
+    sum(if(script like '%src%', 1, 0)) as external_script,
+    sum(if(script like '%src%', 1, 0)) / count(0) as pct_external_script,
+    sum(if(script not like '%src%', 1, 0)) / count(0) as pct_inline_script,
+    sum(if(script like '%async%', 1, 0)) as async,
+    sum(if(script like '%defer%', 1, 0)) as defer,
+    sum(if(script like '%module%', 1, 0)) as module,
+    sum(if(script like '%nomodule%', 1, 0)) as nomodule,
+    sum(if(script like '%async%', 1, 0)) / sum(
+        if(script like '%src%', 1, 0)
+    ) as pct_external_async,
+    sum(if(script like '%defer%', 1, 0)) / sum(
+        if(script like '%src%', 1, 0)
+    ) as pct_external_defer,
+    sum(if(script like '%module%', 1, 0)) / sum(
+        if(script like '%src%', 1, 0)
+    ) as pct_external_module,
+    sum(if(script like '%nomodule%', 1, 0)) / sum(
+        if(script like '%src%', 1, 0)
+    ) as pct_external_nomodule
+from
+    (
+        select
+            client,
+            page,
+            url,
+            regexp_extract_all(lower(body), '(<script [^>]*)') as scripts
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2020-08-01' and firsthtml
+    )
+cross join unnest(scripts) as script
+group by client

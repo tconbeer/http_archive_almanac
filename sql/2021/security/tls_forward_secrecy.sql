@@ -1,24 +1,20 @@
-#standardSQL
+# standardSQL
 # Cipher suites supporting forward secrecy for all requests
-SELECT
-  client,
-  COUNT(0) AS total_requests,
-  COUNTIF(REGEXP_CONTAINS(key_exchange, r'(?i)DHE') OR protocol = 'TLS 1.3') AS forward_secrecy_count,
-  COUNTIF(REGEXP_CONTAINS(key_exchange, r'(?i)DHE') OR protocol = 'TLS 1.3') / COUNT(0) AS pct
-FROM (
-  SELECT
+select
     client,
-    cert_keyexchange AS key_exchange,
-    cert_protocol AS protocol
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-  )
-WHERE
-  protocol IS NOT NULL
-GROUP BY
-  client
-ORDER BY
-  client,
-  pct DESC
+    count(0) as total_requests,
+    countif(
+        regexp_contains(key_exchange, r'(?i)DHE') or protocol = 'TLS 1.3'
+    ) as forward_secrecy_count,
+    countif(regexp_contains(key_exchange, r'(?i)DHE') or protocol = 'TLS 1.3') / count(
+        0
+    ) as pct
+from
+    (
+        select client, cert_keyexchange as key_exchange, cert_protocol as protocol
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+    )
+where protocol is not null
+group by client
+order by client, pct desc

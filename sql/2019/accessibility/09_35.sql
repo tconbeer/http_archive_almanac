@@ -1,7 +1,9 @@
-#standardSQL
-# 09_35: % of pages with distracting UX (marquee/blink elements, or animation-iteration-count: infinite)
-CREATE TEMPORARY FUNCTION includesInfiniteAnimation(css STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+# standardSQL
+# 09_35: % of pages with distracting UX (marquee/blink elements, or
+# animation-iteration-count: infinite)
+create temporary function includesinfiniteanimation(css string)
+returns boolean language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if (values) {
@@ -23,11 +25,13 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 
-CREATE TEMPORARY FUNCTION includesMotionElement(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function includesmotionelement(payload string)
+returns boolean language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -36,38 +40,37 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(motion) AS motion,
-  COUNTIF(animations > 0) AS animations,
-  COUNTIF(motion OR animations > 0) AS freq,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNTIF(motion OR animations > 0) * 100 / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client), 2) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    includesMotionElement(payload) AS motion
-  FROM
-    `httparchive.pages.2019_07_01_*`)
-JOIN (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(includesInfiniteAnimation(css)) AS animations
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    page)
-USING
-  (client, page)
-GROUP BY
-  client
-ORDER BY
-  freq / total DESC,
-  client
+    countif(motion) as motion,
+    countif(animations > 0) as animations,
+    countif(motion or animations > 0) as freq,
+    sum(count(distinct page)) over (partition by client) as total,
+    round(
+        countif(motion or animations > 0) * 100 / sum(
+            count(distinct page)
+        ) over (partition by client),
+        2
+    ) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            includesmotionelement(payload) as motion
+        from `httparchive.pages.2019_07_01_*`
+    )
+join
+    (
+        select client, page, countif(includesinfiniteanimation(css)) as animations
+        from `httparchive.almanac.parsed_css`
+        where date = '2019-07-01'
+        group by client, page
+    )
+    using
+    (client, page)
+group by client
+order by freq / total desc, client

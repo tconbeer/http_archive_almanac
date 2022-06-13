@@ -1,8 +1,10 @@
 # standardSQL
-# Number of HTTPS requests not using H2 or H3 returning upgrade HTTP header containing H2
-CREATE TEMPORARY FUNCTION getUpgradeHeader(payload STRING)
-RETURNS STRING
-LANGUAGE js AS """
+# Number of HTTPS requests not using H2 or H3 returning upgrade HTTP header containing
+# H2
+create temporary function getupgradeheader(payload string)
+returns string
+language js
+as """
   try {
     var $ = JSON.parse(payload);
     var headers = $.response.headers;
@@ -13,24 +15,24 @@ LANGUAGE js AS """
   } catch (e) {
     return '';
   }
-""";
+"""
+;
 
-SELECT
-  client,
-  firstHtml,
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') AS http_version,
-  COUNTIF(getUpgradeHeader(payload) LIKE '%h2%') AS num_requests,
-  COUNT(0) AS total
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2020-08-01' AND
-  url LIKE 'https://%' AND
-  LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) NOT LIKE 'http/2' AND
-  LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) NOT LIKE '%quic%' AND
-  LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) NOT LIKE 'h3%' AND
-  LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) NOT LIKE 'http/3%'
-GROUP BY
-  client,
-  firstHtml,
-  http_version
+select
+    client,
+    firsthtml,
+    json_extract_scalar(payload, '$._protocol') as http_version,
+    countif(getupgradeheader(payload) like '%h2%') as num_requests,
+    count(0) as total
+from `httparchive.almanac.requests`
+where
+    date = '2020-08-01' and url like 'https://%' and lower(
+        json_extract_scalar(payload, '$._protocol')
+    ) not like 'http/2' and lower(
+        json_extract_scalar(payload, '$._protocol')
+    ) not like '%quic%' and lower(
+        json_extract_scalar(payload, '$._protocol')
+    ) not like 'h3%' and lower(
+        json_extract_scalar(payload, '$._protocol')
+    ) not like 'http/3%'
+group by client, firsthtml, http_version

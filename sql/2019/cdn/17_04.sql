@@ -1,27 +1,22 @@
-#standardSQL
+# standardSQL
 # 17_04: Distribution of response header size
-SELECT
-  client,
-  cdn,
-  COUNT(0) AS requests,
-  APPROX_QUANTILES(resheader, 1000)[OFFSET(100)] AS p10,
-  APPROX_QUANTILES(resheader, 1000)[OFFSET(250)] AS p25,
-  APPROX_QUANTILES(resheader, 1000)[OFFSET(500)] AS p50,
-  APPROX_QUANTILES(resheader, 1000)[OFFSET(750)] AS p75,
-  APPROX_QUANTILES(resheader, 1000)[OFFSET(900)] AS p90
-FROM (
-  SELECT
+select
     client,
-    CAST(JSON_EXTRACT(payload, '$.response.headersSize') AS INT64) AS resheader,
-    _cdn_provider AS cdn
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01' AND
-    _cdn_provider != '')
-GROUP BY
-  client,
-  cdn
-ORDER BY
-  requests DESC,
-  client
+    cdn,
+    count(0) as requests,
+    approx_quantiles(resheader, 1000) [offset (100)] as p10,
+    approx_quantiles(resheader, 1000) [offset (250)] as p25,
+    approx_quantiles(resheader, 1000) [offset (500)] as p50,
+    approx_quantiles(resheader, 1000) [offset (750)] as p75,
+    approx_quantiles(resheader, 1000) [offset (900)] as p90
+from
+    (
+        select
+            client,
+            cast(json_extract(payload, '$.response.headersSize') as int64) as resheader,
+            _cdn_provider as cdn
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01' and _cdn_provider != ''
+    )
+group by client, cdn
+order by requests desc, client

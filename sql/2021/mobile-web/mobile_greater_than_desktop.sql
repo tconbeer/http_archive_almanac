@@ -1,43 +1,42 @@
-#standardSQL
-# Percentage of websites receiving more traffic from mobile than desktop. Tablet is excluded since it does not fit well in either category
+# standardSQL
+# Percentage of websites receiving more traffic from mobile than desktop. Tablet is
+# excluded since it does not fit well in either category
+with
+    base as (
+        select date, origin, rank, desktopdensity, phonedensity
+        from `chrome-ux-report.materialized.metrics_summary`
+        where date in ('2021-07-01')
+    )
 
-WITH base AS (
-  SELECT
+select
     date,
-    origin,
-    rank,
+    case
+        when rank_grouping = 10000000 then 'all' else cast(rank_grouping as string)
+    end as ranking,
 
-    desktopDensity,
-    phoneDensity
-  FROM
-    `chrome-ux-report.materialized.metrics_summary`
-  WHERE
-    date IN ('2021-07-01')
-)
+    count(distinct origin) as total_origins,
 
-SELECT
-  date,
-  CASE
-    WHEN rank_grouping = 10000000 THEN 'all'
-    ELSE CAST(rank_grouping AS STRING)
-  END AS ranking,
+    count(distinct if(desktopdensity = phonedensity, origin, null)) as total_equal,
+    count(
+        distinct if(desktopdensity < phonedensity, origin, null)
+    ) as total_more_mobile,
+    count(
+        distinct if(desktopdensity > phonedensity, origin, null)
+    ) as total_more_desktop,
 
-  COUNT(DISTINCT origin) AS total_origins,
-
-  COUNT(DISTINCT IF(desktopDensity = phoneDensity, origin, NULL)) AS total_equal,
-  COUNT(DISTINCT IF(desktopDensity < phoneDensity, origin, NULL)) AS total_more_mobile,
-  COUNT(DISTINCT IF(desktopDensity > phoneDensity, origin, NULL)) AS total_more_desktop,
-
-  SAFE_DIVIDE(COUNT(DISTINCT IF(desktopDensity = phoneDensity, origin, NULL)), COUNT(DISTINCT origin)) AS perc_equal,
-  SAFE_DIVIDE(COUNT(DISTINCT IF(desktopDensity < phoneDensity, origin, NULL)), COUNT(DISTINCT origin)) AS perc_more_mobile,
-  SAFE_DIVIDE(COUNT(DISTINCT IF(desktopDensity > phoneDensity, origin, NULL)), COUNT(DISTINCT origin)) AS perc_more_desktop
-FROM
-  base,
-  UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-WHERE
-  rank <= rank_grouping
-GROUP BY
-  date,
-  rank_grouping
-ORDER BY
-  rank_grouping
+    safe_divide(
+        count(distinct if(desktopdensity = phonedensity, origin, null)),
+        count(distinct origin)
+    ) as perc_equal,
+    safe_divide(
+        count(distinct if(desktopdensity < phonedensity, origin, null)),
+        count(distinct origin)
+    ) as perc_more_mobile,
+    safe_divide(
+        count(distinct if(desktopdensity > phonedensity, origin, null)),
+        count(distinct origin)
+    ) as perc_more_desktop
+from base, unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+where rank <= rank_grouping
+group by date, rank_grouping
+order by rank_grouping

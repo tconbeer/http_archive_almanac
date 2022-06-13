@@ -1,27 +1,29 @@
-#standardSQL
-# % mobile pages with correctly sized tap targets by domain rank (note: the score is not binary)
-SELECT
-  rank_grouping,
+# standardSQL
+# % mobile pages with correctly sized tap targets by domain rank (note: the score is
+# not binary)
+select
+    rank_grouping,
 
-  COUNTIF(tap_targets_score IS NOT NULL) AS total_applicable,
-  COUNTIF(CAST(tap_targets_score AS NUMERIC) = 1) AS total_sufficient,
-  COUNTIF(CAST(tap_targets_score AS NUMERIC) = 1) / COUNTIF(tap_targets_score IS NOT NULL) AS pct_in_applicable
-FROM (
-  SELECT
-    url,
-    JSON_EXTRACT_SCALAR(report, '$.audits.tap-targets.score') AS tap_targets_score
-  FROM
-    `httparchive.lighthouse.2021_07_01_mobile`
-)
-LEFT JOIN (
-  SELECT
-    url,
-    rank_grouping
-  FROM
-    `httparchive.summary_pages.2021_07_01_mobile`,
-    UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-  WHERE
-    rank <= rank_grouping
-) USING (url)
-GROUP BY
-  rank_grouping
+    countif(tap_targets_score is not null) as total_applicable,
+    countif(cast(tap_targets_score as numeric) = 1) as total_sufficient,
+    countif(cast(tap_targets_score as numeric) = 1) / countif(
+        tap_targets_score is not null
+    ) as pct_in_applicable
+from
+    (
+        select
+            url,
+            json_extract_scalar(
+                report, '$.audits.tap-targets.score'
+            ) as tap_targets_score
+        from `httparchive.lighthouse.2021_07_01_mobile`
+    )
+left join
+    (
+        select url, rank_grouping
+        from
+            `httparchive.summary_pages.2021_07_01_mobile`,
+            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+        where rank <= rank_grouping
+    ) using(url)
+group by rank_grouping

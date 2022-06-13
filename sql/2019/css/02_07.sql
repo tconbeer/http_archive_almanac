@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # 02_07: % of sites that use each length unit
-CREATE TEMPORARY FUNCTION getLengthUnit(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getlengthunit(css string)
+returns array
+< string
+> language js
+as '''
 try {
   // https://developer.mozilla.org/en-US/docs/Web/CSS/length
   var units = ['cap', 'ch', 'em', 'ex', 'ic', 'lh', 'rem',
@@ -41,30 +44,23 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  unit,
-  freq,
-  total,
-  ROUND(freq * 100 / total, 2) AS pct
-FROM (
-  SELECT
-    client,
-    unit,
-    COUNT(DISTINCT page) AS freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getLengthUnit(css)) AS unit
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    unit)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-ORDER BY
-  freq / total DESC
+select client, unit, freq, total, round(freq * 100 / total, 2) as pct
+from
+    (
+        select client, unit, count(distinct page) as freq
+        from `httparchive.almanac.parsed_css`, unnest(getlengthunit(css)) as unit
+        where date = '2019-07-01'
+        group by client, unit
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    )
+    using
+    (client)
+order by freq / total desc

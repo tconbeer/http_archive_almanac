@@ -1,34 +1,27 @@
-#standardSQL
+# standardSQL
 # 13_09d: Requests and weight of all content on ecom pages
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(requests, 1000)[OFFSET(percentile * 10)] AS requests,
-  ROUND(APPROX_QUANTILES(bytes, 1000)[OFFSET(percentile * 10)] / 1024 / 1024, 2) AS mbytes
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    COUNT(0) AS requests,
-    SUM(respSize) AS bytes
-  FROM
-    `httparchive.almanac.requests`
-  JOIN (
-    SELECT DISTINCT
-      _TABLE_SUFFIX AS client,
-      url AS page
-    FROM `httparchive.technologies.2020_08_01_*`
-    WHERE category = 'Ecommerce')
-  USING
-    (client, page)
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(requests, 1000) [offset (percentile * 10)] as requests,
+    round(
+        approx_quantiles(bytes, 1000) [offset (percentile * 10)] / 1024 / 1024, 2
+    ) as mbytes
+from
+    (
+        select client, count(0) as requests, sum(respsize) as bytes
+        from `httparchive.almanac.requests`
+        join
+            (
+                select distinct _table_suffix as client, url as page
+                from `httparchive.technologies.2020_08_01_*`
+                where category = 'Ecommerce'
+            )
+            using
+            (client, page)
+        where date = '2020-08-01'
+        group by client, page
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

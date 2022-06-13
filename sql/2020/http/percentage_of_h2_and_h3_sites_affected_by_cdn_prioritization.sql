@@ -1,38 +1,36 @@
 # standardSQL
 # Percentage of H2 and H3 sites affected by CDN prioritization issues
-SELECT
-  client,
-  http_version,
-  IF(pages.cdn = '', 'Not using CDN', pages.cdn) AS CDN,
-  IF(prioritization_status IS NOT NULL, prioritization_status, 'Unknown') AS prioritizes_correctly,
-  COUNT(0) AS num_pages,
-  ROUND(COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client), 4) AS pct
-FROM (
-    SELECT
-      date,
-      client,
-      JSON_EXTRACT_SCALAR(payload, '$._protocol') AS http_version,
-      url,
-      _cdn_provider AS cdn
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2020-08-01' AND
-      firstHtml AND
-      (
-        LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'http/2' OR
-        LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE '%quic%' OR
-        LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'h3%' OR
-        LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'http/3%'
-      )
-) AS pages
-LEFT JOIN
-  `httparchive.almanac.h2_prioritization_cdns`
-USING (cdn, date)
-GROUP BY
-  client,
-  http_version,
-  CDN,
-  prioritizes_correctly
-ORDER BY
-  num_pages DESC
+select
+    client,
+    http_version,
+    if(pages.cdn = '', 'Not using CDN', pages.cdn) as cdn,
+    if(
+        prioritization_status is not null, prioritization_status, 'Unknown'
+    ) as prioritizes_correctly,
+    count(0) as num_pages,
+    round(count(0) / sum(count(0)) over (partition by client), 4) as pct
+from
+    (
+        select
+            date,
+            client,
+            json_extract_scalar(payload, '$._protocol') as http_version,
+            url,
+            _cdn_provider as cdn
+        from `httparchive.almanac.requests`
+        where
+            date = '2020-08-01' and firsthtml and (
+                lower(
+                    json_extract_scalar(payload, '$._protocol')
+                ) like 'http/2' or lower(
+                    json_extract_scalar(payload, '$._protocol')
+                ) like '%quic%' or lower(
+                    json_extract_scalar(payload, '$._protocol')
+                ) like 'h3%' or lower(
+                    json_extract_scalar(payload, '$._protocol')
+                ) like 'http/3%'
+            )
+    ) as pages
+left join `httparchive.almanac.h2_prioritization_cdns` using(cdn, date)
+group by client, http_version, cdn, prioritizes_correctly
+order by num_pages desc

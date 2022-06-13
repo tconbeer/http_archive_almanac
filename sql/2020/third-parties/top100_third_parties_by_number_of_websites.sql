@@ -1,56 +1,38 @@
-#standardSQL
+# standardSQL
 # Top 100 third parties by number of websites
+with
+    requests as (
+        select pageid as page, req_host as host
+        from `httparchive.summary_requests.2020_08_01_mobile`
+    ),
 
-WITH requests AS (
-  SELECT
-    pageid AS page,
-    req_host AS host
-  FROM
-    `httparchive.summary_requests.2020_08_01_mobile`
-),
+    third_party as (
+        select domain, canonicaldomain
+        from `httparchive.almanac.third_parties`
+        where date = '2020-08-01'
+    ),
 
-third_party AS (
-  SELECT
-    domain,
-    canonicalDomain
-  FROM
-    `httparchive.almanac.third_parties`
-  WHERE
-    date = '2020-08-01'
-),
-
-base AS (
-  SELECT
-    canonicalDomain,
-    COUNT(DISTINCT page) AS total_pages,
-    COUNT(DISTINCT page) / COUNT(DISTINCT page) OVER () AS pct_pages
-  FROM
-    requests
-  LEFT JOIN
-    third_party
-  ON
-    NET.HOST(requests.host) = NET.HOST(third_party.domain)
-  WHERE
-    canonicalDomain IS NOT NULL
-  GROUP BY
-    canonicalDomain
-)
+    base as (
+        select
+            canonicaldomain,
+            count(distinct page) as total_pages,
+            count(distinct page) / count(distinct page) over () as pct_pages
+        from requests
+        left join third_party on net.host(requests.host) = net.host(third_party.domain)
+        where canonicaldomain is not null
+        group by canonicaldomain
+    )
 
 
-SELECT
-  canonicalDomain,
-  total_pages,
-  pct_pages
-FROM (
-  SELECT
-    canonicalDomain,
-    total_pages,
-    pct_pages,
-    DENSE_RANK() OVER (PARTITION BY client ORDER BY total_pages DESC) AS rank
-  FROM
-    base
-)
-WHERE
-  rank <= 100
-ORDER BY
-  total_pages DESC
+select canonicaldomain, total_pages, pct_pages
+from
+    (
+        select
+            canonicaldomain,
+            total_pages,
+            pct_pages,
+            dense_rank() over (partition by client order by total_pages desc) as rank
+        from base
+    )
+where rank <= 100
+order by total_pages desc

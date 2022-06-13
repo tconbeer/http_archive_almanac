@@ -1,24 +1,31 @@
-#standardSQL
+# standardSQL
 # Sites using the role attribute
-SELECT
-  client,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_sites,
-  SUM(COUNTIF(total_role_attributes > 0)) OVER (PARTITION BY client) AS total_using_role,
-  SUM(COUNTIF(total_role_attributes > 0)) OVER (PARTITION BY client) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_using_role,
+select
+    client,
+    sum(count(0)) over (partition by client) as total_sites,
+    sum(countif(total_role_attributes > 0)) over (
+        partition by client
+    ) as total_using_role,
+    sum(countif(total_role_attributes > 0)) over (
+        partition by client
+    ) / sum(count(0)) over (partition by client) as pct_using_role,
 
-  percentile,
-  APPROX_QUANTILES(total_role_attributes, 1000)[OFFSET(percentile * 10)] AS total_role_usages
-FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.nodes_using_role.total') AS INT64) AS total_role_attributes
-    FROM
-      `httparchive.pages.2020_08_01_*`
-  ),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    percentile,
+    approx_quantiles(total_role_attributes, 1000) [
+        offset (percentile * 10)
+    ] as total_role_usages
+from
+    (
+        select
+            _table_suffix as client,
+            cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'),
+                    '$.nodes_using_role.total'
+                ) as int64
+            ) as total_role_attributes
+        from `httparchive.pages.2020_08_01_*`
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

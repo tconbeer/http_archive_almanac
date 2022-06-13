@@ -1,20 +1,21 @@
-#standardSQL
+# standardSQL
 # 06_18-19: % of pages that include a variable font
-SELECT
-  client,
-  COUNT(DISTINCT page) AS freq,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  `httparchive.almanac.requests`
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING
-  (client)
-WHERE
-  date = '2019-07-01' AND
-  type = 'font' AND
-  JSON_EXTRACT_SCALAR(payload, '$._font_details.table_sizes.gvar') IS NOT NULL
-GROUP BY
-  client,
-  total
+select
+    client,
+    count(distinct page) as freq,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from `httparchive.almanac.requests`
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    )
+    using
+    (client)
+where
+    date = '2019-07-01' and type = 'font' and json_extract_scalar(
+        payload, '$._font_details.table_sizes.gvar'
+    ) is not null
+group by client, total

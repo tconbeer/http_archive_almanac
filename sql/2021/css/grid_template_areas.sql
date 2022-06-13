@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION hasGridTemplateAreas(css STRING)
-RETURNS BOOLEAN
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function hasgridtemplateareas(css string)
+returns boolean
+language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {};
@@ -28,36 +28,29 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(grid_template_areas) AS pages_with_grid_template_areas,
-  # TODO: Update denominator to number of pages using `grid`.
-  total,
-  COUNTIF(grid_template_areas) / total AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(hasGridTemplateAreas(css)) > 0 AS grid_template_areas
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(grid_template_areas) as pages_with_grid_template_areas,
+    # TODO: Update denominator to number of pages using `grid`.
+    total,
+    countif(grid_template_areas) / total as pct
+from
+    (
+        select
+            client, page, countif(hasgridtemplateareas(css)) > 0 as grid_template_areas
+        from `httparchive.almanac.parsed_css`
+        where date = '2021-07-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    )
+    using
+    (client)
+group by client, total

@@ -1,29 +1,25 @@
-#standardSQL
+# standardSQL
 # 11_04e: % manifests preferring native apps
-CREATE TEMPORARY FUNCTION prefersNative(manifest STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function prefersnative(manifest string)
+returns boolean language js
+as '''
 try {
   var $ = JSON.parse(manifest);
   return $.prefer_related_applications == true && $.related_applications.length > 0;
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  prefersNative(body) AS prefers_native,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.manifests`
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  prefers_native
-HAVING
-  prefers_native IS NOT NULL
-ORDER BY
-  freq / total DESC
+select
+    client,
+    prefersnative(body) as prefers_native,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.manifests`
+where date = '2019-07-01'
+group by client, prefers_native
+having prefers_native is not null
+order by freq / total desc

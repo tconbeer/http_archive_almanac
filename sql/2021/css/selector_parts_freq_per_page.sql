@@ -1,15 +1,17 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
-RETURNS STRUCT<
-  class ARRAY<STRUCT<name STRING, value INT64>>,
-  id ARRAY<STRUCT<name STRING, value INT64>>,
-  attribute ARRAY<STRUCT<name STRING, value INT64>>,
-  pseudo_class ARRAY<STRUCT<name STRING, value INT64>>,
-  pseudo_element ARRAY<STRUCT<name STRING, value INT64>>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getselectorparts(css string)
+returns struct < class array < struct < name string,
+value int64 >>,
+id array < struct < name string,
+value int64 >>,
+attribute array < struct < name string,
+value int64 >>,
+pseudo_class array < struct < name string,
+value int64 >>,
+pseudo_element array < struct < name string,
+value int64 >> > language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -55,89 +57,95 @@ try {
 } catch (e) {
   return {class: [{name: e, value: 0}]};
 }
-''';
+'''
+;
 
 # https://www.stevenmoseley.com/blog/tech/high-performance-sql-correlated-scalar-aggregate-reduction-queries
-CREATE TEMPORARY FUNCTION encode(comparator STRING, data STRING) RETURNS STRING AS (
-  CONCAT(LPAD(comparator, 11, '0'), data)
-);
-CREATE TEMPORARY FUNCTION decode(value STRING) RETURNS STRING AS (
-  SUBSTR(value, 12)
-);
-
-WITH selector_parts AS (
-  SELECT
-    client,
-    page,
-    url,
-    getSelectorParts(css) AS parts
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024
+create temporary function encode(comparator string, data string) returns string as (
+    concat(lpad(comparator, 11, '0'), data)
 )
+;
+create temporary function decode(value string) returns string as (substr(value, 12))
+;
 
-SELECT
-  client,
-  decode(MAX(encode(CAST(class_freq AS STRING), class_name))) AS class_name,
-  MAX(class_freq) AS class_freq,
-  decode(MAX(encode(CAST(id_freq AS STRING), id_name))) AS id_name,
-  MAX(id_freq) AS id_freq,
-  decode(MAX(encode(CAST(attribute_freq AS STRING), attribute_name))) AS attribute_name,
-  MAX(attribute_freq) AS attribute_freq,
-  decode(MAX(encode(CAST(pseudo_class_freq AS STRING), pseudo_class_name))) AS pseudo_class_name,
-  MAX(pseudo_class_freq) AS pseudo_class_freq,
-  decode(MAX(encode(CAST(pseudo_element_freq AS STRING), pseudo_element_name))) AS pseudo_element_name,
-  MAX(pseudo_element_freq) AS pseudo_element_freq
-FROM (
-  SELECT
+with
+    selector_parts as (
+        select client, page, url, getselectorparts(css) as parts
+        from `httparchive.almanac.parsed_css`
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+    )
+
+select
     client,
-    class.name AS class_name,
-    SUM(class.value) OVER (PARTITION BY client, class.name) AS class_freq
-  FROM
-    selector_parts,
-    UNNEST(parts.class) AS class)
-JOIN (
-  SELECT
-    client,
-    id.name AS id_name,
-    SUM(id.value) OVER (PARTITION BY client, id.name) AS id_freq
-  FROM
-    selector_parts,
-    UNNEST(parts.id) AS id)
-USING
-  (client)
-JOIN (
-  SELECT
-    client,
-    attribute.name AS attribute_name,
-    SUM(attribute.value) OVER (PARTITION BY client, attribute.name) AS attribute_freq
-  FROM
-    selector_parts,
-    UNNEST(parts.attribute) AS attribute)
-USING
-  (client)
-JOIN (
-  SELECT
-    client,
-    pseudo_class.name AS pseudo_class_name,
-    SUM(pseudo_class.value) OVER (PARTITION BY client, pseudo_class.name) AS pseudo_class_freq
-  FROM
-    selector_parts,
-    UNNEST(parts.pseudo_class) AS pseudo_class)
-USING
-  (client)
-JOIN (
-  SELECT
-    client,
-    pseudo_element.name AS pseudo_element_name,
-    SUM(pseudo_element.value) OVER (PARTITION BY client, pseudo_element.name) AS pseudo_element_freq
-  FROM
-    selector_parts,
-    UNNEST(parts.pseudo_element) AS pseudo_element)
-USING
-  (client)
-GROUP BY
-  client
+    decode(max(encode(cast(class_freq as string), class_name))) as class_name,
+    max(class_freq) as class_freq,
+    decode(max(encode(cast(id_freq as string), id_name))) as id_name,
+    max(id_freq) as id_freq,
+    decode(
+        max(encode(cast(attribute_freq as string), attribute_name))
+    ) as attribute_name,
+    max(attribute_freq) as attribute_freq,
+    decode(
+        max(encode(cast(pseudo_class_freq as string), pseudo_class_name))
+    ) as pseudo_class_name,
+    max(pseudo_class_freq) as pseudo_class_freq,
+    decode(
+        max(encode(cast(pseudo_element_freq as string), pseudo_element_name))
+    ) as pseudo_element_name,
+    max(pseudo_element_freq) as pseudo_element_freq
+from
+    (
+        select
+            client,
+            class.name as class_name,
+            sum(class.value) over (partition by client, class.name) as class_freq
+        from selector_parts, unnest(parts.class) as class
+    )
+join
+    (
+        select
+            client,
+            id.name as id_name,
+            sum(id.value) over (partition by client, id.name) as id_freq
+        from selector_parts, unnest(parts.id) as id
+    )
+    using
+    (client)
+join
+    (
+        select
+            client,
+            attribute.name as attribute_name,
+            sum(attribute.value) over (
+                partition by client, attribute.name
+            ) as attribute_freq
+        from selector_parts, unnest(parts.attribute) as attribute
+    )
+    using
+    (client)
+join
+    (
+        select
+            client,
+            pseudo_class.name as pseudo_class_name,
+            sum(pseudo_class.value) over (
+                partition by client, pseudo_class.name
+            ) as pseudo_class_freq
+        from selector_parts, unnest(parts.pseudo_class) as pseudo_class
+    )
+    using
+    (client)
+join
+    (
+        select
+            client,
+            pseudo_element.name as pseudo_element_name,
+            sum(pseudo_element.value) over (
+                partition by client, pseudo_element.name
+            ) as pseudo_element_freq
+        from selector_parts, unnest(parts.pseudo_element) as pseudo_element
+    )
+    using
+    (client)
+group by client

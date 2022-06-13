@@ -1,11 +1,15 @@
-#standardSQL
+# standardSQL
 # usage meta open graph
-
 # extracts the data about width, height and alt from the new customer metric
 # using this, counts and reports on the usage for each attribute
-CREATE TEMPORARY FUNCTION get_image_info(responsiveString STRING)
-RETURNS ARRAY<STRUCT<hasWidth INT64, hasHeight INT64, hasAlt INT64, hasReservedLayoutDimension INT64>>
-LANGUAGE js AS '''
+create temporary function get_image_info(responsivestring string)
+returns array < struct < haswidth int64,
+hasheight int64,
+hasalt int64,
+hasreservedlayoutdimension int64
+>>
+language js
+as '''
 try {
   let result = Array()
   const responsiveImages = JSON.parse(responsiveString)
@@ -22,28 +26,30 @@ try {
 } catch(e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS images,
-  COUNTIF(hasWidth = 1) AS hasWidth,
-  COUNTIF(hasHeight = 1) AS hasHeight,
-  COUNTIF(hasAlt = 1) AS hasAlt,
-  COUNTIF(hasReservedLayoutDimension = 1) AS hasDimensions,
-  SAFE_DIVIDE(COUNTIF(hasWidth = 1), COUNT(0)) AS percHasWidth,
-  SAFE_DIVIDE(COUNTIF(hasHeight = 1), COUNT(0)) AS percHasHeight,
-  SAFE_DIVIDE(COUNTIF(hasAlt = 1), COUNT(0)) AS percHasAlt,
-  SAFE_DIVIDE(COUNTIF(hasReservedLayoutDimension = 1), COUNT(0)) AS percHasDimensions
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    hasWidth,
-    hasHeight,
-    hasAlt,
-    hasReservedLayoutDimension
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(get_image_info(JSON_VALUE(payload, '$._responsive_images'))))
-GROUP BY
-  client
+select
+    client,
+    count(0) as images,
+    countif(haswidth = 1) as haswidth,
+    countif(hasheight = 1) as hasheight,
+    countif(hasalt = 1) as hasalt,
+    countif(hasreservedlayoutdimension = 1) as hasdimensions,
+    safe_divide(countif(haswidth = 1), count(0)) as perchaswidth,
+    safe_divide(countif(hasheight = 1), count(0)) as perchasheight,
+    safe_divide(countif(hasalt = 1), count(0)) as perchasalt,
+    safe_divide(countif(hasreservedlayoutdimension = 1), count(0)) as perchasdimensions
+from
+    (
+        select
+            _table_suffix as client,
+            haswidth,
+            hasheight,
+            hasalt,
+            hasreservedlayoutdimension
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(get_image_info(json_value(payload, '$._responsive_images')))
+    )
+group by client

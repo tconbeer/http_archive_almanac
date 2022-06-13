@@ -1,30 +1,22 @@
-#standardSQL
-SELECT
-  client,
-  parsed_stylesheets,
-  total_stylesheets,
-  parsed_stylesheets / total_stylesheets AS pct_parsed
-FROM (
-  SELECT
+# standardSQL
+select
     client,
-    COUNT(0) AS total_stylesheets
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    type = 'css'
-  GROUP BY
-    client)
-JOIN (
-  SELECT
-    client,
-    COUNT(0) AS parsed_stylesheets
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2021-07-01' AND
-    url != 'inline'
-  GROUP BY
-    client)
-USING
-  (client)
+    parsed_stylesheets,
+    total_stylesheets,
+    parsed_stylesheets / total_stylesheets as pct_parsed
+from
+    (
+        select client, count(0) as total_stylesheets
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and type = 'css'
+        group by client
+    )
+join
+    (
+        select client, count(0) as parsed_stylesheets
+        from `httparchive.almanac.parsed_css`
+        where date = '2021-07-01' and url != 'inline'
+        group by client
+    )
+    using
+    (client)

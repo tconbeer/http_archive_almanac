@@ -1,20 +1,24 @@
-#standardSQL
+# standardSQL
 # Histogram of unused JS bytes per page
-
-SELECT
-  IF(unused_js_kbytes <= 1000, CEIL(unused_js_kbytes / 20) * 20, 1000) AS unused_js_kbytes,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY 0) AS pct,
-  COUNT(0) AS pages,
-  SUM(COUNT(0)) OVER (PARTITION BY 0) AS total,
-  --only interested in last max one as a 'surprising metric'
-  MAX(unused_js_kbytes) AS max_unused_js_kb
-FROM (
-  SELECT
-    url AS page,
-    CAST(JSON_EXTRACT(report, '$.audits.unused-javascript.details.overallSavingsBytes') AS INT64) / 1024 AS unused_js_kbytes
-  FROM
-    `httparchive.lighthouse.2021_07_01_mobile`)
-GROUP BY
-  unused_js_kbytes
-ORDER BY
-  unused_js_kbytes
+select
+    if(
+        unused_js_kbytes <= 1000, ceil(unused_js_kbytes / 20) * 20, 1000
+    ) as unused_js_kbytes,
+    count(0) / sum(count(0)) over (partition by 0) as pct,
+    count(0) as pages,
+    sum(count(0)) over (partition by 0) as total,
+    -- only interested in last max one as a 'surprising metric'
+    max(unused_js_kbytes) as max_unused_js_kb
+from
+    (
+        select
+            url as page,
+            cast(
+                json_extract(
+                    report, '$.audits.unused-javascript.details.overallSavingsBytes'
+                ) as int64
+            ) / 1024 as unused_js_kbytes
+        from `httparchive.lighthouse.2021_07_01_mobile`
+    )
+group by unused_js_kbytes
+order by unused_js_kbytes

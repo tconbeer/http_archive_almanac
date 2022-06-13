@@ -1,8 +1,11 @@
 # standardSQL
 # Count JSON-LD sameAs values
-CREATE TEMP FUNCTION getJSONLDSameAses(rendered STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS """
+create temp function getjsonldsameases(rendered string)
+returns array
+< string
+>
+language js
+as """
   try {
     const arrayify = (value) => Array.isArray(value) ? value : [value];
 
@@ -28,48 +31,40 @@ LANGUAGE js AS """
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
-WITH
-rendered_data AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    getJSONLDSameAses(JSON_EXTRACT(JSON_VALUE(JSON_EXTRACT(payload, '$._structured-data')), '$.structured_data.rendered')) AS jsonld_sameases
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+with
+    rendered_data as (
+        select
+            _table_suffix as client,
+            url,
+            getjsonldsameases(
+                json_extract(
+                    json_value(json_extract(payload, '$._structured-data')),
+                    '$.structured_data.rendered'
+                )
+            ) as jsonld_sameases
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-page_totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-)
+    page_totals as (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
 
-SELECT
-  client,
-  NET.REG_DOMAIN(jsonld_sameas) AS jsonld_sameas,
-  COUNT(0) AS freq_jsonld_sameas,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_jsonld_sameas,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_jsonld_sameas,
-  COUNT(DISTINCT url) AS freq_pages,
-  total_pages,
-  COUNT(DISTINCT url) / total_pages AS pct_pages
-FROM
-  rendered_data,
-  UNNEST(jsonld_sameases) AS jsonld_sameas
-JOIN
-  page_totals
-USING (client)
-GROUP BY
-  client,
-  jsonld_sameas,
-  total_pages
-ORDER BY
-  pct_jsonld_sameas DESC,
-  client
-LIMIT 1000
+select
+    client,
+    net.reg_domain(jsonld_sameas) as jsonld_sameas,
+    count(0) as freq_jsonld_sameas,
+    sum(count(0)) over (partition by client) as total_jsonld_sameas,
+    count(0) / sum(count(0)) over (partition by client) as pct_jsonld_sameas,
+    count(distinct url) as freq_pages,
+    total_pages,
+    count(distinct url) / total_pages as pct_pages
+from rendered_data, unnest(jsonld_sameases) as jsonld_sameas
+join page_totals using(client)
+group by client, jsonld_sameas, total_pages
+order by pct_jsonld_sameas desc, client
+limit 1000

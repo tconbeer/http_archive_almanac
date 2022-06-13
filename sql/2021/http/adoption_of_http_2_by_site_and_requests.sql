@@ -1,32 +1,33 @@
 # standardSQL
 # Adoption of HTTP/2 by site and requests
-SELECT
-  client,
-  CASE
-    WHEN LOWER(protocol) = 'quic' OR LOWER(protocol) LIKE 'h3%' THEN 'HTTP/2+'
-    WHEN LOWER(protocol) = 'http/2' OR LOWER(protocol) = 'http/3' THEN 'HTTP/2+'
-    WHEN protocol IS NULL THEN 'Unknown'
-    ELSE UPPER(protocol)
-  END AS http_version_category,
-  CASE
-    WHEN LOWER(protocol) = 'quic' OR LOWER(protocol) LIKE 'h3%' THEN 'HTTP/3'
-    WHEN protocol IS NULL THEN 'Unknown'
-    ELSE UPPER(protocol)
-  END AS http_version,
-  protocol,
-  COUNT(0) AS num_requests,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_req,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS num_requests_pct,
-  COUNTIF(firstHTML) AS num_pages,
-  SUM(COUNTIF(firstHTML)) OVER (PARTITION BY client) AS total_pages,
-  COUNTIF(firstHTML) / SUM(COUNTIF(firstHTML)) OVER (PARTITION BY client) AS num_pages_pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2021-07-01'
-GROUP BY
-  client,
-  protocol
-ORDER BY
-  client,
-  num_requests_pct DESC
+select
+    client,
+    case
+        when lower(protocol) = 'quic' or lower(protocol) like 'h3%'
+        then 'HTTP/2+'
+        when lower(protocol) = 'http/2' or lower(protocol) = 'http/3'
+        then 'HTTP/2+'
+        when protocol is null
+        then 'Unknown'
+        else upper(protocol)
+    end as http_version_category,
+    case
+        when lower(protocol) = 'quic' or lower(protocol) like 'h3%'
+        then 'HTTP/3'
+        when protocol is null
+        then 'Unknown'
+        else upper(protocol)
+    end as http_version,
+    protocol,
+    count(0) as num_requests,
+    sum(count(0)) over (partition by client) as total_req,
+    count(0) / sum(count(0)) over (partition by client) as num_requests_pct,
+    countif(firsthtml) as num_pages,
+    sum(countif(firsthtml)) over (partition by client) as total_pages,
+    countif(firsthtml) / sum(
+        countif(firsthtml)
+    ) over (partition by client) as num_pages_pct
+from `httparchive.almanac.requests`
+where date = '2021-07-01'
+group by client, protocol
+order by client, num_requests_pct desc

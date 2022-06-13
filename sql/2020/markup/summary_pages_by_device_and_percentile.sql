@@ -1,17 +1,13 @@
-#standardSQL
+# standardSQL
 # summary_pages data grouped by device and percentiles M107
+select
+    percentile,
+    _table_suffix as client,
 
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
+    approx_quantiles(byteshtml, 1000) [offset (percentile * 10)] as byteshtml
 
-  APPROX_QUANTILES(bytesHtml, 1000)[OFFSET(percentile * 10)] AS bytesHtml
-
-FROM
-  `httparchive.summary_pages.2020_08_01_*`,
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  client
+from
+    `httparchive.summary_pages.2020_08_01_*`,
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by client

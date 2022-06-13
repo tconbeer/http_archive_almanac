@@ -1,6 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCustomFunctionCalls(payload STRING) RETURNS
-ARRAY<STRUCT<fn STRING, freq INT64>> LANGUAGE js AS '''
+# standardSQL
+create temporary function getcustomfunctioncalls(payload string) returns
+array < struct < fn string,
+freq int64
+>> language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -14,29 +17,26 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    fn,
-    SUM(freq) AS freq,
-    SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-    SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      fn.fn,
-      fn.freq
-    FROM
-      `httparchive.pages.2021_07_01_*`,
-      UNNEST(getCustomFunctionCalls(payload)) AS fn)
-  GROUP BY
-    client,
-    fn)
-WHERE
-  freq >= 1000
-ORDER BY
-  pct DESC
+select *
+from
+    (
+        select
+            client,
+            fn,
+            sum(freq) as freq,
+            sum(sum(freq)) over (partition by client) as total,
+            sum(freq) / sum(sum(freq)) over (partition by client) as pct
+        from
+            (
+                select _table_suffix as client, fn.fn, fn.freq
+                from
+                    `httparchive.pages.2021_07_01_*`,
+                    unnest(getcustomfunctioncalls(payload)) as fn
+            )
+        group by client, fn
+    )
+where freq >= 1000
+order by pct desc

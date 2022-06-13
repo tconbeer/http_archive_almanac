@@ -1,27 +1,24 @@
-#standardSQL
+# standardSQL
 # 01_04: Distribution of 1P/3P JS requests
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(first_party, 1000)[OFFSET(percentile * 10)] AS first_party_js_requests,
-  APPROX_QUANTILES(third_party, 1000)[OFFSET(percentile * 10)] AS third_party_js_requests
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    COUNTIF(NET.HOST(page) = NET.HOST(url)) AS first_party,
-    COUNTIF(NET.HOST(page) != NET.HOST(url)) AS third_party
-  FROM
-    `httparchive.almanac.summary_requests`
-  WHERE
-    date = '2019-07-01' AND
-    type = 'script'
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(first_party, 1000) [
+        offset (percentile * 10)
+    ] as first_party_js_requests,
+    approx_quantiles(third_party, 1000) [
+        offset (percentile * 10)
+    ] as third_party_js_requests
+from
+    (
+        select
+            client,
+            countif(net.host(page) = net.host(url)) as first_party,
+            countif(net.host(page) != net.host(url)) as third_party
+        from `httparchive.almanac.summary_requests`
+        where date = '2019-07-01' and type = 'script'
+        group by client, page
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

@@ -1,22 +1,16 @@
-#standardSQL
+# standardSQL
 # 10_07b: <title> length
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(LENGTH(title), 1000)[OFFSET(percentile * 10)] AS title_length
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    REGEXP_EXTRACT(body, '(?i)<title>([^(</title>)]*)</title>') AS title
-  FROM
-    `httparchive.almanac.summary_response_bodies`
-  WHERE
-    date = '2019-07-01' AND
-    firstHtml),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(length(title), 1000) [offset (percentile * 10)] as title_length
+from
+    (
+        select
+            client, regexp_extract(body, '(?i)<title>([^(</title>)]*)</title>') as title
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

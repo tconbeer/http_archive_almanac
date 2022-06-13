@@ -1,44 +1,38 @@
-#standardSQL
+# standardSQL
 # Median resource weights by SSG
-SELECT
-  client,
-  ssg,
-  COUNT(0) AS pages,
-  APPROX_QUANTILES(total_kb, 1000)[OFFSET(500)] AS median_total_kb,
-  APPROX_QUANTILES(html_kb, 1000)[OFFSET(500)] AS median_html_kb,
-  APPROX_QUANTILES(js_kb, 1000)[OFFSET(500)] AS median_js_kb,
-  APPROX_QUANTILES(css_kb, 1000)[OFFSET(500)] AS median_css_kb,
-  APPROX_QUANTILES(img_kb, 1000)[OFFSET(500)] AS median_img_kb,
-  APPROX_QUANTILES(font_kb, 1000)[OFFSET(500)] AS median_font_kb
-FROM (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    url,
-    app AS ssg
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    LOWER(category) = 'static site generator' OR
-    app = 'Next.js' OR
-    app = 'Nuxt.js'
-)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    bytesTotal / 1024 AS total_kb,
-    bytesHtml / 1024 AS html_kb,
-    bytesJS / 1024 AS js_kb,
-    bytesCSS / 1024 AS css_kb,
-    bytesImg / 1024 AS img_kb,
-    bytesFont / 1024 AS font_kb
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-)
-USING
-  (client, url)
-GROUP BY
-  client,
-  ssg
-ORDER BY
-  pages DESC
+select
+    client,
+    ssg,
+    count(0) as pages,
+    approx_quantiles(total_kb, 1000) [offset (500)] as median_total_kb,
+    approx_quantiles(html_kb, 1000) [offset (500)] as median_html_kb,
+    approx_quantiles(js_kb, 1000) [offset (500)] as median_js_kb,
+    approx_quantiles(css_kb, 1000) [offset (500)] as median_css_kb,
+    approx_quantiles(img_kb, 1000) [offset (500)] as median_img_kb,
+    approx_quantiles(font_kb, 1000) [offset (500)] as median_font_kb
+from
+    (
+        select distinct _table_suffix as client, url, app as ssg
+        from `httparchive.technologies.2021_07_01_*`
+        where
+            lower(
+                category
+            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+    )
+join
+    (
+        select
+            _table_suffix as client,
+            url,
+            bytestotal / 1024 as total_kb,
+            byteshtml / 1024 as html_kb,
+            bytesjs / 1024 as js_kb,
+            bytescss / 1024 as css_kb,
+            bytesimg / 1024 as img_kb,
+            bytesfont / 1024 as font_kb
+        from `httparchive.summary_pages.2021_07_01_*`
+    )
+    using
+    (client, url)
+group by client, ssg
+order by pages desc

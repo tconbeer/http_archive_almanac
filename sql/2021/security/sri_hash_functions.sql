@@ -1,37 +1,38 @@
-#standardSQL
+# standardSQL
 # Subresource integrity: hash function usage
-WITH totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_sri_elements
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST( JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.sri-integrity')) AS sri
-  GROUP BY
-    client
-)
+with
+    totals as (
+        select _table_suffix as client, count(0) as total_sri_elements
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                json_extract_array(
+                    json_extract_scalar(payload, '$._security'), '$.sri-integrity'
+                )
+            ) as sri
+        group by client
+    )
 
-SELECT
-  client,
-  hash_function,
-  total_sri_elements,
-  COUNT(0) AS freq,
-  COUNT(0) / total_sri_elements AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.sri-integrity') AS sris
-  FROM
-    `httparchive.pages.2021_07_01_*`),
-  UNNEST(sris) AS sri,
-  UNNEST(REGEXP_EXTRACT_ALL(JSON_EXTRACT_SCALAR(sri, '$.integrity'), r'(sha[^-]+)-')) AS hash_function
-JOIN totals USING (client)
-WHERE
-  sri IS NOT NULL
-GROUP BY
-  client,
-  total_sri_elements,
-  hash_function
-ORDER BY
-  client,
-  pct DESC
+select
+    client,
+    hash_function,
+    total_sri_elements,
+    count(0) as freq,
+    count(0) / total_sri_elements as pct
+from
+    (
+        select
+            _table_suffix as client,
+            json_extract_array(
+                json_extract_scalar(payload, '$._security'), '$.sri-integrity'
+            ) as sris
+        from `httparchive.pages.2021_07_01_*`
+    ),
+    unnest(sris) as sri,
+    unnest(
+        regexp_extract_all(json_extract_scalar(sri, '$.integrity'), r'(sha[^-]+)-')
+    ) as hash_function
+join totals using(client)
+where sri is not null
+group by client, total_sri_elements, hash_function
+order by client, pct desc

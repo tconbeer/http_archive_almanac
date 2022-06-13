@@ -1,47 +1,34 @@
-#standardSQL
+# standardSQL
 # Counting Manifests and Service Workers
 # Currently showing both years but should change to just current year in future
-SELECT
-  date,
-  client,
-  manifests / total AS manifests_pct,
-  serviceworkers / total AS serviceworkers_pct,
-  either / total AS either_pct,
-  both / total AS both_pct,
-  total
-FROM
-  (
-    SELECT
-      date,
-      client,
-      COUNT(DISTINCT m.page) AS manifests,
-      COUNT(DISTINCT sw.page) AS serviceworkers,
-      COUNT(DISTINCT IFNULL(m.page, sw.page)) AS either,
-      COUNT(DISTINCT m.page || sw.page) AS both
-    FROM
-      `httparchive.almanac.manifests` m
-    FULL OUTER JOIN
-      `httparchive.almanac.service_workers` sw
-    USING
-      (date, client, page)
-    GROUP BY
-      date,
-      client
-  )
-JOIN
-  (
-    SELECT
-      date,
-      client,
-      COUNT(DISTINCT page) AS total
-    FROM
-      `httparchive.almanac.summary_requests`
-    GROUP BY
-      date,
-      client
-  )
-USING
-  (date, client)
-ORDER BY
-  date,
-  client
+select
+    date,
+    client,
+    manifests / total as manifests_pct,
+    serviceworkers / total as serviceworkers_pct,
+    either / total as either_pct,
+    both / total as both_pct,
+    total
+from
+    (
+        select
+            date,
+            client,
+            count(distinct m.page) as manifests,
+            count(distinct sw.page) as serviceworkers,
+            count(distinct ifnull(m.page, sw.page)) as either,
+            count(distinct m.page || sw.page) as both
+        from `httparchive.almanac.manifests` m
+        full outer join
+            `httparchive.almanac.service_workers` sw using(date, client, page)
+        group by date, client
+    )
+join
+    (
+        select date, client, count(distinct page) as total
+        from `httparchive.almanac.summary_requests`
+        group by date, client
+    )
+    using
+    (date, client)
+order by date, client

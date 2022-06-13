@@ -1,57 +1,37 @@
-#standardSQL
-SELECT
-  _TABLE_SUFFIX AS client,
-  rank_grouping,
-  total_in_rank,
-  category,
-  app,
-  COUNT(0) AS pages_with_app,
-  COUNT(0) / total_in_rank AS pct_pages_with_app
-FROM (
-  SELECT DISTINCT
-    _TABLE_SUFFIX,
-    app,
-    category,
-    url
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    LOWER(category) = 'static site generator' OR
-    app = 'Next.js' OR
-    app = 'Nuxt.js'
-)
-LEFT OUTER JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    url,
-    rank_grouping
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`,
-    UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-  WHERE
-    rank <= rank_grouping
-) USING (_TABLE_SUFFIX, url)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
+# standardSQL
+select
+    _table_suffix as client,
     rank_grouping,
-    COUNT(0) AS total_in_rank
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`,
-    UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-  WHERE
-    rank <= rank_grouping
-  GROUP BY
-    _TABLE_SUFFIX,
-    rank_grouping
-) USING (_TABLE_SUFFIX, rank_grouping)
-GROUP BY
-  client,
-  rank_grouping,
-  total_in_rank,
-  category,
-  app
-ORDER BY
-  pct_pages_with_app DESC,
-  app,
-  rank_grouping
+    total_in_rank,
+    category,
+    app,
+    count(0) as pages_with_app,
+    count(0) / total_in_rank as pct_pages_with_app
+from
+    (
+        select distinct _table_suffix, app, category, url
+        from `httparchive.technologies.2021_07_01_*`
+        where
+            lower(
+                category
+            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+    )
+left outer join
+    (
+        select _table_suffix, url, rank_grouping
+        from
+            `httparchive.summary_pages.2021_07_01_*`,
+            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+        where rank <= rank_grouping
+    ) using(_table_suffix, url)
+join
+    (
+        select _table_suffix, rank_grouping, count(0) as total_in_rank
+        from
+            `httparchive.summary_pages.2021_07_01_*`,
+            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+        where rank <= rank_grouping
+        group by _table_suffix, rank_grouping
+    ) using(_table_suffix, rank_grouping)
+group by client, rank_grouping, total_in_rank, category, app
+order by pct_pages_with_app desc, app, rank_grouping

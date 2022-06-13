@@ -1,22 +1,19 @@
-SELECT
-  client,
-  percentile,
-  APPROX_QUANTILES(iframe_total, 1000)[
-    OFFSET(percentile * 10)] AS iframe_total
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    CAST(JSON_EXTRACT(JSON_EXTRACT_SCALAR(payload,
-          '$._javascript'),
-        '$.iframe') AS INT64) AS iframe_total
-  FROM
-    `httparchive.pages.2021_07_01_*` ),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-WHERE
-  iframe_total > 0
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    client,
+    percentile,
+    approx_quantiles(iframe_total, 1000) [offset (percentile * 10)] as iframe_total
+from
+    (
+        select
+            _table_suffix as client,
+            cast(
+                json_extract(
+                    json_extract_scalar(payload, '$._javascript'), '$.iframe'
+                ) as int64
+            ) as iframe_total
+        from `httparchive.pages.2021_07_01_*`
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+where iframe_total > 0
+group by percentile, client
+order by percentile, client

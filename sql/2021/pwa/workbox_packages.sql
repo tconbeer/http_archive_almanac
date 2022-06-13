@@ -1,7 +1,10 @@
-#standardSQL
-#Workbox package and methods
-CREATE TEMPORARY FUNCTION getWorkboxPackages(workboxInfo STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+# standardSQL
+# Workbox package and methods
+create temporary function getworkboxpackages(workboxinfo string)
+returns array
+< string
+> language js
+as '''
 try {
   var workboxPackageMethods = Object.values(JSON.parse(workboxInfo));
   if (typeof workboxPackageMethods == 'string') {
@@ -24,37 +27,31 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  workbox_package,
-  COUNT(DISTINCT url) AS freq,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getWorkboxPackages(JSON_EXTRACT(payload, '$._pwa.workboxInfo'))) AS workbox_package
-JOIN
-  (
-    SELECT
-      _TABLE_SUFFIX,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    WHERE
-      JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
-    GROUP BY
-      _TABLE_SUFFIX
-  )
-USING (_TABLE_SUFFIX)
-WHERE
-  JSON_EXTRACT(payload, '$._pwa.workboxInfo') != '[]' AND
-  JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
-GROUP BY
-  client,
-  workbox_package,
-  total
-ORDER BY
-  pct DESC,
-  client
+select
+    _table_suffix as client,
+    workbox_package,
+    count(distinct url) as freq,
+    total,
+    count(distinct url) / total as pct
+from
+    `httparchive.pages.2021_07_01_*`,
+    unnest(
+        getworkboxpackages(json_extract(payload, '$._pwa.workboxInfo'))
+    ) as workbox_package
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2021_07_01_*`
+        where json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+        group by _table_suffix
+    )
+    using(_table_suffix)
+where
+    json_extract(payload, '$._pwa.workboxInfo') != '[]' and json_extract(
+        payload, '$._pwa.serviceWorkerHeuristic'
+    ) = 'true'
+group by client, workbox_package, total
+order by pct desc, client
