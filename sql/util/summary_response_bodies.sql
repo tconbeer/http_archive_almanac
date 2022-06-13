@@ -26,9 +26,7 @@ select  -- noqa: disable=L044
     respsize,
     respcookielen,
     expage as expage,
-    *
-except
-    (
+    * except (
         date,
         client,
         page,

@@ -1,7 +1,6 @@
 # standardSQL
 # 12_20: Cumulative layout shift distribution
-select *
-except (row)
+select * except (row)
 from
     (
         select

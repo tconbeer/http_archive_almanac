@@ -49,18 +49,18 @@ from
             ) as sorted_order
         from base
         union all
-            (
-                select
-                    'median_time_s' as ranking,
-                    client,
-                    category,
-                    canonicaldomain,
-                    median_time_s as metric,
-                    dense_rank() over (
-                        partition by client order by median_time_s desc
-                    ) as sorted_order
-                from base
-            )
+        (
+            select
+                'median_time_s' as ranking,
+                client,
+                category,
+                canonicaldomain,
+                median_time_s as metric,
+                dense_rank() over (
+                    partition by client order by median_time_s desc
+                ) as sorted_order
+            from base
+        )
     )
 where sorted_order <= 100
 order by ranking, client, metric desc

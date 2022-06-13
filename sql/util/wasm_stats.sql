@@ -3,8 +3,7 @@ partition by date cluster by client as
 select date('2021-09-01') as date, *
 from
     (
-        select *
-        except (_table_suffix), _table_suffix as client
+        select * except (_table_suffix), _table_suffix as client
         from (select * except (size) from `blink-httparchive-research.rreverser2.wasms`)
         join `blink-httparchive-research.rreverser2.wasm_stats` using(filename)
         join `httparchive.summary_requests.2021_09_01_*` using(url)
