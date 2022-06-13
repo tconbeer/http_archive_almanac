@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # Popularity of top Set-Cookie names
-CREATE TEMPORARY FUNCTION getCookies(headers STRING)
-RETURNS ARRAY<STRING> DETERMINISTIC LANGUAGE js AS '''
+create temporary function getcookies(headers string)
+returns array
+< string
+> deterministic language js
+as '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {
@@ -12,26 +15,23 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  cookie.value AS cookie,
-  cookie.count AS freq,
-  total,
-  cookie.count / total AS pct
-FROM (
-  SELECT
+select
     client,
-    APPROX_TOP_COUNT(cookie, 100) AS cookies,
-    COUNT(0) AS total
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(getCookies(response_headers)) AS cookie
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client),
-  UNNEST(cookies) AS cookie
-ORDER BY
-  pct DESC
+    cookie.value as cookie,
+    cookie.count as freq,
+    total,
+    cookie.count / total as pct
+from
+    (
+        select client, approx_top_count(cookie, 100) as cookies, count(0) as total
+        from
+            `httparchive.almanac.requests`,
+            unnest(getcookies(response_headers)) as cookie
+        where date = '2021-07-01'
+        group by client
+    ),
+    unnest(cookies) as cookie
+order by pct desc

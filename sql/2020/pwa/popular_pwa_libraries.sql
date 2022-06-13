@@ -1,55 +1,48 @@
-#standardSQL
+# standardSQL
 # Popular PWA libraries based on unique ImportScript values
 # Use popular_pwa_libraries_helper.sql to find libraries to count
-SELECT
-  date,
-  client,
-  COUNT(0) AS total,
-  COUNTIF(LOWER(body) LIKE '%importscript%') AS uses_importscript,
-  COUNTIF(LOWER(body) LIKE '%workbox%') AS workbox,
-  COUNTIF(LOWER(body) LIKE '%sw-toolbox%') AS sw_toolbox,
-  COUNTIF(LOWER(body) LIKE '%firebase%') AS firebase,
-  COUNTIF(LOWER(body) LIKE '%onesignalsdk%') AS OneSignalSDK,
-  COUNTIF(LOWER(body) LIKE '%najva%') AS najva,
-  COUNTIF(LOWER(body) LIKE '%upush%') AS upush,
-  COUNTIF(LOWER(body) LIKE '%cache-polyfill%') AS cache_polyfill,
-  COUNTIF(LOWER(body) LIKE '%analytics-helper%') AS analytics_helper,
-  COUNTIF(LOWER(body) LIKE '%importscript%' AND
-    LOWER(body) NOT LIKE '%workbox%' AND
-    LOWER(body) NOT LIKE '%sw-toolbox%' AND
-    LOWER(body) NOT LIKE '%firebase%' AND
-    LOWER(body) NOT LIKE '%onesignalsdk%' AND
-    LOWER(body) NOT LIKE '%najva%' AND
-    LOWER(body) NOT LIKE '%upush%' AND
-    LOWER(body) NOT LIKE '%cache-polyfill%' AND
-    LOWER(body) NOT LIKE '%analytics-helper%') AS importscript_nolib,
-  COUNTIF(LOWER(body) NOT LIKE '%importscript%' AND
-    LOWER(body) NOT LIKE '%workbox%' AND
-    LOWER(body) NOT LIKE '%sw-toolbox%' AND
-    LOWER(body) NOT LIKE '%firebase%' AND
-    LOWER(body) NOT LIKE '%onesignalsdk%' AND
-    LOWER(body) NOT LIKE '%najva%' AND
-    LOWER(body) NOT LIKE '%upush%' AND
-    LOWER(body) NOT LIKE '%cache-polyfill.js%' AND
-    LOWER(body) NOT LIKE '%analytics-helper.js%') AS none_of_the_above
-FROM
-  (
-    SELECT
-      date,
-      client,
-      page,
-      body
-    FROM
-      `httparchive.almanac.service_workers`
-    GROUP BY
-      date,
-      client,
-      page,
-      body
-  )
-GROUP BY
-  date,
-  client
-ORDER BY
-  date,
-  client
+select
+    date,
+    client,
+    count(0) as total,
+    countif(lower(body) like '%importscript%') as uses_importscript,
+    countif(lower(body) like '%workbox%') as workbox,
+    countif(lower(body) like '%sw-toolbox%') as sw_toolbox,
+    countif(lower(body) like '%firebase%') as firebase,
+    countif(lower(body) like '%onesignalsdk%') as onesignalsdk,
+    countif(lower(body) like '%najva%') as najva,
+    countif(lower(body) like '%upush%') as upush,
+    countif(lower(body) like '%cache-polyfill%') as cache_polyfill,
+    countif(lower(body) like '%analytics-helper%') as analytics_helper,
+    countif(
+        lower(body) like '%importscript%' and lower(
+            body
+        ) not like '%workbox%' and lower(body) not like '%sw-toolbox%' and lower(
+            body
+        ) not like '%firebase%' and lower(body) not like '%onesignalsdk%' and lower(
+            body
+        ) not like '%najva%' and lower(body) not like '%upush%' and lower(
+            body
+        ) not like '%cache-polyfill%' and lower(body) not like '%analytics-helper%'
+    ) as importscript_nolib,
+    countif(
+        lower(body) not like '%importscript%' and lower(
+            body
+        ) not like '%workbox%' and lower(body) not like '%sw-toolbox%' and lower(
+            body
+        ) not like '%firebase%' and lower(body) not like '%onesignalsdk%' and lower(
+            body
+        ) not like '%najva%' and lower(body) not like '%upush%' and lower(
+            body
+        ) not like '%cache-polyfill.js%' and lower(
+            body
+        ) not like '%analytics-helper.js%'
+    ) as none_of_the_above
+from
+    (
+        select date, client, page, body
+        from `httparchive.almanac.service_workers`
+        group by date, client, page, body
+    )
+group by date, client
+order by date, client

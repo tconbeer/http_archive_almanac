@@ -1,15 +1,12 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
-RETURNS STRUCT<
-  class ARRAY<STRING>,
-  id ARRAY<STRING>,
-  attribute ARRAY<STRING>,
-  pseudo_class ARRAY<STRING>,
-  pseudo_element ARRAY<STRING>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getselectorparts(css string)
+returns struct < class array < string >,
+id array < string >,
+attribute array < string >,
+pseudo_class array < string >,
+pseudo_element array < string > > language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -55,36 +52,31 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  pages,
-  attribute.value AS attribute,
-  attribute.count AS freq,
-  attribute.count / pages AS pct
-FROM (
-  SELECT
+select
     client,
-    COUNT(DISTINCT page) AS pages,
-    APPROX_TOP_COUNT(attribute, 100) AS attributes
-  FROM (
-      SELECT DISTINCT
-        client,
-        page,
-        attribute
-      FROM
-        `httparchive.almanac.parsed_css`
-      LEFT JOIN
-        UNNEST(getSelectorParts(css).attribute) AS attribute
-      WHERE
-        date = '2020-08-01' AND
-        # Limit the size of the CSS to avoid OOM crashes.
-        LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client),
-  UNNEST(attributes) AS attribute
-WHERE
-  attribute.value IS NOT NULL
-ORDER BY
-  pct DESC
+    pages,
+    attribute.value as attribute,
+    attribute.count as freq,
+    attribute.count / pages as pct
+from
+    (
+        select
+            client,
+            count(distinct page) as pages,
+            approx_top_count(attribute, 100) as attributes
+        from
+            (
+                select distinct client, page, attribute
+                from `httparchive.almanac.parsed_css`
+                left join unnest(getselectorparts(css).attribute) as attribute
+                # Limit the size of the CSS to avoid OOM crashes.
+                where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client
+    ),
+    unnest(attributes) as attribute
+where attribute.value is not null
+order by pct desc

@@ -1,23 +1,19 @@
-#standardSQL
+# standardSQL
 # Gather SEO data from lighthouse
-
 # live run is about $9
-
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64) returns float64 as (
+    round(safe_divide(freq, total), 4)
+)
+;
 
-CREATE TEMPORARY FUNCTION isCrawlableDetails(report STRING)
-RETURNS STRUCT<
-  disallow BOOL,
-  noindex BOOL,
-  both BOOL,
-  neither BOOL
->
-DETERMINISTIC
-LANGUAGE js
-AS '''
+create temporary function iscrawlabledetails(report string)
+returns struct < disallow bool,
+noindex bool,
+both bool,
+neither bool > deterministic
+language js
+as '''
 var result = {disallow: false, noindex: false};
 try {
     var $ = JSON.parse(report);
@@ -27,62 +23,101 @@ try {
 } catch (e) {
 }
 return result;
-''';
+'''
+;
 
-SELECT
-  COUNT(0) AS total,
+select
+    count(0) as total,
 
-  COUNTIF(is_canonical) AS is_canonical,
-  AS_PERCENT(COUNTIF(is_canonical), COUNT(0)) AS pct_is_canonical,
+    countif(is_canonical) as is_canonical,
+    as_percent(countif(is_canonical), count(0)) as pct_is_canonical,
 
-  COUNTIF(has_title) AS has_title,
-  AS_PERCENT(COUNTIF(has_title), COUNT(0)) AS pct_has_title,
+    countif(has_title) as has_title,
+    as_percent(countif(has_title), count(0)) as pct_has_title,
 
-  COUNTIF(has_meta_description) AS has_meta_description,
-  AS_PERCENT(COUNTIF(has_meta_description), COUNT(0)) AS pct_has_meta_description,
+    countif(has_meta_description) as has_meta_description,
+    as_percent(countif(has_meta_description), count(0)) as pct_has_meta_description,
 
-  COUNTIF(has_title AND has_meta_description) AS has_title_and_meta_description,
-  AS_PERCENT(COUNTIF(has_title AND has_meta_description), COUNT(0)) AS pct_has_title_and_meta_description,
+    countif(has_title and has_meta_description) as has_title_and_meta_description,
+    as_percent(
+        countif(has_title and has_meta_description), count(0)
+    ) as pct_has_title_and_meta_description,
 
-  COUNTIF(img_alt_on_all) AS img_alt_on_all,
-  AS_PERCENT(COUNTIF(img_alt_on_all), COUNT(0)) AS pct_img_alt_on_all,
+    countif(img_alt_on_all) as img_alt_on_all,
+    as_percent(countif(img_alt_on_all), count(0)) as pct_img_alt_on_all,
 
-  COUNTIF(link_text_descriptive) AS link_text_descriptive,
-  AS_PERCENT(COUNTIF(link_text_descriptive), COUNT(0)) AS pct_link_text_descriptive,
+    countif(link_text_descriptive) as link_text_descriptive,
+    as_percent(countif(link_text_descriptive), count(0)) as pct_link_text_descriptive,
 
-  COUNTIF(robots_txt_valid) AS robots_txt_valid,
-  AS_PERCENT(COUNTIF(robots_txt_valid), COUNT(0)) AS pct_robots_txt_valid,
+    countif(robots_txt_valid) as robots_txt_valid,
+    as_percent(countif(robots_txt_valid), count(0)) as pct_robots_txt_valid,
 
-  COUNTIF(is_crawlable) AS is_crawlable,
-  AS_PERCENT(COUNTIF(is_crawlable), COUNT(0)) AS pct_is_crawlable,
+    countif(is_crawlable) as is_crawlable,
+    as_percent(countif(is_crawlable), count(0)) as pct_is_crawlable,
 
-  COUNTIF(is_crawlable_details.noindex) AS noindex,
-  AS_PERCENT(COUNTIF(is_crawlable_details.noindex), COUNT(0)) AS pct_noindex,
+    countif(is_crawlable_details.noindex) as noindex,
+    as_percent(countif(is_crawlable_details.noindex), count(0)) as pct_noindex,
 
-  COUNTIF(is_crawlable_details.disallow) AS disallow,
-  AS_PERCENT(COUNTIF(is_crawlable_details.disallow), COUNT(0)) AS pct_disallow,
+    countif(is_crawlable_details.disallow) as disallow,
+    as_percent(countif(is_crawlable_details.disallow), count(0)) as pct_disallow,
 
-  COUNTIF(is_crawlable_details.disallow AND is_crawlable_details.noindex) AS disallow_noindex,
-  AS_PERCENT(COUNTIF(is_crawlable_details.disallow AND is_crawlable_details.noindex), COUNT(0)) AS pct_disallow_noindex,
+    countif(
+        is_crawlable_details.disallow and is_crawlable_details.noindex
+    ) as disallow_noindex,
+    as_percent(
+        countif(is_crawlable_details.disallow and is_crawlable_details.noindex),
+        count(0)
+    ) as pct_disallow_noindex,
 
-  COUNTIF(NOT(is_crawlable_details.disallow) AND NOT(is_crawlable_details.noindex)) AS allow_index,
-  AS_PERCENT(COUNTIF(NOT(is_crawlable_details.disallow) AND NOT(is_crawlable_details.noindex)), COUNT(0)) AS pct_allow_index,
+    countif(
+        not (is_crawlable_details.disallow) and not (is_crawlable_details.noindex)
+    ) as allow_index,
+    as_percent(
+        countif(
+            not (is_crawlable_details.disallow) and not (is_crawlable_details.noindex)
+        ),
+        count(0)
+    ) as pct_allow_index,
 
-  COUNTIF(is_crawlable_details.disallow AND NOT(is_crawlable_details.noindex)) AS disallow_index,
-  AS_PERCENT(COUNTIF(is_crawlable_details.disallow AND NOT(is_crawlable_details.noindex)), COUNT(0)) AS pct_disallow_index,
+    countif(
+        is_crawlable_details.disallow and not (is_crawlable_details.noindex)
+    ) as disallow_index,
+    as_percent(
+        countif(is_crawlable_details.disallow and not (is_crawlable_details.noindex)),
+        count(0)
+    ) as pct_disallow_index,
 
-  COUNTIF(NOT(is_crawlable_details.disallow) AND is_crawlable_details.noindex) AS allow_noindex,
-  AS_PERCENT(COUNTIF(NOT(is_crawlable_details.disallow) AND is_crawlable_details.noindex), COUNT(0)) AS pct_allow_noindex
-FROM (
-  SELECT
-    JSON_EXTRACT_SCALAR(report, '$.audits.is-crawlable.score') = '1' AS is_crawlable,
-    JSON_EXTRACT_SCALAR(report, '$.audits.canonical.score') = '1' AS is_canonical,
-    JSON_EXTRACT_SCALAR(report, '$.audits.document-title.score') = '1' AS has_title,
-    JSON_EXTRACT_SCALAR(report, '$.audits.meta-description.score') = '1' AS has_meta_description,
-    JSON_EXTRACT_SCALAR(report, '$.audits.image-alt.score') = '1' AS img_alt_on_all,
-    JSON_EXTRACT_SCALAR(report, '$.audits.robots-txt.score') = '1' AS robots_txt_valid,
-    JSON_EXTRACT_SCALAR(report, '$.audits.link-text.score') = '1' AS link_text_descriptive,
-    isCrawlableDetails(report) AS is_crawlable_details
-  FROM
-    `httparchive.lighthouse.2020_08_01_*`
-)
+    countif(
+        not (is_crawlable_details.disallow) and is_crawlable_details.noindex
+    ) as allow_noindex,
+    as_percent(
+        countif(not (is_crawlable_details.disallow) and is_crawlable_details.noindex),
+        count(0)
+    ) as pct_allow_noindex
+from
+    (
+        select
+            json_extract_scalar(
+                report, '$.audits.is-crawlable.score'
+            ) = '1' as is_crawlable,
+            json_extract_scalar(
+                report, '$.audits.canonical.score'
+            ) = '1' as is_canonical,
+            json_extract_scalar(
+                report, '$.audits.document-title.score'
+            ) = '1' as has_title,
+            json_extract_scalar(
+                report, '$.audits.meta-description.score'
+            ) = '1' as has_meta_description,
+            json_extract_scalar(
+                report, '$.audits.image-alt.score'
+            ) = '1' as img_alt_on_all,
+            json_extract_scalar(
+                report, '$.audits.robots-txt.score'
+            ) = '1' as robots_txt_valid,
+            json_extract_scalar(
+                report, '$.audits.link-text.score'
+            ) = '1' as link_text_descriptive,
+            iscrawlabledetails(report) as is_crawlable_details
+        from `httparchive.lighthouse.2020_08_01_*`
+    )

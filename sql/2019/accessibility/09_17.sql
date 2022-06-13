@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # 09_17: % pages using tables with headings
-CREATE TEMPORARY FUNCTION getTableInfo(payload STRING)
-RETURNS STRUCT<has_table BOOLEAN, has_th BOOLEAN> LANGUAGE js AS '''
+create temporary function gettableinfo(payload string)
+returns struct < has_table boolean,
+has_th boolean
+> language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -22,46 +25,67 @@ try {
     has_th: false
   };
 }
-''';
+'''
+;
 
 
-SELECT
-  client,
-  COUNT(0) AS total_pages,
+select
+    client,
+    count(0) as total_pages,
 
-  COUNTIF(table_info.has_table) AS total_using_tables,
+    countif(table_info.has_table) as total_using_tables,
 
-  COUNTIF(table_info.has_th) AS total_th,
-  COUNTIF(has_columnheader_role) AS total_columnheader,
-  COUNTIF(has_rowheader_role) AS total_rowheader,
-  COUNTIF(table_info.has_th OR has_rowheader_role OR has_columnheader_role) AS total_using_any,
+    countif(table_info.has_th) as total_th,
+    countif(has_columnheader_role) as total_columnheader,
+    countif(has_rowheader_role) as total_rowheader,
+    countif(
+        table_info.has_th or has_rowheader_role or has_columnheader_role
+    ) as total_using_any,
 
-  ROUND(COUNTIF(table_info.has_table AND table_info.has_th) * 100 / COUNTIF(table_info.has_table), 2) AS perc_with_th,
-  ROUND(COUNTIF(table_info.has_table AND has_columnheader_role) * 100 / COUNTIF(table_info.has_table), 2) AS perc_with_columnheader,
-  ROUND(COUNTIF(table_info.has_table AND has_rowheader_role) * 100 / COUNTIF(table_info.has_table), 2) AS perc_with_rowheader,
-  ROUND(COUNTIF(table_info.has_table AND (table_info.has_th OR has_rowheader_role OR has_columnheader_role)) * 100 / COUNTIF(table_info.has_table), 2) AS perc_with_any
-FROM
-  (
-    SELECT
-      client,
-      page,
-      REGEXP_CONTAINS(body, r'(?i)\brole=[\'"]?(columnheader)\b') AS has_columnheader_role,
-      REGEXP_CONTAINS(body, r'(?i)\brole=[\'"]?(rowheader)\b') AS has_rowheader_role
-    FROM
-      `httparchive.almanac.summary_response_bodies`
-    WHERE
-      date = '2019-07-01' AND
-      firstHtml
-  )
-JOIN
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url AS page,
-      getTableInfo(payload) AS table_info
-    FROM
-      `httparchive.pages.2019_07_01_*`
-  )
-USING (client, page)
-GROUP BY
-  client
+    round(
+        countif(table_info.has_table and table_info.has_th) * 100 / countif(
+            table_info.has_table
+        ),
+        2
+    ) as perc_with_th,
+    round(
+        countif(table_info.has_table and has_columnheader_role) * 100 / countif(
+            table_info.has_table
+        ),
+        2
+    ) as perc_with_columnheader,
+    round(
+        countif(table_info.has_table and has_rowheader_role) * 100 / countif(
+            table_info.has_table
+        ),
+        2
+    ) as perc_with_rowheader,
+    round(
+        countif(
+            table_info.has_table and (
+                table_info.has_th or has_rowheader_role or has_columnheader_role
+            )
+        ) * 100 / countif(table_info.has_table),
+        2
+    ) as perc_with_any
+from
+    (
+        select
+            client,
+            page,
+            regexp_contains(
+                body, r'(?i)\brole=[\'"]?(columnheader)\b'
+            ) as has_columnheader_role,
+            regexp_contains(
+                body, r'(?i)\brole=[\'"]?(rowheader)\b'
+            ) as has_rowheader_role
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    )
+join
+    (
+        select _table_suffix as client, url as page, gettableinfo(payload) as table_info
+        from `httparchive.pages.2019_07_01_*`
+    )
+    using(client, page)
+group by client

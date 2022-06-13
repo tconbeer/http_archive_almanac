@@ -1,7 +1,11 @@
-#standardSQL
+# standardSQL
 # 02_17: % of pages using em/rem/px in media queries
-CREATE TEMPORARY FUNCTION getUnits(css STRING)
-RETURNS STRUCT<em BOOLEAN, rem BOOLEAN, px BOOLEAN> LANGUAGE js AS '''
+create temporary function getunits(css string)
+returns struct < em boolean,
+rem boolean,
+px boolean
+> language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {
@@ -22,39 +26,39 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(em > 0) AS freq_em,
-  COUNTIF(rem > 0) AS freq_rem,
-  COUNTIF(px > 0) AS freq_px,
-  total,
-  ROUND(COUNTIF(em > 0) * 100 / total, 2) AS pct_em,
-  ROUND(COUNTIF(rem > 0) * 100 / total, 2) AS pct_rem,
-  ROUND(COUNTIF(px > 0) * 100 / total, 2) AS pct_px
-FROM (
-  SELECT
+select
     client,
-    COUNTIF(unit.em) AS em,
-    COUNTIF(unit.rem) AS rem,
-    COUNTIF(unit.px) AS px
-  FROM (
-    SELECT
-      client,
-      page,
-      getUnits(css) AS unit
-    FROM
-      `httparchive.almanac.parsed_css`
-    WHERE
-      date = '2019-07-01')
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(em > 0) as freq_em,
+    countif(rem > 0) as freq_rem,
+    countif(px > 0) as freq_px,
+    total,
+    round(countif(em > 0) * 100 / total, 2) as pct_em,
+    round(countif(rem > 0) * 100 / total, 2) as pct_rem,
+    round(countif(px > 0) * 100 / total, 2) as pct_px
+from
+    (
+        select
+            client,
+            countif(unit.em) as em,
+            countif(unit.rem) as rem,
+            countif(unit.px) as px
+        from
+            (
+                select client, page, getunits(css) as unit
+                from `httparchive.almanac.parsed_css`
+                where date = '2019-07-01'
+            )
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    )
+    using
+    (client)
+group by client, total

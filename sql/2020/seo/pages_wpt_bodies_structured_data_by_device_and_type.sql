@@ -1,16 +1,20 @@
-#standardSQL
+# standardSQL
 # page wpt_bodies metrics grouped by device and structured data type
-
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64) returns float64 as (
+    round(safe_divide(freq, total), 4)
+)
+;
 
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  jsonld_and_microdata_types ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function get_wpt_bodies_info(wpt_bodies_string string)
+returns struct
+<
+jsonld_and_microdata_types array
+< string
+>
+> language js
+as '''
 var result = {};
 
 
@@ -26,35 +30,30 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  type,
-  total,
-  COUNT(0) AS count,
-  AS_PERCENT(COUNT(0), total) AS pct
+select client, type, total, count(0) as count, as_percent(count(0), total) as pct
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      get_wpt_bodies_info(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies')) AS wpt_bodies_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-    JOIN
-      (SELECT _TABLE_SUFFIX, COUNT(0) AS total
-        FROM
-          `httparchive.pages.2020_08_01_*`
-        GROUP BY _TABLE_SUFFIX) # to get an accurate total of pages per device. also seems fast
-    USING (_TABLE_SUFFIX)
-  ), UNNEST(wpt_bodies_info.jsonld_and_microdata_types) AS type
-GROUP BY
-  total,
-  type,
-  client
-HAVING
-  count > 100
-ORDER BY
-  count DESC
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            get_wpt_bodies_info(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as wpt_bodies_info
+        from `httparchive.pages.2020_08_01_*`
+        join
+            (
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2020_08_01_*`
+                # to get an accurate total of pages per device. also seems fast
+                group by _table_suffix
+            )
+            using(_table_suffix)
+    ),
+    unnest(wpt_bodies_info.jsonld_and_microdata_types) as type
+group by total, type, client
+having count > 100
+order by count desc

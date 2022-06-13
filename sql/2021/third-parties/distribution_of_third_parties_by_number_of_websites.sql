@@ -1,65 +1,34 @@
-#standardSQL
+# standardSQL
 # Distribution of third parties by number of websites
+with
+    requests as (
+        select _table_suffix as client, pageid as page, url
+        from `httparchive.summary_requests.2021_07_01_*`
+    ),
 
-WITH requests AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    pageid AS page,
-    url
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-),
+    third_party as (
+        select domain, canonicaldomain, category, count(distinct page) as page_usage
+        from `httparchive.almanac.third_parties` tp
+        join requests r on net.host(r.url) = net.host(tp.domain)
+        where date = '2021-07-01' and category != 'hosting'
+        group by domain, canonicaldomain, category
+        having page_usage >= 50
+    ),
 
-third_party AS (
-  SELECT
-    domain,
-    canonicalDomain,
-    category,
-    COUNT(DISTINCT page) AS page_usage
-  FROM
-    `httparchive.almanac.third_parties` tp
-  JOIN
-    requests r
-  ON NET.HOST(r.url) = NET.HOST(tp.domain)
-  WHERE
-    date = '2021-07-01' AND
-    category != 'hosting'
-  GROUP BY
-    domain,
-    canonicalDomain,
-    category
-  HAVING
-    page_usage >= 50
-),
+    base as (
+        select client, canonicaldomain, count(distinct page) as pages_per_third_party
+        from requests
+        left join third_party on net.host(requests.url) = net.host(third_party.domain)
+        where canonicaldomain is not null
+        group by client, canonicaldomain
+    )
 
-base AS (
-  SELECT
+select
     client,
-    canonicalDomain,
-    COUNT(DISTINCT page) AS pages_per_third_party
-  FROM
-    requests
-  LEFT JOIN
-    third_party
-  ON
-    NET.HOST(requests.url) = NET.HOST(third_party.domain)
-  WHERE
-    canonicalDomain IS NOT NULL
-  GROUP BY
-    client,
-    canonicalDomain
-)
-
-SELECT
-  client,
-  percentile,
-  APPROX_QUANTILES(pages_per_third_party, 1000)[OFFSET(percentile * 10)] AS approx_pages_per_third_party
-FROM
-  base,
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  client,
-  percentile
-ORDER BY
-  client,
-  percentile
+    percentile,
+    approx_quantiles(pages_per_third_party, 1000) [
+        offset (percentile * 10)
+    ] as approx_pages_per_third_party
+from base, unnest( [10, 25, 50, 75, 90]) as percentile
+group by client, percentile
+order by client, percentile

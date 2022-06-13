@@ -1,11 +1,12 @@
-#standardSQL
+# standardSQL
 # page almanac favicon image types grouped by device and type
-
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION getFaviconImage(almanac_string STRING)
-RETURNS STRUCT<
-  image_type_extension STRING
-> LANGUAGE js AS '''
+create temporary function getfaviconimage(almanac_string string)
+returns struct
+<
+image_type_extension string
+> language js
+as '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -45,27 +46,22 @@ try {
 
 } catch (e) {result.image_type_extension = "NO_DATA";}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  favicon.image_type_extension AS image_type_extension,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      getFaviconImage(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS favicon
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-GROUP BY
-  client,
-  image_type_extension
-ORDER BY
-  pct DESC,
-  client,
-  freq DESC
-LIMIT 1000
+select
+    client,
+    favicon.image_type_extension as image_type_extension,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            getfaviconimage(json_extract_scalar(payload, '$._almanac')) as favicon
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client, image_type_extension
+order by pct desc, client, freq desc
+limit 1000

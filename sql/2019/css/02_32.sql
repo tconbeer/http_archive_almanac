@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # 02_32: Distribution of distinct color values per page
-CREATE TEMPORARY FUNCTION getColors(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getcolors(css string)
+returns array
+< string
+> language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -18,27 +21,22 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  APPROX_QUANTILES(colors, 1000)[OFFSET(100)] AS p10,
-  APPROX_QUANTILES(colors, 1000)[OFFSET(250)] AS p25,
-  APPROX_QUANTILES(colors, 1000)[OFFSET(500)] AS p50,
-  APPROX_QUANTILES(colors, 1000)[OFFSET(750)] AS p75,
-  APPROX_QUANTILES(colors, 1000)[OFFSET(900)] AS p90
-FROM (
-  SELECT
+select
     client,
-    COUNT(DISTINCT value) AS colors
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getColors(css)) AS value
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    page)
-GROUP BY
-  client
+    approx_quantiles(colors, 1000) [offset (100)] as p10,
+    approx_quantiles(colors, 1000) [offset (250)] as p25,
+    approx_quantiles(colors, 1000) [offset (500)] as p50,
+    approx_quantiles(colors, 1000) [offset (750)] as p75,
+    approx_quantiles(colors, 1000) [offset (900)] as p90
+from
+    (
+        select client, count(distinct value) as colors
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getcolors(css)) as value
+        where date = '2019-07-01'
+        group by client, page
+    )
+group by client

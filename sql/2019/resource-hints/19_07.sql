@@ -1,7 +1,8 @@
-#standardSQL
+# standardSQL
 # 19_07: % of sites that use priority hints.
-CREATE TEMPORARY FUNCTION getPriorityHints(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function getpriorityhints(payload string)
+returns boolean language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -9,18 +10,17 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(has_hint) AS freq,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(has_hint) * 100 / COUNT(0), 2) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getPriorityHints(payload) AS has_hint
-  FROM
-    `httparchive.pages.2019_07_01_*`)
-GROUP BY
-  client
+select
+    client,
+    countif(has_hint) as freq,
+    count(0) as total,
+    round(countif(has_hint) * 100 / count(0), 2) as pct
+from
+    (
+        select _table_suffix as client, getpriorityhints(payload) as has_hint
+        from `httparchive.pages.2019_07_01_*`
+    )
+group by client

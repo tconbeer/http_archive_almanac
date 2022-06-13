@@ -1,12 +1,11 @@
-#standardSQL
+# standardSQL
 # usage meta open graph
-
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_meta_og_info(almanac_string STRING)
-RETURNS STRUCT<
-  meta_og_image BOOLEAN,
-  meta_og_video BOOLEAN
-> LANGUAGE js AS '''
+create temporary function get_meta_og_info(almanac_string string)
+returns struct < meta_og_image boolean,
+meta_og_video boolean
+> language js
+as '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -23,21 +22,24 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(almanac_info.meta_og_image) / COUNT(0) AS meta_og_image_pct,
-  COUNTIF(almanac_info.meta_og_video) / COUNT(0) AS meta_og_video_pct,
-  COUNTIF(almanac_info.meta_og_image AND almanac_info.meta_og_video) / COUNT(0) AS meta_og_image_video_pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    get_meta_og_info(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-  FROM
-    `httparchive.pages.2020_08_01_*`)
-GROUP BY
-  client
-ORDER BY
-  client;
+select
+    client,
+    countif(almanac_info.meta_og_image) / count(0) as meta_og_image_pct,
+    countif(almanac_info.meta_og_video) / count(0) as meta_og_video_pct,
+    countif(almanac_info.meta_og_image and almanac_info.meta_og_video) / count(
+        0
+    ) as meta_og_image_video_pct
+from
+    (
+        select
+            _table_suffix as client,
+            url,
+            get_meta_og_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client
+order by client
+;

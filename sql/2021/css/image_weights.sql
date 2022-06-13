@@ -1,45 +1,37 @@
-#standardSQL
+# standardSQL
 # CSS-initiated image stats per page (count, weight)
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(css_initiated_images_per_page, 1000)[OFFSET(percentile * 10)] AS css_initiated_images_per_page,
-  APPROX_QUANTILES(total_css_initiated_image_weight_per_page, 1000)[OFFSET(percentile * 10)] AS total_css_initiated_image_weight_per_page
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    COUNT(0) AS css_initiated_images_per_page,
-    SUM(respSize) AS total_css_initiated_image_weight_per_page
-  FROM (
-    SELECT
-      client,
-      page,
-      JSON_VALUE(payload, '$._initiator') AS url,
-      respSize
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2021-07-01' AND
-      type = 'image')
-  JOIN (
-    SELECT
-      client,
-      page,
-      url
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2021-07-01' AND
-      type = 'css')
-  USING
-    (client, page, url)
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(css_initiated_images_per_page, 1000) [
+        offset (percentile * 10)
+    ] as css_initiated_images_per_page,
+    approx_quantiles(total_css_initiated_image_weight_per_page, 1000) [
+        offset (percentile * 10)
+    ] as total_css_initiated_image_weight_per_page
+from
+    (
+        select
+            client,
+            count(0) as css_initiated_images_per_page,
+            sum(respsize) as total_css_initiated_image_weight_per_page
+        from
+            (
+                select
+                    client, page, json_value(payload, '$._initiator') as url, respsize
+                from `httparchive.almanac.requests`
+                where date = '2021-07-01' and type = 'image'
+            )
+        join
+            (
+                select client, page, url
+                from `httparchive.almanac.requests`
+                where date = '2021-07-01' and type = 'css'
+            )
+            using
+            (client, page, url)
+        group by client, page
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

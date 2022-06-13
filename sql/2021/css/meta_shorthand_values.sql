@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getShorthandValueCounts(css STRING)
-RETURNS ARRAY<STRUCT<property STRING, values ARRAY<INT64>>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getshorthandvaluecounts(css string)
+returns array < struct < property string,
+values array < int64 >> > language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -442,30 +442,23 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  shorthand,
-  APPROX_QUANTILES(value, 1000)[OFFSET(percentile * 10)] AS number_of_values
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    shorthand.property AS shorthand,
-    value
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getShorthandValueCounts(css)) AS shorthand,
-    UNNEST(shorthand.values) AS value
-  WHERE
-    date = '2021-07-01'),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  shorthand
-ORDER BY
-  percentile,
-  client,
-  shorthand
+    shorthand,
+    approx_quantiles(value, 1000) [offset (percentile * 10)] as number_of_values
+from
+    (
+        select client, shorthand.property as shorthand, value
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getshorthandvaluecounts(css)) as shorthand,
+            unnest(shorthand.values) as value
+        where date = '2021-07-01'
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client, shorthand
+order by percentile, client, shorthand

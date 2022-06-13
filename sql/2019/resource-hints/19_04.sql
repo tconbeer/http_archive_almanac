@@ -1,8 +1,11 @@
-#standardSQL
+# standardSQL
 # 19_04: Popular resource types to preload/prefecth.
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, href STRING>>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns array < struct < name string,
+href string
+>>
+language js
+as '''
 var hints = new Set(['preload', 'prefetch']);
 try {
   var $ = JSON.parse(payload);
@@ -23,27 +26,30 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  name,
-  type,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, name) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, name), 2) AS pct
-FROM (
-  SELECT _TABLE_SUFFIX, url AS page, hint.name, hint.href AS url
-  FROM `httparchive.pages.2019_07_01_*`, UNNEST(getResourceHints(payload)) AS hint)
-LEFT JOIN (
-  SELECT client AS _TABLE_SUFFIX, page, url, type
-  FROM `httparchive.almanac.summary_requests`
-  WHERE date = '2019-07-01')
-USING
-  (_TABLE_SUFFIX, page, url)
-GROUP BY
-  client,
-  name,
-  type
-ORDER BY
-  freq DESC
+select
+    _table_suffix as client,
+    name,
+    type,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix, name) as total,
+    round(
+        count(0) * 100 / sum(count(0)) over (partition by _table_suffix, name), 2
+    ) as pct
+from
+    (
+        select _table_suffix, url as page, hint.name, hint.href as url
+        from `httparchive.pages.2019_07_01_*`, unnest(getresourcehints(payload)) as hint
+    )
+left join
+    (
+        select client as _table_suffix, page, url, type
+        from `httparchive.almanac.summary_requests`
+        where date = '2019-07-01'
+    )
+    using
+    (_table_suffix, page, url)
+group by client, name, type
+order by freq desc

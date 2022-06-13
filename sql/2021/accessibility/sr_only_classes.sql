@@ -1,16 +1,19 @@
-#standardSQL
+# standardSQL
 # Sites using sr-only or visually-hidden classes
-SELECT
-  client,
-  COUNT(0) AS total_sites,
-  COUNTIF(uses_sr_only) AS sites_with_sr_only,
-  COUNTIF(uses_sr_only) / COUNT(0) AS pct_sites_with_sr_only
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._a11y'), '$.screen_reader_classes') AS BOOL) AS uses_sr_only
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
+select
+    client,
+    count(0) as total_sites,
+    countif(uses_sr_only) as sites_with_sr_only,
+    countif(uses_sr_only) / count(0) as pct_sites_with_sr_only
+from
+    (
+        select
+            _table_suffix as client,
+            cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._a11y'), '$.screen_reader_classes'
+                ) as bool
+            ) as uses_sr_only
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

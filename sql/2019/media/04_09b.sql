@@ -1,27 +1,29 @@
-#standardSQL
+# standardSQL
 # 04_09b: Top Accept-CH
-SELECT
-  client,
-  chHTML,
-  chHeader,
-  COUNT(0) AS hits
-FROM
-  (
-    SELECT
-      client,
-      page,
-      replace(regexp_extract(regexp_extract(body, r'(?is)<meta[^><]*Accept-CH\b[^><]*'), r'(?im).*content=[&quot;#32"\']*([^\'"><]*)'), '#32;', '') AS chHTML,
-      regexp_extract(regexp_extract(respOtherHeaders, r'(?is)Accept-CH = (.*)'), r'(?im)^([^=]*?)(?:, [a-z-]+ = .*)') AS chHeader
-    FROM `httparchive.almanac.summary_response_bodies`
-    WHERE
-      date = '2019-07-01' AND
-      firstHtml AND
-      ( REGEXP_CONTAINS(body, r'(?is)<meta[^><]*Accept-CH\b') OR
-        REGEXP_CONTAINS(respOtherHeaders, r'(?is)Accept-CH = ') )
-  )
-GROUP BY
-  client,
-  chHTML,
-  chHeader
-ORDER BY
-  client DESC, hits DESC
+select client, chhtml, chheader, count(0) as hits
+from
+    (
+        select
+            client,
+            page,
+            replace(
+                regexp_extract(
+                    regexp_extract(body, r'(?is)<meta[^><]*Accept-CH\b[^><]*'),
+                    r'(?im).*content=[&quot;#32"\']*([^\'"><]*)'
+                ),
+                '#32;',
+                ''
+            ) as chhtml,
+            regexp_extract(
+                regexp_extract(respotherheaders, r'(?is)Accept-CH = (.*)'),
+                r'(?im)^([^=]*?)(?:, [a-z-]+ = .*)'
+            ) as chheader
+        from `httparchive.almanac.summary_response_bodies`
+        where
+            date = '2019-07-01' and firsthtml and (
+                regexp_contains(body, r'(?is)<meta[^><]*Accept-CH\b') or
+                regexp_contains(respotherheaders, r'(?is)Accept-CH = ')
+            )
+    )
+group by client, chhtml, chheader
+order by client desc, hits desc

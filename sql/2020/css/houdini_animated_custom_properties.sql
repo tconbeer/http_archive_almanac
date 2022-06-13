@@ -1,9 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getAnimatedCustomProperties(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getanimatedcustomproperties(css string)
+returns array < string > language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   var ast = JSON.parse(css);
   let ret = new Set();
@@ -22,21 +21,24 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT DISTINCT
-  client,
-  custom_property,
-  COUNT(DISTINCT page) OVER (PARTITION BY client, custom_property) AS pages,
-  COUNT(DISTINCT page) OVER (PARTITION BY client) AS total_pages,
-  COUNT(DISTINCT page) OVER (PARTITION BY client, custom_property) / COUNT(DISTINCT page) OVER (PARTITION BY client) AS pct_pages,
-  COUNT(0) OVER (PARTITION BY client, custom_property) AS freq,
-  COUNT(0) OVER (PARTITION BY client) AS total,
-  COUNT(0) OVER (PARTITION BY client, custom_property) / COUNT(0) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getAnimatedCustomProperties(css)) AS custom_property
-WHERE
-  date = '2020-08-01'
-ORDER BY
-  pct DESC
+select distinct
+    client,
+    custom_property,
+    count(distinct page) over (partition by client, custom_property) as pages,
+    count(distinct page) over (partition by client) as total_pages,
+    count(distinct page) over (
+        partition by client, custom_property
+    ) / count(distinct page) over (partition by client) as pct_pages,
+    count(0) over (partition by client, custom_property) as freq,
+    count(0) over (partition by client) as total,
+    count(0) over (partition by client, custom_property) / count(0) over (
+        partition by client
+    ) as pct
+from
+    `httparchive.almanac.parsed_css`,
+    unnest(getanimatedcustomproperties(css)) as custom_property
+where date = '2020-08-01'
+order by pct desc

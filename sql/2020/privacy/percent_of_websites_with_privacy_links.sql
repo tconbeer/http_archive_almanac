@@ -1,20 +1,21 @@
-#standardSQL
+# standardSQL
 # Percent of pages with IAB Transparency & Consent Framework
+with
+    pages_privacy as (
+        select
+            _table_suffix as client,
+            json_extract_scalar(payload, '$._privacy') as metrics
+        from `httparchive.pages.2020_08_01_*`
+    )
 
-WITH pages_privacy AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    JSON_EXTRACT_SCALAR(payload, '$._privacy') AS metrics
-  FROM
-    `httparchive.pages.2020_08_01_*`
-)
-
-SELECT
-  client,
-  COUNT(0) AS total_websites,
-  COUNTIF(CAST(JSON_EXTRACT_SCALAR(metrics, '$.privacy_wording_links') AS INT64) > 0) AS websites_with_privacy_link,
-  COUNTIF(CAST(JSON_EXTRACT_SCALAR(metrics, '$.privacy_wording_links') AS INT64) > 0) / COUNT(0) AS pct_websites_with_privacy_link
-FROM
-  pages_privacy
-GROUP BY
-  client
+select
+    client,
+    count(0) as total_websites,
+    countif(
+        cast(json_extract_scalar(metrics, '$.privacy_wording_links') as int64) > 0
+    ) as websites_with_privacy_link,
+    countif(
+        cast(json_extract_scalar(metrics, '$.privacy_wording_links') as int64) > 0
+    ) / count(0) as pct_websites_with_privacy_link
+from pages_privacy
+group by client

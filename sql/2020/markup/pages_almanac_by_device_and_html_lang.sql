@@ -1,14 +1,15 @@
-#standardSQL
+# standardSQL
 # page almanac metrics grouped by device and html lang
-
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64) returns float64 as (
+    round(safe_divide(freq, total), 4)
+)
+;
 
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_html_lang(almanac_string STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function get_almanac_html_lang(almanac_string string)
+returns string language js
+as '''
 try {
     var almanac = JSON.parse(almanac_string);
 
@@ -20,25 +21,24 @@ try {
 
 } catch (e) {}
 return '';
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS freq,
-  almanac_html_lang AS html_lang,
+select
+    client,
+    count(0) as freq,
+    almanac_html_lang as html_lang,
 
-  AS_PERCENT(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS pct_m405
+    as_percent(count(0), sum(count(0)) over (partition by client)) as pct_m405
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_almanac_html_lang(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_html_lang
-    FROM
-      `httparchive.pages.2020_08_01_*`
-  )
-GROUP BY
-  client,
-  html_lang
-ORDER BY
-  freq DESC
+from
+    (
+        select
+            _table_suffix as client,
+            get_almanac_html_lang(
+                json_extract_scalar(payload, '$._almanac')
+            ) as almanac_html_lang
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client, html_lang
+order by freq desc

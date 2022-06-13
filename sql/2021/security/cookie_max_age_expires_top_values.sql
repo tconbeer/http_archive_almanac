@@ -1,8 +1,9 @@
-#standardSQL
+# standardSQL
 # Top 10 values of Max-Age and Expires cookie attributes.
-CREATE TEMPORARY FUNCTION getCookieAgeValues(headers STRING, epochOfRequest NUMERIC)
-RETURNS STRING DETERMINISTIC
-LANGUAGE js AS '''
+create temporary function getcookieagevalues(headers string, epochofrequest numeric)
+returns string deterministic
+language js
+as '''
   const regexMaxAge = new RegExp(/max-age\\s*=\\s*(?<value>-*[0-9]+)/i);
   const regexExpires = new RegExp(/expires\\s*=\\s*(?<value>.*?)(;|$)/i);
   const parsed_headers = JSON.parse(headers);
@@ -25,98 +26,79 @@ LANGUAGE js AS '''
       }
   });
   return JSON.stringify(result);
-''';
+'''
+;
 
-WITH max_age_values AS (
-  SELECT
-    client,
-    max_age_value
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(JSON_QUERY_ARRAY(getCookieAgeValues(response_headers, startedDateTime), '$.maxAge')) AS max_age_value
-  WHERE
-    date = '2021-07-01'
-),
+with
+    max_age_values as (
+        select client, max_age_value
+        from
+            `httparchive.almanac.requests`,
+            unnest(
+                json_query_array(
+                    getcookieagevalues(response_headers, starteddatetime), '$.maxAge'
+                )
+            ) as max_age_value
+        where date = '2021-07-01'
+    ),
 
-expires_values AS (
-  SELECT
-    client,
-    expires_value
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(JSON_QUERY_ARRAY(getCookieAgeValues(response_headers, startedDateTime), '$.expires')) AS expires_value
-  WHERE
-    date = '2021-07-01'
-),
+    expires_values as (
+        select client, expires_value
+        from
+            `httparchive.almanac.requests`,
+            unnest(
+                json_query_array(
+                    getcookieagevalues(response_headers, starteddatetime), '$.expires'
+                )
+            ) as expires_value
+        where date = '2021-07-01'
+    ),
 
-max_age AS (
-  SELECT
-    client,
-    'max-age' AS type,
-    total_cookies_with_max_age AS total,
-    COUNT(0) AS freq,
-    COUNT(0) / total_cookies_with_max_age AS pct,
-    max_age_value AS attribute_value
-  FROM
-    max_age_values
-  JOIN
-    (
-      SELECT
-        client,
-        COUNT(0) AS total_cookies_with_max_age
-      FROM
-        max_age_values
-      GROUP BY
-        client
+    max_age as (
+        select
+            client,
+            'max-age' as type,
+            total_cookies_with_max_age as total,
+            count(0) as freq,
+            count(0) / total_cookies_with_max_age as pct,
+            max_age_value as attribute_value
+        from max_age_values
+        join
+            (
+                select client, count(0) as total_cookies_with_max_age
+                from max_age_values
+                group by client
+            )
+            using(client)
+        group by client, total, attribute_value
+        order by freq desc
+        limit 50
+    ),
+
+    expires as (
+        select
+            client,
+            'expires' as type,
+            total_cookies_with_expires as total,
+            count(0) as freq,
+            count(0) / total_cookies_with_expires as pct,
+            expires_value as attribute_value
+        from expires_values
+        join
+            (
+                select client, count(0) as total_cookies_with_expires
+                from expires_values
+                group by client
+            )
+            using(client)
+        group by client, total, attribute_value
+        order by freq desc
+        limit 50
     )
-  USING (client)
-  GROUP BY
-    client,
-    total,
-    attribute_value
-  ORDER BY
-    freq DESC
-  LIMIT 50
-),
 
-expires AS (
-  SELECT
-    client,
-    'expires' AS type,
-    total_cookies_with_expires AS total,
-    COUNT(0) AS freq,
-    COUNT(0) / total_cookies_with_expires AS pct,
-    expires_value AS attribute_value
-  FROM
-    expires_values
-  JOIN
-    (
-      SELECT
-        client,
-        COUNT(0) AS total_cookies_with_expires
-      FROM
-        expires_values
-      GROUP BY
-        client
-    )
-  USING (client)
-  GROUP BY
-    client,
-    total,
-    attribute_value
-  ORDER BY
-    freq DESC
-  LIMIT 50
-)
-
-SELECT *
-FROM
-  max_age
-UNION ALL
-SELECT *
-FROM
-  expires
-ORDER BY
-  client,
-  type,
-  freq DESC
+select *
+from max_age
+union all
+select *
+from expires
+order by client, type, freq desc

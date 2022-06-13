@@ -1,7 +1,8 @@
-#standardSQL
+# standardSQL
 # 06_16: % of pages that declare a font with local()
-CREATE TEMPORARY FUNCTION countLocalSrc(css STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function countlocalsrc(css string)
+returns int64 language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -26,28 +27,27 @@ try {
 } catch (e) {
   return 0;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(local > 0) AS freq,
-  total,
-  ROUND(COUNTIF(local > 0) * 100 / total, 2) AS pct
-FROM (
-  SELECT
+select
     client,
-    SUM(countLocalSrc(css)) AS local
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(local > 0) as freq,
+    total,
+    round(countif(local > 0) * 100 / total, 2) as pct
+from
+    (
+        select client, sum(countlocalsrc(css)) as local
+        from `httparchive.almanac.parsed_css`
+        where date = '2019-07-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    )
+    using
+    (client)
+group by client, total

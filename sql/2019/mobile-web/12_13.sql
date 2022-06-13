@@ -1,9 +1,10 @@
-#standardSQL
-
+# standardSQL
 # input types occurence prefined set %
-
-CREATE TEMPORARY FUNCTION getInputStats(payload STRING)
-RETURNS STRUCT<found_advanced_types BOOLEAN, total_inputs INT64> LANGUAGE js AS '''
+create temporary function getinputstats(payload string)
+returns struct < found_advanced_types boolean,
+total_inputs int64
+> language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -23,17 +24,22 @@ RETURNS STRUCT<found_advanced_types BOOLEAN, total_inputs INT64> LANGUAGE js AS 
       total_inputs: 0
     };
   }
-''';
+'''
+;
 
-SELECT
-  COUNT(0) AS count,
-  COUNTIF(input_stats.total_inputs > 0) AS total_applicable,
+select
+    count(0) as count,
+    countif(input_stats.total_inputs > 0) as total_applicable,
 
-  COUNTIF(input_stats.found_advanced_types) AS total_pages_using,
-  ROUND(COUNTIF(input_stats.found_advanced_types) * 100 / COUNTIF(input_stats.total_inputs > 0), 2) AS occurence_perc
-FROM (
-  SELECT
-    getInputStats(payload) AS input_stats
-  FROM
-    `httparchive.pages.2019_07_01_mobile`
-)
+    countif(input_stats.found_advanced_types) as total_pages_using,
+    round(
+        countif(input_stats.found_advanced_types) * 100 / countif(
+            input_stats.total_inputs > 0
+        ),
+        2
+    ) as occurence_perc
+from
+    (
+        select getinputstats(payload) as input_stats
+        from `httparchive.pages.2019_07_01_mobile`
+    )

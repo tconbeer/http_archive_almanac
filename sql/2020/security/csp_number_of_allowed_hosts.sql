@@ -1,43 +1,50 @@
-#standardSQL
-# CSP on home pages: number of unique headers, header length and number of allowed hosts in all directives
-CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
-RETURNS STRING
-DETERMINISTIC
-LANGUAGE js AS '''
+# standardSQL
+# CSP on home pages: number of unique headers, header length and number of allowed
+# hosts in all directives
+create temporary function getheader(headers string, headername string)
+returns string
+deterministic
+language js
+as '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   if (matching_headers.length > 0) {
     return matching_headers[0].value;
   }
   return null;
-''';
-CREATE TEMP FUNCTION getNumUniqueHosts(str STRING) AS (
-  (SELECT COUNT(DISTINCT x) FROM UNNEST(REGEXP_EXTRACT_ALL(str, r'(?i)(https*://[^\s;]+)[\s;]')) AS x)
-);
+'''
+;
+create temp function getnumuniquehosts(str string) as (
+    (
+        select count(distinct x)
+        from unnest(regexp_extract_all(str, r'(?i)(https*://[^\s;]+)[\s;]')) as x
+    )
+)
+;
 
-SELECT
-  client,
-  percentile,
-  COUNT(0) AS total_requests,
-  COUNTIF(csp_header IS NOT NULL) AS total_csp_headers,
-  COUNTIF(csp_header IS NOT NULL) / COUNT(0) AS pct_csp_headers,
-  COUNT(DISTINCT csp_header) AS num_unique_csp_headers,
-  APPROX_QUANTILES(LENGTH(csp_header), 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS csp_header_length,
-  APPROX_QUANTILES(getNumUniqueHosts(csp_header), 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS unique_allowed_hosts
-FROM (
-  SELECT
+select
     client,
-    getHeader(JSON_EXTRACT(payload, '$.response.headers'), 'Content-Security-Policy') AS csp_header
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01' AND
-    firstHtml
-),
-UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  client,
-  percentile
-ORDER BY
-  client,
-  percentile
+    percentile,
+    count(0) as total_requests,
+    countif(csp_header is not null) as total_csp_headers,
+    countif(csp_header is not null) / count(0) as pct_csp_headers,
+    count(distinct csp_header) as num_unique_csp_headers,
+    approx_quantiles(length(csp_header), 1000 ignore nulls) [
+        offset (percentile * 10)
+    ] as csp_header_length,
+    approx_quantiles(getnumuniquehosts(csp_header), 1000 ignore nulls) [
+        offset (percentile * 10)
+    ] as unique_allowed_hosts
+from
+    (
+        select
+            client,
+            getheader(
+                json_extract(payload, '$.response.headers'), 'Content-Security-Policy'
+            ) as csp_header
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01' and firsthtml
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+group by client, percentile
+order by client, percentile

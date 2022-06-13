@@ -1,51 +1,37 @@
-#standardSQL
+# standardSQL
 # Top Page builders used in Ecommerce sites
-SELECT
-  _TABLE_SUFFIX AS client,
-  app,
-  COUNT(DISTINCT url) AS freq,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.technologies.2021_07_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    url
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'Ecommerce' AND
+select
+    _table_suffix as client,
+    app,
+    count(distinct url) as freq,
+    total,
+    count(distinct url) / total as pct
+from `httparchive.technologies.2021_07_01_*`
+join
     (
-      app != 'Cart Functionality' AND
-      app != 'Google Analytics Enhanced eCommerce'
+        select _table_suffix, url
+        from `httparchive.technologies.2021_07_01_*`
+        where
+            category = 'Ecommerce' and (
+                app != 'Cart Functionality'
+                and app != 'Google Analytics Enhanced eCommerce'
+            )
     )
-)
-USING
-  (_TABLE_SUFFIX, url)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(DISTINCT url) AS total
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'Ecommerce' AND
+    using
+    (_table_suffix, url)
+join
     (
-      app != 'Cart Functionality' AND
-      app != 'Google Analytics Enhanced eCommerce'
+        select _table_suffix, count(distinct url) as total
+        from `httparchive.technologies.2021_07_01_*`
+        where
+            category = 'Ecommerce' and (
+                app != 'Cart Functionality'
+                and app != 'Google Analytics Enhanced eCommerce'
+            )
+        group by _table_suffix
     )
-  GROUP BY
-    _TABLE_SUFFIX
-)
-USING
-  (_TABLE_SUFFIX)
-WHERE
-  category = 'Page builders'
-GROUP BY
-  client,
-  app,
-  total
-ORDER BY
-  client DESC,
-  pct DESC
+    using
+    (_table_suffix)
+where category = 'Page builders'
+group by client, app, total
+order by client desc, pct desc

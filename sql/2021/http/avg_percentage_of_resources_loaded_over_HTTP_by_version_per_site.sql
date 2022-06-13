@@ -1,33 +1,42 @@
 # standardSQL
 # Median percentage of resources loaded over HTTP 0.9, 1.0, 1.1, 2+ per site
-SELECT
-  client,
-  APPROX_QUANTILES(http09_pct, 1000)[OFFSET(50 * 10)] AS http09_pct,
-  APPROX_QUANTILES(http10_pct, 1000)[OFFSET(50 * 10)] AS http10_pct,
-  APPROX_QUANTILES(http11_pct, 1000)[OFFSET(50 * 10)] AS http11_pct,
-  APPROX_QUANTILES(http2_3_pct, 1000)[OFFSET(50 * 10)] AS http2_3_pct,
-  APPROX_QUANTILES(other_pct, 1000)[OFFSET(50 * 10)] AS other_pct,
-  APPROX_QUANTILES(null_pct, 1000)[OFFSET(50 * 10)] AS null_pct
-FROM
-  (
-    SELECT
-      client,
-      page,
-      COUNTIF(LOWER(protocol) = 'http/0.9') / COUNT(0) AS http09_pct,
-      COUNTIF(LOWER(protocol) = 'http/1.0') / COUNT(0) AS http10_pct,
-      COUNTIF(LOWER(protocol) = 'http/1.1') / COUNT(0) AS http11_pct,
-      COUNTIF(LOWER(protocol) = 'http/2' OR LOWER(protocol) IN ('http/3', 'h3-29', 'h3-q050', 'quic')) / COUNT(0) AS http2_3_pct,
-      COUNTIF(LOWER(protocol) NOT IN ('http/0.9', 'http/1.0', 'http/1.1', 'http/2', 'http/3', 'quic', 'h3-29', 'h3-q050')) / COUNT(0) AS other_pct,
-      COUNTIF(protocol IS NULL) / COUNT(0) AS null_pct
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2021-07-01'
-    GROUP BY
-      client,
-      page
-  )
-GROUP BY
-  client
-ORDER BY
-  client
+select
+    client,
+    approx_quantiles(http09_pct, 1000) [offset (50 * 10)] as http09_pct,
+    approx_quantiles(http10_pct, 1000) [offset (50 * 10)] as http10_pct,
+    approx_quantiles(http11_pct, 1000) [offset (50 * 10)] as http11_pct,
+    approx_quantiles(http2_3_pct, 1000) [offset (50 * 10)] as http2_3_pct,
+    approx_quantiles(other_pct, 1000) [offset (50 * 10)] as other_pct,
+    approx_quantiles(null_pct, 1000) [offset (50 * 10)] as null_pct
+from
+    (
+        select
+            client,
+            page,
+            countif(lower(protocol) = 'http/0.9') / count(0) as http09_pct,
+            countif(lower(protocol) = 'http/1.0') / count(0) as http10_pct,
+            countif(lower(protocol) = 'http/1.1') / count(0) as http11_pct,
+            countif(
+                lower(protocol) = 'http/2' or lower(
+                    protocol
+                ) in ('http/3', 'h3-29', 'h3-q050', 'quic')
+            ) / count(0) as http2_3_pct,
+            countif(
+                lower(protocol) not in (
+                    'http/0.9',
+                    'http/1.0',
+                    'http/1.1',
+                    'http/2',
+                    'http/3',
+                    'quic',
+                    'h3-29',
+                    'h3-q050'
+                )
+            ) / count(0) as other_pct,
+            countif(protocol is null) / count(0) as null_pct
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+        group by client, page
+    )
+group by client
+order by client

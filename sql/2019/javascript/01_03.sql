@@ -1,15 +1,11 @@
-#standardSQL
+# standardSQL
 # 01_03: Distribution of JS requests
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  APPROX_QUANTILES(reqJs, 1000)[OFFSET(percentile * 10)] AS distribution_js_reqs
-FROM
-  `httparchive.summary_pages.2019_07_01_*`,
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    _table_suffix as client,
+    approx_quantiles(reqjs, 1000) [offset (percentile * 10)] as distribution_js_reqs
+from
+    `httparchive.summary_pages.2019_07_01_*`,
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

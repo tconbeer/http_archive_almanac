@@ -1,71 +1,142 @@
-#standardSQL
+# standardSQL
 # Use of Cache-Control directives
-SELECT
-  client,
-  COUNT(0) AS total_requests,
-  COUNTIF(uses_cache_control) AS total_using_cache_control,
-  COUNTIF(uses_max_age) AS total_using_max_age,
-  COUNTIF(uses_no_cache) AS total_using_no_cache,
-  COUNTIF(uses_public) AS total_using_public,
-  COUNTIF(uses_must_revalidate) AS total_using_must_revalidate,
-  COUNTIF(uses_no_store) AS total_using_no_store,
-  COUNTIF(uses_private) AS total_using_private,
-  COUNTIF(uses_proxy_revalidate) AS total_using_proxy_revalidate,
-  COUNTIF(uses_s_maxage) AS total_using_s_maxage,
-  COUNTIF(uses_no_transform) AS total_using_no_transform,
-  COUNTIF(uses_immutable) AS total_using_immutable,
-  COUNTIF(uses_stale_while_revalidate) AS total_using_stale_while_revalidate,
-  COUNTIF(uses_stale_if_error) AS total_using_stale_if_error,
-  COUNTIF(uses_no_store AND uses_no_cache AND uses_max_age_zero) AS total_using_no_store_and_no_cache_and_max_age_zero,
-  COUNTIF(uses_no_store AND uses_no_cache AND NOT uses_max_age_zero) AS total_using_no_store_and_no_cache_only,
-  COUNTIF(uses_no_store AND NOT uses_no_cache AND NOT uses_max_age_zero) AS total_using_no_store_only,
-  COUNTIF(uses_max_age_zero AND NOT uses_no_store) AS total_using_max_age_zero_without_no_store,
-  COUNTIF(uses_pre_check_zero AND uses_post_check_zero) AS total_using_pre_check_zero_and_post_check_zero,
-  COUNTIF(uses_pre_check_zero) AS total_using_pre_check_zero,
-  COUNTIF(uses_post_check_zero) AS total_using_post_check_zero,
-  COUNTIF(uses_cache_control AND NOT uses_max_age AND NOT uses_no_cache AND NOT uses_public AND NOT uses_must_revalidate AND NOT uses_no_store AND NOT uses_private AND NOT uses_proxy_revalidate AND NOT uses_s_maxage AND NOT uses_no_transform AND NOT uses_immutable AND NOT uses_stale_while_revalidate AND NOT uses_stale_if_error AND NOT uses_pre_check_zero AND NOT uses_post_check_zero) AS total_erroneous_directives,
-  COUNTIF(uses_cache_control) / COUNT(0) AS pct_using_cache_control,
-  COUNTIF(uses_max_age) / COUNT(0) AS pct_using_max_age,
-  COUNTIF(uses_no_cache) / COUNT(0) AS pct_using_no_cache,
-  COUNTIF(uses_public) / COUNT(0) AS pct_using_public,
-  COUNTIF(uses_must_revalidate) / COUNT(0) AS pct_using_must_revalidate,
-  COUNTIF(uses_no_store) / COUNT(0) AS pct_using_no_store,
-  COUNTIF(uses_private) / COUNT(0) AS pct_using_private,
-  COUNTIF(uses_proxy_revalidate) / COUNT(0) AS pct_using_proxy_revalidate,
-  COUNTIF(uses_s_maxage) / COUNT(0) AS pct_using_s_maxage,
-  COUNTIF(uses_no_transform) / COUNT(0) AS pct_using_no_transform,
-  COUNTIF(uses_immutable) / COUNT(0) AS pct_using_immutable,
-  COUNTIF(uses_stale_while_revalidate) / COUNT(0) AS pct_using_stale_while_revalidate,
-  COUNTIF(uses_stale_if_error) / COUNT(0) AS pct_using_stale_if_error,
-  COUNTIF(uses_no_store AND uses_no_cache AND uses_max_age_zero) / COUNT(0) AS pct_using_no_store_and_no_cache_and_max_age_zero,
-  COUNTIF(uses_no_store AND uses_no_cache AND NOT uses_max_age_zero) / COUNT(0) AS pct_using_no_store_and_no_cache_only,
-  COUNTIF(uses_no_store AND NOT uses_no_cache AND NOT uses_max_age_zero) / COUNT(0) AS pct_using_no_store_only,
-  COUNTIF(uses_max_age_zero AND NOT uses_no_store) / COUNT(0) AS pct_using_max_age_zero_without_no_store,
-  COUNTIF(uses_pre_check_zero AND uses_post_check_zero) / COUNT(0) AS pct_using_pre_check_zero_and_post_check_zero,
-  COUNTIF(uses_pre_check_zero) / COUNT(0) AS pct_using_pre_check_zero,
-  COUNTIF(uses_post_check_zero) / COUNT(0) AS pct_using_post_check_zero,
-  COUNTIF(uses_cache_control AND NOT uses_max_age AND NOT uses_no_cache AND NOT uses_public AND NOT uses_must_revalidate AND NOT uses_no_store AND NOT uses_private AND NOT uses_proxy_revalidate AND NOT uses_s_maxage AND NOT uses_no_transform AND NOT uses_immutable AND NOT uses_stale_while_revalidate AND NOT uses_stale_if_error AND NOT uses_pre_check_zero AND NOT uses_post_check_zero) / COUNT(0) AS pct_erroneous_directives
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    TRIM(resp_cache_control) != '' AS uses_cache_control,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)max-age\s*=\s*[0-9]+') AS uses_max_age,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)max-age\s*=\s*0') AS uses_max_age_zero,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)public') AS uses_public,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)no-cache') AS uses_no_cache,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)must-revalidate') AS uses_must_revalidate,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)no-store') AS uses_no_store,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)private') AS uses_private,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)proxy-revalidate') AS uses_proxy_revalidate,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)s-maxage\s*=\s*[0-9]+') AS uses_s_maxage,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)no-transform') AS uses_no_transform,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)immutable') AS uses_immutable,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)stale-while-revalidate\s*=\s*[0-9]+') AS uses_stale_while_revalidate,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)stale-if-error\s*=\s*[0-9]+') AS uses_stale_if_error,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)pre-check\s*=\s*0') AS uses_pre_check_zero,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)post-check\s*=\s*0') AS uses_post_check_zero
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-)
-GROUP BY
-  client
+select
+    client,
+    count(0) as total_requests,
+    countif(uses_cache_control) as total_using_cache_control,
+    countif(uses_max_age) as total_using_max_age,
+    countif(uses_no_cache) as total_using_no_cache,
+    countif(uses_public) as total_using_public,
+    countif(uses_must_revalidate) as total_using_must_revalidate,
+    countif(uses_no_store) as total_using_no_store,
+    countif(uses_private) as total_using_private,
+    countif(uses_proxy_revalidate) as total_using_proxy_revalidate,
+    countif(uses_s_maxage) as total_using_s_maxage,
+    countif(uses_no_transform) as total_using_no_transform,
+    countif(uses_immutable) as total_using_immutable,
+    countif(uses_stale_while_revalidate) as total_using_stale_while_revalidate,
+    countif(uses_stale_if_error) as total_using_stale_if_error,
+    countif(
+        uses_no_store and uses_no_cache and uses_max_age_zero
+    ) as total_using_no_store_and_no_cache_and_max_age_zero,
+    countif(
+        uses_no_store and uses_no_cache and not uses_max_age_zero
+    ) as total_using_no_store_and_no_cache_only,
+    countif(
+        uses_no_store and not uses_no_cache and not uses_max_age_zero
+    ) as total_using_no_store_only,
+    countif(
+        uses_max_age_zero and not uses_no_store
+    ) as total_using_max_age_zero_without_no_store,
+    countif(
+        uses_pre_check_zero and uses_post_check_zero
+    ) as total_using_pre_check_zero_and_post_check_zero,
+    countif(uses_pre_check_zero) as total_using_pre_check_zero,
+    countif(uses_post_check_zero) as total_using_post_check_zero,
+    countif(
+        uses_cache_control
+        and not uses_max_age
+        and not uses_no_cache
+        and not uses_public
+        and not uses_must_revalidate
+        and not uses_no_store
+        and not uses_private
+        and not uses_proxy_revalidate
+        and not uses_s_maxage
+        and not uses_no_transform
+        and not uses_immutable
+        and not uses_stale_while_revalidate
+        and not uses_stale_if_error
+        and not uses_pre_check_zero
+        and not uses_post_check_zero
+    ) as total_erroneous_directives,
+    countif(uses_cache_control) / count(0) as pct_using_cache_control,
+    countif(uses_max_age) / count(0) as pct_using_max_age,
+    countif(uses_no_cache) / count(0) as pct_using_no_cache,
+    countif(uses_public) / count(0) as pct_using_public,
+    countif(uses_must_revalidate) / count(0) as pct_using_must_revalidate,
+    countif(uses_no_store) / count(0) as pct_using_no_store,
+    countif(uses_private) / count(0) as pct_using_private,
+    countif(uses_proxy_revalidate) / count(0) as pct_using_proxy_revalidate,
+    countif(uses_s_maxage) / count(0) as pct_using_s_maxage,
+    countif(uses_no_transform) / count(0) as pct_using_no_transform,
+    countif(uses_immutable) / count(0) as pct_using_immutable,
+    countif(uses_stale_while_revalidate) / count(0) as pct_using_stale_while_revalidate,
+    countif(uses_stale_if_error) / count(0) as pct_using_stale_if_error,
+    countif(uses_no_store and uses_no_cache and uses_max_age_zero) / count(
+        0
+    ) as pct_using_no_store_and_no_cache_and_max_age_zero,
+    countif(uses_no_store and uses_no_cache and not uses_max_age_zero) / count(
+        0
+    ) as pct_using_no_store_and_no_cache_only,
+    countif(uses_no_store and not uses_no_cache and not uses_max_age_zero) / count(
+        0
+    ) as pct_using_no_store_only,
+    countif(uses_max_age_zero and not uses_no_store) / count(
+        0
+    ) as pct_using_max_age_zero_without_no_store,
+    countif(uses_pre_check_zero and uses_post_check_zero) / count(
+        0
+    ) as pct_using_pre_check_zero_and_post_check_zero,
+    countif(uses_pre_check_zero) / count(0) as pct_using_pre_check_zero,
+    countif(uses_post_check_zero) / count(0) as pct_using_post_check_zero,
+    countif(
+        uses_cache_control
+        and not uses_max_age
+        and not uses_no_cache
+        and not uses_public
+        and not uses_must_revalidate
+        and not uses_no_store
+        and not uses_private
+        and not uses_proxy_revalidate
+        and not uses_s_maxage
+        and not uses_no_transform
+        and not uses_immutable
+        and not uses_stale_while_revalidate
+        and not uses_stale_if_error
+        and not uses_pre_check_zero
+        and not uses_post_check_zero
+    ) / count(0) as pct_erroneous_directives
+from
+    (
+        select
+            _table_suffix as client,
+            trim(resp_cache_control) != '' as uses_cache_control,
+            regexp_contains(
+                resp_cache_control, r'(?i)max-age\s*=\s*[0-9]+'
+            ) as uses_max_age,
+            regexp_contains(
+                resp_cache_control, r'(?i)max-age\s*=\s*0'
+            ) as uses_max_age_zero,
+            regexp_contains(resp_cache_control, r'(?i)public') as uses_public,
+            regexp_contains(resp_cache_control, r'(?i)no-cache') as uses_no_cache,
+            regexp_contains(
+                resp_cache_control, r'(?i)must-revalidate'
+            ) as uses_must_revalidate,
+            regexp_contains(resp_cache_control, r'(?i)no-store') as uses_no_store,
+            regexp_contains(resp_cache_control, r'(?i)private') as uses_private,
+            regexp_contains(
+                resp_cache_control, r'(?i)proxy-revalidate'
+            ) as uses_proxy_revalidate,
+            regexp_contains(
+                resp_cache_control, r'(?i)s-maxage\s*=\s*[0-9]+'
+            ) as uses_s_maxage,
+            regexp_contains(
+                resp_cache_control, r'(?i)no-transform'
+            ) as uses_no_transform,
+            regexp_contains(resp_cache_control, r'(?i)immutable') as uses_immutable,
+            regexp_contains(
+                resp_cache_control, r'(?i)stale-while-revalidate\s*=\s*[0-9]+'
+            ) as uses_stale_while_revalidate,
+            regexp_contains(
+                resp_cache_control, r'(?i)stale-if-error\s*=\s*[0-9]+'
+            ) as uses_stale_if_error,
+            regexp_contains(
+                resp_cache_control, r'(?i)pre-check\s*=\s*0'
+            ) as uses_pre_check_zero,
+            regexp_contains(
+                resp_cache_control, r'(?i)post-check\s*=\s*0'
+            ) as uses_post_check_zero
+        from `httparchive.summary_requests.2021_07_01_*`
+    )
+group by client

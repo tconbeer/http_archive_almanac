@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCustomPropertyMaxCycles(payload STRING)
-RETURNS INT64
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcustompropertymaxcycles(payload string)
+returns int64
+language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(vars) {
     function walkElements(node, callback, parent) {
@@ -84,26 +84,24 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(max_cycles, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS max_cycles_per_page
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    MAX(getCustomPropertyMaxCycles(payload)) AS max_cycles
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
+select
+    percentile,
     client,
-    url),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(max_cycles, 1000 ignore nulls) [
+        offset (percentile * 10)
+    ] as max_cycles_per_page
+from
+    (
+        select
+            _table_suffix as client,
+            url,
+            max(getcustompropertymaxcycles(payload)) as max_cycles
+        from `httparchive.pages.2021_07_01_*`
+        group by client, url
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

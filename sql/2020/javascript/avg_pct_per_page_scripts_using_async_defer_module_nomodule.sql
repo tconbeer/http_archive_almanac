@@ -1,36 +1,42 @@
-#standardSQL
-# Average Percent per page of external scripts using Async, Defer, Module or NoModule attributes.
-SELECT
-  client,
-  AVG(pct_external_async) AS avg_pct_external_async,
-  AVG(pct_external_defer) AS avg_pct_external_defer,
-  AVG(pct_external_module) AS avg_pct_external_module,
-  AVG(pct_external_nomodule) AS avg_pct_external_nomodule
-FROM (
-  SELECT
+# standardSQL
+# Average Percent per page of external scripts using Async, Defer, Module or NoModule
+# attributes.
+select
     client,
-    page,
-    COUNT(0) AS external_scripts,
-    COUNTIF(REGEXP_CONTAINS(script, r'\basync\b')) / COUNT(0) AS pct_external_async,
-    COUNTIF(REGEXP_CONTAINS(script, r'\bdefer\b')) / COUNT(0) AS pct_external_defer,
-    COUNTIF(REGEXP_CONTAINS(script, r'\bmodule\b')) / COUNT(0) AS pct_external_module,
-    COUNTIF(REGEXP_CONTAINS(script, r'\bnomodule\b')) / COUNT(0) AS pct_external_nomodule
-  FROM (
-    SELECT
-      client,
-      page,
-      url,
-      REGEXP_EXTRACT_ALL(body, '(?i)(<script [^>]*)') AS scripts
-    FROM
-      `httparchive.almanac.summary_response_bodies`
-    WHERE
-      date = '2020-08-01' AND
-      firstHtml),
-    UNNEST(scripts) AS script
-  WHERE
-    REGEXP_CONTAINS(script, r'\bsrc\b')
-  GROUP BY
-    client,
-    page)
-GROUP BY
-  client
+    avg(pct_external_async) as avg_pct_external_async,
+    avg(pct_external_defer) as avg_pct_external_defer,
+    avg(pct_external_module) as avg_pct_external_module,
+    avg(pct_external_nomodule) as avg_pct_external_nomodule
+from
+    (
+        select
+            client,
+            page,
+            count(0) as external_scripts,
+            countif(regexp_contains(script, r'\basync\b')) / count(
+                0
+            ) as pct_external_async,
+            countif(regexp_contains(script, r'\bdefer\b')) / count(
+                0
+            ) as pct_external_defer,
+            countif(regexp_contains(script, r'\bmodule\b')) / count(
+                0
+            ) as pct_external_module,
+            countif(regexp_contains(script, r'\bnomodule\b')) / count(
+                0
+            ) as pct_external_nomodule
+        from
+            (
+                select
+                    client,
+                    page,
+                    url,
+                    regexp_extract_all(body, '(?i)(<script [^>]*)') as scripts
+                from `httparchive.almanac.summary_response_bodies`
+                where date = '2020-08-01' and firsthtml
+            ),
+            unnest(scripts) as script
+        where regexp_contains(script, r'\bsrc\b')
+        group by client, page
+    )
+group by client

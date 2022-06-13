@@ -1,19 +1,18 @@
-#standardSQL
+# standardSQL
 # page wpt_bodies metrics grouped by device
-
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  comment_count INT64,
-  conditional_comment_count INT64,
-  head_size INT64,
-  no_h1 BOOL,
-  target_blank_total INT64,
-  target_blank_noopener_noreferrer_total INT64,
-  target_blank_noopener_total INT64,
-  target_blank_noreferrer_total INT64,
-  target_blank_neither_total INT64
-> LANGUAGE js AS '''
+create temporary function get_wpt_bodies_info(wpt_bodies_string string)
+returns struct < comment_count int64,
+conditional_comment_count int64,
+head_size int64,
+no_h1 bool,
+target_blank_total int64,
+target_blank_noopener_noreferrer_total int64,
+target_blank_noopener_total int64,
+target_blank_noreferrer_total int64,
+target_blank_neither_total int64
+> language js
+as '''
 var result = {};
 try {
     var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -37,40 +36,58 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # % of pages with comments
-  COUNTIF(wpt_bodies_info.comment_count > 0) / COUNT(0) AS pct_contains_comment,
+    # % of pages with comments
+    countif(wpt_bodies_info.comment_count > 0) / count(0) as pct_contains_comment,
 
-  # % of pages with conditional comments
-  COUNTIF(wpt_bodies_info.conditional_comment_count > 0) / COUNT(0) AS pct_contains_conditional_comment,
+    # % of pages with conditional comments
+    countif(wpt_bodies_info.conditional_comment_count > 0) / count(
+        0
+    ) as pct_contains_conditional_comment,
 
-  # pages without an h1
-  COUNTIF(wpt_bodies_info.no_h1) / COUNT(0) AS pct_no_h1,
+    # pages without an h1
+    countif(wpt_bodies_info.no_h1) / count(0) as pct_no_h1,
 
-  # pages with all target _banks including rel="noopener noreferrer"
-  COUNTIF(wpt_bodies_info.target_blank_total IS NULL OR wpt_bodies_info.target_blank_total = wpt_bodies_info.target_blank_noopener_noreferrer_total) / COUNT(0) AS pct_always_target_blank_noopener_noreferrer,
+    # pages with all target _banks including rel="noopener noreferrer"
+    countif(
+        wpt_bodies_info.target_blank_total is null
+        or wpt_bodies_info.target_blank_total
+        = wpt_bodies_info.target_blank_noopener_noreferrer_total
+    ) / count(0) as pct_always_target_blank_noopener_noreferrer,
 
-  # pages with some target _banks not using rel="noopener noreferrer"
-  COUNTIF(wpt_bodies_info.target_blank_total > wpt_bodies_info.target_blank_noopener_noreferrer_total) / COUNT(0) AS pct_some_target_blank_without_noopener_noreferrer,
+    # pages with some target _banks not using rel="noopener noreferrer"
+    countif(
+        wpt_bodies_info.target_blank_total
+        > wpt_bodies_info.target_blank_noopener_noreferrer_total
+    ) / count(0) as pct_some_target_blank_without_noopener_noreferrer,
 
-  COUNTIF(wpt_bodies_info.target_blank_total > 0) / COUNT(0) AS pct_has_target_blank,
-  COUNTIF(wpt_bodies_info.target_blank_noopener_noreferrer_total > 0) / COUNT(0) AS pct_has_target_blank_noopener_noreferrer,
-  COUNTIF(wpt_bodies_info.target_blank_noopener_total > 0) / COUNT(0) AS pct_has_target_blank_noopener,
-  COUNTIF(wpt_bodies_info.target_blank_noreferrer_total > 0) / COUNT(0) AS pct_has_target_blank_noreferrer,
-  COUNTIF(wpt_bodies_info.target_blank_neither_total > 0) / COUNT(0) AS pct_has_target_blank_neither
+    countif(wpt_bodies_info.target_blank_total > 0) / count(0) as pct_has_target_blank,
+    countif(wpt_bodies_info.target_blank_noopener_noreferrer_total > 0) / count(
+        0
+    ) as pct_has_target_blank_noopener_noreferrer,
+    countif(wpt_bodies_info.target_blank_noopener_total > 0) / count(
+        0
+    ) as pct_has_target_blank_noopener,
+    countif(wpt_bodies_info.target_blank_noreferrer_total > 0) / count(
+        0
+    ) as pct_has_target_blank_noreferrer,
+    countif(wpt_bodies_info.target_blank_neither_total > 0) / count(
+        0
+    ) as pct_has_target_blank_neither
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_wpt_bodies_info(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies')) AS wpt_bodies_info
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-GROUP BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            get_wpt_bodies_info(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as wpt_bodies_info
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

@@ -1,12 +1,12 @@
-#standardSQL
+# standardSQL
 # 01_01a: Distribution of JS bytes
-SELECT
-  percentile,
-  APPROX_QUANTILES(ROUND(bytesJs / 1024, 2), 1000)[OFFSET(percentile * 10)] AS js_kbytes
-FROM
-  `httparchive.summary_pages.2019_07_01_*`,
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile
-ORDER BY
-  percentile
+select
+    percentile,
+    approx_quantiles(round(bytesjs / 1024, 2), 1000) [
+        offset (percentile * 10)
+    ] as js_kbytes
+from
+    `httparchive.summary_pages.2019_07_01_*`,
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile
+order by percentile
