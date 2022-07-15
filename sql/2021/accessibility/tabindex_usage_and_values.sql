@@ -5,8 +5,7 @@ returns struct < total int64,
 total_positive int64,
 total_negative int64,
 total_zero int64
-> language js
-as '''
+> language js as '''
 try {
   const almanac = JSON.parse(payload);
 
@@ -45,12 +44,10 @@ select
     ) as total_with_negative_or_zero,
 
     countif(tab_index_stats.total > 0) / count(0) as pct_with_tab_indexes,
-    countif(tab_index_stats.total_positive > 0) / count(
-        0
-    ) as pct_with_positive_tab_indexes,
-    countif(tab_index_stats.total_positive > 0) / countif(
-        tab_index_stats.total > 0
-    ) as pct_positive_in_sites_with_tab_indexes
+    countif(tab_index_stats.total_positive > 0)
+    / count(0) as pct_with_positive_tab_indexes,
+    countif(tab_index_stats.total_positive > 0)
+    / countif(tab_index_stats.total > 0) as pct_positive_in_sites_with_tab_indexes
 from
     (
         select

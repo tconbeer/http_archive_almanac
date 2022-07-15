@@ -45,9 +45,8 @@ from
                     json_extract(
                         payload, '$._securityDetails.keyExchange'
                     ) as key_exchange,
-                    json_extract_scalar(
-                        payload, '$._securityDetails.protocol'
-                    ) = 'TLS 1.3' as tls13
+                    json_extract_scalar(payload, '$._securityDetails.protocol')
+                    = 'TLS 1.3' as tls13
                 from `httparchive.requests.2019_07_01_*`
             )
         where cert is not null

@@ -19,14 +19,14 @@ from
             client,
             url,
             meta_viewport is not null as has_meta_viewport,
-            regexp_extract(
-                meta_viewport, r'(?i)user-scalable\s*=\s*(no|0)'
-            ) is not null as not_scalable,
+            regexp_extract(meta_viewport, r'(?i)user-scalable\s*=\s*(no|0)')
+            is not null as not_scalable,
             safe_cast(
                 regexp_extract(
                     meta_viewport, r'(?i)maximum-scale\s*=\s*([0-9]*\.[0-9]+|[0-9]+)'
                 ) as float64
-            ) <= 1 as max_scale_1_or_less
+            )
+            <= 1 as max_scale_1_or_less
         from
             (
                 select
@@ -43,5 +43,6 @@ left join
             `httparchive.summary_pages.2021_07_01_*`,
             unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where rank <= rank_grouping
-    ) using(client, url)
+    ) using(client, url
+    )
 group by rank_grouping, client

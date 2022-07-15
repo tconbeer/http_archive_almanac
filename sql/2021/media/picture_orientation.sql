@@ -3,8 +3,7 @@
 create temporary function get_media_info(media_string string)
 returns struct < num_picture_img int64,
 num_picture_using_orientation int64
-> language js
-as '''
+> language js as '''
 var result = {};
 try {
     var media = JSON.parse(media_string);

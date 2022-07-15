@@ -3,11 +3,9 @@
 # returns all the data we need from _wpt_bodies
 create temporary function gethreflangwptbodies(wpt_bodies_string string)
 returns struct
-<
-hreflangs array
+< hreflangs array
 < string
->
-> language js
+> > language js
 as '''
 var result = {
 hreflangs: []

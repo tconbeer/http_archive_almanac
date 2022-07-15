@@ -2,8 +2,7 @@
 create temporary function getcustompropertieswithcomputedstyle(payload string) returns
 array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var vars = JSON.parse($['_css-variables']);
@@ -49,9 +48,8 @@ select distinct
     prop,
     count(distinct url) over (partition by _table_suffix, prop) as pages,
     count(distinct url) over (partition by _table_suffix) as total,
-    count(distinct url) over (
-        partition by _table_suffix, prop
-    ) / count(distinct url) over (partition by _table_suffix) as pct
+    count(distinct url) over (partition by _table_suffix, prop)
+    / count(distinct url) over (partition by _table_suffix) as pct
 from
     `httparchive.pages.2021_07_01_*`,
     unnest(getcustompropertieswithcomputedstyle(payload)) as prop

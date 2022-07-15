@@ -62,27 +62,19 @@ from
             countif(lower(script) like '%sendpulse%') as sendpulse,
             countif(lower(script) like '%quore%') as quora,
             countif(
-                lower(script) not like '%workbox%' and lower(
-                    script
-                ) not like '%sw-toolbox%' and lower(
-                    script
-                ) not like '%firebase%' and lower(
-                    script
-                ) not like '%onesignalsdk%' and lower(
-                    script
-                ) not like '%najva%' and lower(script) not like '%upush%' and lower(
-                    script
-                ) not like '%cache-polyfill.js%' and lower(
-                    script
-                ) not like '%analytics-helper.js%' and lower(
-                    script
-                ) not like '%recaptcha%' and lower(
-                    script
-                ) not like '%pwabuilder%' and lower(
-                    script
-                ) not like '%pushprofit%' and lower(
-                    script
-                ) not like '%sendpulse%' and lower(script) not like '%quora%'
+                lower(script) not like '%workbox%'
+                and lower(script) not like '%sw-toolbox%'
+                and lower(script) not like '%firebase%'
+                and lower(script) not like '%onesignalsdk%'
+                and lower(script) not like '%najva%'
+                and lower(script) not like '%upush%'
+                and lower(script) not like '%cache-polyfill.js%'
+                and lower(script) not like '%analytics-helper.js%'
+                and lower(script) not like '%recaptcha%'
+                and lower(script) not like '%pwabuilder%'
+                and lower(script) not like '%pushprofit%'
+                and lower(script) not like '%sendpulse%'
+                and lower(script) not like '%quora%'
             ) as none_of_the_above
         from
             `httparchive.pages.2021_07_01_*`,
@@ -90,9 +82,8 @@ from
                 getswlibraries(json_extract(payload, '$._pwa.importScriptsInfo'))
             ) as script
         where
-            json_extract(payload, '$._pwa.importScriptsInfo') != '[]' and json_extract(
-                payload, '$._pwa.serviceWorkerHeuristic'
-            ) = 'true'
+            json_extract(payload, '$._pwa.importScriptsInfo') != '[]'
+            and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
         group by _table_suffix, url
     )
 join

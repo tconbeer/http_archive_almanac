@@ -3,8 +3,7 @@
 create temporary function getclasschainlengths(css string)
 returns array
 < int64
-> language js
-as '''
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

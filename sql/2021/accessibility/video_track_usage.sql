@@ -8,9 +8,8 @@ select
 
     sum(total_with_track) / sum(total_videos) as pct_videos_with_tracks,
     countif(total_videos > 0) / count(0) as pct_sites_with_videos,
-    countif(total_with_track > 0) / countif(
-        total_videos > 0
-    ) as pct_video_sites_with_tracks
+    countif(total_with_track > 0)
+    / countif(total_videos > 0) as pct_video_sites_with_tracks
 from
     (
         select

@@ -3,9 +3,7 @@
 create temp function getrdfavocabs(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.rdfa_vocabs.map(vocab => vocab.toLowerCase());
@@ -40,9 +38,8 @@ select
     rdfa_vocab,
     count(rdfa_vocab) as freq_rdfa_vocab,
     sum(count(rdfa_vocab)) over (partition by client) as total_rdfa_vocab,
-    count(rdfa_vocab) / sum(
-        count(rdfa_vocab)
-    ) over (partition by client) as pct_rdfa_vocab,
+    count(rdfa_vocab)
+    / sum(count(rdfa_vocab)) over (partition by client) as pct_rdfa_vocab,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

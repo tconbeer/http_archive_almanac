@@ -39,9 +39,8 @@ from
             # if toplevel reg_domain will return NULL so we group this as sameDomain
             case
                 when
-                    net.host(url) = net.host(
-                        page
-                    ) or net.reg_domain(url) = net.reg_domain(page)
+                    net.host(url) = net.host(page)
+                    or net.reg_domain(url) = net.reg_domain(page)
                 then true
                 else false
             end as samedomain

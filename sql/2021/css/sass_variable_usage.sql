@@ -2,8 +2,7 @@
 create temporary function getvariableusage(payload string) returns
 array < struct < variable string,
 freq int64
->> language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);

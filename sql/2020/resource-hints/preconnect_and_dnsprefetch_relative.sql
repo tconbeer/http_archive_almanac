@@ -4,8 +4,7 @@
 create temporary function preconnectsandprefetchesdns(payload string)
 returns struct < both boolean,
 either boolean
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);

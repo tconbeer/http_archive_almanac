@@ -4,8 +4,8 @@ select
     _table_suffix as client,
     percentile,
     format,
-    approx_quantiles(round(respsize / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(respsize / 1024, 2), 1000) [offset (percentile * 10)
     ] as resp_size
 from
     `httparchive.summary_requests.2019_07_01_*`,

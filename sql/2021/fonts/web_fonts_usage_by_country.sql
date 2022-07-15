@@ -15,9 +15,9 @@ from
         where yyyymm = 202107
     )
 join
-    `httparchive.summary_pages.2021_07_01_*` on concat(origin, '/') = url and if(
-        device = 'desktop', 'desktop', 'mobile'
-    ) = _table_suffix
+    `httparchive.summary_pages.2021_07_01_*`
+    on concat(origin, '/') = url
+    and if(device = 'desktop', 'desktop', 'mobile') = _table_suffix
 where bytesfont is not null
 group by client, country
 order by client, country

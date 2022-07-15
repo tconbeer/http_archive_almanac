@@ -21,14 +21,15 @@ join
         )
     ) as importscript
 where
-    date = '2020-08-01' and lower(body) like '%importscripts%' and lower(
-        importscript
-    ) not like '%workbox%' and lower(importscript) not like '%sw-toolbox%' and lower(
-        importscript
-    ) not like '%firebase%' and lower(importscript) not like '%onesignalsdk%' and lower(
-        importscript
-    ) not like '%najva%' and lower(importscript) not like '%upush%' and lower(
-        importscript
-    ) not like '%ache-polyfill%' and lower(importscript) not like '%analytics-helper%'
+    date = '2020-08-01'
+    and lower(body) like '%importscripts%'
+    and lower(importscript) not like '%workbox%'
+    and lower(importscript) not like '%sw-toolbox%'
+    and lower(importscript) not like '%firebase%'
+    and lower(importscript) not like '%onesignalsdk%'
+    and lower(importscript) not like '%najva%'
+    and lower(importscript) not like '%upush%'
+    and lower(importscript) not like '%ache-polyfill%'
+    and lower(importscript) not like '%analytics-helper%'
 group by client, importscript, total
 order by pct desc, client

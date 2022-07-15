@@ -6,8 +6,7 @@ returns struct < `=` boolean,
 `^=` boolean,
 `$=` boolean,
 `~=` boolean
-> language js
-as '''
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

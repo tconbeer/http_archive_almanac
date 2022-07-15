@@ -41,9 +41,8 @@ select
     safe_divide(
         count(
             distinct if(
-                regexp_contains(
-                    respotherheaders, concat('(?i)', headername, ' ')
-                ) and starts_with(url, 'https'),
+                regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+                and starts_with(url, 'https'),
                 url,
                 null
             )
@@ -98,7 +97,8 @@ from
 group by
     client, category, app, headername, total_pages_with_technology, total_https_pages
 having
-    total_pages_with_technology >= 1000 and category in unnest(
+    total_pages_with_technology >= 1000
+    and category in unnest(
         [
             'Blogs',
             'CDN',
@@ -109,6 +109,6 @@ having
             'PaaS',
             'Security'
         ]
-    ) and
-    pct >= 0.50
+    )
+    and pct >= 0.50
 order by client, category, app, headername

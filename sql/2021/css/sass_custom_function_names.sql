@@ -1,8 +1,7 @@
 # standardSQL
 create temporary function getcustomfunctionnames(payload string) returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -39,7 +38,8 @@ join
                     json_extract_scalar(
                         json_extract_scalar(payload, '$._sass'), '$.scss.size'
                     ) as int64
-                ) > 0
+                )
+                > 0
             ) as total_sass
         from `httparchive.pages.2021_07_01_*`
         group by client

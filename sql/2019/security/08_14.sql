@@ -19,24 +19,21 @@ from
             client,
             count(0) as total,
             countif(
-                regexp_contains(
-                    lower(respotherheaders), r'frame-ancestors'
-                ) and regexp_contains(
+                regexp_contains(lower(respotherheaders), r'frame-ancestors')
+                and regexp_contains(
                     lower(respotherheaders), 'content-security-policy ='
                 )
             ) as csp_frame_ancestors_count,
             countif(
-                regexp_contains(
-                    lower(respotherheaders), r'content-security-policy ='
-                ) and ends_with(
+                regexp_contains(lower(respotherheaders), r'content-security-policy =')
+                and ends_with(
                     regexp_extract(respotherheaders, r'(?i)\Wframe-ancestors([^,|;]+)'),
                     "'none'"
                 )
             ) as csp_frame_ancestors_none_count,
             countif(
-                regexp_contains(
-                    lower(respotherheaders), r'content-security-policy ='
-                ) and ends_with(
+                regexp_contains(lower(respotherheaders), r'content-security-policy =')
+                and ends_with(
                     regexp_extract(respotherheaders, r'(?i)\Wframe-ancestors([^,|;]+)'),
                     "'self'"
                 )

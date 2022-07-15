@@ -40,14 +40,11 @@ with
 select
     *,
     number_of_websites_with_feature_policy
-    / number_of_websites
-    as pct_websites_with_feature_policy,
+    / number_of_websites as pct_websites_with_feature_policy,
     number_of_websites_with_permissions_policy
-    / number_of_websites
-    as pct_websites_with_permissions_policy,
+    / number_of_websites as pct_websites_with_permissions_policy,
     number_of_websites_with_any_policy
-    / number_of_websites
-    as pct_websites_with_any_policy
+    / number_of_websites as pct_websites_with_any_policy
 from
     (
         select

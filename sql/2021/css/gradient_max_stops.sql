@@ -162,16 +162,15 @@ try {
 # https://www.stevenmoseley.com/blog/tech/high-performance-sql-correlated-scalar-aggregate-reduction-queries
 create temporary function getgradient(value string) returns string as (substr(value, 4))
 ;
-create temporary function getstops(value string) returns int64 as (
-    cast(substr(value, 0, 3) as int64)
-)
+create temporary function getstops(value string
+) returns int64 as (cast(substr(value, 0, 3) as int64))
 ;
 
 select
     percentile,
     client,
-    approx_quantiles(getstops(max_color_stops), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        getstops(max_color_stops), 1000) [offset (percentile * 10)
     ] as max_color_stops,
     getgradient(
         approx_quantiles(max_color_stops, 1000) [offset (percentile * 10)]

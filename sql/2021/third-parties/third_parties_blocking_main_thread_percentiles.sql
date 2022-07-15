@@ -13,11 +13,11 @@ select
     count(distinct page) as total_pages,
     countif(blocking > 0) as blocking_pages,
     percentile,
-    approx_quantiles(transfer_size_kib, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        transfer_size_kib, 1000) [offset (percentile * 10)
     ] as p50_transfer_size_kib,
-    approx_quantiles(blocking_time, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        blocking_time, 1000) [offset (percentile * 10)
     ] as p50_blocking_time
 from
     (
@@ -30,15 +30,15 @@ from
                     json_value(
                         report, '$.audits.third-party-summary.details.summary.wastedMs'
                     ) as float64
-                ) > 250
+                )
+                > 250
             ) as blocking,
             sum(
                 safe_cast(json_value(third_party_items, '$.blockingTime') as float64)
             ) as blocking_time,
             sum(
-                safe_cast(
-                    json_value(third_party_items, '$.transferSize') as float64
-                ) / 1024
+                safe_cast(json_value(third_party_items, '$.transferSize') as float64)
+                / 1024
             ) as transfer_size_kib
         from
             (

@@ -9,8 +9,6 @@ create temp function is_non_zero(
     good float64, needs_improvement float64, poor float64
 ) returns bool as (good + needs_improvement + poor > 0)
 ;
-
-
 select
     client,
     ecomm,
@@ -38,18 +36,17 @@ select
     safe_divide(
         count(
             distinct if(
-                is_good(fast_lcp, avg_lcp, slow_lcp) and
-                is_good(fast_fid, avg_fid, slow_fid) is not false and is_good(
-                    small_cls, medium_cls, large_cls
-                ),
+                is_good(fast_lcp, avg_lcp, slow_lcp)
+                and is_good(fast_fid, avg_fid, slow_fid) is not false
+                and is_good(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )
         ),
         count(
             distinct if(
-                is_non_zero(fast_lcp, avg_lcp, slow_lcp) and
-                is_non_zero(small_cls, medium_cls, large_cls),
+                is_non_zero(fast_lcp, avg_lcp, slow_lcp)
+                and is_non_zero(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )
@@ -61,13 +58,14 @@ join
         select _table_suffix as client, url, app as ecomm
         from `httparchive.technologies.2021_07_01_*`
         where
-            category = 'Ecommerce' and (
+            category = 'Ecommerce'
+            and (
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
-    ) on concat(origin, '/') = url and if(
-        device = 'desktop', 'desktop', 'mobile'
-    ) = client
+    )
+    on concat(origin, '/') = url
+    and if(device = 'desktop', 'desktop', 'mobile') = client
 where date = '2021-07-01'
 group by client, ecomm
 order by origins desc

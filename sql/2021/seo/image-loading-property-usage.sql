@@ -5,12 +5,9 @@
 # returns all the data we need from _markup
 create temporary function getloadingpropertymarkupinfo(markup_string string)
 returns struct
-<
-loading array
+< loading array
 < string
->
-> language js
-as '''
+> > language js as '''
 var result = {};
 
 //Function to retrieve only keys if value is >0

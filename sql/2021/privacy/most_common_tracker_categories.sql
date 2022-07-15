@@ -22,10 +22,10 @@ select
     count(distinct page) / total_websites as pct_websites
 from `httparchive.almanac.requests`
 join
-    whotracksme on (
-        net.host(urlshort) = domain or ends_with(
-            net.host(urlshort), concat('.', domain)
-        )
+    whotracksme
+    on (
+        net.host(urlshort) = domain
+        or ends_with(net.host(urlshort), concat('.', domain))
     )
 join totals using(client)
 -- third party
@@ -40,10 +40,10 @@ select
     count(distinct page) / total_websites as pct_websites
 from `httparchive.almanac.requests`
 join
-    whotracksme on (
-        net.host(urlshort) = domain or ends_with(
-            net.host(urlshort), concat('.', domain)
-        )
+    whotracksme
+    on (
+        net.host(urlshort) = domain
+        or ends_with(net.host(urlshort), concat('.', domain))
     )
 join totals using(client)
 -- third party
@@ -58,16 +58,16 @@ select
     count(distinct page) / total_websites as pct_websites
 from `httparchive.almanac.requests`
 join
-    whotracksme on (
-        net.host(urlshort) = domain or ends_with(
-            net.host(urlshort), concat('.', domain)
-        )
+    whotracksme
+    on (
+        net.host(urlshort) = domain
+        or ends_with(net.host(urlshort), concat('.', domain))
     )
 join totals using(client)
 where
-    -- third party
-    date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort) and
-    (
+    date = '2021-07-01'
+    and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
+    and (
         -- categories selected from https://whotracks.me/blog/tracker_categories.html
         whotracksme.category = 'advertising'
         or whotracksme.category = 'pornvertising'

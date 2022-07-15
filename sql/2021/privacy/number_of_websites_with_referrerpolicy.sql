@@ -40,23 +40,17 @@ with
 select
     *,
     number_of_websites_with_entire_document_policy_meta
-    / number_of_websites
-    as pct_websites_with_entire_document_policy_meta,
+    / number_of_websites as pct_websites_with_entire_document_policy_meta,
     number_of_websites_with_entire_document_policy_header
-    / number_of_websites
-    as pct_websites_with_entire_document_policy_header,
+    / number_of_websites as pct_websites_with_entire_document_policy_header,
     number_of_websites_with_entire_document_policy
-    / number_of_websites
-    as pct_websites_with_entire_document_policy,
+    / number_of_websites as pct_websites_with_entire_document_policy,
     number_of_websites_with_any_individual_requests
-    / number_of_websites
-    as pct_websites_with_any_individual_requests,
+    / number_of_websites as pct_websites_with_any_individual_requests,
     number_of_websites_with_any_link_relations
-    / number_of_websites
-    as pct_websites_with_any_link_relations,
+    / number_of_websites as pct_websites_with_any_link_relations,
     number_of_websites_with_any_referrer_policy
-    / number_of_websites
-    as pct_websites_with_any_referrer_policy
+    / number_of_websites as pct_websites_with_any_referrer_policy
 from
     (
         select
@@ -85,9 +79,8 @@ from
                 distinct if(
                     entire_document_policy_meta is not null
                     or entire_document_policy_header is not null
-                    or array_length(individual_requests) > 0 or array_length(
-                        link_relations
-                    ) > 0,
+                    or array_length(individual_requests) > 0
+                    or array_length(link_relations) > 0,
                     page,
                     null
                 )

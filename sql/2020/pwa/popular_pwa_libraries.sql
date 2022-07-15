@@ -15,28 +15,26 @@ select
     countif(lower(body) like '%cache-polyfill%') as cache_polyfill,
     countif(lower(body) like '%analytics-helper%') as analytics_helper,
     countif(
-        lower(body) like '%importscript%' and lower(
-            body
-        ) not like '%workbox%' and lower(body) not like '%sw-toolbox%' and lower(
-            body
-        ) not like '%firebase%' and lower(body) not like '%onesignalsdk%' and lower(
-            body
-        ) not like '%najva%' and lower(body) not like '%upush%' and lower(
-            body
-        ) not like '%cache-polyfill%' and lower(body) not like '%analytics-helper%'
+        lower(body) like '%importscript%'
+        and lower(body) not like '%workbox%'
+        and lower(body) not like '%sw-toolbox%'
+        and lower(body) not like '%firebase%'
+        and lower(body) not like '%onesignalsdk%'
+        and lower(body) not like '%najva%'
+        and lower(body) not like '%upush%'
+        and lower(body) not like '%cache-polyfill%'
+        and lower(body) not like '%analytics-helper%'
     ) as importscript_nolib,
     countif(
-        lower(body) not like '%importscript%' and lower(
-            body
-        ) not like '%workbox%' and lower(body) not like '%sw-toolbox%' and lower(
-            body
-        ) not like '%firebase%' and lower(body) not like '%onesignalsdk%' and lower(
-            body
-        ) not like '%najva%' and lower(body) not like '%upush%' and lower(
-            body
-        ) not like '%cache-polyfill.js%' and lower(
-            body
-        ) not like '%analytics-helper.js%'
+        lower(body) not like '%importscript%'
+        and lower(body) not like '%workbox%'
+        and lower(body) not like '%sw-toolbox%'
+        and lower(body) not like '%firebase%'
+        and lower(body) not like '%onesignalsdk%'
+        and lower(body) not like '%najva%'
+        and lower(body) not like '%upush%'
+        and lower(body) not like '%cache-polyfill.js%'
+        and lower(body) not like '%analytics-helper.js%'
     ) as none_of_the_above
 from
     (

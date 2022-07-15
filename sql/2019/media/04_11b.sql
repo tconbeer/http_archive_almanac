@@ -1,8 +1,7 @@
 # standardSQL
 # 04_11b: pixel volume
 create temporary function getcsspixels(payload string)
-returns int64 language js
-as '''
+returns int64 language js as '''
 try {
   let data = JSON.parse(payload);
   return data.reduce((a, c) => a + (c.width||0)*(c.height||0), 0) || 0;
@@ -13,8 +12,7 @@ return null;
 ;
 
 create temporary function getnaturalpixels(payload string)
-returns int64 language js
-as '''
+returns int64 language js as '''
 try {
   let data = JSON.parse(payload);
   return data.reduce((a, c) => a + (c.naturalWidth||0)*(c.naturalHeight||0), 0) || 0;
@@ -42,33 +40,33 @@ select
     approx_quantiles(naturalpixels, 1000) [offset (750)] as naturalpixels_p75,
     approx_quantiles(naturalpixels, 1000) [offset (900)] as naturalpixels_p90,
     round(
-        approx_quantiles(naturalpixels, 1000) [
-            offset (100)
-        ] / (any_value(viewportheight) * any_value(viewportwidth)),
+        approx_quantiles(naturalpixels, 1000) [offset (100)] / (
+            any_value(viewportheight) * any_value(viewportwidth)
+        ),
         2
     ) as pct_p10,
     round(
-        approx_quantiles(naturalpixels, 1000) [
-            offset (250)
-        ] / (any_value(viewportheight) * any_value(viewportwidth)),
+        approx_quantiles(naturalpixels, 1000) [offset (250)] / (
+            any_value(viewportheight) * any_value(viewportwidth)
+        ),
         2
     ) as pct_p25,
     round(
-        approx_quantiles(naturalpixels, 1000) [
-            offset (500)
-        ] / (any_value(viewportheight) * any_value(viewportwidth)),
+        approx_quantiles(naturalpixels, 1000) [offset (500)] / (
+            any_value(viewportheight) * any_value(viewportwidth)
+        ),
         2
     ) as pct_p50,
     round(
-        approx_quantiles(naturalpixels, 1000) [
-            offset (750)
-        ] / (any_value(viewportheight) * any_value(viewportwidth)),
+        approx_quantiles(naturalpixels, 1000) [offset (750)] / (
+            any_value(viewportheight) * any_value(viewportwidth)
+        ),
         2
     ) as pct_p75,
     round(
-        approx_quantiles(naturalpixels, 1000) [
-            offset (900)
-        ] / (any_value(viewportheight) * any_value(viewportwidth)),
+        approx_quantiles(naturalpixels, 1000) [offset (900)] / (
+            any_value(viewportheight) * any_value(viewportwidth)
+        ),
         2
     ) as pct_p90
 from

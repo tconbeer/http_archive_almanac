@@ -3,9 +3,7 @@
 create temporary function getresourcehints(payload string)
 returns array < struct < name string,
 href string
->>
-language js
-as '''
+>> language js as '''
 var hints = new Set(['preload', 'prefetch']);
 try {
   var $ = JSON.parse(payload);

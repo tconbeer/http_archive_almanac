@@ -12,13 +12,11 @@ select
     countif(allow is not null and sandbox is not null) / count(0) as pct_both_frames,
     count(distinct url) as total_urls,
     count(distinct if(allow is not null, url, null)) as allow_freq_urls,
-    count(distinct if(allow is not null, url, null)) / count(
-        distinct url
-    ) as allow_pct_urls,
+    count(distinct if(allow is not null, url, null))
+    / count(distinct url) as allow_pct_urls,
     count(distinct if(sandbox is not null, url, null)) as sandbox_freq_urls,
-    count(distinct if(sandbox is not null, url, null)) / count(
-        distinct url
-    ) as sandbox_pct_urls
+    count(distinct if(sandbox is not null, url, null))
+    / count(distinct url) as sandbox_pct_urls
 from
     (
         select

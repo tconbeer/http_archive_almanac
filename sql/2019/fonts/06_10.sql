@@ -3,8 +3,7 @@
 create temporary function getfonts(css string)
 returns array < struct < weight string,
 style string
->> language js
-as '''
+>> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

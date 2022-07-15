@@ -4,9 +4,8 @@
 select
     count(url) as total,
     countif(
-        cast(
-            json_extract_scalar(report, '$.audits.color-contrast.score') as numeric
-        ) = 1
+        cast(json_extract_scalar(report, '$.audits.color-contrast.score') as numeric)
+        = 1
     ) as score_sum,
     avg(
         cast(json_extract_scalar(report, '$.audits.color-contrast.score') as numeric)
@@ -15,8 +14,12 @@ select
         countif(
             cast(
                 json_extract_scalar(report, '$.audits.color-contrast.score') as numeric
-            ) = 1
-        ) * 100 / count(url),
+            )
+            = 1
+        )
+        * 100 / count(
+            url
+        ),
         2
     ) as score_percentage
 from `httparchive.lighthouse.2019_07_01_mobile`

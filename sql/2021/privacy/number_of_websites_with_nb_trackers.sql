@@ -26,10 +26,10 @@ from
         select client, page, count(distinct tracker) as number_of_trackers
         from `httparchive.almanac.requests`
         join
-            whotracksme on (
-                net.host(urlshort) = domain or ends_with(
-                    net.host(urlshort), concat('.', domain)
-                )
+            whotracksme
+            on (
+                net.host(urlshort) = domain
+                or ends_with(net.host(urlshort), concat('.', domain))
             )
         -- third party
         where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
@@ -50,15 +50,15 @@ from
         select client, page, count(distinct tracker) as number_of_trackers
         from `httparchive.almanac.requests`
         join
-            whotracksme on (
-                net.host(urlshort) = domain or ends_with(
-                    net.host(urlshort), concat('.', domain)
-                )
+            whotracksme
+            on (
+                net.host(urlshort) = domain
+                or ends_with(net.host(urlshort), concat('.', domain))
             )
         where
-            -- third party
-            date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort) and
-            (
+            date = '2021-07-01'
+            and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
+            and (
                 -- categories selected from
                 -- https://whotracks.me/blog/tracker_categories.html
                 whotracksme.category = 'advertising'

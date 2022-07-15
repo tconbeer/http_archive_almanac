@@ -13,7 +13,8 @@ from
             category,
             countif(
                 lower(http_version) in ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050')
-            ) / count(0) as http2_3_pct
+            )
+            / count(0) as http2_3_pct
         from
             (
                 select client, page, url, category, protocol as http_version
@@ -21,9 +22,9 @@ from
                     `httparchive.almanac.requests` r,
                     `httparchive.almanac.third_parties` tp
                 where
-                    r.date = '2021-07-01' and tp.date = '2021-07-01' and net.host(
-                        url
-                    ) = domain
+                    r.date = '2021-07-01'
+                    and tp.date = '2021-07-01'
+                    and net.host(url) = domain
             )
         group by client, page, category
     ),

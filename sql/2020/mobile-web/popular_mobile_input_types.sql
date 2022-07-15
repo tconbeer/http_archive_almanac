@@ -3,8 +3,7 @@
 create temporary function getinputtypes(payload string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
   try {
     const almanac = JSON.parse(payload);
     return almanac.input_elements.nodes.map(function(node) {
@@ -36,7 +35,8 @@ from
                 json_extract_scalar(
                     json_extract_scalar(payload, '$._almanac'), '$.input_elements.total'
                 ) as int64
-            ) > 0
+            )
+            > 0
     ),
     unnest(getinputtypes(json_extract_scalar(payload, '$._almanac'))) as input_type
 group by input_type, total_pages_with_inputs

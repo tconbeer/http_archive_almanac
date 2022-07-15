@@ -9,8 +9,7 @@ audit_group string,
 title string,
 description string,
 score int64
->> language js
-as '''
+>> language js as '''
 var $ = JSON.parse(report);
 var auditrefs = $.categories[category].auditRefs;
 var audits = $.audits;

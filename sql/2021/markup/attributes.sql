@@ -28,7 +28,9 @@ select
     sum(sum(almanac_attribute_info.freq)) over (partition by _table_suffix) as total,
     sum(almanac_attribute_info.freq) / sum(
         sum(almanac_attribute_info.freq)
-    ) over (partition by _table_suffix) as pct_ratio
+    ) over (
+        partition by _table_suffix
+    ) as pct_ratio
 from
     `httparchive.pages.2021_07_01_*`,
     unnest(

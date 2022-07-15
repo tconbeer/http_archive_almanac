@@ -3,9 +3,7 @@
 create temp function getopengraphtypes(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.opengraph.map(opengraph => opengraph.property.toLowerCase());
@@ -40,9 +38,8 @@ select
     open_graph_type,
     count(open_graph_type) as freq_open_graph_type,
     sum(count(open_graph_type)) over (partition by client) as total_open_graph_types,
-    count(open_graph_type) / sum(
-        count(open_graph_type)
-    ) over (partition by client) as pct_open_graph_types,
+    count(open_graph_type)
+    / sum(count(open_graph_type)) over (partition by client) as pct_open_graph_types,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

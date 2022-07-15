@@ -25,9 +25,8 @@ select
     rank_grouping,
     count(distinct if(domain is not null, page, null)) as pages_with_third_party,
     count(distinct page) as total_pages,
-    count(distinct if(domain is not null, page, null)) / count(
-        distinct page
-    ) as pct_pages_with_third_party
+    count(distinct if(domain is not null, page, null))
+    / count(distinct page) as pct_pages_with_third_party
 from pages
 join requests using(client, page)
 left join

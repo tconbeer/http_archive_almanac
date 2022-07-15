@@ -3,8 +3,7 @@
 create temporary function getimagedimensions(payload string)
 returns array < struct < height int64,
 width int64
->> language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var images = JSON.parse($._Images);

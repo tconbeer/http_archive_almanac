@@ -3,11 +3,9 @@
 # returns all the data we need from _robots_txt
 create temporary function getrobotstextuseragents(robots_txt_string string)
 returns struct
-<
-user_agents array
+< user_agents array
 < string
->
-> language js
+> > language js
 as '''
 var result = {
   user_agents: []

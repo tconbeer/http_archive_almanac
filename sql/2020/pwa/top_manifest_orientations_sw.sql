@@ -1,8 +1,7 @@
 # standardSQL
 # Top manifest orientations - based on 2019/14_04g.sql
 create temporary function getorientation(manifest string)
-returns string language js
-as '''
+returns string language js as '''
 try {
   var $ = JSON.parse(manifest);
   if (!('orientation' in $)) {

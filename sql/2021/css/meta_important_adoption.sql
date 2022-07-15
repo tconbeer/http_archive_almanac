@@ -2,8 +2,7 @@
 create temporary function getimportantproperties(css string)
 returns struct < total int64,
 important int64 > language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   var ast = JSON.parse(css);
   let ret = {
@@ -34,8 +33,8 @@ select
     percentile,
     client,
     countif(pct_important = 100) as all_important_pages,
-    approx_quantiles(pct_important, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        pct_important, 1000) [offset (percentile * 10)
     ] as pct_important_props
 from
     (

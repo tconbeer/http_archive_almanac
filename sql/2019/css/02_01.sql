@@ -1,8 +1,7 @@
 # standardSQL
 # 02_01: % of sites that use custom properties.
 create temporary function usescustomprops(css string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

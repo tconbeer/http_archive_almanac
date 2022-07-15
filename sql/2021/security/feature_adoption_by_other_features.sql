@@ -13,25 +13,22 @@ select
     ) as pct,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and starts_with(url, 'https')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and starts_with(url, 'https')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_https,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Content-Security-Policy ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Content-Security-Policy ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_csp,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(
                 respotherheaders, '(?i)Content-Security-Policy-Report-Only '
             )
         ),
@@ -39,97 +36,85 @@ select
     ) as pct_header_and_csp_report_only,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Cross-Origin-Embedder-Policy ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Cross-Origin-Embedder-Policy ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_coep,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Cross-Origin-Opener-Policy ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Cross-Origin-Opener-Policy ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_coop,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Cross-Origin-Resource-Policy ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Cross-Origin-Resource-Policy ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_corp,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Expect-CT ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Expect-CT ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_expectct,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Feature-Policy ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Feature-Policy ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_featurep,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Permissions-Policy ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Permissions-Policy ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_permissionsp,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Referrer-Policy ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Referrer-Policy ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_referrerp,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Report-To ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Report-To ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_reportto,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)Strict-Transport-Security ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)Strict-Transport-Security ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_hsts,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)X-Content-Type-Options ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)X-Content-Type-Options ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_xcto,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)X-Frame-Options ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)X-Frame-Options ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_xfo,
     safe_divide(
         countif(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and regexp_contains(respotherheaders, '(?i)X-XSS-Protection ')
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and regexp_contains(respotherheaders, '(?i)X-XSS-Protection ')
         ),
         countif(regexp_contains(respotherheaders, concat('(?i)', headername, ' ')))
     ) as pct_header_and_xss

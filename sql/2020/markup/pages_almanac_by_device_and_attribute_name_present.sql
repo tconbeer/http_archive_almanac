@@ -8,8 +8,7 @@ create temp function as_percent(freq float64, total float64) returns float64 as 
 create temporary function get_almanac_attribute_names(almanac_string string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
     var almanac = JSON.parse(almanac_string);
 

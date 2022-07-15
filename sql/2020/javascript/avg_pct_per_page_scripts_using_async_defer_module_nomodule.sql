@@ -13,18 +13,14 @@ from
             client,
             page,
             count(0) as external_scripts,
-            countif(regexp_contains(script, r'\basync\b')) / count(
-                0
-            ) as pct_external_async,
-            countif(regexp_contains(script, r'\bdefer\b')) / count(
-                0
-            ) as pct_external_defer,
-            countif(regexp_contains(script, r'\bmodule\b')) / count(
-                0
-            ) as pct_external_module,
-            countif(regexp_contains(script, r'\bnomodule\b')) / count(
-                0
-            ) as pct_external_nomodule
+            countif(regexp_contains(script, r'\basync\b'))
+            / count(0) as pct_external_async,
+            countif(regexp_contains(script, r'\bdefer\b'))
+            / count(0) as pct_external_defer,
+            countif(regexp_contains(script, r'\bmodule\b'))
+            / count(0) as pct_external_module,
+            countif(regexp_contains(script, r'\bnomodule\b'))
+            / count(0) as pct_external_nomodule
         from
             (
                 select

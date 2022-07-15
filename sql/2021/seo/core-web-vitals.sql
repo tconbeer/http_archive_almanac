@@ -5,8 +5,7 @@ create temp function is_good(
     good float64, needs_improvement float64, poor float64
 ) returns bool as (good / (good + needs_improvement + poor) >= 0.75)
 ;
-create temp function is_non_zero(
-    good float64, needs_improvement float64, poor float64
+create temp function is_non_zero(good float64, needs_improvement float64, poor float64
 ) returns bool as (good + needs_improvement + poor > 0)
 ;
 select
@@ -31,18 +30,17 @@ select
     safe_divide(
         count(
             distinct if(
-                is_good(fast_lcp, avg_lcp, slow_lcp) and
-                is_good(fast_fid, avg_fid, slow_fid) is not false and is_good(
-                    small_cls, medium_cls, large_cls
-                ),
+                is_good(fast_lcp, avg_lcp, slow_lcp)
+                and is_good(fast_fid, avg_fid, slow_fid) is not false
+                and is_good(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )
         ),
         count(
             distinct if(
-                is_non_zero(fast_lcp, avg_lcp, slow_lcp) and
-                is_non_zero(small_cls, medium_cls, large_cls),
+                is_non_zero(fast_lcp, avg_lcp, slow_lcp)
+                and is_non_zero(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )

@@ -45,9 +45,8 @@ select
     req_category,
     count(0) as total_requests,
     sum(hsts_header) / count(0) as pct_hsts_header_requests,
-    sum(x_content_type_options_header) / count(
-        0
-    ) as pct_x_content_type_options_header_requests,
+    sum(x_content_type_options_header)
+    / count(0) as pct_x_content_type_options_header_requests,
     sum(x_frame_options_header) / count(0) as pct_x_frame_options_header_requests,
     sum(x_xss_protection_header) / count(0) as pct_x_xss_protection_header_requests
 from base

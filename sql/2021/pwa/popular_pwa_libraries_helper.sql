@@ -30,18 +30,17 @@ from
     `httparchive.pages.2021_07_01_*`,
     unnest(getswlibraries(json_extract(payload, '$._pwa.importScriptsInfo'))) as script
 where
-    json_extract(payload, '$._pwa.importScriptsInfo') != '[]' and json_extract(
-        payload, '$._pwa.serviceWorkerHeuristic'
-    ) = 'true' and lower(script) not like '%workbox%' and lower(
-        script
-    ) not like '%sw-toolbox%' and lower(script) not like '%firebase%' and lower(
-        script
-    ) not like '%onesignalsdk%' and lower(script) not like '%najva%' and lower(
-        script
-    ) not like '%upush%' and lower(script) not like '%cache-polyfill.js%' and lower(
-        script
-    ) not like '%analytics-helper.js%' and lower(
-        script
-    ) not like '%recaptcha%' and lower(script) not like '%pwabuilder%'
+    json_extract(payload, '$._pwa.importScriptsInfo') != '[]'
+    and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+    and lower(script) not like '%workbox%'
+    and lower(script) not like '%sw-toolbox%'
+    and lower(script) not like '%firebase%'
+    and lower(script) not like '%onesignalsdk%'
+    and lower(script) not like '%najva%'
+    and lower(script) not like '%upush%'
+    and lower(script) not like '%cache-polyfill.js%'
+    and lower(script) not like '%analytics-helper.js%'
+    and lower(script) not like '%recaptcha%'
+    and lower(script) not like '%pwabuilder%'
 group by _table_suffix, script
 order by freq desc

@@ -18,9 +18,9 @@ select
         count(0) * 100 / sum(count(0)) over (partition by client), 2
     ) as pct_of_all_requests,
     round(
-        count(distinct pageid) * 100 / sum(
-            count(distinct pageid)
-        ) over (partition by client),
+        count(distinct pageid)
+        * 100
+        / sum(count(distinct pageid)) over (partition by client),
         2
     ) as pct_of_all_pages
 from `httparchive.almanac.summary_requests`

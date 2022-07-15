@@ -3,8 +3,7 @@
 create temporary function getaltstats(payload string)
 returns struct < has_alts bool,
 has_alt_of_zero_length bool
-> language js
-as '''
+> language js as '''
 try {
   const almanac = JSON.parse(payload);
   const alt_lengths = almanac.images.alt_lengths;
@@ -27,9 +26,8 @@ select
     countif(alt_stats.has_alts) as total_sites_with_alts,
     countif(alt_stats.has_alt_of_zero_length) as total_sites_with_zero_length_alt,
 
-    countif(alt_stats.has_alt_of_zero_length) / countif(
-        alt_stats.has_alts
-    ) as perc_sites_with_zero_length_alt
+    countif(alt_stats.has_alt_of_zero_length)
+    / countif(alt_stats.has_alts) as perc_sites_with_zero_length_alt
 from
     (
         select

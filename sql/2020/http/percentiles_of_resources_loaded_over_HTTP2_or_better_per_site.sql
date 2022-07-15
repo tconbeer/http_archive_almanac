@@ -3,8 +3,8 @@
 select
     client,
     percentile,
-    approx_quantiles(round(http2_pct, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(http2_pct, 2), 1000) [offset (percentile * 10)
     ] as http2_or_above
 from
     (
@@ -15,7 +15,8 @@ from
                 json_extract_scalar(payload, '$._protocol') in (
                     'HTTP/2', 'QUIC', 'http/2+quic/46'
                 )
-            ) / count(0) as http2_pct
+            )
+            / count(0) as http2_pct
         from `httparchive.almanac.requests`
         where date = '2020-08-01'
         group by client, page

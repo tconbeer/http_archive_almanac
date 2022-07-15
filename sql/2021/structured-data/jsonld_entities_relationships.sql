@@ -5,8 +5,7 @@ returns array < struct < _from string,
 relationship string,
 _to string,
 depth numeric
->>
-language js
+>> language js
 as """
   try {
     const types = new Map();

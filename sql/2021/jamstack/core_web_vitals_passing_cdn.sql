@@ -9,8 +9,6 @@ create temp function is_non_zero(
     good float64, needs_improvement float64, poor float64
 ) returns bool as (good + needs_improvement + poor > 0)
 ;
-
-
 select
     client,
     cdn,
@@ -38,21 +36,20 @@ select
     safe_divide(
         count(
             distinct if(
-                is_good(fast_lcp, avg_lcp, slow_lcp) and
-                (
-                    not is_non_zero(fast_fid, avg_fid, slow_fid) or is_good(
-                        fast_fid, avg_fid, slow_fid
-                    )
-                ) and
-                is_good(small_cls, medium_cls, large_cls),
+                is_good(fast_lcp, avg_lcp, slow_lcp)
+                and (
+                    not is_non_zero(fast_fid, avg_fid, slow_fid)
+                    or is_good(fast_fid, avg_fid, slow_fid)
+                )
+                and is_good(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )
         ),
         count(
             distinct if(
-                is_non_zero(fast_lcp, avg_lcp, slow_lcp) and
-                is_non_zero(small_cls, medium_cls, large_cls),
+                is_non_zero(fast_lcp, avg_lcp, slow_lcp)
+                and is_non_zero(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )
@@ -82,7 +79,8 @@ join
                             )
                         ),
                         '(x-github-request)'
-                    ) = 'x-github-request'
+                    )
+                    = 'x-github-request'
                 then 'GitHub'
                 when
                     regexp_extract(
@@ -95,7 +93,8 @@ join
                             )
                         ),
                         '(netlify)'
-                    ) = 'netlify'
+                    )
+                    = 'netlify'
                 then 'Netlify'
                 when
                     regexp_extract(
@@ -108,7 +107,8 @@ join
                             )
                         ),
                         '(x-nf-request-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Netlify'
                 when
                     regexp_extract(
@@ -121,7 +121,8 @@ join
                             )
                         ),
                         '(x-vercel-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Vercel'
                 when
                     regexp_extract(
@@ -134,7 +135,8 @@ join
                             )
                         ),
                         '(x-amz-cf-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'AWS'
                 when
                     regexp_extract(
@@ -147,7 +149,8 @@ join
                             )
                         ),
                         '(x-azure-ref)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Azure'
                 when _cdn_provider = 'Microsoft Azure'
                 then 'Azure'
@@ -175,9 +178,9 @@ join
         select distinct _table_suffix as client, url
         from `httparchive.technologies.2021_07_01_*`
         where
-            lower(
-                category
-            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+            lower(category) = 'static site generator'
+            or app = 'Next.js'
+            or app = 'Nuxt.js'
     )
     using(client, url)
 where cdn is not null

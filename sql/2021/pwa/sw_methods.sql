@@ -3,8 +3,7 @@
 create temporary function getswmethods(swmethodsinfo string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var swMethods = JSON.parse(swMethodsInfo);
   return Array.from(new Set(Object.values(swMethods).flat()));
@@ -32,8 +31,7 @@ join
     )
     using(_table_suffix)
 where
-    json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true' and json_extract(
-        payload, '$._pwa.swMethodsInfo'
-    ) != '[]'
+    json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+    and json_extract(payload, '$._pwa.swMethodsInfo') != '[]'
 group by client, total, sw_method
 order by freq / total desc, client

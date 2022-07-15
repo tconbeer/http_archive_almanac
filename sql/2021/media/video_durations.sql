@@ -13,72 +13,62 @@ with
                 then 'under5'
                 when
                     (
-                        cast(durations as float64) > 5 and cast(
-                            durations as float64
-                        ) <= 10
+                        cast(durations as float64) > 5
+                        and cast(durations as float64) <= 10
                     )
                 then 'under10'
                 when
                     (
-                        cast(durations as float64) > 10 and cast(
-                            durations as float64
-                        ) <= 20
+                        cast(durations as float64) > 10
+                        and cast(durations as float64) <= 20
                     )
                 then 'under20'
                 when
                     (
-                        cast(durations as float64) > 20 and cast(
-                            durations as float64
-                        ) <= 30
+                        cast(durations as float64) > 20
+                        and cast(durations as float64) <= 30
                     )
                 then 'under30'
                 when
                     (
-                        cast(durations as float64) > 30 and cast(
-                            durations as float64
-                        ) <= 45
+                        cast(durations as float64) > 30
+                        and cast(durations as float64) <= 45
                     )
                 then 'under45'
                 when
                     (
-                        cast(durations as float64) > 45 and cast(
-                            durations as float64
-                        ) <= 60
+                        cast(durations as float64) > 45
+                        and cast(durations as float64) <= 60
                     )
                 then 'under60'
                 when
                     (
-                        cast(durations as float64) > 60 and cast(
-                            durations as float64
-                        ) <= 90
+                        cast(durations as float64) > 60
+                        and cast(durations as float64) <= 90
                     )
                 then 'under90'
                 when
                     (
-                        cast(durations as float64) > 90 and cast(
-                            durations as float64
-                        ) <= 120
+                        cast(durations as float64) > 90
+                        and cast(durations as float64) <= 120
                     )
                 then 'under120'
                 when
                     (
-                        cast(durations as float64) > 120 and cast(
-                            durations as float64
-                        ) <= 180
+                        cast(durations as float64) > 120
+                        and cast(durations as float64) <= 180
                     )
                 then 'under180'
                 when
                     (
-                        cast(durations as float64) > 180 and cast(
-                            durations as float64
-                        ) <= 300
+                        cast(durations as float64) > 180
+                        and cast(durations as float64) <= 300
                     )
                 then 'under300'
                 when
                     (
-                        cast(durations as float64) > 300 and cast(
-                            durations as float64
-                        ) <= 600
+                        cast(durations as float64) > 300
+                        and cast(durations as float64) <= 600
                     )
                 then 'under600'
                 else 'over600'

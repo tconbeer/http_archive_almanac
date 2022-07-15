@@ -2,8 +2,7 @@
 # page almanac metrics grouped by device and html dir
 # returns all the data we need from _almanac
 create temporary function get_almanac_html_dir(almanac_string string)
-returns string language js
-as '''
+returns string language js as '''
 try {
     var almanac = JSON.parse(almanac_string);
 

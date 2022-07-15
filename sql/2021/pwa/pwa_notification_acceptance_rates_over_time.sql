@@ -35,7 +35,7 @@ where
         or notification_permission_deny is not null
         or notification_permission_ignore is not null
         or notification_permission_dismiss is not null
-    ) and
-    device in ('desktop', 'phone')
+    )
+    and device in ('desktop', 'phone')
 group by date, device
 order by date desc, device

@@ -7,17 +7,17 @@ select
     date,
     client,
     percentile,
-    approx_quantiles(notification_permission_accept, 1000 respect nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        notification_permission_accept, 1000 respect nulls) [offset (percentile * 10)
     ] as notification_permission_accept,
-    approx_quantiles(notification_permission_deny, 1000 respect nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        notification_permission_deny, 1000 respect nulls) [offset (percentile * 10)
     ] as notification_permission_deny,
-    approx_quantiles(notification_permission_ignore, 1000 respect nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        notification_permission_ignore, 1000 respect nulls) [offset (percentile * 10)
     ] as notification_permission_ignore,
-    approx_quantiles(notification_permission_dismiss, 1000 respect nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        notification_permission_dismiss, 1000 respect nulls) [offset (percentile * 10)
     ] as notification_permission_dismiss
 from `chrome-ux-report.materialized.metrics_summary`
 join
@@ -31,8 +31,8 @@ join
     (origin),
     unnest( [10, 25, 50, 75, 90, 100]) as percentile
 where
-    date in ('2021-07-01') and
-    (
+    date in ('2021-07-01')
+    and (
         notification_permission_accept is not null
         or notification_permission_deny is not null
         or notification_permission_ignore is not null

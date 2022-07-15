@@ -3,8 +3,7 @@
 create temporary function extracthttpheaders(httpheaders string)
 returns array
 < string
-> language js
-as """
+> language js as """
 try {
   var headers = JSON.parse(HTTPheaders);
 
@@ -36,12 +35,14 @@ join
     )
     using(client)
 where
-    date = '2021-07-01' and (
+    date = '2021-07-01'
+    and (
         (
             header like '% %'
             and header not like 'http/1.1 %'
             and header not like 'http/1.0 %'
-        ) or (regexp_replace(header, r'([^\p{ASCII}]+)', '') != header)
+        )
+        or (regexp_replace(header, r'([^\p{ASCII}]+)', '') != header)
     )
 group by client, header, total
 order by pct desc, client

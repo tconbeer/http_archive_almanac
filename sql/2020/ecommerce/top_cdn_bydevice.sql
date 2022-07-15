@@ -28,8 +28,7 @@ join
     using
     (client)
 where
-    `httparchive.almanac.summary_requests`.date = '2020-08-01' and lower(
-        category
-    ) = 'cdn'
+    `httparchive.almanac.summary_requests`.date = '2020-08-01'
+    and lower(category) = 'cdn'
 group by client, total, provider
 order by freq_requests / total desc

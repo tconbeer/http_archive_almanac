@@ -14,8 +14,7 @@ select
     countif(
         cast(json_extract_scalar(metrics, '$.privacy_wording_links') as int64) > 0
     ) as websites_with_privacy_link,
-    countif(
-        cast(json_extract_scalar(metrics, '$.privacy_wording_links') as int64) > 0
-    ) / count(0) as pct_websites_with_privacy_link
+    countif(cast(json_extract_scalar(metrics, '$.privacy_wording_links') as int64) > 0)
+    / count(0) as pct_websites_with_privacy_link
 from pages_privacy
 group by client

@@ -48,7 +48,8 @@ from
                 select distinct _table_suffix as client, category, app as cms, url
                 from `httparchive.technologies.2021_07_01_*`
                 where app is not null and category = 'CMS' and app != ''
-            ) using(client, url)
+            ) using(client, url
+            )
         group by client, geo, cms
     )
 where pages > 1000

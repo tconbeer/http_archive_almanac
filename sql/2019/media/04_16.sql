@@ -15,7 +15,9 @@ join
     using
     (client)
 where
-    date = '2019-07-01' and type = 'video' and net.reg_domain(url) not in (
+    date = '2019-07-01'
+    and type = 'video'
+    and net.reg_domain(url) not in (
         'youtube.com',
         'youtube-nocookie.com',
         'googlevideo.com',

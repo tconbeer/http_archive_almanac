@@ -3,8 +3,7 @@
 create temporary function getlengthunit(css string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   // https://developer.mozilla.org/en-US/docs/Web/CSS/length
   var units = ['cap', 'ch', 'em', 'ex', 'ic', 'lh', 'rem',

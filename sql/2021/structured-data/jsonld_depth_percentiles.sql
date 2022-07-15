@@ -5,8 +5,7 @@ returns array < struct < _from string,
 relationship string,
 _to string,
 depth numeric
->>
-language js
+>> language js
 as """
   try {
     const types = new Map();
@@ -64,8 +63,8 @@ with
 select
     client,
     percentile,
-    approx_quantiles(jsonld_entity_relationship.depth, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        jsonld_entity_relationship.depth, 1000) [offset (percentile * 10)
     ] as depth,
     array_to_string(array_agg(distinct url limit 5), ' ') as sample_urls
 from

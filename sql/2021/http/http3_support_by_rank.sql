@@ -29,9 +29,11 @@ from
         select client, page, rank
         from `httparchive.almanac.requests`
         where
-            date = '2021-07-01' and firsthtml and (
-                lower(protocol) in ('http/3', 'quic', 'h3-29', 'h3-q050') or
-                extracthttpheader(response_headers, 'alt-svc') like '%h3%'
+            date = '2021-07-01'
+            and firsthtml
+            and (
+                lower(protocol) in ('http/3', 'quic', 'h3-29', 'h3-q050')
+                or extracthttpheader(response_headers, 'alt-svc') like '%h3%'
             )
     ),
     unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping

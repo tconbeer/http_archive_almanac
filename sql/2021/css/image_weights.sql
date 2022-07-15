@@ -3,11 +3,11 @@
 select
     percentile,
     client,
-    approx_quantiles(css_initiated_images_per_page, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        css_initiated_images_per_page, 1000) [offset (percentile * 10)
     ] as css_initiated_images_per_page,
-    approx_quantiles(total_css_initiated_image_weight_per_page, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        total_css_initiated_image_weight_per_page, 1000) [offset (percentile * 10)
     ] as total_css_initiated_image_weight_per_page
 from
     (

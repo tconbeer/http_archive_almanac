@@ -3,8 +3,7 @@
 create temporary function getmediatype(css string)
 returns struct < max_width boolean,
 min_width boolean
-> language js
-as '''
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {

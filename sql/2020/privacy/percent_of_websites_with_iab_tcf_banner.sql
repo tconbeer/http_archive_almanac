@@ -12,8 +12,7 @@ select
     client,
     count(0) as total_websites,
     countif(json_extract_scalar(metrics, '$.iab_tcf') = '1') as websites_with_iab,
-    countif(json_extract_scalar(metrics, '$.iab_tcf') = '1') / count(
-        0
-    ) as pct_iab_banner_pages
+    countif(json_extract_scalar(metrics, '$.iab_tcf') = '1')
+    / count(0) as pct_iab_banner_pages
 from pages_privacy
 group by client

@@ -22,9 +22,8 @@ select
     protocol as http_version,
     countif(extracthttpheader(response_headers, 'upgrade') like '%h2%') as num_requests,
     count(0) as total,
-    countif(extracthttpheader(response_headers, 'upgrade') like '%h2%') / count(
-        0
-    ) as pct
+    countif(extracthttpheader(response_headers, 'upgrade') like '%h2%')
+    / count(0) as pct
 from `httparchive.almanac.requests`
 where date = '2021-07-01' and url like 'https://%' and lower(protocol) = 'http/2'
 group by client, firsthtml, http_version

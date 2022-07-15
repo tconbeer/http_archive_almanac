@@ -2,8 +2,7 @@
 # Number of HTTPS requests using HTTP/2 which return upgrade HTTP header containing h2
 create temporary function getupgradeheader(payload string)
 returns string
-language js
-as """
+language js as """
   try {
     var $ = JSON.parse(payload);
     var headers = $.response.headers;
@@ -25,7 +24,7 @@ select
     count(0) as total
 from `httparchive.almanac.requests`
 where
-    date = '2020-08-01' and url like 'https://%' and json_extract_scalar(
-        payload, '$._protocol'
-    ) = 'HTTP/2'
+    date = '2020-08-01'
+    and url like 'https://%'
+    and json_extract_scalar(payload, '$._protocol') = 'HTTP/2'
 group by client, firsthtml, http_version

@@ -6,9 +6,9 @@ select
     countif(regexp_contains(respotherheaders, concat('(?i)', header, ' ='))) as freq,
     total,
     round(
-        countif(
-            regexp_contains(respotherheaders, concat('(?i)', header, ' ='))
-        ) * 100 / total,
+        countif(regexp_contains(respotherheaders, concat('(?i)', header, ' =')))
+        * 100
+        / total,
         2
     ) as pct
 from

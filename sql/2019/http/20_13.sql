@@ -4,9 +4,7 @@
 create temporary function getlinkheaders(payload string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   var $ = JSON.parse(payload);
   var headers = $.response.headers;
   var preload=[];

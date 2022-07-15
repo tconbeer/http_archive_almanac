@@ -3,9 +3,8 @@
 select
     countif(color_contrast_score is not null) as total_applicable,
     countif(cast(color_contrast_score as numeric) = 1) as total_sufficient,
-    countif(cast(color_contrast_score as numeric) = 1) / countif(
-        color_contrast_score is not null
-    ) as pct_in_applicable
+    countif(cast(color_contrast_score as numeric) = 1)
+    / countif(color_contrast_score is not null) as pct_in_applicable
 from
     (
         select

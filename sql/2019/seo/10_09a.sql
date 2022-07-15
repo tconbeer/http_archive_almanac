@@ -6,11 +6,11 @@ select
     client,
     approx_quantiles(words_count, 1000) [offset (percentile * 10)] as words_count,
     approx_quantiles(word_elements, 1000) [offset (percentile * 10)] as word_elements,
-    approx_quantiles(header_words_count, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        header_words_count, 1000) [offset (percentile * 10)
     ] as header_words_count,
-    approx_quantiles(header_elements, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        header_elements, 1000) [offset (percentile * 10)
     ] as header_elements
 from
     (

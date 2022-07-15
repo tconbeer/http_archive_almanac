@@ -15,16 +15,12 @@ from
             json_extract_scalar(payload, '$._was_pushed') = '1' as was_pushed
         from `httparchive.almanac.requests`
         where
-            date = '2020-08-01' and (
-                lower(
-                    json_extract_scalar(payload, '$._protocol')
-                ) like 'http/2' or lower(
-                    json_extract_scalar(payload, '$._protocol')
-                ) like '%quic%' or lower(
-                    json_extract_scalar(payload, '$._protocol')
-                ) like 'h3%' or lower(
-                    json_extract_scalar(payload, '$._protocol')
-                ) like 'http/3%'
+            date = '2020-08-01'
+            and (
+                lower(json_extract_scalar(payload, '$._protocol')) like 'http/2'
+                or lower(json_extract_scalar(payload, '$._protocol')) like '%quic%'
+                or lower(json_extract_scalar(payload, '$._protocol')) like 'h3%'
+                or lower(json_extract_scalar(payload, '$._protocol')) like 'http/3%'
             )
     )
 group by client, http_version

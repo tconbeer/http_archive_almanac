@@ -161,16 +161,16 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(median_color_stop, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        median_color_stop, 1000 ignore nulls) [offset (percentile * 10)
     ] as median_color_stop
 from
     (
         select
             client,
             page,
-            approx_quantiles(color_stops, 1000 ignore nulls) [
-                offset (500)
+            approx_quantiles(
+                color_stops, 1000 ignore nulls) [offset (500)
             ] as median_color_stop
         from `httparchive.almanac.parsed_css`, unnest(getcolorstops(css)) as color_stops
         where date = '2021-07-01'

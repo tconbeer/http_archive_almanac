@@ -1,8 +1,7 @@
 # standardSQL
 # 21_12a: Count of pages using native lazy loading
 create temporary function nativelazyloads(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);

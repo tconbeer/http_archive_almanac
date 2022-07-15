@@ -21,7 +21,8 @@ select
     ) as num_with_header,
     count(
         distinct if(hasheader(response_headers, headername), net.host(urlshort), null)
-    ) / count(distinct net.host(urlshort)) as pct_with_header
+    )
+    / count(distinct net.host(urlshort)) as pct_with_header
 from
     `httparchive.almanac.requests`,
     unnest(
@@ -44,8 +45,8 @@ from
     ) as headername,
     unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 where
-    date = '2021-07-01' and rank <= rank_grouping and net.host(urlshort) = net.host(
-        page
-    )
+    date = '2021-07-01'
+    and rank <= rank_grouping
+    and net.host(urlshort) = net.host(page)
 group by client, headername, rank_grouping
 order by client, headername, rank_grouping

@@ -20,8 +20,8 @@ from
             using
             (client, page)
         where
-            date = '2021-07-01' and net.host(url) in
-            (
+            date = '2021-07-01'
+            and net.host(url) in (
                 select domain
                 from `httparchive.almanac.third_parties`
                 where date = '2021-07-01' and category != 'hosting'

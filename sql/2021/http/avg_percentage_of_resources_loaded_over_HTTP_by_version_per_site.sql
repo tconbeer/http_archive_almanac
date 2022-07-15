@@ -17,10 +17,10 @@ from
             countif(lower(protocol) = 'http/1.0') / count(0) as http10_pct,
             countif(lower(protocol) = 'http/1.1') / count(0) as http11_pct,
             countif(
-                lower(protocol) = 'http/2' or lower(
-                    protocol
-                ) in ('http/3', 'h3-29', 'h3-q050', 'quic')
-            ) / count(0) as http2_3_pct,
+                lower(protocol) = 'http/2'
+                or lower(protocol) in ('http/3', 'h3-29', 'h3-q050', 'quic')
+            )
+            / count(0) as http2_3_pct,
             countif(
                 lower(protocol) not in (
                     'http/0.9',
@@ -32,7 +32,8 @@ from
                     'h3-29',
                     'h3-q050'
                 )
-            ) / count(0) as other_pct,
+            )
+            / count(0) as other_pct,
             countif(protocol is null) / count(0) as null_pct
         from `httparchive.almanac.requests`
         where date = '2021-07-01'

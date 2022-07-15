@@ -36,18 +36,18 @@ select
     count(distinct url) as total,
 
     # scripts per page
-    approx_quantiles(almanac_info.none_jsonld_scripts_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        almanac_info.none_jsonld_scripts_total, 1000) [offset (percentile * 10)
     ] as none_jsonld_scripts_count_m205,
 
     # inline scripts ex jsonld
-    approx_quantiles(almanac_info.inline_scripts_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        almanac_info.inline_scripts_total, 1000) [offset (percentile * 10)
     ] as inline_scripts_count_m207,
 
     # src scripts
-    approx_quantiles(almanac_info.src_scripts_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        almanac_info.src_scripts_total, 1000) [offset (percentile * 10)
     ] as src_scripts_count_m209
 
 from

@@ -1,7 +1,6 @@
 # standardSQL
 # LCP element node details
-create temp function getloadingattr(attributes string) returns string language js
-as '''
+create temp function getloadingattr(attributes string) returns string language js as '''
   try {
     const data = JSON.parse(attributes);
     const loadingAttr = data.find(attr => attr["name"] === "loading")
@@ -12,8 +11,9 @@ as '''
 '''
 ;
 
-create temp function getdecodingattr(attributes string) returns string language js
-as '''
+create temp function getdecodingattr(
+    attributes string
+) returns string language js as '''
   try {
     const data = JSON.parse(attributes);
     const decodingAttr = data.find(attr => attr["name"] === "decoding")
@@ -24,8 +24,9 @@ as '''
 '''
 ;
 
-create temp function getloadingclasses(attributes string) returns string language js
-as '''
+create temp function getloadingclasses(
+    attributes string
+) returns string language js as '''
   try {
     const data = JSON.parse(attributes);
     const classes = data.find(attr => attr["name"] === "class").value
@@ -98,9 +99,8 @@ select
     countif(loading = 'lazy') as native_lazyload,
     countif(classwithlazyload != '') as lazyload_class,
     countif(classwithlazyload != '' or loading = 'lazy') as probably_lazyloaded,
-    countif(classwithlazyload != '' or loading = 'lazy') / count(
-        distinct url
-    ) as pct_prob_lazyloaded,
+    countif(classwithlazyload != '' or loading = 'lazy')
+    / count(distinct url) as pct_prob_lazyloaded,
     countif(decoding = 'async') as async_decoding,
     countif(decoding = 'sync') as sync_decoding,
     countif(decoding = 'auto') as auto_decoding

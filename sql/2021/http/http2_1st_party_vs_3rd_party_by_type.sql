@@ -15,7 +15,8 @@ from
             type,
             countif(
                 lower(http_version) in ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050')
-            ) / count(0) as http2_3_pct
+            )
+            / count(0) as http2_3_pct
         from
             (
                 select

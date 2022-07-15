@@ -15,18 +15,14 @@ select
     countif(
         not uses_no_store and uses_cookies and not uses_private
     ) as total_pvt_public_cacheable_set_cookie,
-    countif(not uses_no_store and uses_cookies) / countif(
-        not uses_no_store
-    ) as pct_cacheable_set_cookie,
-    countif(not uses_no_store and not uses_cookies) / countif(
-        not uses_no_store
-    ) as pct_cacheable_without_set_cookie,
-    countif(not uses_no_store and uses_cookies and uses_private) / countif(
-        not uses_no_store and uses_cookies
-    ) as pct_pvt_cacheable_set_cookie,
-    countif(not uses_no_store and uses_cookies and not uses_private) / countif(
-        not uses_no_store and uses_cookies
-    ) as pct_pvt_public_cacheable_set_cookie
+    countif(not uses_no_store and uses_cookies)
+    / countif(not uses_no_store) as pct_cacheable_set_cookie,
+    countif(not uses_no_store and not uses_cookies)
+    / countif(not uses_no_store) as pct_cacheable_without_set_cookie,
+    countif(not uses_no_store and uses_cookies and uses_private)
+    / countif(not uses_no_store and uses_cookies) as pct_pvt_cacheable_set_cookie,
+    countif(not uses_no_store and uses_cookies and not uses_private)
+    / countif(not uses_no_store and uses_cookies) as pct_pvt_public_cacheable_set_cookie
 from
     (
         select

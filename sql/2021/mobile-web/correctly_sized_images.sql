@@ -3,9 +3,8 @@
 select
     countif(properly_sized_images_score is not null) as total_applicable,
     countif(properly_sized_images_score = 1) as total_with_properly_sized_images,
-    countif(properly_sized_images_score = 1) / countif(
-        properly_sized_images_score is not null
-    ) as pct_with_properly_sized_images
+    countif(properly_sized_images_score = 1)
+    / countif(properly_sized_images_score is not null) as pct_with_properly_sized_images
 from
     (
         select

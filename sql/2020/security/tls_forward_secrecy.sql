@@ -6,9 +6,8 @@ select
     countif(
         regexp_contains(key_exchange, r'(?i)DHE') or protocol = 'TLS 1.3'
     ) as forward_secrecy_count,
-    countif(regexp_contains(key_exchange, r'(?i)DHE') or protocol = 'TLS 1.3') / count(
-        0
-    ) as pct
+    countif(regexp_contains(key_exchange, r'(?i)DHE') or protocol = 'TLS 1.3')
+    / count(0) as pct
 from
     (
         select

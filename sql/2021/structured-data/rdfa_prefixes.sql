@@ -3,9 +3,7 @@
 create temp function getrdfaprefixes(rendered string)
 returns array
 < string
->
-language js
-as r"""
+> language js as r"""
   try {
     rendered = JSON.parse(rendered);
     const prefixRegExp = new RegExp(/(?<ncname>[^:]*):\s+(?<uri>[^\s]*)\s*/gm)

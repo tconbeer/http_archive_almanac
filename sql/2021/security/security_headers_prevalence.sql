@@ -19,16 +19,15 @@ select
     count(
         distinct if(hasheader(response_headers, headername), host, null)
     ) as num_with_header,
-    count(distinct if(hasheader(response_headers, headername), host, null)) / count(
-        distinct host
-    ) as pct_with_header
+    count(distinct if(hasheader(response_headers, headername), host, null))
+    / count(distinct host) as pct_with_header
 from
     (
         select date, client, net.host(urlshort) as host, response_headers
         from `httparchive.almanac.requests`
         where
-            (date = '2020-08-01' or date = '2021-07-01') and
-            net.host(urlshort) = net.host(page)
+            (date = '2020-08-01' or date = '2021-07-01')
+            and net.host(urlshort) = net.host(page)
     ),
     unnest(
         [

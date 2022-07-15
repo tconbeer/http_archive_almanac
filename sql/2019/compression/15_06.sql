@@ -7,7 +7,9 @@ select
             json_extract_scalar(
                 report, '$.audits.uses-text-compression.details.overallSavingsBytes'
             ) as int64
-        ) / 1024 / 1024
+        )
+        / 1024
+        / 1024
     ) as mbyte_savings,
     count(0) as num_pages,
     round(

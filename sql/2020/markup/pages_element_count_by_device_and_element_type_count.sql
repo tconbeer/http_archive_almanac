@@ -2,8 +2,7 @@
 # frequency of the number of element types used on a page
 # returns all the data we need from _element_count
 create temporary function get_element_type_count(element_count_string string)
-returns int64 language js
-as '''
+returns int64 language js as '''
 try {
     if (!element_count_string) return null;
 

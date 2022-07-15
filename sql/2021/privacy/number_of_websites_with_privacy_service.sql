@@ -7,27 +7,23 @@ select
     count(
         distinct if(category = 'Cookie compliance', url, null)
     ) as number_of_websites_with_cookie_compliance,
-    count(distinct if(category = 'Cookie compliance', url, null)) / count(
-        distinct url
-    ) as pct_websites_with_cookie_compliance,
+    count(distinct if(category = 'Cookie compliance', url, null))
+    / count(distinct url) as pct_websites_with_cookie_compliance,
     count(
         distinct if(category = 'Browser fingerprinting', url, null)
     ) as number_of_websites_with_browser_fingerprinting,
-    count(distinct if(category = 'Browser fingerprinting', url, null)) / count(
-        distinct url
-    ) as pct_websites_with_browser_fingerprinting,
+    count(distinct if(category = 'Browser fingerprinting', url, null))
+    / count(distinct url) as pct_websites_with_browser_fingerprinting,
     count(
         distinct if(category = 'Retargeting', url, null)
     ) as number_of_websites_with_retargeting,
-    count(distinct if(category = 'Retargeting', url, null)) / count(
-        distinct url
-    ) as pct_websites_with_retargeting,
+    count(distinct if(category = 'Retargeting', url, null))
+    / count(distinct url) as pct_websites_with_retargeting,
     count(
         distinct if(category = 'Geolocation', url, null)
     ) as number_of_websites_with_geolocation,
-    count(distinct if(category = 'Geolocation', url, null)) / count(
-        distinct url
-    ) as pct_websites_with_geolocation
+    count(distinct if(category = 'Geolocation', url, null))
+    / count(distinct url) as pct_websites_with_geolocation
 from `httparchive.technologies.2021_07_01_*`
 group by client
 order by client

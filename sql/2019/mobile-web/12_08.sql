@@ -6,7 +6,8 @@ select
 
     countif(cast(password_score as numeric) = 1) as total_allowing,
     round(
-        countif(cast(password_score as numeric) = 1) * 100 / countif(
+        countif(cast(password_score as numeric) = 1)
+        * 100 / countif(
             password_score is not null
         ),
         2

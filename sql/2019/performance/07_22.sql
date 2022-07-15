@@ -10,8 +10,9 @@ from
         select
             _table_suffix as client,
             (
-                cast(ifnull(json_extract(payload, "$['_cpu.Paint']"), '0') as int64) +
                 cast(
+                    ifnull(json_extract(payload, "$['_cpu.Paint']"), '0') as int64
+                ) + cast(
                     ifnull(
                         json_extract(payload, "$['_cpu.UpdateLayerTree']"), '0'
                     ) as int64

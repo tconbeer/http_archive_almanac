@@ -2,8 +2,7 @@
 # % of sites that use custom properties.
 # Same query as 2019, to compare trend
 create temporary function usescustomprops(css string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

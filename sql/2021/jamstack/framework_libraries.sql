@@ -11,18 +11,18 @@ with
         select distinct _table_suffix as client, url, app as ssg_app
         from `httparchive.technologies.2021_07_01_*`
         where
-            lower(
-                category
-            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+            lower(category) = 'static site generator'
+            or app = 'Next.js'
+            or app = 'Nuxt.js'
     ),
 
     total_ssg as (
         select _table_suffix as client, count(0) as ssg_total
         from `httparchive.technologies.2021_07_01_*`
         where
-            lower(
-                category
-            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+            lower(category) = 'static site generator'
+            or app = 'Next.js'
+            or app = 'Nuxt.js'
         group by _table_suffix
     ),
 
@@ -30,9 +30,9 @@ with
         select _table_suffix as client, app as ssg_app, count(0) as ssg_app_total
         from `httparchive.technologies.2021_07_01_*`
         where
-            lower(
-                category
-            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+            lower(category) = 'static site generator'
+            or app = 'Next.js'
+            or app = 'Nuxt.js'
         group by _table_suffix, app
     ),
 

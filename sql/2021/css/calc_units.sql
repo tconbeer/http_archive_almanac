@@ -2,8 +2,7 @@
 create temporary function getcalcunits(css string)
 returns array < struct < name string,
 freq int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {

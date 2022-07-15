@@ -11,12 +11,12 @@ from
         select client, page, protocol as http_version, pushed = '1' as was_pushed
         from `httparchive.almanac.requests`
         where
-            date = '2021-07-01' and (
-                lower(protocol) = 'http/2' or lower(
-                    protocol
-                ) like '%quic%' or lower(protocol) like 'h3%' or lower(
-                    protocol
-                ) = 'http/3'
+            date = '2021-07-01'
+            and (
+                lower(protocol) = 'http/2'
+                or lower(protocol) like '%quic%'
+                or lower(protocol) like 'h3%'
+                or lower(protocol) = 'http/3'
             )
     )
 join

@@ -2,9 +2,7 @@
 create temp function getfuguapis(data string)
 returns array
 < string
->
-language js
-as '''
+> language js as '''
 const $ = JSON.parse(data);
 return Object.keys($);
 '''

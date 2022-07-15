@@ -3,8 +3,7 @@
 create temporary function getelements(payload string)
 returns array < struct < name string,
 freq int64
->> language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -22,9 +21,9 @@ select
     sum(element.freq) as freq,
     sum(sum(element.freq)) over (partition by _table_suffix) as total,
     round(
-        sum(element.freq) * 100 / sum(
-            sum(element.freq)
-        ) over (partition by _table_suffix),
+        sum(element.freq)
+        * 100
+        / sum(sum(element.freq)) over (partition by _table_suffix),
         2
     ) as pct
 from `httparchive.pages.2019_07_01_*`, unnest(getelements(payload)) as element

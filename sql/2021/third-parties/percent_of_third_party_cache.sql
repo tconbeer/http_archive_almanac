@@ -31,14 +31,14 @@ with
             type,
             if(
                 (
-                    status in (301, 302, 307, 308, 410) and not regexp_contains(
-                        resp_cache_control, r'(?i)private|no-store'
-                    ) and not regexp_contains(reqotherheaders, r'Authorization')
-                ) or
-                (
-                    status in (301, 302, 307, 308, 410) or
-                    regexp_contains(resp_cache_control, r'public|max-age|s-maxage') or
-                    regexp_contains(respotherheaders, r'Expires')
+                    status in (301, 302, 307, 308, 410)
+                    and not regexp_contains(resp_cache_control, r'(?i)private|no-store')
+                    and not regexp_contains(reqotherheaders, r'Authorization')
+                )
+                or (
+                    status in (301, 302, 307, 308, 410)
+                    or regexp_contains(resp_cache_control, r'public|max-age|s-maxage')
+                    or regexp_contains(respotherheaders, r'Expires')
                 ),
                 1,
                 0

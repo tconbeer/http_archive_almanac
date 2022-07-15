@@ -71,14 +71,12 @@ select
     count(0) as total,
 
     # has scripts that are not jsonld ones. i.e. has a none jsonld script.
-    countif(almanac_info.none_jsonld_scripts_total > 0) / count(
-        0
-    ) as pct_contains_none_jsonld_scripts,
+    countif(almanac_info.none_jsonld_scripts_total > 0)
+    / count(0) as pct_contains_none_jsonld_scripts,
 
     # has inline scripts
-    countif(almanac_info.inline_scripts_total > 0) / count(
-        0
-    ) as pct_contains_inline_scripts,
+    countif(almanac_info.inline_scripts_total > 0)
+    / count(0) as pct_contains_inline_scripts,
 
     # has src scripts
     countif(almanac_info.src_scripts_total > 0) / count(0) as pct_contains_src_scripts,
@@ -90,19 +88,18 @@ select
     countif(almanac_info.good_heading_sequence) / count(0) as pct_good_heading_sequence,
 
     # pages with autoplaying video elements
-    countif(almanac_info.contains_videos_with_autoplay) / count(
-        0
-    ) as pct_contains_videos_with_autoplay,
+    countif(almanac_info.contains_videos_with_autoplay)
+    / count(0) as pct_contains_videos_with_autoplay,
 
     # pages without autoplaying video elements
-    countif(almanac_info.contains_videos_without_autoplay) / count(
-        0
-    ) as pct_contains_videos_without_autoplay,
+    countif(almanac_info.contains_videos_without_autoplay)
+    / count(0) as pct_contains_videos_without_autoplay,
 
     # pages with no html lang attribute
     countif(
         almanac_info.html_node_lang is null or length(almanac_info.html_node_lang) = 0
-    ) / count(0) as pct_no_html_lang
+    )
+    / count(0) as pct_no_html_lang
 
 from
     (

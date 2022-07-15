@@ -2,8 +2,7 @@
 # Top100 popular cookies and their origins
 create temporary function cookienames(headers string)
 returns array < string > deterministic
-language js
-as '''
+language js as '''
 try {
   var headers = JSON.parse(headers);
   let cookies = headers.filter(h => h.name.match(/^set-cookie$/i));

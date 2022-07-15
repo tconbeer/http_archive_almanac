@@ -2,8 +2,7 @@
 # Cumulative V8 main thread time
 create temporary function totalmainthreadtime(
     payload string
-) returns float64 language js
-as '''
+) returns float64 language js as '''
 try {
   var $ = JSON.parse(payload);
   return Object.values($._v8Stats.main_thread).reduce((sum, i) => sum + i, 0);

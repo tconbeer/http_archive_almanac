@@ -24,9 +24,8 @@ select
     count(0) / sum(count(0)) over (partition by client) as num_requests_pct,
     countif(firsthtml) as num_pages,
     sum(countif(firsthtml)) over (partition by client) as total_pages,
-    countif(firsthtml) / sum(
-        countif(firsthtml)
-    ) over (partition by client) as num_pages_pct
+    countif(firsthtml)
+    / sum(countif(firsthtml)) over (partition by client) as num_pages_pct
 from `httparchive.almanac.requests`
 where date = '2021-07-01'
 group by client, protocol

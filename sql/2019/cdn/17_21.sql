@@ -6,9 +6,10 @@ select
     countif(lower(resp_cache_control) like '%stale-while-revalidate%') as freq,
     count(0) as total,
     round(
-        countif(
-            lower(resp_cache_control) like '%stale-while-revalidate%'
-        ) * 100 / count(0),
+        countif(lower(resp_cache_control) like '%stale-while-revalidate%')
+        * 100 / count(
+            0
+        ),
         2
     ) as pct
 from `httparchive.summary_requests.2019_07_01_*`

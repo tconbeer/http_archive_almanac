@@ -16,36 +16,33 @@ from
                     ifnull(
                         json_extract(payload, "$['_cpu.EvaluateScript']"), '0'
                     ) as int64
-                ) +
-                cast(ifnull(json_extract(payload, "$['_cpu.XHRLoad']"), '0') as int64) +
-                cast(
+                ) + cast(
+                    ifnull(json_extract(payload, "$['_cpu.XHRLoad']"), '0') as int64
+                ) + cast(
                     ifnull(
                         json_extract(payload, "$['_cpu.XHRReadyStateChange']"), '0'
                     ) as int64
-                ) +
-                cast(
+                ) + cast(
                     ifnull(json_extract(payload, "$['_cpu.TimerFire']"), '0') as int64
-                ) +
-                cast(
+                ) + cast(
                     ifnull(
                         json_extract(payload, "$['_cpu.EventDispatch']"), '0'
                     ) as int64
-                ) +
-                cast(
+                ) + cast(
                     ifnull(
                         json_extract(payload, "$['_cpu.FunctionCall']"), '0'
                     ) as int64
-                ) +
-                cast(
+                ) + cast(
                     ifnull(json_extract(payload, "$['_cpu.v8.compile']"), '0') as int64
-                ) +
-                cast(ifnull(json_extract(payload, "$['_cpu.MinorGC']"), '0') as int64) +
-                cast(
+                ) + cast(
+                    ifnull(json_extract(payload, "$['_cpu.MinorGC']"), '0') as int64
+                ) + cast(
                     ifnull(
                         json_extract(payload, "$['_cpu.FireAnimationFrame']"), '0'
                     ) as int64
-                ) +
-                cast(ifnull(json_extract(payload, "$['_cpu.MajorGC']"), '0') as int64)
+                ) + cast(
+                    ifnull(json_extract(payload, "$['_cpu.MajorGC']"), '0') as int64
+                )
             ) as script_cpu_time
         from `httparchive.pages.2019_07_01_*`
     ),

@@ -22,9 +22,8 @@ select
     count(0) / total_sri_scripts as pct,
     sum(count(distinct url)) over (partition by client) as total_urls,
     count(distinct url) as freq_urls,
-    count(distinct url) / sum(
-        count(distinct url)
-    ) over (partition by client) as pct_urls
+    count(distinct url)
+    / sum(count(distinct url)) over (partition by client) as pct_urls
 from
     (
         select

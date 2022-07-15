@@ -6,8 +6,7 @@ returns struct < total int64,
 alt_missing int64,
 alt_blank int64,
 alt_present int64
-> language js
-as '''
+> language js as '''
 var result = {};
 try {
     var markup = JSON.parse(markup_string);

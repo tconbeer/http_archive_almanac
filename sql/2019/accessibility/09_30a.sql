@@ -5,7 +5,8 @@ select
     countif(label_score is not null) as total_applicable,
     countif(cast(label_score as numeric) = 1) as total_sufficient,
     round(
-        countif(cast(label_score as numeric) = 1) * 100 / countif(
+        countif(cast(label_score as numeric) = 1)
+        * 100 / countif(
             label_score is not null
         ),
         2

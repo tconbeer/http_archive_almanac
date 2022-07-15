@@ -1,8 +1,7 @@
 # standardSQL
 # pixel volume
 create temporary function getcsspixels(payload string)
-returns int64 language js
-as '''
+returns int64 language js as '''
 try {
   let data = JSON.parse(payload);
   return data.reduce((a, c) => a + (c.width||0)*(c.height||0), 0) || 0;
@@ -13,8 +12,7 @@ return null;
 ;
 
 create temporary function getnaturalpixels(payload string)
-returns int64 language js
-as '''
+returns int64 language js as '''
 try {
   let data = JSON.parse(payload);
   return data.reduce((a, c) => a + (c.naturalWidth||0)*(c.naturalHeight||0), 0) || 0;
@@ -33,9 +31,8 @@ select
     any_value(viewport_height) * any_value(viewport_width) as display_px,
     approx_quantiles(css_pixels, 1000) [offset (percentile * 10)] as css_pixels,
     approx_quantiles(natural_pixels, 1000) [offset (percentile * 10)] as natural_pixels,
-    approx_quantiles(natural_pixels, 1000) [
-        offset (percentile * 10)
-    ] / (any_value(viewport_height) * any_value(viewport_width)) as pct
+    approx_quantiles(natural_pixels, 1000) [offset (percentile * 10)]
+    / (any_value(viewport_height) * any_value(viewport_width)) as pct
 from
     (
         select

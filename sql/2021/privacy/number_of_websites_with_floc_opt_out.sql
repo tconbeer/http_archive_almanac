@@ -55,13 +55,10 @@ full outer join
 join totals using(client, rank_grouping)
 where
     (
-        (
-            header_name = 'permissions-policy'
-            # value could contain other policies
-            and header_value like 'interest-cohort=()'
-        ) or
-        (tag_name = 'permissions-policy' and tag_value like 'interest-cohort=()')
-    ) and
-    rank <= rank_grouping
+        # value could contain other policies
+        (header_name = 'permissions-policy' and header_value like 'interest-cohort=()')
+        or (tag_name = 'permissions-policy' and tag_value like 'interest-cohort=()')
+    )
+    and rank <= rank_grouping
 group by client, rank_grouping, total_websites
 order by rank_grouping, client

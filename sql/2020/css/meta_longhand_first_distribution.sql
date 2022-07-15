@@ -448,8 +448,8 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(freq_longhand_first, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        freq_longhand_first, 1000) [offset (percentile * 10)
     ] as longhand_first_per_page
 from
     (

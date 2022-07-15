@@ -16,15 +16,12 @@ select
     countif(uses_expires) / count(0) as pct_using_expires,
     countif(uses_max_age and uses_expires) / count(0) as pct_using_max_age_and_expires,
     countif(uses_cache_control and uses_expires) / count(0) as pct_using_both,
-    countif(not uses_cache_control and not uses_expires) / count(
-        0
-    ) as pct_using_neither,
-    countif(uses_cache_control and not uses_expires) / count(
-        0
-    ) as pct_using_only_cache_control,
-    countif(not uses_cache_control and uses_expires) / count(
-        0
-    ) as pct_using_only_expires
+    countif(not uses_cache_control and not uses_expires)
+    / count(0) as pct_using_neither,
+    countif(uses_cache_control and not uses_expires)
+    / count(0) as pct_using_only_cache_control,
+    countif(not uses_cache_control and uses_expires)
+    / count(0) as pct_using_only_expires
 from
     (
         select

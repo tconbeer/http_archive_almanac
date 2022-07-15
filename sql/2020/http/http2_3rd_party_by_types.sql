@@ -11,9 +11,8 @@ from
             client,
             page,
             category,
-            countif(http_version in ('HTTP/2', 'QUIC', 'http/2+quic/46')) / count(
-                0
-            ) as http2_pct
+            countif(http_version in ('HTTP/2', 'QUIC', 'http/2+quic/46'))
+            / count(0) as http2_pct
         from
             (
                 select
@@ -26,9 +25,9 @@ from
                     `httparchive.almanac.requests` r,
                     `httparchive.almanac.third_parties` tp
                 where
-                    r.date = '2020-08-01' and tp.date = '2020-08-01' and net.host(
-                        url
-                    ) = domain
+                    r.date = '2020-08-01'
+                    and tp.date = '2020-08-01'
+                    and net.host(url) = domain
             )
         group by client, page, category
     ),

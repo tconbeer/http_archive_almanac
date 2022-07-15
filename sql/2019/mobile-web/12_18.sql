@@ -7,7 +7,8 @@ select
             json_extract_scalar(
                 report, '$.audits.installable-manifest.score'
             ) as numeric
-        ) = 1
+        )
+        = 1
     ) as score_sum,
     round(
         countif(
@@ -15,8 +16,12 @@ select
                 json_extract_scalar(
                     report, '$.audits.installable-manifest.score'
                 ) as numeric
-            ) = 1
-        ) * 100 / count(url),
+            )
+            = 1
+        )
+        * 100 / count(
+            url
+        ),
         2
     ) as score_percentage
 from `httparchive.lighthouse.2019_07_01_mobile`

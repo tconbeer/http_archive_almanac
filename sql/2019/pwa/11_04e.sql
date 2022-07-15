@@ -1,8 +1,7 @@
 # standardSQL
 # 11_04e: % manifests preferring native apps
 create temporary function prefersnative(manifest string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var $ = JSON.parse(manifest);
   return $.prefer_related_applications == true && $.related_applications.length > 0;

@@ -49,7 +49,8 @@ join
         select pageid, sum(respsize) as third_party_scripts
         from `httparchive.summary_requests.2020_09_01_mobile`
         where
-            type = 'script' and net.host(url) in (
+            type = 'script'
+            and net.host(url) in (
                 select domain
                 from `httparchive.almanac.third_parties`
                 where date = '2020-08-01' and category != 'hosting'

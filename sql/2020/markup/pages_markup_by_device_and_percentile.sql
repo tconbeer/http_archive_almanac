@@ -105,47 +105,49 @@ select
     count(distinct url) as total,
 
     # comments
-    approx_quantiles(markup_info.noscripts_count, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.noscripts_count, 1000) [offset (percentile * 10)
     ] as noscripts_count_m212,
-    approx_quantiles(markup_info.noscripts_iframe_googletagmanager_count, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.noscripts_iframe_googletagmanager_count,
+        1000
+    ) [offset (percentile * 10)
     ] as noscripts_iframe_googletagmanager_count,
 
     # svg
-    approx_quantiles(markup_info.svg_element_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.svg_element_total, 1000) [offset (percentile * 10)
     ] as svg_element_count_m224,
-    approx_quantiles(markup_info.svg_img_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.svg_img_total, 1000) [offset (percentile * 10)
     ] as svg_img_count_m226,
-    approx_quantiles(markup_info.svg_object_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.svg_object_total, 1000) [offset (percentile * 10)
     ] as svg_object_count_m228,
-    approx_quantiles(markup_info.svg_embed_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.svg_embed_total, 1000) [offset (percentile * 10)
     ] as svg_embed_count_m230,
-    approx_quantiles(markup_info.svg_iframe_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.svg_iframe_total, 1000) [offset (percentile * 10)
     ] as svg_iframe_count_m232,
-    approx_quantiles(markup_info.svg_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.svg_total, 1000) [offset (percentile * 10)
     ] as svg_count,
 
     # buttons
-    approx_quantiles(markup_info.buttons_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.buttons_total, 1000) [offset (percentile * 10)
     ] as buttons_count_m301,
 
     # inputs
-    approx_quantiles(markup_info.inputs_types_image_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.inputs_types_image_total, 1000) [offset (percentile * 10)
     ] as inputs_types_image_count_m305,
-    approx_quantiles(markup_info.inputs_types_button_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.inputs_types_button_total, 1000) [offset (percentile * 10)
     ] as inputs_types_button_count_m306,
-    approx_quantiles(markup_info.inputs_types_submit_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        markup_info.inputs_types_submit_total, 1000) [offset (percentile * 10)
     ] as inputs_types_submit_count_m307
 
 from

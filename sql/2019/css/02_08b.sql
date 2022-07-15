@@ -4,8 +4,7 @@ create temporary function getselectortype(css string)
 returns struct < class int64,
 id int64,
 total int64
-> language js
-as '''
+> language js as '''
 var types = {
   'class': 0,
   'id': 0,

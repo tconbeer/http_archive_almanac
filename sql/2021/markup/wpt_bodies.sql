@@ -47,9 +47,8 @@ select
     countif(wpt_bodies_info.comment_count > 0) / count(0) as pct_contains_comment,
 
     # % of pages with conditional comments
-    countif(wpt_bodies_info.conditional_comment_count > 0) / count(
-        0
-    ) as pct_contains_conditional_comment,
+    countif(wpt_bodies_info.conditional_comment_count > 0)
+    / count(0) as pct_contains_conditional_comment,
 
     # pages without an h1
     countif(wpt_bodies_info.no_h1) / count(0) as pct_no_h1,
@@ -59,27 +58,25 @@ select
         wpt_bodies_info.target_blank_total is null
         or wpt_bodies_info.target_blank_total
         = wpt_bodies_info.target_blank_noopener_noreferrer_total
-    ) / count(0) as pct_always_target_blank_noopener_noreferrer,
+    )
+    / count(0) as pct_always_target_blank_noopener_noreferrer,
 
     # pages with some target _banks not using rel="noopener noreferrer"
     countif(
         wpt_bodies_info.target_blank_total
         > wpt_bodies_info.target_blank_noopener_noreferrer_total
-    ) / count(0) as pct_some_target_blank_without_noopener_noreferrer,
+    )
+    / count(0) as pct_some_target_blank_without_noopener_noreferrer,
 
     countif(wpt_bodies_info.target_blank_total > 0) / count(0) as pct_has_target_blank,
-    countif(wpt_bodies_info.target_blank_noopener_noreferrer_total > 0) / count(
-        0
-    ) as pct_has_target_blank_noopener_noreferrer,
-    countif(wpt_bodies_info.target_blank_noopener_total > 0) / count(
-        0
-    ) as pct_has_target_blank_noopener,
-    countif(wpt_bodies_info.target_blank_noreferrer_total > 0) / count(
-        0
-    ) as pct_has_target_blank_noreferrer,
-    countif(wpt_bodies_info.target_blank_neither_total > 0) / count(
-        0
-    ) as pct_has_target_blank_neither
+    countif(wpt_bodies_info.target_blank_noopener_noreferrer_total > 0)
+    / count(0) as pct_has_target_blank_noopener_noreferrer,
+    countif(wpt_bodies_info.target_blank_noopener_total > 0)
+    / count(0) as pct_has_target_blank_noopener,
+    countif(wpt_bodies_info.target_blank_noreferrer_total > 0)
+    / count(0) as pct_has_target_blank_noreferrer,
+    countif(wpt_bodies_info.target_blank_neither_total > 0)
+    / count(0) as pct_has_target_blank_neither
 
 from
     (

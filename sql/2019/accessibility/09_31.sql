@@ -13,9 +13,10 @@ select
         countif(uses_links and good_or_na_links) * 100 / countif(uses_links), 2
     ) as perc_good_links,
     round(
-        countif(
-            uses_either and good_or_na_buttons and good_or_na_links
-        ) * 100 / countif(uses_either),
+        countif(uses_either and good_or_na_buttons and good_or_na_links)
+        * 100 / countif(
+            uses_either
+        ),
         2
     ) as perc_both_good
 from

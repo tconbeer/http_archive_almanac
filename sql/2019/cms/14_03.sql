@@ -20,7 +20,8 @@ from
                     '(?i)<meta[^>]+name=[\'"]?generator[^>]+content=[\'"]?AMP Plugin v(\\d+\\.\\d+[^\'">]*)'
                 ),
                 ';'
-            ) [safe_offset(1)] as amp_plugin_mode
+            ) [safe_offset(1)
+            ] as amp_plugin_mode
         from `httparchive.almanac.summary_response_bodies`
         where date = '2019-07-01' and firsthtml
     )

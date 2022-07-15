@@ -13,12 +13,13 @@ from
         select date, client, protocol as http_version, url, _cdn_provider as cdn
         from `httparchive.almanac.requests`
         where
-            date = '2021-07-01' and firsthtml and (
-                lower(protocol) = 'http/2' or lower(
-                    protocol
-                ) like '%quic%' or lower(protocol) like 'h3%' or lower(
-                    protocol
-                ) = 'http/3'
+            date = '2021-07-01'
+            and firsthtml
+            and (
+                lower(protocol) = 'http/2'
+                or lower(protocol) like '%quic%'
+                or lower(protocol) like 'h3%'
+                or lower(protocol) = 'http/3'
             )
     ) as pages
 left join `httparchive.almanac.h2_prioritization_cdns` using(cdn, date)

@@ -1,8 +1,7 @@
 # standardSQL
 # 01_15: Percent of pages that include link[rel=modulepreload]
 create temp function hasmodulepreload(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);

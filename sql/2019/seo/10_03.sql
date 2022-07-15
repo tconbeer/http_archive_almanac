@@ -1,8 +1,7 @@
 # standardSQL
 # 10_03: <link rel="amphtml"> (AMP)
 create temp function hasamplink(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);

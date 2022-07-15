@@ -1,8 +1,7 @@
 # standardSQL
 # Age of resources party, type wise.
 create temporary function totimestamp(date_string string)
-returns int64 language js
-as '''
+returns int64 language js as '''
   try {
     var timestamp = Math.round(new Date(date_string).getTime() / 1000);
     return isNaN(timestamp) || timestamp < 0 ? null : timestamp;
@@ -30,7 +29,8 @@ select
             (starteddatetime - totimestamp(resp_last_modified)) / (60 * 60 * 24 * 7)
         ),
         1000 ignore nulls
-    ) [offset (percentile * 10)] as age_weeks
+    ) [offset (percentile * 10)
+    ] as age_weeks
 from
     `httparchive.summary_requests.2021_07_01_*`,
     unnest( [10, 25, 50, 75, 90]) as percentile

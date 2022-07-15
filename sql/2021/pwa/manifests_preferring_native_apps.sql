@@ -1,8 +1,7 @@
 # standardSQL
 # % manifests preferring native apps for service worker pages and all pages
 create temp function prefersnative(manifest string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var $ = Object.values(JSON.parse(manifest))[0];
   return $.prefer_related_applications == true && $.related_applications.length > 0;
@@ -21,9 +20,8 @@ select
     count(0) / sum(count(0)) over (partition by _table_suffix) as pct
 from `httparchive.pages.2021_07_01_*`
 where
-    json_extract(payload, '$._pwa.manifests') != '[]' and json_extract(
-        payload, '$._pwa.serviceWorkerHeuristic'
-    ) = 'true'
+    json_extract(payload, '$._pwa.manifests') != '[]'
+    and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
 group by client, prefersnative
 union all
 select

@@ -3,8 +3,7 @@
 create temporary function getinputattributes(payload string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
   var attrs = [];
   try {
     var $ = JSON.parse(payload);
@@ -22,8 +21,7 @@ as '''
 ;
 
 create temporary function hasinputs(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);

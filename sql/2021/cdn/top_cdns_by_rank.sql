@@ -51,9 +51,8 @@ from
             ) as cdn,
             net.host(url) = net.host(page) as samehost,
             # if toplevel reg_domain will return NULL so we group this as sameDomain
-            net.host(url) = net.host(page) or net.reg_domain(url) = net.reg_domain(
-                page
-            ) as samedomain
+            net.host(url) = net.host(page)
+            or net.reg_domain(url) = net.reg_domain(page) as samedomain
         from `httparchive.almanac.requests`
         where date = '2021-07-01'
     ),

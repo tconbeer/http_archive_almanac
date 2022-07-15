@@ -3,26 +3,26 @@
 select
     percentile,
     _table_suffix as client,
-    approx_quantiles(round(bytestotal / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(bytestotal / 1024, 2), 1000) [offset (percentile * 10)
     ] as total_kbytes,
-    approx_quantiles(round(byteshtml / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(byteshtml / 1024, 2), 1000) [offset (percentile * 10)
     ] as html_kbytes,
-    approx_quantiles(round(bytesjs / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(bytesjs / 1024, 2), 1000) [offset (percentile * 10)
     ] as js_kbytes,
-    approx_quantiles(round(bytescss / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(bytescss / 1024, 2), 1000) [offset (percentile * 10)
     ] as css_kbytes,
-    approx_quantiles(round(bytesimg / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(bytesimg / 1024, 2), 1000) [offset (percentile * 10)
     ] as img_kbytes,
-    approx_quantiles(round(bytesother / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(bytesother / 1024, 2), 1000) [offset (percentile * 10)
     ] as other_kbytes,
-    approx_quantiles(round(byteshtmldoc / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(byteshtmldoc / 1024, 2), 1000) [offset (percentile * 10)
     ] as html_doc_kbytes
 from
     `httparchive.summary_pages.2018_07_01_*`,

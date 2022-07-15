@@ -6,8 +6,7 @@ prefetch boolean,
 preconnect boolean,
 prerender boolean,
 `dns-prefetch` boolean
->
-language js
+> language js
 as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch'];
 try {

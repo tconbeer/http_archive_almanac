@@ -18,9 +18,8 @@ with
             client,
             category,
             canonicaldomain,
-            approx_quantiles(body_size, 1000) [
-                offset (500)
-            ] / 1024 as median_body_size_kb,
+            approx_quantiles(body_size, 1000) [offset (500)]
+            / 1024 as median_body_size_kb,
             -- noqa: L010
             approx_quantiles(time, 1000) [offset (500)] / 1000 as median_time_s
         from requests

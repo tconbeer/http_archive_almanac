@@ -1,7 +1,8 @@
 # standardSQL
 create temporary function getshorthandvaluecounts(css string)
 returns array < struct < property string,
-values array < int64 >> > language js
+values array < int64 >> >
+language js
 options(library = "gs://httparchive/lib/css-utils.js")
 as '''
 try {

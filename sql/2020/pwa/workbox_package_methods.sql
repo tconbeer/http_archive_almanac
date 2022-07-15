@@ -26,8 +26,9 @@ join
         array_concat(regexp_extract_all(workbox, r'([a-zA-Z]+\.?[a-zA-Z]*)'))
     ) as workbox_method
 where
+    date = '2020-08-01'
     # Exclude JS files themselves as only interested in functions
-    date = '2020-08-01' and workbox_method not like ('%js') and
-    workbox_method not like ('%js.map')
+    and workbox_method not like ('%js')
+    and workbox_method not like ('%js.map')
 group by client, total, workbox_package, workbox_method
 order by freq / total desc, workbox_package, workbox_method, client

@@ -6,8 +6,7 @@
 # Note: Assumes mostly ASCII 1byte = 1character.  Size is collected by
 # custom measurement as string length.
 create temporary function getrobotssize(payload string)
-returns float64 language js
-as '''
+returns float64 language js as '''
 try {
   var $ = JSON.parse(payload);
   var robots = JSON.parse($._robots_txt);

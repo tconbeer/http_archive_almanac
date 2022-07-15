@@ -1,8 +1,7 @@
 # standardSQL
 # 09_15: % pages using duplicate aria-keyshortcuts, accesskey attrs
 create temporary function hasduplicates(values array < string >)
-returns boolean language js
-as '''
+returns boolean language js as '''
 return values.length != new Set(values).size;
 '''
 ;

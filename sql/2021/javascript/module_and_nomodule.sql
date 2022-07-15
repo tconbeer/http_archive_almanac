@@ -6,9 +6,8 @@ select
     count(distinct page) as total,
     count(distinct if(module, page, null)) / count(distinct page) as pct_module,
     count(distinct if(nomodule, page, null)) / count(distinct page) as pct_nomodule,
-    count(distinct if(module and nomodule, page, null)) / count(
-        distinct page
-    ) as pct_both
+    count(distinct if(module and nomodule, page, null))
+    / count(distinct page) as pct_both
 from
     (
         select

@@ -44,7 +44,7 @@ join
     unnest(getpreconnecturls(payload)) as preconnect_url
 where
     # hosts match
-    net.host(preconnect_url) = net.host(url) and
+    net.host(preconnect_url) = net.host(url)
     # protocols match
-    substr(preconnect_url, 0, 5) = substr(url, 0, 5)
+    and substr(preconnect_url, 0, 5) = substr(url, 0, 5)
 group by client, total

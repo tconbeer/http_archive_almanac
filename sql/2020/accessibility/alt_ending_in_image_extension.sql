@@ -24,12 +24,10 @@ select
 
     # Of sites with a non-empty alt, what % have an alt with a file extension
     sites_with_file_extension_alt
-    / sites_with_non_empty_alt
-    as pct_sites_with_file_extension_alt,
+    / sites_with_non_empty_alt as pct_sites_with_file_extension_alt,
     # Given a random alt, how often will it end in a file extension
     total_alts_with_file_extensions
-    / total_non_empty_alts
-    as pct_alts_with_file_extension,
+    / total_non_empty_alts as pct_alts_with_file_extension,
 
     extension_stat.extension as extension,
     count(0) as total_sites_using,
@@ -72,7 +70,8 @@ left join
                 from `httparchive.pages.2020_08_01_*`
             )
         group by client
-    ) on (_table_suffix = client)
+    )
+    on (_table_suffix = client)
 group by
     client,
     sites_with_non_empty_alt,

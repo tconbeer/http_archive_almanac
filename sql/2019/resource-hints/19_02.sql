@@ -6,8 +6,7 @@ prefetch int64,
 preconnect int64,
 prerender int64,
 `dns-prefetch` int64
->
-language js
+> language js
 as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch'];
 try {

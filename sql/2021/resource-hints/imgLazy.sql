@@ -2,9 +2,8 @@
 select
     substr(_table_suffix, 0, 10) as date,
     if(ends_with(_table_suffix, 'desktop'), 'desktop', 'mobile') as client,
-    count(distinct if(lower(attr) = '"lazy"', url, null)) / count(
-        distinct url
-    ) as percent
+    count(distinct if(lower(attr) = '"lazy"', url, null))
+    / count(distinct url) as percent
 from `httparchive.pages.*`
 left join
     unnest(

@@ -3,10 +3,8 @@
 # returns all the data we need from _almanac
 create temporary function getvideosalmanacinfo(almanac_string string)
 returns struct
-<
-videos_total int64
-> language js
-as '''
+< videos_total int64
+> language js as '''
 var result = {
   videos_total: 0
 };

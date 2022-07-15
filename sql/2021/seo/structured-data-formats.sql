@@ -3,11 +3,9 @@
 # returns all the data we need from _wpt_bodies
 create temporary function getstructureddatawptbodies(wpt_bodies_string string)
 returns struct
-<
-items_by_format array
+< items_by_format array
 < string
->
-> language js
+> > language js
 as '''
 var result = {
 items_by_format: []

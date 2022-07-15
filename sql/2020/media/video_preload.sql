@@ -5,8 +5,7 @@ create temporary function get_media_info(media_string string)
 returns struct < num_video_nodes int64,
 video_nodes_attributes array
 < string
->
-> language js
+> > language js
 as '''
 var result = {};
 try {

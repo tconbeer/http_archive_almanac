@@ -19,9 +19,8 @@ join
         select url
         from `httparchive.pages.2021_07_01_mobile`
         where
-            json_extract(
-                payload, '$._pwa.serviceWorkerHeuristic'
-            ) = 'true' and json_extract(payload, '$._pwa.manifests') != '[]'
+            json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+            and json_extract(payload, '$._pwa.manifests') != '[]'
     )
     using(url),
     unnest( [10, 25, 50, 75, 90]) as percentile

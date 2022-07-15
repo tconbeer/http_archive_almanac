@@ -3,10 +3,8 @@
 # returns all the data we need from _almanac
 create temporary function getvideosalmanacinfo(almanac_string string)
 returns struct
-<
-videos_total int64
-> language js
-as '''
+< videos_total int64
+> language js as '''
 var result = {
   videos_total: 0
 };
@@ -29,8 +27,8 @@ select
     count(distinct url) as total,
 
     # videos per page
-    approx_quantiles(almanac_info.videos_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        almanac_info.videos_total, 1000) [offset (percentile * 10)
     ] as videos_count
 
 from

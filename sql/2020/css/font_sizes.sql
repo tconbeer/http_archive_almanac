@@ -1,8 +1,7 @@
 # standardSQL
 create temporary function getfontsizes(css string)
 returns array < string > language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   var ast = JSON.parse(css);
   var fontSizes = [];

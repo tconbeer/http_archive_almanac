@@ -3,8 +3,8 @@
 select
     percentile,
     _table_suffix as client,
-    approx_quantiles(bytescss / 1024, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        bytescss / 1024, 1000) [offset (percentile * 10)
     ] as stylesheet_kbytes
 from
     `httparchive.summary_pages.2019_07_01_*`,

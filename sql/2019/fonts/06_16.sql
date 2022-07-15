@@ -1,8 +1,7 @@
 # standardSQL
 # 06_16: % of pages that declare a font with local()
 create temporary function countlocalsrc(css string)
-returns int64 language js
-as '''
+returns int64 language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

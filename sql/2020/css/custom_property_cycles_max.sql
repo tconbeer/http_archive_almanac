@@ -90,8 +90,8 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(max_cycles, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        max_cycles, 1000 ignore nulls) [offset (percentile * 10)
     ] as max_cycles_per_page
 from
     (

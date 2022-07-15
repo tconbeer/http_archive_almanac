@@ -2,8 +2,7 @@
 # 10_13: % of desktop pages that include a stylesheet with a breakpoint under 600px.
 # See also 12_06
 create temporary function hasbreakpoint(css string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 function matchAll(re, str) {
   var results = [];
   while ((matches = re.exec(str)) !== null) {

@@ -10,9 +10,7 @@ defer int64,
 async_and_defer int64,
 type_module int64,
 nomodule int64
->
-language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var javascript = JSON.parse($._javascript);

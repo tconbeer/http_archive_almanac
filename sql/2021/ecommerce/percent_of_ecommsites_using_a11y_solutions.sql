@@ -11,7 +11,8 @@ join
         select _table_suffix, url
         from `httparchive.technologies.2021_07_01_*`
         where
-            category = 'Ecommerce' and (
+            category = 'Ecommerce'
+            and (
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
@@ -23,7 +24,8 @@ join
         select _table_suffix, count(distinct url) as total
         from `httparchive.technologies.2021_07_01_*`
         where
-            category = 'Ecommerce' and (
+            category = 'Ecommerce'
+            and (
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )

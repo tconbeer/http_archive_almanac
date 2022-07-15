@@ -20,8 +20,7 @@ select
 from `httparchive.pages.2021_07_01_*`
 join totals using(_table_suffix)
 where
-    json_query(
-        json_value(payload, '$._privacy'), '$.iab_usp.privacy_string.uspString'
-    ) is not null
+    json_query(json_value(payload, '$._privacy'), '$.iab_usp.privacy_string.uspString')
+    is not null
 group by client, total_websites, uspstring
 order by pct_websites desc, client, uspstring

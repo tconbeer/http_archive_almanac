@@ -1,6 +1,5 @@
 # standardSQL
-create temp function parseint(n string) returns string language js
-as '''
+create temp function parseint(n string) returns string language js as '''
 try {
   return parseInt(n, 10);
 } catch (e) {
@@ -8,8 +7,6 @@ try {
 }
 '''
 ;
-
-
 with
     videonotes as (
         select

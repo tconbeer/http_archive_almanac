@@ -40,9 +40,9 @@ join
         select distinct _table_suffix as client, app, url
         from `httparchive.technologies.2021_07_01_*`
         where
-            lower(
-                category
-            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+            lower(category) = 'static site generator'
+            or app = 'Next.js'
+            or app = 'Nuxt.js'
     )
     using(client, url)
 group by app, client

@@ -3,12 +3,9 @@
 # returns all the data we need from _almanac
 create temporary function get_meta_og_video_types(almanac_string string)
 returns struct
-<
-video_types array
+< video_types array
 < string
->
-> language js
-as '''
+> > language js as '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);

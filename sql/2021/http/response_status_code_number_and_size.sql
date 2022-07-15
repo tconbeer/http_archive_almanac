@@ -6,11 +6,11 @@ select
     status,
     percentile,
     approx_quantiles(number, 1000) [offset (percentile * 10)] as number,
-    approx_quantiles(respheadersizekib, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        respheadersizekib, 1000) [offset (percentile * 10)
     ] as respheadersizekib,
-    approx_quantiles(respbodysizekib, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        respbodysizekib, 1000) [offset (percentile * 10)
     ] as respbodysizekib
 from
     (

@@ -4,9 +4,7 @@ create temporary function getresourcehintattrs(payload string)
 returns array < struct < name string,
 attribute string,
 value string
->>
-language js
-as '''
+>> language js as '''
 var hints = new Set(['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch']);
 var attributes = ['as', 'crossorigin', 'media'];
 try {

@@ -13,9 +13,8 @@ create temp function is_poor(
 create temp function is_ni(
     good float64, needs_improvement float64, poor float64
 ) returns bool as (
-    not is_good(good, needs_improvement, poor) and not is_poor(
-        good, needs_improvement, poor
-    )
+    not is_good(good, needs_improvement, poor)
+    and not is_poor(good, needs_improvement, poor)
 )
 ;
 
@@ -64,18 +63,17 @@ select
     safe_divide(
         count(
             distinct if(
-                is_good(fast_fid, avg_fid, slow_fid) is not false and is_good(
-                    fast_lcp, avg_lcp, slow_lcp
-                ) and
-                is_good(small_cls, medium_cls, large_cls),
+                is_good(fast_fid, avg_fid, slow_fid) is not false
+                and is_good(fast_lcp, avg_lcp, slow_lcp)
+                and is_good(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )
         ),
         count(
             distinct if(
-                is_non_zero(fast_lcp, avg_lcp, slow_lcp) and
-                is_non_zero(small_cls, medium_cls, large_cls),
+                is_non_zero(fast_lcp, avg_lcp, slow_lcp)
+                and is_non_zero(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )

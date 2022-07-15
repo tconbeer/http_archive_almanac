@@ -3,8 +3,7 @@
 # H2
 create temporary function getupgradeheader(payload string)
 returns string
-language js
-as """
+language js as """
   try {
     var $ = JSON.parse(payload);
     var headers = $.response.headers;
@@ -26,13 +25,10 @@ select
     count(0) as total
 from `httparchive.almanac.requests`
 where
-    date = '2020-08-01' and url like 'https://%' and lower(
-        json_extract_scalar(payload, '$._protocol')
-    ) not like 'http/2' and lower(
-        json_extract_scalar(payload, '$._protocol')
-    ) not like '%quic%' and lower(
-        json_extract_scalar(payload, '$._protocol')
-    ) not like 'h3%' and lower(
-        json_extract_scalar(payload, '$._protocol')
-    ) not like 'http/3%'
+    date = '2020-08-01'
+    and url like 'https://%'
+    and lower(json_extract_scalar(payload, '$._protocol')) not like 'http/2'
+    and lower(json_extract_scalar(payload, '$._protocol')) not like '%quic%'
+    and lower(json_extract_scalar(payload, '$._protocol')) not like 'h3%'
+    and lower(json_extract_scalar(payload, '$._protocol')) not like 'http/3%'
 group by client, firsthtml, http_version

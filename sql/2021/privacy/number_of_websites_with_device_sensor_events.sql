@@ -3,12 +3,8 @@
 # https://stackoverflow.com/questions/65048929/bigquery-extract-keys-from-json-object-convert-json-from-object-to-key-value-a
 create temp function jsontokeyvaluearray(input string)
 returns array < struct < key string,
-value array
-< string
->>
->
-language js
-as """
+value array < string >> >
+language js as """
   try {
     let json = JSON.parse(input ? input: "{}");
     return Object.keys(json).map(e => ({"key": e, "value": json[e]}));

@@ -16,8 +16,8 @@ from
             safe_divide(slow_ttfb, fast_ttfb + avg_ttfb + slow_ttfb) as slow_ttfb
         from `chrome-ux-report.materialized.device_summary`
         where
-            yyyymm = '201907' and fast_ttfb + avg_ttfb + slow_ttfb > 0 and device in (
-                'desktop', 'phone'
-            )
+            yyyymm = '201907'
+            and fast_ttfb + avg_ttfb + slow_ttfb > 0
+            and device in ('desktop', 'phone')
     )
 group by device

@@ -1,7 +1,6 @@
 create temporary function fixformat(format string, mimetype string)
 returns string
-language js
-as '''
+language js as '''
 if (mimeType === "image/avif") {
   return "avif";
 } else if (mimeType === "image/webp" || format==="webp") {

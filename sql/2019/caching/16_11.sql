@@ -25,9 +25,8 @@ from
             -- - If the request url's host does not contain the domain of the request
             -- page, this is most likely a 3rd party resource
             if(
-                strpos(
-                    net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)')
-                ) > 0,
+                strpos(net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)'))
+                > 0,
                 1,
                 3
             ) as party,

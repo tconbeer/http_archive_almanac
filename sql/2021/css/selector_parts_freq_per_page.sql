@@ -9,9 +9,9 @@ value int64 >>,
 pseudo_class array < struct < name string,
 value int64 >>,
 pseudo_element array < struct < name string,
-value int64 >> > language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+value int64 >> >
+language js
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {
@@ -65,7 +65,8 @@ create temporary function encode(comparator string, data string) returns string 
     concat(lpad(comparator, 11, '0'), data)
 )
 ;
-create temporary function decode(value string) returns string as (substr(value, 12))
+create temporary function decode(value string
+) returns string as (substr(value, 12))
 ;
 
 with

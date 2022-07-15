@@ -15,10 +15,10 @@ with
         from `httparchive.summary_pages.2021_07_01_mobile` sp
         inner join `httparchive.summary_requests.2021_07_01_mobile` sr using(pageid)
         inner join
-            `httparchive.almanac.third_parties` on net.host(sr.url) = net.host(
-                domain
-            ) and
-            date = '2021-07-01' and category != 'hosting'
+            `httparchive.almanac.third_parties`
+            on net.host(sr.url) = net.host(domain)
+            and date = '2021-07-01'
+            and category != 'hosting'
         group by canonicaldomain, category
         having total_pages >= 50
     )
@@ -44,9 +44,8 @@ from
                 safe_cast(json_value(renderblockingitems, '$.wastedMs') as float64)
             ) as wasted_ms,
             sum(
-                safe_cast(
-                    json_value(renderblockingitems, '$.totalBytes') as float64
-                ) / 1024
+                safe_cast(json_value(renderblockingitems, '$.totalBytes') as float64)
+                / 1024
             ) as total_bytes_kib
         from
             (
@@ -59,9 +58,8 @@ from
                 )
             ) as renderblockingitems
         inner join
-            `httparchive.almanac.third_parties` on net.host(
-                json_value(renderblockingitems, '$.url')
-            ) = domain
+            `httparchive.almanac.third_parties`
+            on net.host(json_value(renderblockingitems, '$.url')) = domain
         group by canonicaldomain, domain, page, category
     )
 inner join total_third_party_usage using(canonicaldomain, category)

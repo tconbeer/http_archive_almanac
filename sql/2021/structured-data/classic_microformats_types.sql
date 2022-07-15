@@ -3,8 +3,7 @@
 create temp function getclassicmicroformatstypes(rendered string)
 returns array < struct < name string,
 count numeric
->>
-language js
+>> language js
 as """
   try {
     rendered = JSON.parse(rendered);
@@ -44,7 +43,9 @@ select
     ) as total_microformat,
     sum(classic_microformats_type.count) / sum(
         sum(classic_microformats_type.count)
-    ) over (partition by client) as pct_microformat,
+    ) over (
+        partition by client
+    ) as pct_microformat,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

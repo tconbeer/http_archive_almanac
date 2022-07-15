@@ -3,9 +3,7 @@ create temporary function getresourcehintattrs(payload string)
 returns array < struct < name string,
 attribute string,
 value string
->>
-language js
-as '''
+>> language js as '''
 var hints = new Set(['preload', 'prefetch']);
 var attributes = ['as'];
 try {
@@ -43,9 +41,8 @@ from
         select
             _table_suffix as client,
             url as page,
-            hint.name in (
-                'prefetch', 'preload'
-            ) and hint.value = 'script' as script_hint
+            hint.name in ('prefetch', 'preload')
+            and hint.value = 'script' as script_hint
         from `httparchive.pages.2021_07_01_*`
         left join unnest(getresourcehintattrs(payload)) as hint
     )

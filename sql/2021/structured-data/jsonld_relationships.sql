@@ -3,9 +3,7 @@
 create temp function getjsonldrelationships(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     const arrayify = (value) => Array.isArray(value) ? value : [value];
 
@@ -59,9 +57,8 @@ select
     jsonld_relationship,
     count(jsonld_relationship) as freq_relationship,
     sum(count(jsonld_relationship)) over (partition by client) as total_relationship,
-    count(jsonld_relationship) / sum(
-        count(jsonld_relationship)
-    ) over (partition by client) as pct_relationship,
+    count(jsonld_relationship)
+    / sum(count(jsonld_relationship)) over (partition by client) as pct_relationship,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

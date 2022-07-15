@@ -34,7 +34,7 @@ select
 from `httparchive.blink_features.features`
 join totals using(yyyymmdd, client)
 where
-    yyyymmdd in ('2021-07-01', '2020-08-01', '2019-07-01') and
-    feature in ('CSSFlexibleBox', 'CSSGridLayout')
+    yyyymmdd in ('2021-07-01', '2020-08-01', '2019-07-01')
+    and feature in ('CSSFlexibleBox', 'CSSGridLayout')
 group by year, client, layout, total
 order by year desc, pct desc

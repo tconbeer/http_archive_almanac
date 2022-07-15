@@ -4,8 +4,7 @@
 # page has no iframes
 create temporary function haslazyloadediframe(almanac_string string)
 returns bool
-language js
-as '''
+language js as '''
 try {
     var almanac = JSON.parse(almanac_string)
     if (Array.isArray(almanac) || typeof almanac != 'object') return null;

@@ -65,9 +65,8 @@ select
     client,
     cast(source_count as int64) as source_counter,
     count(cast(source_count as int64)) as numberofoccurances,
-    count(
-        cast(source_count as int64)
-    ) / total_video_nodes as pct_numberofoccurances_per_video
+    count(cast(source_count as int64))
+    / total_video_nodes as pct_numberofoccurances_per_video
 from videonotes
 join total_videos using(client)
 where num_video_nodes > 0

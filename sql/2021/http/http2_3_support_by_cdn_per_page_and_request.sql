@@ -16,9 +16,8 @@ from
             firsthtml,
             ifnull(regexp_extract(_cdn_provider, r'^([^,]*).*'), '') as cdn,
             url,
-            lower(protocol) in (
-                'http/2', 'http/3', 'quic', 'h3-29', 'h3-q050'
-            ) as http2_3
+            lower(protocol)
+            in ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050') as http2_3
         from `httparchive.almanac.requests`
         where date = '2021-07-01'
     )

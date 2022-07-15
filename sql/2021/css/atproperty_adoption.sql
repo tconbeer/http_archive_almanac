@@ -3,8 +3,7 @@
 # https://developer.mozilla.org/en-US/docs/Web/CSS/@property
 create temp function countatproperties(css string) returns array
 < int64
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {

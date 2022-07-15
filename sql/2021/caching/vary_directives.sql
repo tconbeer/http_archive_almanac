@@ -8,9 +8,8 @@ select
     any_value(occurrences) as occurrences,
     any_value(occurrences) / any_value(total_using_vary) as pct_of_vary,
     any_value(occurrences) / any_value(total_requests) as pct_of_total_requests,
-    any_value(total_using_both) / any_value(
-        total_using_vary
-    ) as pct_of_vary_with_cache_control,
+    any_value(total_using_both)
+    / any_value(total_using_vary) as pct_of_vary_with_cache_control,
     any_value(total_using_vary) / any_value(total_requests) as pct_using_vary
 from
     (

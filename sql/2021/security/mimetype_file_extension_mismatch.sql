@@ -29,16 +29,18 @@ where
     and mimetype != ''
     and file_extension is not null
     and file_extension != ''
-    and mimetype not like concat('%', file_extension) and not (
-        regexp_contains(
-            mimetype, '(application|text)/(x-)*javascript'
-        ) and regexp_contains(file_extension, r'(?i)^m?js$')
-    ) and not (
+    and mimetype not like concat('%', file_extension)
+    and not (
+        regexp_contains(mimetype, '(application|text)/(x-)*javascript')
+        and regexp_contains(file_extension, r'(?i)^m?js$')
+    )
+    and not (
         mimetype = 'image/svg+xml' and regexp_contains(file_extension, r'(?i)^svg$')
-    ) and not (
-        mimetype = 'audio/mpeg' and regexp_contains(file_extension, r'(?i)^mp3$')
-    ) and not (
-        starts_with(mimetype, 'image/') and regexp_contains(
+    )
+    and not (mimetype = 'audio/mpeg' and regexp_contains(file_extension, r'(?i)^mp3$'))
+    and not (
+        starts_with(mimetype, 'image/')
+        and regexp_contains(
             file_extension,
             r'(?i)^(apng|avif|bmp|cur|gif|jpeg|jpg|jfif|ico|pjpeg|pjp|png|tif|tiff|webp)$'
         )

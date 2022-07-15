@@ -1,8 +1,7 @@
 # standardSQL
 # 16_04b_3rd_party: Difference between Cache TTL and the contents age by party
 create temporary function totimestamp(date_string string)
-returns int64 language js
-as '''
+returns int64 language js as '''
   try {
     var timestamp = Math.round(new Date(date_string).getTime() / 1000);
     return isNaN(timestamp) ? -1 : timestamp;
@@ -22,9 +21,8 @@ from
         select
             client,
             if(
-                strpos(
-                    net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)')
-                ) > 0,
+                strpos(net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)'))
+                > 0,
                 1,
                 3
             ) as party,

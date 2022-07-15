@@ -6,13 +6,12 @@ select
     sum(countif(total_role_attributes > 0)) over (
         partition by client
     ) as total_using_role,
-    sum(countif(total_role_attributes > 0)) over (
-        partition by client
-    ) / sum(count(0)) over (partition by client) as pct_using_role,
+    sum(countif(total_role_attributes > 0)) over (partition by client)
+    / sum(count(0)) over (partition by client) as pct_using_role,
 
     percentile,
-    approx_quantiles(total_role_attributes, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        total_role_attributes, 1000) [offset (percentile * 10)
     ] as total_role_usages
 from
     (

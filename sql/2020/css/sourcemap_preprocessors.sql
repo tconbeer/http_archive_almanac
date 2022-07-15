@@ -2,8 +2,7 @@
 # Adoption of preprocessors as a percent of pages that use sourcemaps.
 create temporary function getsourcemappedexts(payload string) returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var sass = JSON.parse($._sass);

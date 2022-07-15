@@ -17,9 +17,9 @@ join
         select distinct _table_suffix as client, url as page
         from `httparchive.technologies.2021_07_01_*`
         where
-            lower(
-                category
-            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+            lower(category) = 'static site generator'
+            or app = 'Next.js'
+            or app = 'Nuxt.js'
     )
     using
     (client, page)

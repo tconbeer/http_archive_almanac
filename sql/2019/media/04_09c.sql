@@ -28,9 +28,11 @@ from
                     ) as chheader
                 from `httparchive.almanac.summary_response_bodies`
                 where
-                    date = '2019-07-01' and firsthtml and (
-                        regexp_contains(body, r'(?im)<meta[^><]*Accept-CH\b') or
-                        regexp_contains(respotherheaders, r'(?im)Accept-CH = ')
+                    date = '2019-07-01'
+                    and firsthtml
+                    and (
+                        regexp_contains(body, r'(?im)<meta[^><]*Accept-CH\b')
+                        or regexp_contains(respotherheaders, r'(?im)Accept-CH = ')
                     )
             )
         group by client, chhtml, chheader

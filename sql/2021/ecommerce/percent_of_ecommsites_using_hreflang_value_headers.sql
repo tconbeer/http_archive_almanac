@@ -9,11 +9,7 @@ returns float64 as (safe_divide(freq, total))
 # returns all the data we need from _wpt_bodies
 create temporary function
 get_wpt_bodies_info(wpt_bodies_string string)
-returns struct
-< hreflangs array
-< string
->
->
+returns struct < hreflangs array < string > >
 language js
 as '''
 var result = {
@@ -49,7 +45,8 @@ from
                 select _table_suffix, url
                 from `httparchive.technologies.2021_07_01_*`
                 where
-                    category = 'Ecommerce' and (
+                    category = 'Ecommerce'
+                    and (
                         app != 'Cart Functionality'
                         and app != 'Google Analytics Enhanced eCommerce'
                     )

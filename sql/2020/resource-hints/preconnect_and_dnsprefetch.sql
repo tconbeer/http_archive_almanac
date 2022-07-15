@@ -2,8 +2,7 @@
 # 21_06: Frequency of link tags that set both preconnect & dns-prefetch
 create temporary function preconnectsandprefetchesdns(payload string)
 returns boolean
-language js
-as '''
+language js as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);

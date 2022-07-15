@@ -11,9 +11,8 @@ from
             client,
             page,
             is_third_party,
-            countif(http_version in ('HTTP/2', 'QUIC', 'http/2+quic/46')) / count(
-                0
-            ) as http2_pct
+            countif(http_version in ('HTTP/2', 'QUIC', 'http/2+quic/46'))
+            / count(0) as http2_pct
         from
             (
                 select

@@ -1,8 +1,7 @@
 # standardSQL
 create temporary function getcustomfunctioncount(
     payload string
-) returns int64 language js
-as '''
+) returns int64 language js as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -20,8 +19,8 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(fn, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        fn, 1000 ignore nulls) [offset (percentile * 10)
     ] as sass_custom_functions
 from
     (

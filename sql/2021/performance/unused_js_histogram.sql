@@ -17,7 +17,8 @@ from
                 json_extract(
                     report, '$.audits.unused-javascript.details.overallSavingsBytes'
                 ) as int64
-            ) / 1024 as unused_js_kbytes
+            )
+            / 1024 as unused_js_kbytes
         from `httparchive.lighthouse.2021_07_01_mobile`
     )
 group by unused_js_kbytes

@@ -14,7 +14,8 @@ from
                 select distinct _table_suffix as client, url as page
                 from `httparchive.technologies.2021_07_01_*`
                 where
-                    category = 'Ecommerce' and (
+                    category = 'Ecommerce'
+                    and (
                         app != 'Cart Functionality'
                         and app != 'Google Analytics Enhanced eCommerce'
                     )
@@ -22,8 +23,8 @@ from
             using
             (client, page)
         where
-            date = '2021-07-01' and net.host(url) in
-            (
+            date = '2021-07-01'
+            and net.host(url) in (
                 select domain
                 from `httparchive.almanac.third_parties`
                 where category != 'hosting'

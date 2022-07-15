@@ -1,8 +1,7 @@
 # standardSQL
 # links or buttons only containing an icon
 create temporary function hasbuttoniconset(payload string)
-returns bool language js
-as '''
+returns bool language js as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);

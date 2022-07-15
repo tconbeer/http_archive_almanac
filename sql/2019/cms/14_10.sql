@@ -19,8 +19,8 @@ join
         from `httparchive.technologies.2019_07_01_*`
         where category = 'CMS'
         group by client, url, app
-    ) on concat(origin, '/') = url and if(
-        form_factor.name = 'desktop', 'desktop', 'mobile'
-    ) = client
+    )
+    on concat(origin, '/') = url
+    and if(form_factor.name = 'desktop', 'desktop', 'mobile') = client
 group by app, form_factor
 order by freq desc

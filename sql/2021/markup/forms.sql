@@ -3,8 +3,7 @@
 # returns number of forms
 create temporary function get_forms_count(markup_string string)
 returns int64
-language js
-as '''
+language js as '''
 try {
   var markup = JSON.parse(markup_string);
 

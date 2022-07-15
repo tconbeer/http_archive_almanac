@@ -7,9 +7,8 @@ from
         select
             client,
             if(
-                respbodysize > 0 and regexp_contains(
-                    resp_content_type, r'javascript|css|font'
-                ),
+                respbodysize > 0
+                and regexp_contains(resp_content_type, r'javascript|css|font'),
                 net.host(url),
                 null
             ) as host,

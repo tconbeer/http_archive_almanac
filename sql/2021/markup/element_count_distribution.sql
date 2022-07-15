@@ -29,13 +29,13 @@ select
     count(distinct url) as total,
 
     # total number of elements on a page
-    approx_quantiles(element_count_info.elements_count, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        element_count_info.elements_count, 1000) [offset (percentile * 10)
     ] as elements_count,
 
     # number of types of elements on a page
-    approx_quantiles(element_count_info.types_count, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        element_count_info.types_count, 1000) [offset (percentile * 10)
     ] as types_count
 
 from

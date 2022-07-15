@@ -7,8 +7,7 @@ select
 from
     (
         select
-            json_extract_scalar(
-                report, '$.audits.installable-manifest.score'
-            ) = '1' as manifest
+            json_extract_scalar(report, '$.audits.installable-manifest.score')
+            = '1' as manifest
         from `httparchive.lighthouse.2019_07_01_mobile`
     )

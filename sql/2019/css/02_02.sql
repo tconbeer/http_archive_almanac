@@ -16,9 +16,8 @@ from
         select client, feature, count(distinct url) as freq
         from `httparchive.blink_features.features`
         where
-            yyyymmdd = '20190701' and feature in (
-                'CSSAtRuleImport', 'CSSAtRuleSupports'
-            )
+            yyyymmdd = '20190701'
+            and feature in ('CSSAtRuleImport', 'CSSAtRuleSupports')
         group by client, feature
     )
 join

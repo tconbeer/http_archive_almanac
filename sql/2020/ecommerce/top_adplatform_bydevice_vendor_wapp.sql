@@ -7,9 +7,9 @@ select
     countif(category = 'Advertising') as adplatfromfreq,
     sum(count(0)) over (partition by vendor) as total,
     round(
-        countif(category = 'Advertising') * 100 / sum(
-            count(0)
-        ) over (partition by vendor),
+        countif(category = 'Advertising')
+        * 100
+        / sum(count(0)) over (partition by vendor),
         2
     ) as pct
 from `httparchive.technologies.2020_08_01_*`

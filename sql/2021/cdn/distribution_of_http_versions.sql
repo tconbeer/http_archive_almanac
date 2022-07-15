@@ -9,9 +9,8 @@ select
     countif(ifnull(a.protocol, b.protocol) = 'HTTP/1.1') as http11,
     countif(ifnull(a.protocol, b.protocol) = 'HTTP/2') as http2,
     countif(
-        ifnull(a.protocol, b.protocol) = 'H3-29' or ifnull(
-            a.protocol, b.protocol
-        ) = 'H3-Q050'
+        ifnull(a.protocol, b.protocol) = 'H3-29'
+        or ifnull(a.protocol, b.protocol) = 'H3-Q050'
     ) as http3,
     countif(
         ifnull(a.protocol, b.protocol) not in (
@@ -24,18 +23,18 @@ select
     countif(ifnull(a.protocol, b.protocol) = 'HTTP/1.1') / count(0) as http11_pct,
     countif(ifnull(a.protocol, b.protocol) = 'HTTP/2') / count(0) as http2_pct,
     countif(
-        ifnull(a.protocol, b.protocol) = 'H3-29' or ifnull(
-            a.protocol, b.protocol
-        ) = 'H3-Q050'
-    ) / count(0) as http3_pct,
+        ifnull(a.protocol, b.protocol) = 'H3-29'
+        or ifnull(a.protocol, b.protocol) = 'H3-Q050'
+    )
+    / count(0) as http3_pct,
     countif(
         ifnull(a.protocol, b.protocol) not in (
             'HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2', 'H3-29', 'H3-Q050'
         )
-    ) / count(0) as http_other_pct,
-    countif(issecure or ifnull(a.protocol, b.protocol) = 'HTTP/2') / count(
-        0
-    ) as tls_pct,
+    )
+    / count(0) as http_other_pct,
+    countif(issecure or ifnull(a.protocol, b.protocol) = 'HTTP/2')
+    / count(0) as tls_pct,
     count(0) as total
 from
     (
@@ -74,11 +73,9 @@ from
             # isSecure reports what the browser thought it was going to use, but it
             # can get upgraded with STS OR UpgradeInsecure: 1
             if(
-                starts_with(url, 'https') or json_extract_scalar(
-                    payload, '$._tls_version'
-                ) is not null or cast(
-                    json_extract(payload, '$._is_secure') as int64
-                ) = 1,
+                starts_with(url, 'https')
+                or json_extract_scalar(payload, '$._tls_version') is not null
+                or cast(json_extract(payload, '$._is_secure') as int64) = 1,
                 true,
                 false
             ) as issecure,
@@ -121,7 +118,8 @@ left join
             any_value(json_extract_scalar(payload, '$._tls_version')) as tlsversion
         from `httparchive.almanac.requests`
         where
-            json_extract_scalar(payload, '$._tls_version') is not null and ifnull(
+            json_extract_scalar(payload, '$._tls_version') is not null
+            and ifnull(
                 json_extract_scalar(payload, '$._protocol'),
                 ifnull(
                     nullif(
@@ -135,11 +133,13 @@ left join
                         'HTTP/'
                     )
                 )
-            ) is not null and json_extract(
-                payload, '$._socket'
-            ) is not null and date = '2021-07-01'
+            )
+            is not null
+            and json_extract(payload, '$._socket') is not null
+            and date = '2021-07-01'
         group by client, page, socket
-    ) b on (a.client = b.client and a.page = b.page and a.socket = b.socket)
+    ) b
+    on (a.client = b.client and a.page = b.page and a.socket = b.socket)
 
 group by client, cdn, firsthtml
 order by client desc, total desc

@@ -114,9 +114,8 @@ select
     # pages with no html lang attribute M404
     as_percent(
         countif(
-            almanac_info.html_node_lang is null or length(
-                almanac_info.html_node_lang
-            ) = 0
+            almanac_info.html_node_lang is null
+            or length(almanac_info.html_node_lang) = 0
         ),
         count(0)
     ) as pct_no_html_lang_m404

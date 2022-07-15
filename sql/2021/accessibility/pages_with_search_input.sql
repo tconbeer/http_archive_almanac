@@ -1,8 +1,7 @@
 # standardSQL
 # Pages with search input
 create temporary function hassearchinput(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
   try {
     const almanac = JSON.parse(payload);
     return almanac.input_elements.nodes.some((node) => {
@@ -34,9 +33,8 @@ select
     # Perc of all sites which have a search input
     countif(has_search_input) / count(0) as perc_sites_with_search_input,
     # Of sites that have at least 1 input element, how many have a search input
-    countif(has_search_input) / countif(
-        has_inputs
-    ) as perc_input_sites_with_search_input
+    countif(has_search_input)
+    / countif(has_inputs) as perc_input_sites_with_search_input
 from
     (
         select
@@ -45,7 +43,8 @@ from
                 json_extract_scalar(
                     json_extract_scalar(payload, '$._almanac'), '$.input_elements.total'
                 ) as int64
-            ) > 0 as has_inputs,
+            )
+            > 0 as has_inputs,
             hassearchinput(
                 json_extract_scalar(payload, '$._almanac')
             ) as has_search_input

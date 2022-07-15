@@ -13,9 +13,9 @@ from
         select date, client, url, json_extract_scalar(payload, '$._cdn_provider') as cdn
         from `httparchive.almanac.requests`
         where
-            date = '2019-07-01' and json_extract_scalar(
-                payload, '$._protocol'
-            ) = 'HTTP/2' and firsthtml
+            date = '2019-07-01'
+            and json_extract_scalar(payload, '$._protocol') = 'HTTP/2'
+            and firsthtml
     ) as pages
 left join
     `httparchive.almanac.h2_prioritization_cdns` as h2_pri

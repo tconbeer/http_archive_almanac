@@ -5,7 +5,8 @@ select
     countif(color_contrast_score is not null) as total_applicable,
     countif(cast(color_contrast_score as numeric) = 1) as total_sufficient,
     round(
-        countif(cast(color_contrast_score as numeric) = 1) * 100 / countif(
+        countif(cast(color_contrast_score as numeric) = 1)
+        * 100 / countif(
             color_contrast_score is not null
         ),
         2

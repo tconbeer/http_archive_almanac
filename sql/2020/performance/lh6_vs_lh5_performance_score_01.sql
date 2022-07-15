@@ -2,8 +2,8 @@
 # Calculates percentile for delta of LH5 and LH6 performance score for mobile
 select
     percentile,
-    approx_quantiles(perf_score_delta, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        perf_score_delta, 1000) [offset (percentile * 10)
     ] as perf_score_delta
 from
     (

@@ -6,9 +6,8 @@ select
         distinct(
             case
                 when
-                    lower(json_value(meta_node, '$.http-equiv')) = lower(
-                        policy
-                    ) or lower(json_value(meta_node, '$.name')) = lower(policy)
+                    lower(json_value(meta_node, '$.http-equiv')) = lower(policy)
+                    or lower(json_value(meta_node, '$.name')) = lower(policy)
                 then page
             end
         )
@@ -17,13 +16,13 @@ select
         distinct(
             case
                 when
-                    lower(json_value(meta_node, '$.http-equiv')) = lower(
-                        policy
-                    ) or lower(json_value(meta_node, '$.name')) = lower(policy)
+                    lower(json_value(meta_node, '$.http-equiv')) = lower(policy)
+                    or lower(json_value(meta_node, '$.name')) = lower(policy)
                 then page
             end
         )
-    ) / count(distinct page) as pct_policy,
+    )
+    / count(distinct page) as pct_policy,
     policy in ('Content-Security-Policy', 'referrer') as is_allowed_as_meta
 from
     (

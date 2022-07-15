@@ -3,9 +3,7 @@ create temporary function getresourcehintattrs(payload string)
 returns array < struct < name string,
 attribute string,
 value string
->>
-language js
-as '''
+>> language js as '''
 var hints = new Set(['preload', 'prefetch']);
 var attributes = ['as'];
 try {
@@ -37,9 +35,8 @@ select
     client,
     count(distinct if(prefetch_hint, page, null)) as prefetch_pages,
     count(distinct page) as total,
-    count(distinct if(prefetch_hint, page, null)) / count(
-        distinct page
-    ) as prefetch_pct,
+    count(distinct if(prefetch_hint, page, null))
+    / count(distinct page) as prefetch_pct,
     count(distinct if(preload_hint, page, null)) as preload_pages,
     count(distinct if(preload_hint, page, null)) / count(distinct page) as preload_pct
 from

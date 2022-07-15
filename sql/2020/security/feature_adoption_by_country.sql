@@ -63,8 +63,8 @@ select
         countif(regexp_contains(respotherheaders, '(?i)X-XSS-Protection ')), count(0)
     ) as pct_xss,
     avg(getnumsecurityheaders(respotherheaders)) as avg_security_headers,
-    approx_quantiles(getnumsecurityheaders(respotherheaders), 1000) [
-        offset (500)
+    approx_quantiles(
+        getnumsecurityheaders(respotherheaders), 1000) [offset (500)
     ] as median_security_headers
 from
     (
@@ -76,9 +76,8 @@ from
             firsthtml
         from `httparchive.summary_requests.2020_08_01_*` as r
         inner join
-            `chrome-ux-report.experimental.country` as c on r.urlshort = concat(
-                c.origin, '/'
-            )
+            `chrome-ux-report.experimental.country` as c
+            on r.urlshort = concat(c.origin, '/')
         where firsthtml and yyyymm = 202008
     )
 group by client, country

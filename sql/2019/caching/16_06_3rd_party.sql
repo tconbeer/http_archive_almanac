@@ -17,26 +17,28 @@ select
         uses_last_modified and not has_valid_last_modified
     ) as total_invalid_last_modified,
     countif(
-        (uses_date and not has_valid_date_header) or (
-            uses_last_modified and not has_valid_last_modified
-        )
+        (uses_date and not has_valid_date_header)
+        or (uses_last_modified and not has_valid_last_modified)
     ) as total_has_invalid_header,
 
     round(
         countif(uses_date and not has_valid_date_header) * 100 / countif(uses_date), 2
     ) as pct_invalid_date_header,
     round(
-        countif(uses_last_modified and not has_valid_last_modified) * 100 / countif(
+        countif(uses_last_modified and not has_valid_last_modified)
+        * 100 / countif(
             uses_last_modified
         ),
         2
     ) as pct_invalid_last_modified,
     round(
         countif(
-            (uses_date and not has_valid_date_header) or (
-                uses_last_modified and not has_valid_last_modified
-            )
-        ) * 100 / count(0),
+            (uses_date and not has_valid_date_header)
+            or (uses_last_modified and not has_valid_last_modified)
+        )
+        * 100 / count(
+            0
+        ),
         2
     ) as pct_req_with_invalid_header
 from
@@ -44,9 +46,8 @@ from
         select
             client,
             if(
-                strpos(
-                    net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)')
-                ) > 0,
+                strpos(net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)'))
+                > 0,
                 1,
                 3
             ) as party,

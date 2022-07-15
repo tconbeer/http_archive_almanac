@@ -1,8 +1,7 @@
 # standardSQL
 # Manifests that are not JSON parsable for service worker pages and all pages
 create temp function canparsemanifest(manifest string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var manifestJSON = Object.values(JSON.parse(manifest))[0];
   if (typeof manifestJSON === 'string' && manifestJSON.trim() != '') {
@@ -27,9 +26,8 @@ select
     count(0) / sum(count(0)) over (partition by _table_suffix) as pct
 from `httparchive.pages.2021_07_01_*`
 where
-    json_extract(payload, '$._pwa.manifests') != '[]' and json_extract(
-        payload, '$._pwa.serviceWorkerHeuristic'
-    ) = 'true'
+    json_extract(payload, '$._pwa.manifests') != '[]'
+    and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
 group by client, can_parse
 union all
 select

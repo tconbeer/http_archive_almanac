@@ -36,9 +36,8 @@ select
     ch_directive,
     count(0) as total_pages_using,
     count(0) / total_pages as pct_pages,
-    count(0) / sum(
-        count(distinct page)
-    ) over (partition by client) as pct_ch_pages_using
+    count(0)
+    / sum(count(distinct page)) over (partition by client) as pct_ch_pages_using
 from
     (
         select page, client, ch_directive

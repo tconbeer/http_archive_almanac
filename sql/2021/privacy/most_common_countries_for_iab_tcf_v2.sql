@@ -23,8 +23,7 @@ select
 from `httparchive.pages.2021_07_01_*`
 join totals using(_table_suffix)
 where
-    json_value(
-        json_value(payload, '$._privacy'), '$.iab_tcf_v2.data.publisherCC'
-    ) is not null
+    json_value(json_value(payload, '$._privacy'), '$.iab_tcf_v2.data.publisherCC')
+    is not null
 group by client, total_websites, publishercc
 order by client, number_of_websites desc

@@ -18,9 +18,8 @@ select
     headername,
     count(distinct host) as total_hosts,
     count(distinct if(hasheader(headers, headername), host, null)) as num_with_header,
-    count(distinct if(hasheader(headers, headername), host, null)) / count(
-        distinct host
-    ) as pct_with_header
+    count(distinct if(hasheader(headers, headername), host, null))
+    / count(distinct host) as pct_with_header
 from
     (
         select
@@ -30,8 +29,8 @@ from
             json_extract(payload, '$.response.headers') as headers
         from `httparchive.almanac.requests`
         where
-            (date = '2020-08-01' or date = '2019-07-01') and
-            net.host(urlshort) = net.host(page)
+            (date = '2020-08-01' or date = '2019-07-01')
+            and net.host(urlshort) = net.host(page)
     ),
     unnest(
         [

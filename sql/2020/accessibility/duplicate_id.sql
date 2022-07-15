@@ -6,13 +6,12 @@ select
     sum(countif(total_duplicate_ids > 0)) over (
         partition by client
     ) as total_with_duplicate_ids,
-    sum(countif(total_duplicate_ids > 0)) over (
-        partition by client
-    ) / sum(count(0)) over (partition by client) as pct_with_duplicate_ids,
+    sum(countif(total_duplicate_ids > 0)) over (partition by client)
+    / sum(count(0)) over (partition by client) as pct_with_duplicate_ids,
 
     percentile,
-    approx_quantiles(total_duplicate_ids, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        total_duplicate_ids, 1000) [offset (percentile * 10)
     ] as total_duplicate_ids
 from
     (

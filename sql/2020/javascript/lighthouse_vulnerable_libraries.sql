@@ -3,8 +3,7 @@
 create temporary function getvulnerabilities(audit string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(i => i.detectedLib.text.split('@')[0]);

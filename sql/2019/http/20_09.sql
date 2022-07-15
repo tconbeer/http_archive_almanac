@@ -2,8 +2,7 @@
 # 20.09 - Count of non-HTTP/2 Sites Grouped By Server
 create temporary function getserverheader(payload string)
 returns string
-language js
-as """
+language js as """
   try {
     var $ = JSON.parse(payload);
     var headers = $.response.headers;
@@ -26,8 +25,8 @@ select
     round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
 from `httparchive.almanac.requests`
 where
-    date = '2019-07-01' and firsthtml and json_extract_scalar(
-        payload, '$._protocol'
-    ) != 'HTTP/2'
+    date = '2019-07-01'
+    and firsthtml
+    and json_extract_scalar(payload, '$._protocol') != 'HTTP/2'
 group by client, server_header
 order by num_pages desc

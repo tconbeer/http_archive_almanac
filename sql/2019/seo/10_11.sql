@@ -19,7 +19,8 @@ from
                     json_extract_scalar(payload, '$._almanac'),
                     "$['seo-anchor-elements'].navigateHash"
                 ) as int64
-            ) > 0 as navigate_hash
+            )
+            > 0 as navigate_hash
         from `httparchive.pages.2019_07_01_*`
     )
 join `httparchive.technologies.2019_07_01_*` using(_table_suffix, url)

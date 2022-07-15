@@ -35,10 +35,10 @@ select
     count(distinct page) / total_websites as pct_websites
 from `httparchive.almanac.requests`
 join
-    whotracksme on (
-        net.host(urlshort) = domain or ends_with(
-            net.host(urlshort), concat('.', domain)
-        )
+    whotracksme
+    on (
+        net.host(urlshort) = domain
+        or ends_with(net.host(urlshort), concat('.', domain))
     )
 join totals using(client)
 -- third party

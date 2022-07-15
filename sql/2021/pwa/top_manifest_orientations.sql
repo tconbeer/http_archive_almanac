@@ -1,7 +1,6 @@
 # standardSQL
 # Top manifest orientations
-create temp function getorientation(manifest string) returns string language js
-as '''
+create temp function getorientation(manifest string) returns string language js as '''
 try {
   var $ = Object.values(JSON.parse(manifest))[0];
   if (!('orientation' in $)) {
@@ -23,9 +22,8 @@ select
     count(0) / sum(count(0)) over (partition by _table_suffix) as pct
 from `httparchive.pages.2021_07_01_*`
 where
-    json_extract(payload, '$._pwa.manifests') != '[]' and json_extract(
-        payload, '$._pwa.serviceWorkerHeuristic'
-    ) = 'true'
+    json_extract(payload, '$._pwa.manifests') != '[]'
+    and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
 group by type, client, orientation
 union all
 select

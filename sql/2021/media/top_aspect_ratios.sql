@@ -4,8 +4,7 @@ approximateresourcewidth int64,
 approximateresourceheight int64,
 aspectratio numeric,
 resourceformat string
->>
-language js
+>> language js
 as '''
   const parsed = JSON.parse( responsiveImagesJsonString );
   if ( parsed && parsed.map ) {

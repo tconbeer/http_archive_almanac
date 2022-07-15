@@ -2,8 +2,7 @@
 # Popularity of @keyframes positions
 create temporary function getkeyframepositions(css string) returns array
 < string
-> language js
-as r'''
+> language js as r'''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

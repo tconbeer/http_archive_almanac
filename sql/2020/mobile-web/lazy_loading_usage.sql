@@ -5,9 +5,8 @@ select
     countif(total_img > 0) as sites_with_images,
 
     countif(total_loading_attribute > 0) as sites_using_loading_attribute,
-    countif(total_loading_attribute > 0) / countif(
-        total_img > 0
-    ) as pct_sites_using_loading_attribute
+    countif(total_loading_attribute > 0)
+    / countif(total_img > 0) as pct_sites_using_loading_attribute
 from
     (
         select

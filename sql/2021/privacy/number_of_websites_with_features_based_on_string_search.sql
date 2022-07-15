@@ -12,41 +12,29 @@ with
 select
     *,
     number_of_websites_document_interestcohort
-    / number_of_websites
-    as pct_websites_document_interestcohort,
+    / number_of_websites as pct_websites_document_interestcohort,
     number_of_websites_navigator_donottrack
-    / number_of_websites
-    as pct_websites_navigator_donottrack,
+    / number_of_websites as pct_websites_navigator_donottrack,
     number_of_websites_navigator_globalprivacycontrol
-    / number_of_websites
-    as pct_websites_navigator_globalprivacycontrol,
+    / number_of_websites as pct_websites_navigator_globalprivacycontrol,
     number_of_websites_document_permissionspolicy
-    / number_of_websites
-    as pct_websites_document_permissionspolicy,
+    / number_of_websites as pct_websites_document_permissionspolicy,
     number_of_websites_document_featurepolicy
-    / number_of_websites
-    as pct_websites_document_featurepolicy,
+    / number_of_websites as pct_websites_document_featurepolicy,
     number_of_websites_navigator_mediadevices_enumeratedevices
-    / number_of_websites
-    as pct_websites_navigator_mediadevices_enumeratedevices,
+    / number_of_websites as pct_websites_navigator_mediadevices_enumeratedevices,
     number_of_websites_navigator_mediadevices_getusermedia
-    / number_of_websites
-    as pct_websites_navigator_mediadevices_getusermedia,
+    / number_of_websites as pct_websites_navigator_mediadevices_getusermedia,
     number_of_websites_navigator_mediadevices_getdisplaymedia
-    / number_of_websites
-    as pct_websites_navigator_mediadevices_getdisplaymedia,
+    / number_of_websites as pct_websites_navigator_mediadevices_getdisplaymedia,
     number_of_websites_navigator_mediadevices_any
-    / number_of_websites
-    as pct_websites_navigator_mediadevices_any,
+    / number_of_websites as pct_websites_navigator_mediadevices_any,
     number_of_websites_navigator_geolocation_getcurrentposition
-    / number_of_websites
-    as pct_websites_navigator_geolocation_getcurrentposition,
+    / number_of_websites as pct_websites_navigator_geolocation_getcurrentposition,
     number_of_websites_navigator_geolocation_watchposition
-    / number_of_websites
-    as pct_websites_navigator_geolocation_watchposition,
+    / number_of_websites as pct_websites_navigator_geolocation_watchposition,
     number_of_websites_navigator_geolocation_any
-    / number_of_websites
-    as pct_websites_navigator_geolocation_any
+    / number_of_websites as pct_websites_navigator_geolocation_any
 from
     (
         select
@@ -71,46 +59,57 @@ from
             countif(
                 json_value(
                     metrics, '$.media_devices.navigator_mediaDevices_enumerateDevices'
-                ) = 'true'
+                )
+                = 'true'
             ) as number_of_websites_navigator_mediadevices_enumeratedevices,
             countif(
                 json_value(
                     metrics, '$.media_devices.navigator_mediaDevices_getUserMedia'
-                ) = 'true'
+                )
+                = 'true'
             ) as number_of_websites_navigator_mediadevices_getusermedia,
             countif(
                 json_value(
                     metrics, '$.media_devices.navigator_mediaDevices_getDisplayMedia'
-                ) = 'true'
+                )
+                = 'true'
             ) as number_of_websites_navigator_mediadevices_getdisplaymedia,
 
             countif(
                 json_value(
                     metrics, '$.media_devices.navigator_mediaDevices_enumerateDevices'
-                ) = 'true' or json_value(
+                )
+                = 'true'
+                or json_value(
                     metrics, '$.media_devices.navigator_mediaDevices_getUserMedia'
-                ) = 'true' or json_value(
+                )
+                = 'true'
+                or json_value(
                     metrics, '$.media_devices.navigator_mediaDevices_getDisplayMedia'
-                ) = 'true'
+                )
+                = 'true'
             ) as number_of_websites_navigator_mediadevices_any,
 
             countif(
                 json_value(
                     metrics, '$.geolocation.navigator_geolocation_getCurrentPosition'
-                ) = 'true'
+                )
+                = 'true'
             ) as number_of_websites_navigator_geolocation_getcurrentposition,
             countif(
-                json_value(
-                    metrics, '$.geolocation.navigator_geolocation_watchPosition'
-                ) = 'true'
+                json_value(metrics, '$.geolocation.navigator_geolocation_watchPosition')
+                = 'true'
             ) as number_of_websites_navigator_geolocation_watchposition,
 
             countif(
                 json_value(
                     metrics, '$.geolocation.navigator_geolocation_getCurrentPosition'
-                ) = 'true' or json_value(
+                )
+                = 'true'
+                or json_value(
                     metrics, '$.geolocation.navigator_geolocation_watchPosition'
-                ) = 'true'
+                )
+                = 'true'
             ) as number_of_websites_navigator_geolocation_any
 
         from privacy_custom_metrics_data

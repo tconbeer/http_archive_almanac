@@ -55,10 +55,10 @@ join
     using(_table_suffix)
 where
     (
-        json_extract(
-            payload, '$._pwa.windowEventListenersInfo'
-        ) != '[]' or json_extract(payload, '$._pwa.windowPropertiesInfo') != '[]'
-    ) and
-    install_event != '' and install_event != '[]'
+        json_extract(payload, '$._pwa.windowEventListenersInfo') != '[]'
+        or json_extract(payload, '$._pwa.windowPropertiesInfo') != '[]'
+    )
+    and install_event != ''
+    and install_event != '[]'
 group by client, total, install_event
 order by freq / total desc, client

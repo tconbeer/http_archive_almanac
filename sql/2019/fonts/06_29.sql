@@ -33,21 +33,21 @@ select
     countif(cast(regexp_extract(value, '\\d+') as numeric) >= 20) as freq_over_20,
     sum(count(0)) over (partition by client) as total,
     round(
-        countif(cast(regexp_extract(value, '\\d+') as numeric) < 6) * 100 / sum(
-            count(0)
-        ) over (partition by client),
+        countif(cast(regexp_extract(value, '\\d+') as numeric) < 6)
+        * 100
+        / sum(count(0)) over (partition by client),
         2
     ) as pct_under_6,
     round(
-        countif(
-            cast(regexp_extract(value, '\\d+') as numeric) between 6 and 19
-        ) * 100 / sum(count(0)) over (partition by client),
+        countif(cast(regexp_extract(value, '\\d+') as numeric) between 6 and 19)
+        * 100
+        / sum(count(0)) over (partition by client),
         2
     ) as pct_between_6_20,
     round(
-        countif(cast(regexp_extract(value, '\\d+') as numeric) >= 20) * 100 / sum(
-            count(0)
-        ) over (partition by client),
+        countif(cast(regexp_extract(value, '\\d+') as numeric) >= 20)
+        * 100
+        / sum(count(0)) over (partition by client),
         2
     ) as pct_over_20
 from

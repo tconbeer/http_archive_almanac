@@ -1,8 +1,7 @@
 # standardSQL
 # 19_07: % of sites that use priority hints.
 create temporary function getpriorityhints(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);

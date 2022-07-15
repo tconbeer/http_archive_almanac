@@ -3,8 +3,7 @@
 create temporary function getsearchinputstats(payload string)
 returns struct < has_inputs boolean,
 has_search_inputs boolean
-> language js
-as '''
+> language js as '''
   try {
     const almanac = JSON.parse(payload);
     const search_node_index = almanac.input_elements.nodes.findIndex((node) => {
@@ -30,12 +29,10 @@ select
     countif(search_input_stats.has_inputs) as pages_with_inputs,
     countif(search_input_stats.has_search_inputs) as pages_with_search_inputs,
 
-    countif(search_input_stats.has_search_inputs) / count(
-        0
-    ) as pct_pages_with_search_inputs,
-    countif(search_input_stats.has_search_inputs) / countif(
-        search_input_stats.has_inputs
-    ) as pct_input_pages_with_search_inputs
+    countif(search_input_stats.has_search_inputs)
+    / count(0) as pct_pages_with_search_inputs,
+    countif(search_input_stats.has_search_inputs)
+    / countif(search_input_stats.has_inputs) as pct_input_pages_with_search_inputs
 from
     (
         select

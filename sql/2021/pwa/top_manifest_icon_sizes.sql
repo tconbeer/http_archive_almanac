@@ -3,8 +3,7 @@
 create temporary function geticonsizes(manifest string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = Object.values(JSON.parse(manifest))[0];
   return $.icons.map(icon => icon.sizes);
@@ -39,9 +38,8 @@ with
                 json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
             ) as pwa_freq,
             pwa_total,
-            countif(
-                json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
-            ) / pwa_total as pwa_pct
+            countif(json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true')
+            / pwa_total as pwa_pct
         from
             `httparchive.pages.2021_07_01_*`,
             unnest(geticonsizes(json_extract(payload, '$._pwa.manifests'))) as size

@@ -3,8 +3,7 @@
 create temporary function getunminifiedjsurls(audit string)
 returns array < struct < url string,
 wastedbytes int64
->> language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(({url, wastedBytes}) => {
@@ -29,9 +28,8 @@ from
             (
                 select
                     test.url as page,
-                    net.host(unminified.url) is not null and net.host(
-                        unminified.url
-                    ) in (
+                    net.host(unminified.url) is not null
+                    and net.host(unminified.url) in (
                         select domain
                         from `httparchive.almanac.third_parties`
                         where date = '2020-08-01' and category != 'hosting'

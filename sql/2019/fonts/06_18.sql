@@ -15,7 +15,7 @@ join
     using
     (client)
 where
-    date = '2019-07-01' and type = 'font' and json_extract_scalar(
-        payload, '$._font_details.table_sizes.gvar'
-    ) is not null
+    date = '2019-07-01'
+    and type = 'font'
+    and json_extract_scalar(payload, '$._font_details.table_sizes.gvar') is not null
 group by client, total

@@ -13,8 +13,10 @@ create temp function getnumscriptelements(sris array < string >) as (
 select
     client,
     percentile,
-    approx_quantiles(getnumscriptelements(sris) / num_scripts, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        getnumscriptelements(sris) / num_scripts,
+        1000 ignore nulls
+    ) [offset (percentile * 10)
     ] as integrity_pct
 from
     (

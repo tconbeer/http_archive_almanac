@@ -8,8 +8,7 @@ radios_in_fieldsets int64,
 checkboxes_in_fieldsets int64,
 checkboxes_in_fieldset_with_legend int64,
 radios_in_fieldset_with_legend int64
-> language js
-as '''
+> language js as '''
   try {
     const a11y = JSON.parse(payload);
 
@@ -55,28 +54,22 @@ select
     countif(stats.radios > 0) as total_with_radios,
 
     countif(
-        (
-            stats.checkboxes > 0 or stats.radios > 0
-        ) and stats.checkboxes_in_fieldset_with_legend = 0
+        (stats.checkboxes > 0 or stats.radios > 0)
+        and stats.checkboxes_in_fieldset_with_legend = 0
         and stats.radios_in_fieldset_with_legend = 0
-    ) / countif(
-        stats.checkboxes > 0 or stats.radios > 0
-    ) as perc_sites_with_none_in_legend,
+    ) / countif(stats.checkboxes > 0 or stats.radios > 0)
+    as perc_sites_with_none_in_legend,
     countif(
-        (
-            stats.checkboxes > 0 or stats.radios > 0
-        ) and stats.checkboxes_in_fieldset_with_legend = stats.checkboxes
+        (stats.checkboxes > 0 or stats.radios > 0)
+        and stats.checkboxes_in_fieldset_with_legend = stats.checkboxes
         and stats.radios_in_fieldset_with_legend = stats.radios
-    ) / countif(
-        stats.checkboxes > 0 or stats.radios > 0
-    ) as perc_sites_with_all_in_legend,
+    ) / countif(stats.checkboxes > 0 or stats.radios > 0)
+    as perc_sites_with_all_in_legend,
 
-    sum(stats.checkboxes_in_fieldset_with_legend) / sum(
-        stats.checkboxes
-    ) as perc_checkboxes_in_legend,
-    sum(stats.radios_in_fieldset_with_legend) / sum(
-        stats.radios
-    ) as perc_radios_in_legend
+    sum(stats.checkboxes_in_fieldset_with_legend)
+    / sum(stats.checkboxes) as perc_checkboxes_in_legend,
+    sum(stats.radios_in_fieldset_with_legend)
+    / sum(stats.radios) as perc_radios_in_legend
 from
     (
         select

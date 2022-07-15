@@ -4,11 +4,9 @@
 # is not a per anchor report.
 create temporary function getrelstatswptbodies(wpt_bodies_string string)
 returns struct
-<
-rel array
+< rel array
 < string
->
-> language js
+> > language js
 as '''
 var result = {};
 //Function to retrieve only keys if value is >0

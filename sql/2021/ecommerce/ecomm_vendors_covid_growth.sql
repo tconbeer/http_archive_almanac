@@ -23,9 +23,8 @@ join
     )
     using(_table_suffix)
 where
-    category = 'Ecommerce' and (
-        app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce'
-    )
+    category = 'Ecommerce'
+    and (app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce')
 group by client, app, year, month, total
 order by pct desc, client desc, app desc
 limit 5000

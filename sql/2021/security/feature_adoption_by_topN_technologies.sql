@@ -3,7 +3,8 @@
 # global adoption of different security features
 -- from https://stackoverflow.com/a/54835472
 create temp function array_slice(arr array < string >, start int64, finish int64)
-returns array < string > as (
+returns array
+< string > as (
     array(
         select part
         from unnest(arr) part
@@ -52,7 +53,8 @@ with
                 ]
             ) as headername
         where
-            firsthtml and category in unnest(
+            firsthtml
+            and category in unnest(
                 [
                     'Blogs',
                     'CDN',
@@ -73,9 +75,8 @@ select
     array_to_string(array_slice(top_apps, 0, topn - 1), ', ', 'NULL') as topn_apps,
     count(
         distinct if(
-            regexp_contains(
-                respotherheaders, concat('(?i)', headername, ' ')
-            ) and concat(category, '_', app) in unnest(
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+            and concat(category, '_', app) in unnest(
                 array_slice(top_apps, 0, topn - 1)
             ),
             url,
@@ -85,9 +86,8 @@ select
     safe_divide(
         count(
             distinct if(
-                regexp_contains(
-                    respotherheaders, concat('(?i)', headername, ' ')
-                ) and concat(category, '_', app) in unnest(
+                regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+                and concat(category, '_', app) in unnest(
                     array_slice(top_apps, 0, topn - 1)
                 ),
                 url,

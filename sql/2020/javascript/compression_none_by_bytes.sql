@@ -40,9 +40,12 @@ from
             respsize / 1024 as kbytes
         from `httparchive.almanac.requests`
         where
-            date = '2020-08-01' and type = 'script' and getheader(
+            date = '2020-08-01'
+            and type = 'script'
+            and getheader(
                 json_extract(payload, '$.response.headers'), 'Content-Encoding'
-            ) is null
+            )
+            is null
     )
 join
     (

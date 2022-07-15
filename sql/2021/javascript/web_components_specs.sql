@@ -1,8 +1,8 @@
 select
     client,
     percentile,
-    approx_quantiles(custom_elements, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        custom_elements, 1000) [offset (percentile * 10)
     ] as custom_elements,
     approx_quantiles(shadow_roots, 1000) [offset (percentile * 10)] as shadow_roots,
     approx_quantiles(template, 1000) [offset (percentile * 10)] as template

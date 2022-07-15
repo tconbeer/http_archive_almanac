@@ -37,9 +37,8 @@ from
                 'third party',
                 'first party'
             ) as host,
-            getheader(
-                json_extract(payload, '$.response.headers'), 'SourceMap'
-            ) is not null as has_sourcemap_header
+            getheader(json_extract(payload, '$.response.headers'), 'SourceMap')
+            is not null as has_sourcemap_header
         from `httparchive.almanac.requests`
         where date = '2020-08-01' and type = 'script'
     )

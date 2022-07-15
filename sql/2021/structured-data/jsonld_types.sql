@@ -3,9 +3,7 @@
 create temp function getjsonldtypes(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     const arrayify = (value) => Array.isArray(value) ? value : [value];
 
@@ -59,9 +57,8 @@ select
     jsonld_type,
     count(jsonld_type) as freq_jsonld_type,
     sum(count(jsonld_type)) over (partition by client) as total_jsonld_type,
-    count(jsonld_type) / sum(
-        count(jsonld_type)
-    ) over (partition by client) as pct_jsonld_type,
+    count(jsonld_type)
+    / sum(count(jsonld_type)) over (partition by client) as pct_jsonld_type,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

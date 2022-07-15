@@ -13,7 +13,8 @@ as '''
   return null;
 '''
 ;
-create temp function getnumuniquehosts(str string) as (
+create temp function getnumuniquehosts(str string
+) as (
     (
         select count(distinct x)
         from unnest(regexp_extract_all(str, r'(?i)(https*://[^\s;]+)[\s;]')) as x
@@ -28,11 +29,11 @@ select
     countif(csp_header is not null) as total_csp_headers,
     countif(csp_header is not null) / count(0) as pct_csp_headers,
     count(distinct csp_header) as num_unique_csp_headers,
-    approx_quantiles(length(csp_header), 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        length(csp_header), 1000 ignore nulls) [offset (percentile * 10)
     ] as csp_header_length,
-    approx_quantiles(getnumuniquehosts(csp_header), 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        getnumuniquehosts(csp_header), 1000 ignore nulls) [offset (percentile * 10)
     ] as unique_allowed_hosts
 from
     (

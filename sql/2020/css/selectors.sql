@@ -4,7 +4,8 @@ returns struct < rulecount numeric,
 selectorcount numeric,
 distribution array < struct < specificity string,
 specificity_cmp string,
-freq int64 >> > language js
+freq int64 >> >
+language js
 options(library = "gs://httparchive/lib/css-utils.js")
 as '''
 try {
@@ -82,14 +83,16 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(rule_count, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        rule_count, 1000 ignore nulls) [offset (percentile * 10)
     ] as rule_count,
-    approx_quantiles(selector_count, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        selector_count, 1000 ignore nulls) [offset (percentile * 10)
     ] as selector_count,
-    approx_quantiles(safe_divide(selector_count, rule_count), 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        safe_divide(selector_count, rule_count),
+        1000 ignore nulls
+    ) [offset (percentile * 10)
     ] as selectors_per_rule
 from
     (

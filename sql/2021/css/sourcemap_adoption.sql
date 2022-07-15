@@ -1,7 +1,8 @@
 # standardSQL
 # Percent of pages with CSS sourcemaps.
-create temporary function countsourcemaps(payload string) returns int64 language js
-as '''
+create temporary function countsourcemaps(
+    payload string
+) returns int64 language js as '''
 try {
   var $ = JSON.parse(payload);
   var sass = JSON.parse($._sass);

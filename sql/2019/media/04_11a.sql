@@ -22,20 +22,20 @@ select
     imagetype,
     count(0) as count,
     approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000
-    ) [offset (100)] as pixels_p10,
+        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (100)
+    ] as pixels_p10,
     approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000
-    ) [offset (250)] as pixels_p25,
+        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (250)
+    ] as pixels_p25,
     approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000
-    ) [offset (500)] as pixels_p50,
+        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (500)
+    ] as pixels_p50,
     approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000
-    ) [offset (750)] as pixels_p75,
+        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (750)
+    ] as pixels_p75,
     approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000
-    ) [offset (900)] as pixels_p90,
+        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (900)
+    ] as pixels_p90,
     approx_quantiles(bytes, 1000) [offset (100)] as bytes_p10,
     approx_quantiles(bytes, 1000) [offset (250)] as bytes_p25,
     approx_quantiles(bytes, 1000) [offset (500)] as bytes_p50,
@@ -44,23 +44,28 @@ select
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (100)] as bpp_p10,
+    ) [offset (100)
+    ] as bpp_p10,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (250)] as bpp_p25,
+    ) [offset (250)
+    ] as bpp_p25,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (500)] as bpp_p50,
+    ) [offset (500)
+    ] as bpp_p50,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (750)] as bpp_p75,
+    ) [offset (750)
+    ] as bpp_p75,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (900)] as bpp_p90
+    ) [offset (900)
+    ] as bpp_p90
 from
     (
         select
@@ -72,9 +77,8 @@ from
             image.naturalwidth as naturalwidth,
             image.naturalheight as naturalheight,
             ifnull(image.width, 0) * ifnull(image.height, 0) as pixels,
-            ifnull(image.naturalwidth, 0) * ifnull(
-                image.naturalheight, 0
-            ) as naturalpixels
+            ifnull(image.naturalwidth, 0)
+            * ifnull(image.naturalheight, 0) as naturalpixels
         from `httparchive.pages.2019_07_01_*` p
         cross join unnest(getimages(payload)) as image
         where image.naturalheight > 0 and image.naturalwidth > 0
@@ -128,11 +132,12 @@ left join
             # strip video mimetypes and other favicons
             format != 'ico' and not regexp_contains(mimetype, r'video|ico')
     -- limit 1000
-    ) on (b.client = a.client and a.page = b.page and a.url = b.url)
+    )
+    on (b.client = a.client and a.page = b.page and a.url = b.url)
 
 where
-    naturalpixels > 0 and bytes > 0 and imagetype in (
-        'jpg', 'png', 'webp', 'gif', 'svg'
-    )
+    naturalpixels > 0
+    and bytes > 0
+    and imagetype in ('jpg', 'png', 'webp', 'gif', 'svg')
 group by client, imagetype
 order by client desc

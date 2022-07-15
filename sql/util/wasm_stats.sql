@@ -11,5 +11,6 @@ from
             (
                 select url as page, pageid, _table_suffix
                 from `httparchive.summary_pages.2021_09_01_*`
-            ) using(_table_suffix, pageid)
+            ) using(_table_suffix, pageid
+            )
     )

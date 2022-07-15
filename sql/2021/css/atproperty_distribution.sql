@@ -2,8 +2,7 @@
 # Distribution of @property rules per page
 create temp function countatproperties(css string) returns array
 < int64
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {
@@ -23,8 +22,8 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(atprops_per_page, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        atprops_per_page, 1000) [offset (percentile * 10)
     ] as atprops_per_page
 from
     (

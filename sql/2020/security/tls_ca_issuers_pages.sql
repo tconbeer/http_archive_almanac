@@ -16,8 +16,9 @@ from
             ) as issuer
         from `httparchive.almanac.requests`
         where
-            date = '2020-08-01' and net.host(page) = net.host(url) and
-            json_extract_scalar(payload, '$._securityDetails.issuer') is not null
+            date = '2020-08-01'
+            and net.host(page) = net.host(url)
+            and json_extract_scalar(payload, '$._securityDetails.issuer') is not null
         group by client, request_host
     )
 group by client, issuer

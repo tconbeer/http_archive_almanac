@@ -15,11 +15,14 @@ join
     using
     (client)
 where
+    date = '2019-07-01'
+    and type = 'font'
     # Color fonts have any of sbix, cbdt, svg or colr tables.
-    date = '2019-07-01' and type = 'font' and array_length(
+    and array_length(
         regexp_extract_all(
             json_extract(payload, '$._font_details.table_sizes'),
             '(?i)(sbix|cbdt|svg|colr)'
         )
-    ) > 0
+    )
+    > 0
 group by client, total

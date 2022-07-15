@@ -16,9 +16,9 @@ from
                     ifnull(
                         json_extract(payload, "$['_cpu.ParseAuthorStyleSheet']"), '0'
                     ) as int64
-                ) +
-                cast(ifnull(json_extract(payload, "$['_cpu.Layout']"), '0') as int64) +
-                cast(
+                ) + cast(
+                    ifnull(json_extract(payload, "$['_cpu.Layout']"), '0') as int64
+                ) + cast(
                     ifnull(
                         json_extract(payload, "$['_cpu.UpdateLayoutTree']"), '0'
                     ) as int64

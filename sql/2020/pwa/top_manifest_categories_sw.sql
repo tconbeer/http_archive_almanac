@@ -3,8 +3,7 @@
 create temporary function getcategories(manifest string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(manifest);
   var categories = $.categories;

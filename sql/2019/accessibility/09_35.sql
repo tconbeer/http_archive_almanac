@@ -2,8 +2,7 @@
 # 09_35: % of pages with distracting UX (marquee/blink elements, or
 # animation-iteration-count: infinite)
 create temporary function includesinfiniteanimation(css string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var reduceValues = (values, rule) => {
     if (values) {
@@ -27,11 +26,8 @@ try {
 }
 '''
 ;
-
-
 create temporary function includesmotionelement(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -50,9 +46,9 @@ select
     countif(motion or animations > 0) as freq,
     sum(count(distinct page)) over (partition by client) as total,
     round(
-        countif(motion or animations > 0) * 100 / sum(
-            count(distinct page)
-        ) over (partition by client),
+        countif(motion or animations > 0)
+        * 100
+        / sum(count(distinct page)) over (partition by client),
         2
     ) as pct
 from

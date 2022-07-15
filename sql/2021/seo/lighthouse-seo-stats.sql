@@ -97,33 +97,24 @@ select
 from
     (
         select
-            json_extract_scalar(
-                report, '$.audits.is-crawlable.score'
-            ) = '1' as is_crawlable,
-            json_extract_scalar(
-                report, '$.audits.canonical.score'
-            ) = '1' as is_canonical,
-            json_extract_scalar(
-                report, '$.audits.document-title.score'
-            ) = '1' as has_title,
-            json_extract_scalar(
-                report, '$.audits.meta-description.score'
-            ) = '1' as has_meta_description,
-            json_extract_scalar(
-                report, '$.audits.image-alt.score'
-            ) = '1' as img_alt_on_all,
-            json_extract_scalar(
-                report, '$.audits.robots-txt.score'
-            ) = '1' as robots_txt_valid,
-            json_extract_scalar(
-                report, '$.audits.link-text.score'
-            ) = '1' as link_text_descriptive,
-            json_extract_scalar(
-                report, '$.audits.font-size.score'
-            ) = '1' as legible_font_size,
-            json_extract_scalar(
-                report, '$.audits.heading-order.score'
-            ) = '1' as heading_order_valid,
+            json_extract_scalar(report, '$.audits.is-crawlable.score')
+            = '1' as is_crawlable,
+            json_extract_scalar(report, '$.audits.canonical.score')
+            = '1' as is_canonical,
+            json_extract_scalar(report, '$.audits.document-title.score')
+            = '1' as has_title,
+            json_extract_scalar(report, '$.audits.meta-description.score')
+            = '1' as has_meta_description,
+            json_extract_scalar(report, '$.audits.image-alt.score')
+            = '1' as img_alt_on_all,
+            json_extract_scalar(report, '$.audits.robots-txt.score')
+            = '1' as robots_txt_valid,
+            json_extract_scalar(report, '$.audits.link-text.score')
+            = '1' as link_text_descriptive,
+            json_extract_scalar(report, '$.audits.font-size.score')
+            = '1' as legible_font_size,
+            json_extract_scalar(report, '$.audits.heading-order.score')
+            = '1' as heading_order_valid,
             iscrawlabledetails(report) as is_crawlable_details
         from `httparchive.lighthouse.2021_07_01_*`
     )

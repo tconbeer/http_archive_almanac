@@ -9,8 +9,6 @@ create temp function is_non_zero(
     good float64, needs_improvement float64, poor float64
 ) returns bool as (good + needs_improvement + poor > 0)
 ;
-
-
 select
     app,
     cdn,
@@ -39,18 +37,18 @@ select
     safe_divide(
         count(
             distinct if(
-                is_good(fast_lcp, avg_lcp, slow_lcp) and
-                is_good(fast_fid, avg_fid, slow_fid) and
-                is_good(small_cls, medium_cls, large_cls),
+                is_good(fast_lcp, avg_lcp, slow_lcp)
+                and is_good(fast_fid, avg_fid, slow_fid)
+                and is_good(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )
         ),
         count(
             distinct if(
-                is_non_zero(fast_lcp, avg_lcp, slow_lcp) and
-                is_non_zero(fast_fid, avg_fid, slow_fid) and
-                is_non_zero(small_cls, medium_cls, large_cls),
+                is_non_zero(fast_lcp, avg_lcp, slow_lcp)
+                and is_non_zero(fast_fid, avg_fid, slow_fid)
+                and is_non_zero(small_cls, medium_cls, large_cls),
                 origin,
                 null
             )
@@ -80,7 +78,8 @@ join
                             )
                         ),
                         '(x-github-request)'
-                    ) = 'x-github-request'
+                    )
+                    = 'x-github-request'
                 then 'GitHub'
                 when
                     regexp_extract(
@@ -93,7 +92,8 @@ join
                             )
                         ),
                         '(netlify)'
-                    ) = 'netlify'
+                    )
+                    = 'netlify'
                 then 'Netlify'
                 when
                     regexp_extract(
@@ -106,7 +106,8 @@ join
                             )
                         ),
                         '(x-nf-request-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Netlify'
                 when
                     regexp_extract(
@@ -119,7 +120,8 @@ join
                             )
                         ),
                         '(x-vercel-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Vercel'
                 when
                     regexp_extract(
@@ -132,7 +134,8 @@ join
                             )
                         ),
                         '(x-amz-cf-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'AWS'
                 when
                     regexp_extract(
@@ -145,7 +148,8 @@ join
                             )
                         ),
                         '(x-azure-ref)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Azure'
                 when _cdn_provider = 'Microsoft Azure'
                 then 'Azure'

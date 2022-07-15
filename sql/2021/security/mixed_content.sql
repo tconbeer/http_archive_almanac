@@ -11,9 +11,8 @@ select
         distinct(
             case
                 when
-                    regexp_contains(page, r'https://.*') and regexp_contains(
-                        url, r'http://.*'
-                    )
+                    regexp_contains(page, r'https://.*')
+                    and regexp_contains(url, r'http://.*')
                 then page
             end
         )
@@ -22,15 +21,13 @@ select
         distinct(
             case
                 when
-                    regexp_contains(page, r'https://.*') and regexp_contains(
-                        url, r'http://.*'
-                    )
+                    regexp_contains(page, r'https://.*')
+                    and regexp_contains(url, r'http://.*')
                 then page
             end
         )
-    ) / count(
-        distinct(case when regexp_contains(page, r'https://.*') then page end)
-    ) as pct_pages_over_https_with_http_reference
+    ) / count(distinct(case when regexp_contains(page, r'https://.*') then page end))
+    as pct_pages_over_https_with_http_reference
 from
     `httparchive.almanac.requests`,
     unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping

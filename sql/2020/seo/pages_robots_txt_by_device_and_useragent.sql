@@ -9,11 +9,9 @@ create temp function as_percent(freq float64, total float64) returns float64 as 
 # returns all the data we need from _robots_txt
 create temporary function get_robots_txt_info(robots_txt_string string)
 returns struct
-<
-user_agents array
+< user_agents array
 < string
->
-> language js
+> > language js
 as '''
 var result = {
   user_agents: []

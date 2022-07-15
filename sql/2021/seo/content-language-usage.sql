@@ -4,8 +4,7 @@
 create temporary function getcontentlanguagesalmanac(almanac_string string)
 returns array
 < string
->
-language js
+> language js
 as '''
 var result = [];
 try {

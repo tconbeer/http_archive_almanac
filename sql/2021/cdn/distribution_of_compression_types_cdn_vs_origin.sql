@@ -15,7 +15,8 @@ from
             if(
                 ifnull(
                     nullif(regexp_extract(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN'
-                ) = 'ORIGIN',
+                )
+                = 'ORIGIN',
                 'ORIGIN',
                 'CDN'
             ) as cdn,

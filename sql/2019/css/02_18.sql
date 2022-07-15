@@ -5,8 +5,7 @@ returns struct < all_media boolean,
 print_media boolean,
 screen_media boolean,
 speech_media boolean
-> language js
-as '''
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {

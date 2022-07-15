@@ -16,9 +16,8 @@ select
     headername,
     count(distinct page) as total_hosts,
     count(distinct if(hasheader(headers, headername), page, null)) as num_with_header,
-    count(distinct if(hasheader(headers, headername), page, null)) / count(
-        distinct page
-    ) as pct_with_header
+    count(distinct if(hasheader(headers, headername), page, null))
+    / count(distinct page) as pct_with_header
 from
     (
         select
@@ -31,7 +30,8 @@ from
                 select distinct _table_suffix, url
                 from `httparchive.technologies.2021_07_01_*`
                 where
-                    category = 'Ecommerce' and (
+                    category = 'Ecommerce'
+                    and (
                         app != 'Cart Functionality'
                         and app != 'Google Analytics Enhanced eCommerce'
                     )

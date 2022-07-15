@@ -1,9 +1,7 @@
 create temporary function getimagesizing(payload string)
 returns array < struct < property string,
 value string
->>
-language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);

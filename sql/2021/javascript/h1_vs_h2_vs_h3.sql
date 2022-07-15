@@ -1,14 +1,14 @@
 select
     client,
     percentile,
-    approx_quantiles( (ajax_h1 + resources_h1), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        (ajax_h1 + resources_h1), 1000) [offset (percentile * 10)
     ] as h1_request,
-    approx_quantiles( (ajax_h2 + resources_h2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        (ajax_h2 + resources_h2), 1000) [offset (percentile * 10)
     ] as h2_request,
-    approx_quantiles( (ajax_h3 + resources_h3), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        (ajax_h3 + resources_h3), 1000) [offset (percentile * 10)
     ] as h3_request
 from
     (

@@ -3,9 +3,7 @@
 create temp function getmicrodataitemtypes(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.microdata_itemtypes.map(itemType => itemType.toLowerCase());
@@ -40,9 +38,8 @@ select
     microdata_item_type,
     count(microdata_item_type) as freq_microdata,
     sum(count(microdata_item_type)) over (partition by client) as total_microdata,
-    count(microdata_item_type) / sum(
-        count(microdata_item_type)
-    ) over (partition by client) as pct_microdata,
+    count(microdata_item_type)
+    / sum(count(microdata_item_type)) over (partition by client) as pct_microdata,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages
@@ -56,8 +53,10 @@ from
             -- This is done to normalize the URL a bit before counting.
             concat(
                 net.reg_domain(microdata_item_type),
-                split(microdata_item_type, net.reg_domain(microdata_item_type)) [
-                    safe_offset(1)
+                split(
+                    microdata_item_type,
+                    net.reg_domain(microdata_item_type)
+                ) [safe_offset(1)
                 ]
             ) as microdata_item_type
         from rendered_data, unnest(microdata_item_types) as microdata_item_type

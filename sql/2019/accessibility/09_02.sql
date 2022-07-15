@@ -4,8 +4,7 @@
 create temporary function getcompliantelements(payload string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -48,8 +47,8 @@ join
     )
     using(client)
 where
-    'header' in unnest(compliant_elements) and
-    'footer' in unnest(compliant_elements) and
-    'nav' in unnest(compliant_elements) and
-    ('main' in unnest(compliant_elements) or has_role_main)
+    'header' in unnest(compliant_elements)
+    and 'footer' in unnest(compliant_elements)
+    and 'nav' in unnest(compliant_elements)
+    and ('main' in unnest(compliant_elements) or has_role_main)
 group by client, total

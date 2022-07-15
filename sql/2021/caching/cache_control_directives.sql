@@ -63,21 +63,16 @@ select
     countif(uses_immutable) / count(0) as pct_using_immutable,
     countif(uses_stale_while_revalidate) / count(0) as pct_using_stale_while_revalidate,
     countif(uses_stale_if_error) / count(0) as pct_using_stale_if_error,
-    countif(uses_no_store and uses_no_cache and uses_max_age_zero) / count(
-        0
-    ) as pct_using_no_store_and_no_cache_and_max_age_zero,
-    countif(uses_no_store and uses_no_cache and not uses_max_age_zero) / count(
-        0
-    ) as pct_using_no_store_and_no_cache_only,
-    countif(uses_no_store and not uses_no_cache and not uses_max_age_zero) / count(
-        0
-    ) as pct_using_no_store_only,
-    countif(uses_max_age_zero and not uses_no_store) / count(
-        0
-    ) as pct_using_max_age_zero_without_no_store,
-    countif(uses_pre_check_zero and uses_post_check_zero) / count(
-        0
-    ) as pct_using_pre_check_zero_and_post_check_zero,
+    countif(uses_no_store and uses_no_cache and uses_max_age_zero)
+    / count(0) as pct_using_no_store_and_no_cache_and_max_age_zero,
+    countif(uses_no_store and uses_no_cache and not uses_max_age_zero)
+    / count(0) as pct_using_no_store_and_no_cache_only,
+    countif(uses_no_store and not uses_no_cache and not uses_max_age_zero)
+    / count(0) as pct_using_no_store_only,
+    countif(uses_max_age_zero and not uses_no_store)
+    / count(0) as pct_using_max_age_zero_without_no_store,
+    countif(uses_pre_check_zero and uses_post_check_zero)
+    / count(0) as pct_using_pre_check_zero_and_post_check_zero,
     countif(uses_pre_check_zero) / count(0) as pct_using_pre_check_zero,
     countif(uses_post_check_zero) / count(0) as pct_using_post_check_zero,
     countif(
@@ -96,7 +91,8 @@ select
         and not uses_stale_if_error
         and not uses_pre_check_zero
         and not uses_post_check_zero
-    ) / count(0) as pct_erroneous_directives
+    )
+    / count(0) as pct_erroneous_directives
 from
     (
         select

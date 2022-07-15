@@ -14,15 +14,12 @@ select
     countif(uses_date) / count(0) as pct_using_date,
     countif(uses_last_modified) / count(0) as pct_using_last_modified,
     countif(uses_expires) / count(0) as pct_using_expires,
-    countif(uses_date and not has_valid_date) / count(
-        uses_date
-    ) as pct_using_invalid_date,
-    countif(uses_last_modified and not has_valid_last_modified) / count(
-        uses_last_modified
-    ) as pct_using_invalid_last_modified,
-    countif(uses_expires and not has_valid_expires) / count(
-        uses_expires
-    ) as pct_using_invalid_expires
+    countif(uses_date and not has_valid_date)
+    / count(uses_date) as pct_using_invalid_date,
+    countif(uses_last_modified and not has_valid_last_modified)
+    / count(uses_last_modified) as pct_using_invalid_last_modified,
+    countif(uses_expires and not has_valid_expires)
+    / count(uses_expires) as pct_using_invalid_expires
 from
     (
         select

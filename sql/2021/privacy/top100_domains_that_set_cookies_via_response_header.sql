@@ -2,8 +2,7 @@
 # Top100 domains that set cookies via response header
 create temporary function cookienames(headers string)
 returns array < string > deterministic
-language js
-as '''
+language js as '''
 try {
   var headers = JSON.parse(headers);
   let cookies = headers.filter(h => h.name.match(/^set-cookie$/i));

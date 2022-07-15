@@ -8,9 +8,8 @@ select
 
     countif(total_placeholder > 0) / count(0) as pct_sites_with_placeholder,
     # Sites with placeholders that dont always use labels alongside them
-    countif(total_no_label > 0) / countif(
-        total_placeholder > 0
-    ) as pct_placeholder_sites_with_no_label,
+    countif(total_no_label > 0)
+    / countif(total_placeholder > 0) as pct_placeholder_sites_with_no_label,
 
     sum(total_placeholder) as total_placeholders,
     sum(total_no_label) as total_placeholder_with_no_label,

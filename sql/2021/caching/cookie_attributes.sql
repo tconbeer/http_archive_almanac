@@ -3,8 +3,7 @@
 create temporary function getcookieattributes(headers string)
 returns array
 < string
-> deterministic language js
-as '''
+> deterministic language js as '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {
@@ -21,8 +20,7 @@ try {
 ;
 
 create temporary function countcookies(headers string)
-returns int64 deterministic language js
-as '''
+returns int64 deterministic language js as '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {

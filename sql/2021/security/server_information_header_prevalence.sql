@@ -18,9 +18,8 @@ select
     count(
         distinct if(hasheader(response_headers, headername), host, null)
     ) as count_with_header,
-    count(distinct if(hasheader(response_headers, headername), host, null)) / count(
-        distinct host
-    ) as pct_with_header
+    count(distinct if(hasheader(response_headers, headername), host, null))
+    / count(distinct host) as pct_with_header
 from
     (
         select date, client, net.host(urlshort) as host, response_headers

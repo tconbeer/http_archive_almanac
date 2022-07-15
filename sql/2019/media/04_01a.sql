@@ -42,23 +42,35 @@ select
     approx_quantiles(resourcebytes, 1000) [offset (900)] as bytes_p90,
     approx_quantiles(resourcebytes, 1000) [offset (990)] as bytes_p99,
     approx_quantiles(
-        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2), 1000
-    ) [offset (100)] as pct_p10,
+        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2),
+        1000
+    ) [offset (100)
+    ] as pct_p10,
     approx_quantiles(
-        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2), 1000
-    ) [offset (250)] as pct_p25,
+        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2),
+        1000
+    ) [offset (250)
+    ] as pct_p25,
     approx_quantiles(
-        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2), 1000
-    ) [offset (500)] as pct_p50,
+        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2),
+        1000
+    ) [offset (500)
+    ] as pct_p50,
     approx_quantiles(
-        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2), 1000
-    ) [offset (750)] as pct_p75,
+        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2),
+        1000
+    ) [offset (750)
+    ] as pct_p75,
     approx_quantiles(
-        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2), 1000
-    ) [offset (990)] as pct_p99,
+        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2),
+        1000
+    ) [offset (990)
+    ] as pct_p99,
     approx_quantiles(
-        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2), 1000
-    ) [offset (900)] as pct_p90
+        round(100 * resourcebytes / ifnull(nullif(pagebytes, 0), 0.1), 2),
+        1000
+    ) [offset (900)
+    ] as pct_p90
 from
     (
         select

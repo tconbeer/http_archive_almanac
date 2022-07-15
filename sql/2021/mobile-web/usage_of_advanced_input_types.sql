@@ -32,9 +32,8 @@ select
     count(0) as total_pages,
     countif(input_stats.total_inputs > 0) as total_applicable_pages,
     countif(input_stats.found_advanced_types) as total_pages_using,
-    countif(input_stats.found_advanced_types) / countif(
-        input_stats.total_inputs > 0
-    ) as occurence_pct
+    countif(input_stats.found_advanced_types)
+    / countif(input_stats.total_inputs > 0) as occurence_pct
 from
     (
         select getinputstats(json_extract_scalar(payload, '$._almanac')) as input_stats

@@ -1,8 +1,7 @@
 # standardSQL
 # 03_06b: Element types per page
 create temporary function countelementtypes(payload string)
-returns int64 language js
-as '''
+returns int64 language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);

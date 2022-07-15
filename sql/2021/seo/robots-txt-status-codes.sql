@@ -3,10 +3,8 @@
 # returns all the data we need from _robots_txt
 create temporary function getrobotsstatusinfo(robots_txt_string string)
 returns struct
-<
-status_code string
-> language js
-as '''
+< status_code string
+> language js as '''
 var result = {};
 try {
     var robots_txt = JSON.parse(robots_txt_string);

@@ -2,8 +2,7 @@
 # Most popular custom property values as a percent of pages.
 create temporary function getcustompropertyvalues(json string) returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var vars = JSON.parse(json);
   return Object.values(vars.summary).map(val => val.set[0].value)

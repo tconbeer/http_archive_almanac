@@ -3,8 +3,7 @@
 create temporary function getmanifestprops(manifest string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   return Object.keys(JSON.parse(manifest));
 } catch (e) {

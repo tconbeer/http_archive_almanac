@@ -4,17 +4,17 @@
 select
     percentile,
     client,
-    approx_quantiles(pct_external_async, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        pct_external_async, 1000) [offset (percentile * 10)
     ] as pct_external_async,
-    approx_quantiles(pct_external_defer, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        pct_external_defer, 1000) [offset (percentile * 10)
     ] as pct_external_defer,
-    approx_quantiles(pct_external_module, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        pct_external_module, 1000) [offset (percentile * 10)
     ] as pct_external_module,
-    approx_quantiles(pct_external_nomodule, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        pct_external_nomodule, 1000) [offset (percentile * 10)
     ] as pct_external_nomodule
 from
     (

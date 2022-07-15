@@ -44,14 +44,12 @@ from
             property,
             count(distinct page) over (partition by client, property) as pages,
             count(distinct page) over (partition by client) as total,
-            count(distinct page) over (
-                partition by client, property
-            ) / count(distinct page) over (partition by client) as pct_pages,
+            count(distinct page) over (partition by client, property)
+            / count(distinct page) over (partition by client) as pct_pages,
             sum(freq) over (partition by client, property) as freq,
             sum(freq) over (partition by client) as total,
-            sum(freq) over (partition by client, property) / sum(freq) over (
-                partition by client
-            ) as pct
+            sum(freq) over (partition by client, property)
+            / sum(freq) over (partition by client) as pct
         from
             (
                 select client, page, property.property, property.freq

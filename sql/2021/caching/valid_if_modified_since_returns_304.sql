@@ -16,18 +16,16 @@ select
         and status = 304
     ) as total_actual_304,
     countif(status = 304) / count(0) as pct_304,
-    countif(
-        not uses_etag and uses_last_modified and uses_if_modified and no_change
-    ) / countif(status = 304) as pct_expected_304,
+    countif(not uses_etag and uses_last_modified and uses_if_modified and no_change)
+    / countif(status = 304) as pct_expected_304,
     countif(
         not uses_etag
         and uses_last_modified
         and uses_if_modified
         and no_change
         and status = 304
-    ) / countif(
-        not uses_etag and uses_last_modified and uses_if_modified and no_change
-    ) as pct_actual_304
+    ) / countif(not uses_etag and uses_last_modified and uses_if_modified and no_change)
+    as pct_actual_304
 from
     (
         select

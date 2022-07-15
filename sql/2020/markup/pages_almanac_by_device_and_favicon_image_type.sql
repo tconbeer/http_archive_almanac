@@ -8,8 +8,7 @@ create temp function as_percent(freq float64, total float64) returns float64 as 
 # returns all the data we need from _almanac
 create temporary function get_almanac_info(almanac_string string)
 returns struct
-<
-image_type_extension string
+< image_type_extension string
 > language js
 as '''
 var result = {};

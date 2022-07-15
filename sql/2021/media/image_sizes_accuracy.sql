@@ -1,9 +1,7 @@
 create temporary function getsizesaccuracy(payload string)
 returns array < struct < sizesabsoluteerror int64,
 sizesrelativeerror float64
->>
-language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);
@@ -22,11 +20,11 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(image.sizesabsoluteerror, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        image.sizesabsoluteerror, 1000) [offset (percentile * 10)
     ] as sizesabsoluteerror,
-    approx_quantiles(image.sizesrelativeerror, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        image.sizesrelativeerror, 1000) [offset (percentile * 10)
     ] as sizesrelativeerror
 from
     (

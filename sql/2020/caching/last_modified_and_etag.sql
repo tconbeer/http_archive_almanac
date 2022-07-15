@@ -18,9 +18,8 @@ select
     countif(uses_etag) / count(0) as pct_using_etag,
     countif(uses_weak_etag) / count(0) as pct_using_weak_etag,
     countif(uses_strong_etag) / count(0) as pct_using_strong_etag,
-    countif(not uses_weak_etag and not uses_strong_etag and uses_etag) / count(
-        0
-    ) as pct_using_invalid_etag,
+    countif(not uses_weak_etag and not uses_strong_etag and uses_etag)
+    / count(0) as pct_using_invalid_etag,
     countif(uses_last_modified) / count(0) as pct_using_last_modified,
     countif(uses_etag and uses_last_modified) / count(0) as pct_using_both,
     countif(not uses_etag and not uses_last_modified) / count(0) as pct_using_neither

@@ -17,6 +17,6 @@ join
     using
     (client)
 where
-    yyyymmdd in ('20200801', '20190701') and
-    feature in ('CSSFlexibleBox', 'CSSGridLayout')
+    yyyymmdd in ('20200801', '20190701')
+    and feature in ('CSSFlexibleBox', 'CSSGridLayout')
 group by year, client, layout, total

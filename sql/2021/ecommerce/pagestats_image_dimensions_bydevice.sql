@@ -4,8 +4,7 @@
 create temporary function getimagedimensions(payload string)
 returns array < struct < height int64,
 width int64
->> language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var images = JSON.parse($._Images);
@@ -28,8 +27,7 @@ join
     unnest(getimagedimensions(payload)) as image,
     unnest( [10, 25, 50, 75, 90])
 where
-    category = 'Ecommerce' and (
-        app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce'
-    )
+    category = 'Ecommerce'
+    and (app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce')
 group by percentile, client
 order by percentile, client

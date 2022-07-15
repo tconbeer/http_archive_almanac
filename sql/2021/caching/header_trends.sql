@@ -42,23 +42,19 @@ select
     countif(uses_expires) / count(0) as pct_using_expires,
     countif(uses_max_age and uses_expires) / count(0) as pct_using_max_age_and_expires,
     countif(uses_cache_control and uses_expires) / count(0) as pct_using_both,
-    countif(not uses_cache_control and not uses_expires) / count(
-        0
-    ) as pct_using_neither,
-    countif(uses_cache_control and not uses_expires) / count(
-        0
-    ) as pct_using_only_cache_control,
-    countif(not uses_cache_control and uses_expires) / count(
-        0
-    ) as pct_using_only_expires,
+    countif(not uses_cache_control and not uses_expires)
+    / count(0) as pct_using_neither,
+    countif(uses_cache_control and not uses_expires)
+    / count(0) as pct_using_only_cache_control,
+    countif(not uses_cache_control and uses_expires)
+    / count(0) as pct_using_only_expires,
 
     countif(uses_no_etag) / count(0) as pct_using_no_etag,
     countif(uses_etag) / count(0) as pct_using_etag,
     countif(uses_weak_etag) / count(0) as pct_using_weak_etag,
     countif(uses_strong_etag) / count(0) as pct_using_strong_etag,
-    countif(not uses_weak_etag and not uses_strong_etag and uses_etag) / count(
-        0
-    ) as pct_using_invalid_etag,
+    countif(not uses_weak_etag and not uses_strong_etag and uses_etag)
+    / count(0) as pct_using_invalid_etag,
     countif(uses_last_modified) / count(0) as pct_using_last_modified,
     countif(uses_etag and uses_last_modified) / count(0) as pct_using_both,
     countif(not uses_etag and not uses_last_modified) / count(0) as pct_using_neither

@@ -7,8 +7,7 @@ preconnect boolean,
 prerender boolean,
 `dns-prefetch` boolean,
 `modulepreload` boolean
->
-language js
+> language js
 as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 var re = new RegExp(`(${hints.map(hint => `\\\\b${hint}\\\\b`).join('|')})`, 'ig');

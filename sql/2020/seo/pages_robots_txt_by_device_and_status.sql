@@ -9,10 +9,8 @@ create temp function as_percent(freq float64, total float64) returns float64 as 
 # returns all the data we need from _robots_txt
 create temporary function get_robots_txt_info(robots_txt_string string)
 returns struct
-<
-status_code string
-> language js
-as '''
+< status_code string
+> language js as '''
 var result = {};
 try {
     var robots_txt = JSON.parse(robots_txt_string);

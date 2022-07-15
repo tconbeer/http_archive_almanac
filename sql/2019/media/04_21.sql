@@ -11,12 +11,10 @@ from
     (
         select
             _table_suffix as client,
-            json_extract_scalar(
-                payload, "$['_heroElementTimes.Image']"
-            ) is not null as has_hero_image,
-            json_extract_scalar(
-                payload, "$['_heroElementTimes.BackgroundImage']"
-            ) is not null as has_hero_bgimage
+            json_extract_scalar(payload, "$['_heroElementTimes.Image']")
+            is not null as has_hero_image,
+            json_extract_scalar(payload, "$['_heroElementTimes.BackgroundImage']")
+            is not null as has_hero_bgimage
         from `httparchive.pages.2019_07_01_*`
     )
 group by client

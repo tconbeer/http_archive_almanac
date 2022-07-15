@@ -4,9 +4,9 @@ returns struct < class array < string >,
 id array < string >,
 attribute array < string >,
 pseudo_class array < string >,
-pseudo_element array < string > > language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+pseudo_element array < string > >
+language js
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {

@@ -3,8 +3,7 @@
 create temporary function getfontdisplay(css string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
     var reduceValues = (values, rule) => {
         if ('rules' in rule) {
@@ -36,9 +35,8 @@ select
     font_display,
     count(distinct page) as pages,
     sum(count(distinct page)) over (partition by client) as total,
-    count(distinct page) / sum(
-        count(distinct page)
-    ) over (partition by client) as pct_display,
+    count(distinct page)
+    / sum(count(distinct page)) over (partition by client) as pct_display,
     approx_quantiles(fcp, 1000) [offset (500)] as median_fcp,
     approx_quantiles(lcp, 1000) [offset (500)] as median_lcp
 from

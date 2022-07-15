@@ -1,8 +1,7 @@
 # standardSQL
 # 09_13: % pages with headings out of order
 create temporary function includesunorderedheading(headings array < string >)
-returns boolean language js
-as '''
+returns boolean language js as '''
 var previous = null;
 var seen = new Set();
 for (h of headings) {

@@ -9,8 +9,7 @@ audit_group string,
 title string,
 description string,
 score int64
->> language js
-as '''
+>> language js as '''
 var $ = JSON.parse(report);
 var auditrefs = $.categories[category].auditRefs;
 var audits = $.audits;
@@ -43,9 +42,10 @@ from
     `httparchive.almanac.service_workers`,
     unnest(getaudits(report, 'pwa')) as audits
 where
+    date = '2020-08-01'
+    and client = 'mobile'
+    and page = l.url
     # necessary to avoid out of memory issues. Excludes 16 very large results
-    date = '2020-08-01' and client = 'mobile' and page = l.url and length(
-        report
-    ) < 20000000
+    and length(report) < 20000000
 group by audits.id
 order by median_weight desc, id

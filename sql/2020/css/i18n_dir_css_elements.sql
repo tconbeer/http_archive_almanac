@@ -3,8 +3,7 @@ create temporary function getdirvalues(css string)
 returns array < struct < element string,
 value string,
 freq int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {

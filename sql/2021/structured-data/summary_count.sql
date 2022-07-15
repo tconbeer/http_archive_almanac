@@ -12,9 +12,8 @@ select
     countif(errors is not null) / count(0) as pct_errors,
     countif(success is not null and errors is null) / count(0) as pct_success_no_errors,
     countif(errors is not null and success is null) / count(0) as pct_errors_no_success,
-    countif(success is not null and errors is not null) / count(
-        0
-    ) as pct_success_errors,
+    countif(success is not null and errors is not null)
+    / count(0) as pct_success_errors,
     countif(success is null and errors is null) / count(0) as pct_no_success_no_errors
 from
     (

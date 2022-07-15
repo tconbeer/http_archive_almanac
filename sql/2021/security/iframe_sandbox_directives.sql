@@ -39,6 +39,7 @@ join
             sum(getnumwithsandboxattribute(payload)) as total_iframes_with_sandbox
         from `httparchive.pages.2021_07_01_*`
         group by client
-    ) using(client)
+    ) using(client
+    )
 group by client, directive, total_iframes_with_sandbox
 order by client, pct desc

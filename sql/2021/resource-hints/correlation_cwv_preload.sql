@@ -5,8 +5,7 @@ preconnect int64,
 prerender int64,
 `dns-prefetch` int64,
 `modulepreload` int64
->
-language js
+> language js
 as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 try {
@@ -32,9 +31,7 @@ returns struct < cumulative_layout_shift boolean,
 first_contentful_paint boolean,
 first_input_delay boolean,
 largest_contentful_paint boolean
->
-language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var crux = $._CrUX;
@@ -63,27 +60,23 @@ select
 
     countif(crux.largest_contentful_paint) as lcp_good,
     countif(crux.largest_contentful_paint is not null) as any_lcp,
-    countif(crux.largest_contentful_paint) / countif(
-        crux.largest_contentful_paint is not null
-    ) as pct_lcp_good,
+    countif(crux.largest_contentful_paint)
+    / countif(crux.largest_contentful_paint is not null) as pct_lcp_good,
 
     countif(crux.first_input_delay) as fid_good,
     countif(crux.first_input_delay is not null) as any_fid,
-    countif(crux.first_input_delay) / countif(
-        crux.first_input_delay is not null
-    ) as pct_fid_good,
+    countif(crux.first_input_delay)
+    / countif(crux.first_input_delay is not null) as pct_fid_good,
 
     countif(crux.cumulative_layout_shift) as cls_good,
     countif(crux.cumulative_layout_shift is not null) as any_cls,
-    countif(crux.cumulative_layout_shift) / countif(
-        crux.cumulative_layout_shift is not null
-    ) as pct_cls_good,
+    countif(crux.cumulative_layout_shift)
+    / countif(crux.cumulative_layout_shift is not null) as pct_cls_good,
 
     countif(crux.first_contentful_paint) as fcp_good,
     countif(crux.first_contentful_paint is not null) as any_fcp,
-    countif(crux.first_contentful_paint) / countif(
-        crux.first_contentful_paint is not null
-    ) as pct_fcp_good,
+    countif(crux.first_contentful_paint)
+    / countif(crux.first_contentful_paint is not null) as pct_fcp_good,
 
     countif(
         crux.largest_contentful_paint

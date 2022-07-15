@@ -22,13 +22,14 @@ join
         select distinct _table_suffix as client, url, app as ecomm
         from `httparchive.technologies.2021_07_01_*`
         where
-            category = 'Ecommerce' and (
+            category = 'Ecommerce'
+            and (
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
-    ) on concat(origin, '/') = url and if(
-        device = 'desktop', 'desktop', 'mobile'
-    ) = client
+    )
+    on concat(origin, '/') = url
+    and if(device = 'desktop', 'desktop', 'mobile') = client
 where date = '2021-07-01'
 group by client, ecomm
 order by origins desc

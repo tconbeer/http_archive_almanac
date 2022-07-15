@@ -22,10 +22,12 @@ join
             url,
             json_extract(
                 json_extract_scalar(payload, '$._ecommerce'), '$.AndroidAppLinks'
-            ) = '1' as android_app_links,
+            )
+            = '1' as android_app_links,
             json_extract(
                 json_extract_scalar(payload, '$._ecommerce'), '$.iOSUniveralLinks'
-            ) = '1' as ios_universal_links
+            )
+            = '1' as ios_universal_links
         from `httparchive.pages.2020_08_01_*`
     )
     using

@@ -19,16 +19,13 @@ from
             _cdn_provider as cdn
         from `httparchive.almanac.requests`
         where
-            date = '2020-08-01' and firsthtml and (
-                lower(
-                    json_extract_scalar(payload, '$._protocol')
-                ) like 'http/2' or lower(
-                    json_extract_scalar(payload, '$._protocol')
-                ) like '%quic%' or lower(
-                    json_extract_scalar(payload, '$._protocol')
-                ) like 'h3%' or lower(
-                    json_extract_scalar(payload, '$._protocol')
-                ) like 'http/3%'
+            date = '2020-08-01'
+            and firsthtml
+            and (
+                lower(json_extract_scalar(payload, '$._protocol')) like 'http/2'
+                or lower(json_extract_scalar(payload, '$._protocol')) like '%quic%'
+                or lower(json_extract_scalar(payload, '$._protocol')) like 'h3%'
+                or lower(json_extract_scalar(payload, '$._protocol')) like 'http/3%'
             )
     ) as pages
 left join `httparchive.almanac.h2_prioritization_cdns` using(cdn, date)

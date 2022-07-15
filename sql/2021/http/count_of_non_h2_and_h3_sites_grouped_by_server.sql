@@ -22,11 +22,12 @@ join
     using(client)
 
 where
-    date = '2021-07-01' and firsthtml and lower(protocol) != 'http/2' and lower(
-        protocol
-    ) not like '%quic%' and lower(protocol) not like 'h3%' and lower(
-        protocol
-    ) != 'http/3'
+    date = '2021-07-01'
+    and firsthtml
+    and lower(protocol) != 'http/2'
+    and lower(protocol) not like '%quic%'
+    and lower(protocol) not like 'h3%'
+    and lower(protocol) != 'http/3'
 group by client, http_version, server_header, total_pages
 having num_pages >= 100
 order by num_pages desc

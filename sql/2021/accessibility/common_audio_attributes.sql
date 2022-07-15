@@ -3,8 +3,7 @@
 create temporary function getusedattributes(payload string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.audios.attribute_usage_count);
@@ -46,7 +45,8 @@ left join
                 from `httparchive.pages.2021_07_01_*`
             )
         group by client
-    ) on (_table_suffix = client)
+    )
+    on (_table_suffix = client)
 group by client, attribute, total_sites, total_sites_with_audio, pct_sites_with_audio
 having total_sites_using >= 10
 order by pct_of_sites_using_audio desc

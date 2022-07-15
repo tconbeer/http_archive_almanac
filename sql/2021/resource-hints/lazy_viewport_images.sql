@@ -3,9 +3,7 @@
 create temporary function haslazyloadedimagesinviewport(payload string)
 returns struct < islazy bool,
 inviewport bool
->
-language js
-as '''
+> language js as '''
 try {
   var images = JSON.parse(payload);
   if (!Array.isArray(images) || typeof images != "object" || images == null)
@@ -37,9 +35,8 @@ select
     client,
     countif(has_lazy_images_in_viewport.inviewport) as in_viewport,
     countif(has_lazy_images_in_viewport.islazy) as is_lazy,
-    countif(has_lazy_images_in_viewport.inviewport) / countif(
-        has_lazy_images_in_viewport.islazy
-    ) as pct,
+    countif(has_lazy_images_in_viewport.inviewport)
+    / countif(has_lazy_images_in_viewport.islazy) as pct,
     count(0) as total
 from
     (

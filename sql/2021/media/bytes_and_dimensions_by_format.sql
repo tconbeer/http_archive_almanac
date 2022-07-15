@@ -7,8 +7,7 @@ bitsperpixel numeric,
 ispixel bool,
 isdataurl bool,
 resourceformat string
->>
-language js
+>> language js
 as '''
 
 function pithyType( { contentType, url } ) {
@@ -133,9 +132,8 @@ with
             bitsperpixel,
             ispixel,
             isdataurl,
-            (
-                approximateresourcewidth * approximateresourceheight
-            ) / 1000000 as megapixels,
+            (approximateresourcewidth * approximateresourceheight)
+            / 1000000 as megapixels,
             (approximateresourcewidth / approximateresourceheight) as aspectratio,
             resourceformat
         from

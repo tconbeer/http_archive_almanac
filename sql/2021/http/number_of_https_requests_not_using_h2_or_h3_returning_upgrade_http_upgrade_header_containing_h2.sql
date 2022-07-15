@@ -24,9 +24,10 @@ select
     count(0) as total
 from `httparchive.almanac.requests`
 where
-    date = '2021-07-01' and url like 'https://%' and lower(
-        protocol
-    ) != 'http/2' and lower(protocol) not like '%quic%' and lower(
-        protocol
-    ) not like 'h3%' and lower(protocol) != 'http/3'
+    date = '2021-07-01'
+    and url like 'https://%'
+    and lower(protocol) != 'http/2'
+    and lower(protocol) not like '%quic%'
+    and lower(protocol) not like 'h3%'
+    and lower(protocol) != 'http/3'
 group by client, firsthtml

@@ -50,8 +50,7 @@ join
     )
     using(_table_suffix)
 where
-    json_extract(payload, '$._pwa.workboxInfo') != '[]' and json_extract(
-        payload, '$._pwa.serviceWorkerHeuristic'
-    ) = 'true'
+    json_extract(payload, '$._pwa.workboxInfo') != '[]'
+    and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
 group by _table_suffix, workbox_version, total
 order by pct desc, client

@@ -3,8 +3,7 @@
 create temporary function getselectortype(css string)
 returns struct < class boolean,
 id boolean
-> language js
-as '''
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

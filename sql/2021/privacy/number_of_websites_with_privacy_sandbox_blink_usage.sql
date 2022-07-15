@@ -3,7 +3,8 @@
 select distinct client, feature, num_urls, total_urls, pct_urls as pct_urls
 from `httparchive.blink_features.usage`
 where
-    yyyymmdd = '20210701' and (
+    yyyymmdd = '20210701'
+    and (
         feature = 'InterestCohortAPI_interestCohort_Method'
         or feature = 'V8Navigator_JoinAdInterestGroup_Method'
         or feature = 'V8Navigator_LeaveAdInterestGroup_Method'

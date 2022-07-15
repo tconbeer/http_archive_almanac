@@ -1,9 +1,6 @@
 create temporary function getsrcsetdensities(payload string)
 returns array < struct < currentsrcdensity int64,
-srcsetcandidatedensities array
-< float64
->>
->
+srcsetcandidatedensities array < float64 >> >
 language js
 as '''
 try {
@@ -24,11 +21,11 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(image.currentsrcdensity, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        image.currentsrcdensity, 1000) [offset (percentile * 10)
     ] as currentsrcdensity,
-    approx_quantiles(srcsetcandidatedensity, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        srcsetcandidatedensity, 1000) [offset (percentile * 10)
     ] as srcsetcandidatedensity
 from
     (

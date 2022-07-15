@@ -5,10 +5,12 @@ select
     round(countif(fast_fcp >= .9 and fast_fid >= .95) * 100 / count(0), 2) as pct_fast,
     round(
         countif(
-            not (slow_fcp >= .1 or slow_fid >= 0.05) and not (
-                fast_fcp >= .9 and fast_fid >= .95
-            )
-        ) * 100 / count(0),
+            not (slow_fcp >= .1 or slow_fid >= 0.05)
+            and not (fast_fcp >= .9 and fast_fid >= .95)
+        )
+        * 100 / count(
+            0
+        ),
         2
     ) as pct_avg,
     round(countif(slow_fcp >= .1 or slow_fid >= 0.05) * 100 / count(0), 2) as pct_slow
@@ -24,8 +26,8 @@ from
             safe_divide(slow_fid, fast_fid + avg_fid + slow_fid) as slow_fid
         from `chrome-ux-report.materialized.device_summary`
         where
-            yyyymm = '201907' and fast_fid + avg_fid + slow_fid > 0 and device in (
-                'desktop', 'phone'
-            )
+            yyyymm = '201907'
+            and fast_fid + avg_fid + slow_fid > 0
+            and device in ('desktop', 'phone')
     )
 group by device

@@ -1,8 +1,8 @@
 select
     client,
     percentile,
-    approx_quantiles(xmlhttprequest_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        xmlhttprequest_total, 1000) [offset (percentile * 10)
     ] as xmlhttprequest_total,
     approx_quantiles(fetch_total, 1000) [offset (percentile * 10)] as fetch_total,
     approx_quantiles(beacon_total, 1000) [offset (percentile * 10)] as beacon_total

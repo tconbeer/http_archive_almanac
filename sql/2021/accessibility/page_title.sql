@@ -8,12 +8,10 @@ select
     countif(title_changed_on_render) as total_title_changed,
 
     countif(total_title_words > 0) / count(0) as pct_with_title,
-    countif(total_title_words > 3) / countif(
-        total_title_words > 0
-    ) as pct_titles_four_or_more_words,
-    countif(title_changed_on_render) / countif(
-        total_title_words > 0
-    ) as pct_titles_changed_on_render
+    countif(total_title_words > 3)
+    / countif(total_title_words > 0) as pct_titles_four_or_more_words,
+    countif(title_changed_on_render)
+    / countif(total_title_words > 0) as pct_titles_changed_on_render
 from
     (
         select

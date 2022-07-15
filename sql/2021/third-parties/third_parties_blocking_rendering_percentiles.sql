@@ -15,10 +15,10 @@ with
         from `httparchive.summary_pages.2021_07_01_mobile` sp
         inner join `httparchive.summary_requests.2021_07_01_mobile` sr using(pageid)
         inner join
-            `httparchive.almanac.third_parties` on net.host(sr.url) = net.host(
-                domain
-            ) and
-            date = '2021-07-01' and category != 'hosting'
+            `httparchive.almanac.third_parties`
+            on net.host(sr.url) = net.host(domain)
+            and date = '2021-07-01'
+            and category != 'hosting'
         group by canonicaldomain, category
         having total_pages >= 50
     )
@@ -30,8 +30,8 @@ select
     count(distinct page) as blocking_pages,
     percentile,
     approx_quantiles(wasted_ms, 1000) [offset (percentile * 10)] as wasted_ms,
-    approx_quantiles(total_bytes_kib, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        total_bytes_kib, 1000) [offset (percentile * 10)
     ] as total_bytes_kib
 from
     (
@@ -43,9 +43,8 @@ from
                 safe_cast(json_value(render_blocking_items, '$.wastedMs') as float64)
             ) as wasted_ms,
             sum(
-                safe_cast(
-                    json_value(render_blocking_items, '$.totalBytes') as float64
-                ) / 1024
+                safe_cast(json_value(render_blocking_items, '$.totalBytes') as float64)
+                / 1024
             ) as total_bytes_kib
         from
             (
@@ -58,9 +57,9 @@ from
                 )
             ) as render_blocking_items
         inner join
-            `httparchive.almanac.third_parties` on net.host(
-                json_value(render_blocking_items, '$.url')
-            ) = domain and date = '2021-07-01'
+            `httparchive.almanac.third_parties`
+            on net.host(json_value(render_blocking_items, '$.url')) = domain
+            and date = '2021-07-01'
         group by canonicaldomain, page, category
     )
 inner join

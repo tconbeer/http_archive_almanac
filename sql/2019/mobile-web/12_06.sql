@@ -2,8 +2,7 @@
 # % of pages that include a stylesheet with a breakpoint under 600px.
 # (!) 7.71 TB
 create temporary function hasbreakpoint(css string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 function matchAll(re, str) {
   var results = [];
   while ((matches = re.exec(str)) !== null) {
@@ -28,7 +27,8 @@ try {
 select
     count(distinct page) as pages,
     round(
-        count(distinct page) * 100 / (
+        count(distinct page)
+        * 100 / (
             select count(0) as total from `httparchive.summary_pages.2019_07_01_mobile`
         ),
         2

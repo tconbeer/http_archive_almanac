@@ -27,9 +27,8 @@ from
         select
             client,
             page,
-            getheader(
-                json_extract(payload, '$.response.headers'), 'SourceMap'
-            ) is not null as has_sourcemap_header
+            getheader(json_extract(payload, '$.response.headers'), 'SourceMap')
+            is not null as has_sourcemap_header
         from `httparchive.almanac.requests`
         where date = '2021-07-01' and type = 'script'
     )

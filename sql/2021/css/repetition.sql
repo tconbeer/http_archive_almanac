@@ -2,8 +2,7 @@
 create temporary function getdeclarationcounts(css string)
 returns struct < total numeric,
 unique numeric > language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
     function compute() {
         let ret = {total: 0};
@@ -36,8 +35,8 @@ select
     client,
     approx_quantiles(total, 1000 ignore nulls) [offset (percentile * 10)] as total,
     approx_quantiles(unique, 1000 ignore nulls) [offset (percentile * 10)] as unique,
-    approx_quantiles(safe_divide(unique, total), 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        safe_divide(unique, total), 1000 ignore nulls) [offset (percentile * 10)
     ] as unique_ratio
 from
     (

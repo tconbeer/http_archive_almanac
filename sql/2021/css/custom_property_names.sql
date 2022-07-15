@@ -2,8 +2,7 @@
 # Most popular custom property names as a percent of pages.
 create temporary function getcustompropertynames(payload string) returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var vars = JSON.parse($['_css-variables']);

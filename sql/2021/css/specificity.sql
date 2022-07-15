@@ -4,7 +4,8 @@ returns struct < rulecount numeric,
 selectorcount numeric,
 distribution array < struct < specificity string,
 specificity_cmp string,
-freq int64 >> > language js
+freq int64 >> >
+language js
 options(library = "gs://httparchive/lib/css-utils.js")
 as '''
 try {
@@ -107,7 +108,8 @@ from
                     bin.specificity_cmp,
                     sum(bin.freq) over (
                         partition by client, page order by bin.specificity_cmp
-                    ) / sum(bin.freq) over (partition by client, page) as freq_cdf
+                    )
+                    / sum(bin.freq) over (partition by client, page) as freq_cdf
                 from
                     (
                         select client, page, getspecificityinfo(css) as info

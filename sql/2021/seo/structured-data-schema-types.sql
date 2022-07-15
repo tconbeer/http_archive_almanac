@@ -3,12 +3,9 @@
 # returns all the data we need from _wpt_bodies
 create temporary function getstructuredschemawptbodies(wpt_bodies_string string)
 returns struct
-<
-jsonld_and_microdata_types array
+< jsonld_and_microdata_types array
 < string
->
-> language js
-as '''
+> > language js as '''
 var result = {};
 
 

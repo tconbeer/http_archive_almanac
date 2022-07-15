@@ -9,11 +9,9 @@ select
 from
     (
         select
-            json_extract_scalar(
-                report, '$.audits.is-crawlable.score'
-            ) = '1' as is_crawlable,
-            json_extract_scalar(
-                report, '$.audits.canonical.score'
-            ) = '1' as is_canonical
+            json_extract_scalar(report, '$.audits.is-crawlable.score')
+            = '1' as is_crawlable,
+            json_extract_scalar(report, '$.audits.canonical.score')
+            = '1' as is_canonical
         from `httparchive.lighthouse.2019_07_01_mobile`
     )

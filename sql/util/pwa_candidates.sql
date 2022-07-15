@@ -26,23 +26,30 @@ select distinct
     ) as manifest_url
 from `httparchive.almanac.summary_response_bodies`
 where
-    date = '2020-08-01' and (
+    date = '2020-08-01'
+    and (
         (
             regexp_extract(
                 body,
                 'navigator\\.serviceWorker\\.register\\s*\\(\\s*["\']([^\\),\\s"\']+)'
-            ) is not null and regexp_extract(
+            )
+            is not null
+            and regexp_extract(
                 body,
                 'navigator\\.serviceWorker\\.register\\s*\\(\\s*["\']([^\\),\\s"\']+)'
-            ) != '/'
-        ) or
-        (
+            )
+            != '/'
+        )
+        or (
             regexp_extract(
                 regexp_extract(body, '(<link[^>]+rel=["\']?manifest["\']?[^>]+>)'),
                 'href=["\']?([^\\s"\'>]+)["\']?'
-            ) is not null and regexp_extract(
+            )
+            is not null
+            and regexp_extract(
                 regexp_extract(body, '(<link[^>]+rel=["\']?manifest["\']?[^>]+>)'),
                 'href=["\']?([^\\s"\'>]+)["\']?'
-            ) != '/'
+            )
+            != '/'
         )
     )

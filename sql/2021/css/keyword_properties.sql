@@ -3,8 +3,7 @@ create temporary function getglobalkeywords(css string)
 returns array < struct < property string,
 keyword string,
 freq int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {};
@@ -50,9 +49,8 @@ from
             kw.property,
             sum(kw.freq) as freq,
             sum(sum(kw.freq)) over (partition by client, kw.keyword) as total,
-            sum(kw.freq) / sum(
-                sum(kw.freq)
-            ) over (partition by client, kw.keyword) as pct,
+            sum(kw.freq)
+            / sum(sum(kw.freq)) over (partition by client, kw.keyword) as pct,
             count(distinct page) as pages
         from `httparchive.almanac.parsed_css`, unnest(getglobalkeywords(css)) as kw
         where date = '2021-07-01'

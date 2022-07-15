@@ -1,8 +1,7 @@
 # standardSQL
 # Difference between Cache TTL and the contents age
 create temporary function totimestamp(date_string string)
-returns int64 language js
-as '''
+returns int64 language js as '''
   try {
     var timestamp = Math.round(new Date(date_string).getTime() / 1000);
     return isNaN(timestamp) || timestamp < 0 ? -1 : timestamp;
@@ -15,8 +14,8 @@ as '''
 select
     client,
     percentile,
-    approx_quantiles(diff_in_days, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        diff_in_days, 1000 ignore nulls) [offset (percentile * 10)
     ] as diff_in_days
 from
     (

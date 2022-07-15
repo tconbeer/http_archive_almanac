@@ -229,8 +229,7 @@ where
         or origin_trials_from_custom_metric.featureelem = 'ConversionMeasurement'
         or origin_trials_from_custom_metric.featureelem = 'TrustTokens'
         or origin_trials_from_headers_and_meta_tags.featureelem = 'InterestCohortAPI'
-        or
-        origin_trials_from_headers_and_meta_tags.featureelem
+        or origin_trials_from_headers_and_meta_tags.featureelem
         = 'ConversionMeasurement'
         or origin_trials_from_headers_and_meta_tags.featureelem = 'TrustTokens'
     )

@@ -3,8 +3,7 @@
 create temporary function getworkboxmethods(workboxinfo string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var workboxPackageMethods = Object.values(JSON.parse(workboxInfo));
   if (typeof workboxPackageMethods == 'string') {
@@ -51,8 +50,7 @@ join
     )
     using(_table_suffix)
 where
-    json_extract(payload, '$._pwa.workboxInfo') != '[]' and json_extract(
-        payload, '$._pwa.serviceWorkerHeuristic'
-    ) = 'true'
+    json_extract(payload, '$._pwa.workboxInfo') != '[]'
+    and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
 group by client, workbox_method, total
 order by pct desc, client

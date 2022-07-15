@@ -23,8 +23,8 @@ join
     )
     using(_table_suffix)
 where
-    hsts is not null and cast(
-        regexp_extract(hsts, r'(?i)max-age= *(-?\d+)') as int64
-    ) >= 31536000 and regexp_contains(hsts, 'includeSubdomains') and
-    regexp_contains(hsts, 'preload')
+    hsts is not null
+    and cast(regexp_extract(hsts, r'(?i)max-age= *(-?\d+)') as int64) >= 31536000
+    and regexp_contains(hsts, 'includeSubdomains')
+    and regexp_contains(hsts, 'preload')
 group by client, total

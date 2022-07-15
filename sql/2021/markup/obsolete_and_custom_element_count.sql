@@ -36,20 +36,19 @@ select
     count(0) as total,
 
     # % of pages with obsolete elements related
-    countif(element_count_info.contains_obsolete_element) / count(
-        0
-    ) as pct_contains_obsolete_element,
+    countif(element_count_info.contains_obsolete_element)
+    / count(0) as pct_contains_obsolete_element,
 
     # % of pages with custom elements
-    countif(element_count_info.contains_custom_element) / count(
-        0
-    ) as pct_contains_custom_element,
+    countif(element_count_info.contains_custom_element)
+    / count(0) as pct_contains_custom_element,
 
     # % of pages with details and summary elements
     countif(
         element_count_info.contains_details_element
         and element_count_info.contains_summary_element
-    ) / count(0) as pct_contains_details_and_summary_element
+    )
+    / count(0) as pct_contains_details_and_summary_element
 
 from
     (

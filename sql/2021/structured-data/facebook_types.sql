@@ -3,9 +3,7 @@
 create temp function getfacebooktypes(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.facebook.map(facebook => facebook.property.toLowerCase());
@@ -40,9 +38,8 @@ select
     facebook_type,
     count(facebook_type) as freq_facebook,
     sum(count(facebook_type)) over (partition by client) as total_facebook,
-    count(facebook_type) / sum(
-        count(facebook_type)
-    ) over (partition by client) as pct_facebook,
+    count(facebook_type)
+    / sum(count(facebook_type)) over (partition by client) as pct_facebook,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

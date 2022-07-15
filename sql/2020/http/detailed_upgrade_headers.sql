@@ -8,7 +8,8 @@ select
     regexp_extract(
         regexp_extract(respotherheaders, r'(?is)Upgrade = (.*)'),
         r'(?im)^([^=]*?)(?:, [a-z-]+ = .*)'
-    ) is not null as upgrade,
+    )
+    is not null as upgrade,
     count(0) as num_requests,
     sum(count(0)) over (partition by client) as total,
     count(0) / sum(count(0)) over (partition by client) as pct

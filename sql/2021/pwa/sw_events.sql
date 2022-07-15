@@ -3,8 +3,7 @@
 create temporary function getswevents(payload string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var payloadJSON = JSON.parse(payload);
   var swEventListenersInfo = (Object.values(payloadJSON.swEventListenersInfo)).flat();

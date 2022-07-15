@@ -11,11 +11,9 @@ select
 from
     (
         select
-            json_extract_scalar(
-                report, '$.audits.document-title.score'
-            ) = '1' as has_title,
-            json_extract_scalar(
-                report, '$.audits.meta-description.score'
-            ) = '1' as has_meta_description
+            json_extract_scalar(report, '$.audits.document-title.score')
+            = '1' as has_title,
+            json_extract_scalar(report, '$.audits.meta-description.score')
+            = '1' as has_meta_description
         from `httparchive.lighthouse.2019_07_01_mobile`
     )

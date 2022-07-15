@@ -2,8 +2,7 @@
 # Number of HTTP (not HTTPS) requests which return upgrade HTTP header containing h2.
 create temporary function getupgradeheader(payload string)
 returns string
-language js
-as """
+language js as """
   try {
     var $ = JSON.parse(payload);
     var headers = $.response.headers;

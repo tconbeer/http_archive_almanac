@@ -2,8 +2,7 @@
 create temporary function hasgridtemplateareas(css string)
 returns boolean
 language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {};

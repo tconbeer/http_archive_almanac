@@ -2,8 +2,7 @@
 # Count the number of lazily loaded iframes
 create temporary function countlazyiframes(almanac_string string)
 returns int64
-language js
-as '''
+language js as '''
 try {
     var almanac = JSON.parse(almanac_string)
     if (Array.isArray(almanac) || typeof almanac != 'object') return null;

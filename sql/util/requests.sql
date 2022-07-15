@@ -65,8 +65,7 @@ cert_issuer string,
 cert_keyexchange string,
 cert_cipher string,
 cert_protocol string
->
-language js
+> language js
 as """
   function getHeader(headers, name) {
     try {

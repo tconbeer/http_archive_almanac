@@ -3,8 +3,7 @@
 create temporary function getvary(payload string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var header = $._headers.response.find(h => h.toLowerCase().startsWith('vary'));

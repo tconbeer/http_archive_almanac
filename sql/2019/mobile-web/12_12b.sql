@@ -3,8 +3,7 @@
 create temporary function getinputinfo(payload string)
 returns array < struct < detected_type string,
 using_best_type boolean
->> language js
-as '''
+>> language js as '''
   var new_line_regex = new RegExp('(?:\\r\\n|\\r|\\n)', 'g');
   function isFuzzyMatch(value, options) {
     value = value.replace(new_line_regex, '').trim().toLowerCase();
@@ -86,9 +85,9 @@ select
         count(0) * 100 / sum(count(0)) over (partition by input_info.detected_type), 2
     ) as perc_inputs,
     round(
-        count(distinct url) * 100 / sum(
-            count(distinct url)
-        ) over (partition by input_info.detected_type),
+        count(distinct url)
+        * 100
+        / sum(count(distinct url)) over (partition by input_info.detected_type),
         2
     ) as perc_sites
 from `httparchive.pages.2019_07_01_mobile`, unnest(getinputinfo(payload)) as input_info

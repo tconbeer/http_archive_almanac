@@ -1,8 +1,7 @@
 # standardSQL
 # Detailed alt-svc headers
 create temporary function getupgradeheader(payload string)
-returns string language js
-as """
+returns string language js as """
 try {
   var $ = JSON.parse(payload);
   var headers = $.response.headers;

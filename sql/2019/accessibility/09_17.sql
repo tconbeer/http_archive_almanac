@@ -3,8 +3,7 @@
 create temporary function gettableinfo(payload string)
 returns struct < has_table boolean,
 has_th boolean
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -27,8 +26,6 @@ try {
 }
 '''
 ;
-
-
 select
     client,
     count(0) as total_pages,
@@ -43,29 +40,34 @@ select
     ) as total_using_any,
 
     round(
-        countif(table_info.has_table and table_info.has_th) * 100 / countif(
+        countif(table_info.has_table and table_info.has_th)
+        * 100 / countif(
             table_info.has_table
         ),
         2
     ) as perc_with_th,
     round(
-        countif(table_info.has_table and has_columnheader_role) * 100 / countif(
+        countif(table_info.has_table and has_columnheader_role)
+        * 100 / countif(
             table_info.has_table
         ),
         2
     ) as perc_with_columnheader,
     round(
-        countif(table_info.has_table and has_rowheader_role) * 100 / countif(
+        countif(table_info.has_table and has_rowheader_role)
+        * 100 / countif(
             table_info.has_table
         ),
         2
     ) as perc_with_rowheader,
     round(
         countif(
-            table_info.has_table and (
-                table_info.has_th or has_rowheader_role or has_columnheader_role
-            )
-        ) * 100 / countif(table_info.has_table),
+            table_info.has_table
+            and (table_info.has_th or has_rowheader_role or has_columnheader_role)
+        )
+        * 100 / countif(
+            table_info.has_table
+        ),
         2
     ) as perc_with_any
 from

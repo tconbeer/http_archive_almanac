@@ -1,8 +1,7 @@
 create temp function parsecss(stylesheet string)
 returns string
 language js
-options(library = "gs://httparchive/lib/parse-css.js")
-as '''
+options(library = "gs://httparchive/lib/parse-css.js") as '''
   try {
     var css = parse(stylesheet)
     return JSON.stringify(css);

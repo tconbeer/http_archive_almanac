@@ -3,8 +3,7 @@
 create temporary function getswobjects(swobjectsinfo string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var swObjects = Object.values(JSON.parse(swObjectsInfo));
   if (typeof swObjects != 'string') {
@@ -35,8 +34,7 @@ join
     )
     using(_table_suffix)
 where
-    json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true' and json_extract(
-        payload, '$._pwa.swObjectsInfo'
-    ) != '[]'
+    json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+    and json_extract(payload, '$._pwa.swObjectsInfo') != '[]'
 group by client, total, sw_object
 order by freq / total desc, client

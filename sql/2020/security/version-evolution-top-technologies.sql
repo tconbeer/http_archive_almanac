@@ -12,7 +12,9 @@ from
             count(0) as freq,
             count(0) / sum(
                 count(0)
-            ) over (partition by client, month, category_lower, app_lower) as pct
+            ) over (
+                partition by client, month, category_lower, app_lower
+            ) as pct
         from
             (
                 select
@@ -25,8 +27,8 @@ from
                     ) as client
                 from `httparchive.technologies.*`
                 where
-                    regexp_contains(info, r'\d+\.\d+') and
-                    regexp_contains(_table_suffix, r'^20(20|19).*')
+                    regexp_contains(info, r'\d+\.\d+')
+                    and regexp_contains(_table_suffix, r'^20(20|19).*')
             )
         inner join
             (

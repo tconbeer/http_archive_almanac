@@ -4,8 +4,7 @@
 create temporary function get_meta_og_info(almanac_string string)
 returns struct < meta_og_image boolean,
 meta_og_video boolean
-> language js
-as '''
+> language js as '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -29,9 +28,8 @@ select
     client,
     countif(almanac_info.meta_og_image) / count(0) as meta_og_image_pct,
     countif(almanac_info.meta_og_video) / count(0) as meta_og_video_pct,
-    countif(almanac_info.meta_og_image and almanac_info.meta_og_video) / count(
-        0
-    ) as meta_og_image_video_pct
+    countif(almanac_info.meta_og_image and almanac_info.meta_og_video)
+    / count(0) as meta_og_image_video_pct
 from
     (
         select

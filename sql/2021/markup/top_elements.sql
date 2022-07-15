@@ -24,9 +24,8 @@ select
     _table_suffix as client,
     element_type_info.name,
     sum(element_type_info.freq) as freq,  # total count from all pages
-    sum(element_type_info.freq) / sum(
-        sum(element_type_info.freq)
-    ) over (partition by _table_suffix) as pct
+    sum(element_type_info.freq)
+    / sum(sum(element_type_info.freq)) over (partition by _table_suffix) as pct
 from
     `httparchive.pages.2021_07_01_*`,
     unnest(

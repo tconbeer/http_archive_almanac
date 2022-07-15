@@ -10,7 +10,6 @@ select
 from `httparchive.summary_pages.2020_08_01_*`
 join `httparchive.technologies.2020_08_01_*` using(_table_suffix, url)
 where
-    category = 'Ecommerce' and (
-        app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce'
-    )
+    category = 'Ecommerce'
+    and (app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce')
 group by client

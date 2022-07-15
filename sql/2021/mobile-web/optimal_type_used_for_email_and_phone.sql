@@ -3,8 +3,7 @@
 create temporary function getinputinfo(payload string)
 returns array < struct < detected_type string,
 using_best_type boolean
->> language js
-as '''
+>> language js as '''
   const new_line_regex = new RegExp('(?:\\r\\n|\\r|\\n)', 'g');
   function isFuzzyMatch(value, options) {
     value = value.replace(new_line_regex, '').trim().toLowerCase();

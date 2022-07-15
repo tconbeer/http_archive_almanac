@@ -1,8 +1,7 @@
 # standardSQL
 # 03_03a: % of pages with custom elements ("slang")
 create temporary function containscustomelement(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count)

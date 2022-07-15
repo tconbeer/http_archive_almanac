@@ -12,9 +12,8 @@ select
 
     countif(same_page > 0) / countif(total_anchors > 0) as pct_has_same_page,
     countif(hash_only > 0) / countif(total_anchors > 0) as pct_has_hash_only_link,
-    countif(javascript_void > 0) / countif(
-        total_anchors > 0
-    ) as pct_has_javascript_void_links
+    countif(javascript_void > 0)
+    / countif(total_anchors > 0) as pct_has_javascript_void_links
 from
     (
         select

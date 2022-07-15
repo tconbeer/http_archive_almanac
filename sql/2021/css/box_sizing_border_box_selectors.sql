@@ -4,9 +4,7 @@ create temp function
 getborderboxselectors(css string)
 returns array
 < string
->
-language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {

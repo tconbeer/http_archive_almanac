@@ -19,9 +19,9 @@ select
         count(0) * 100 / sum(count(0)) over (partition by client, party), 2
     ) as pct_of_all_requests,
     round(
-        count(distinct pageid) * 100 / sum(
-            count(distinct pageid)
-        ) over (partition by client, party),
+        count(distinct pageid)
+        * 100
+        / sum(count(distinct pageid)) over (partition by client, party),
         2
     ) as pct_of_all_pages
 from
@@ -32,9 +32,8 @@ from
             requestid,
             type,
             if(
-                strpos(
-                    net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)')
-                ) > 0,
+                strpos(net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)'))
+                > 0,
                 1,
                 3
             ) as party

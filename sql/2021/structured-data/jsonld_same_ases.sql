@@ -3,9 +3,7 @@
 create temp function getjsonldsameases(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     const arrayify = (value) => Array.isArray(value) ? value : [value];
 

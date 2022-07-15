@@ -5,8 +5,7 @@ create temporary function get_media_info(media_string string)
 returns struct < num_video_nodes int64,
 video_nodes_attributes array
 < string
->
-> language js
+> > language js
 as '''
 var result = {};
 try {
@@ -49,8 +48,8 @@ select
     ) as pages_with_video_muted_pct,
     safe_divide(
         countif(
-            'autoplay' in unnest(media_info.video_nodes_attributes) and
-            'muted' in unnest(media_info.video_nodes_attributes)
+            'autoplay' in unnest(media_info.video_nodes_attributes)
+            and 'muted' in unnest(media_info.video_nodes_attributes)
         ),
         countif(media_info.num_video_nodes > 0)
     ) as pages_with_video_autoplay_muted_pct

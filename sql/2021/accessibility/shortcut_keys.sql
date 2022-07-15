@@ -3,8 +3,7 @@
 create temporary function getshortcuts(payload string)
 returns array < struct < type string,
 shortcut string
->> language js
-as '''
+>> language js as '''
 try {
   const almanac = JSON.parse(payload);
 

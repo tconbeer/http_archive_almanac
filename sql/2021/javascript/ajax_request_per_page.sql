@@ -3,8 +3,8 @@
 select
     client,
     percentile,
-    approx_quantiles(ajax_requests_total, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        ajax_requests_total, 1000) [offset (percentile * 10)
     ] as ajax_requests_total
 from
     (

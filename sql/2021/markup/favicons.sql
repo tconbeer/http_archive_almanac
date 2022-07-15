@@ -3,8 +3,7 @@
 # returns all the data we need from _almanac
 create temporary function getfaviconimage(almanac_string string)
 returns struct
-<
-image_type_extension string
+< image_type_extension string
 > language js
 as '''
 var result = {};

@@ -6,8 +6,7 @@ returns struct < num_picture_img int64,
 num_picture_formats int64,
 picture_formats array
 < string
->
-> language js
+> > language js
 as '''
 var result = {};
 try {

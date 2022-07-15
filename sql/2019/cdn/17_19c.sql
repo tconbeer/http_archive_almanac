@@ -44,11 +44,9 @@ from
             # isSecure reports what the browser thought it was going to use, but it
             # can get upgraded with STS OR UpgradeInsecure: 1
             if(
-                starts_with(url, 'https') or json_extract_scalar(
-                    payload, '$._tls_version'
-                ) is not null or cast(
-                    json_extract(payload, '$._is_secure') as int64
-                ) = 1,
+                starts_with(url, 'https')
+                or json_extract_scalar(payload, '$._tls_version') is not null
+                or cast(json_extract(payload, '$._is_secure') as int64) = 1,
                 true,
                 false
             ) as issecure,
@@ -90,7 +88,8 @@ left join
             any_value(json_extract_scalar(payload, '$._tls_version')) as tlsversion
         from `httparchive.almanac.requests3`
         where
-            json_extract_scalar(payload, '$._tls_version') is not null and ifnull(
+            json_extract_scalar(payload, '$._tls_version') is not null
+            and ifnull(
                 json_extract_scalar(payload, '$._protocol'),
                 ifnull(
                     nullif(
@@ -104,9 +103,12 @@ left join
                         'HTTP/'
                     )
                 )
-            ) is not null and json_extract(payload, '$._socket') is not null
+            )
+            is not null
+            and json_extract(payload, '$._socket') is not null
         group by client, page, socket
-    ) b on (a.client = b.client and a.page = b.page and a.socket = b.socket)
+    ) b
+    on (a.client = b.client and a.page = b.page and a.socket = b.socket)
 
 group by client, protocol, tlsversion, firsthtml, issecure
 order by total desc

@@ -27,7 +27,8 @@ select
         regexp_contains(
             concat(' ', csp_header, ' '), concat(r'(?i)\W', directive, r'\W')
         )
-    ) / count(0) as pct_with_directive
+    )
+    / count(0) as pct_with_directive
 from
     (
         select

@@ -3,8 +3,8 @@
 select
     percentile,
     _table_suffix as client,
-    approx_quantiles(cast(max_age as numeric), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        cast(max_age as numeric), 1000) [offset (percentile * 10)
     ] as max_age
 from
     (

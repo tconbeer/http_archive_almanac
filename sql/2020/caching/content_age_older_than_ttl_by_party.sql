@@ -1,8 +1,7 @@
 # standardSQL
 # Difference between Cache TTL and the content age for third party request
 create temporary function totimestamp(date_string string)
-returns int64 language js
-as '''
+returns int64 language js as '''
   try {
     var timestamp = Math.round(new Date(date_string).getTime() / 1000);
     return isNaN(timestamp) || timestamp < 0 ? -1 : timestamp;

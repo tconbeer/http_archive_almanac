@@ -32,9 +32,8 @@ select
     button_type_info.name as button_type,
     countif(button_type_info.freq > 0) as freq,
     sum(count(0)) over (partition by _table_suffix) as total,
-    countif(button_type_info.freq > 0) / sum(
-        count(0)
-    ) over (partition by _table_suffix) as pct_page_with_button_type
+    countif(button_type_info.freq > 0)
+    / sum(count(0)) over (partition by _table_suffix) as pct_page_with_button_type
 from
     `httparchive.pages.2021_07_01_*`,
     unnest(

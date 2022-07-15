@@ -16,8 +16,8 @@ from
             safe_divide(slow_fid, fast_fid + avg_fid + slow_fid) as slow_fid
         from `chrome-ux-report.materialized.device_summary`
         where
-            yyyymm = '201907' and fast_fid + avg_fid + slow_fid > 0 and device in (
-                'desktop', 'phone'
-            )
+            yyyymm = '201907'
+            and fast_fid + avg_fid + slow_fid > 0
+            and device in ('desktop', 'phone')
     )
 group by device

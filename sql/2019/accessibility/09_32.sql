@@ -8,21 +8,24 @@ select
     countif(uses_input_img_elements) as total_using_input_img_elements,
 
     round(
-        countif(uses_img_elements and good_or_na_image_alts) * 100 / countif(
+        countif(uses_img_elements and good_or_na_image_alts)
+        * 100 / countif(
             uses_img_elements
         ),
         2
     ) as perc_good_img_element_alts,
     round(
-        countif(uses_input_img_elements and good_or_na_input_img_alts) * 100 / countif(
+        countif(uses_input_img_elements and good_or_na_input_img_alts)
+        * 100 / countif(
             uses_input_img_elements
         ),
         2
     ) as perc_good_input_img_alts,
     round(
-        countif(
-            uses_any_images and good_or_na_image_alts and good_or_na_input_img_alts
-        ) * 100 / countif(uses_any_images),
+        countif(uses_any_images and good_or_na_image_alts and good_or_na_input_img_alts)
+        * 100 / countif(
+            uses_any_images
+        ),
         2
     ) as perc_good_img_alts
 from
@@ -34,9 +37,8 @@ from
             or input_image_alt_score is not null as uses_any_images,
 
             ifnull(cast(image_alt_score as numeric), 1) = 1 as good_or_na_image_alts,
-            ifnull(
-                cast(input_image_alt_score as numeric), 1
-            ) = 1 as good_or_na_input_img_alts
+            ifnull(cast(input_image_alt_score as numeric), 1)
+            = 1 as good_or_na_input_img_alts
         from
             (
                 select

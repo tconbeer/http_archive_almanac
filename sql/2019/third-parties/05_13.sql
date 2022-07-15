@@ -4,9 +4,7 @@
 create temporary function getexecutiontimes(report string)
 returns array < struct < url string,
 execution_time float64
->>
-language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(report);
   return $.audits['bootup-time'].details.items.map(item => ({

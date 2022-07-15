@@ -4,10 +4,8 @@
 # check if video js is imported when a page has a video element or not
 create temporary function get_media_info(media_string string)
 returns struct
-<
-num_video_nodes int64
-> language js
-as '''
+< num_video_nodes int64
+> language js as '''
 var result = {};
 try {
     var media = JSON.parse(media_string);
@@ -25,9 +23,8 @@ select
     client,
     countif(video_nodes) / count(0) as video_tag_pct,
     countif(player is not null) / count(0) as js_video_player_pct,
-    countif(video_nodes and player is not null) / count(
-        0
-    ) as both_video_tag_js_player_pct
+    countif(video_nodes and player is not null)
+    / count(0) as both_video_tag_js_player_pct
 from
     (
         select client, media_info.num_video_nodes > 0 as video_nodes, player

@@ -3,8 +3,7 @@
 create temporary function getimportantproperties(css string)
 returns struct < total int64,
 important int64 > language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   var ast = JSON.parse(css);
   let ret = {

@@ -15,17 +15,18 @@ from
             countif(
                 array_length(
                     json_extract_array(js, '$.web_component_specs.custom_elements')
-                ) > 0
+                )
+                > 0
             ) as custom_elements,
             countif(
                 array_length(
                     json_extract_array(js, '$.web_component_specs.shadow_roots')
-                ) > 0
+                )
+                > 0
             ) as shadow_roots,
             countif(
-                array_length(
-                    json_extract_array(js, '$.web_component_specs.template')
-                ) > 0
+                array_length(json_extract_array(js, '$.web_component_specs.template'))
+                > 0
             ) as templates
         from
             (

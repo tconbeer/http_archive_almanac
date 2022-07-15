@@ -3,8 +3,7 @@
 create temporary function getcookies(headers string)
 returns array
 < string
-> deterministic language js
-as '''
+> deterministic language js as '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {

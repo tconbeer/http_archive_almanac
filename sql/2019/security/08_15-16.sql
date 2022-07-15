@@ -18,9 +18,8 @@ from
                 regexp_contains(lower(respotherheaders), 'content-security-policy =')
             ) as csp_count,
             countif(
-                regexp_contains(
-                    lower(respotherheaders), 'content-security-policy ='
-                ) and regexp_contains(
+                regexp_contains(lower(respotherheaders), 'content-security-policy =')
+                and regexp_contains(
                     lower(
                         regexp_extract(respotherheaders, r'(?i)\W?script-src?([^,|;]+)')
                     ),
@@ -28,9 +27,8 @@ from
                 )
             ) as csp_script_sha_count,
             countif(
-                regexp_contains(
-                    lower(respotherheaders), 'content-security-policy ='
-                ) and regexp_contains(
+                regexp_contains(lower(respotherheaders), 'content-security-policy =')
+                and regexp_contains(
                     lower(
                         regexp_extract(respotherheaders, r'(?i)\W?script-src?([^,|;]+)')
                     ),

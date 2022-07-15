@@ -24,14 +24,12 @@ from
                 regexp_contains(lower(respotherheaders), 'content-security-policy =')
             ) as csp_count,
             countif(
-                regexp_contains(
-                    lower(respotherheaders), 'content-security-policy ='
-                ) and regexp_contains(lower(respotherheaders), 'strict-dynamic')
+                regexp_contains(lower(respotherheaders), 'content-security-policy =')
+                and regexp_contains(lower(respotherheaders), 'strict-dynamic')
             ) as strict_dynamic_count,
             countif(
-                regexp_contains(
-                    lower(respotherheaders), 'content-security-policy ='
-                ) and regexp_contains(
+                regexp_contains(lower(respotherheaders), 'content-security-policy =')
+                and regexp_contains(
                     lower(
                         regexp_extract(respotherheaders, r'(?i)\W?script-src?([^,|;]+)')
                     ),
@@ -39,9 +37,8 @@ from
                 )
             ) as scriptsrc_strict_dynamic_count,
             countif(
-                regexp_contains(
-                    lower(respotherheaders), 'content-security-policy ='
-                ) and regexp_contains(
+                regexp_contains(lower(respotherheaders), 'content-security-policy =')
+                and regexp_contains(
                     lower(
                         regexp_extract(
                             respotherheaders, r'(?i)\W?default-src?([^,|;]+)'

@@ -9,8 +9,7 @@ create temp function as_percent(freq float64, total float64) returns float64 as 
 create temporary function get_almanac_info(almanac_string string)
 returns array
 < string
->
-language js
+> language js
 as '''
 var result = [];
 try {

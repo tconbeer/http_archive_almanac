@@ -3,8 +3,7 @@
 create temporary function extracthttpheaders(httpheaders string)
 returns array
 < string
-> language js
-as """
+> language js as """
 try {
   var headers = JSON.parse(HTTPheaders);
 

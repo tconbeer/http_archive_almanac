@@ -10,7 +10,8 @@ select
     sum(countif(firsthtml)) over (partition by client) as firsthtmltotalhits,
     round(
         (
-            countif(firsthtml) * 100 / (
+            countif(firsthtml)
+            * 100 / (
                 0.001 + sum(countif(firsthtml)) over (partition by client)
             )
         ),
@@ -21,10 +22,13 @@ select
     ) as subdomaintotalhits,
     round(
         (
-            countif(not firsthtml and not samehost and samedomain) * 100 / (
+            countif(not firsthtml and not samehost and samedomain)
+            * 100 / (
                 0.001 + sum(
                     countif(not firsthtml and not samehost and samedomain)
-                ) over (partition by client)
+                ) over (
+                    partition by client
+                )
             )
         ),
         2
@@ -34,10 +38,13 @@ select
     ) as thirdpartytotalhits,
     round(
         (
-            countif(not firsthtml and not samehost and not samedomain) * 100 / (
+            countif(not firsthtml and not samehost and not samedomain)
+            * 100 / (
                 0.001 + sum(
                     countif(not firsthtml and not samehost and not samedomain)
-                ) over (partition by client)
+                ) over (
+                    partition by client
+                )
             )
         ),
         2
@@ -62,9 +69,8 @@ from
             if(net.host(url) = net.host(page), true, false) as samehost,
             # if toplevel reg_domain will return NULL so we group this as sameDomain
             if(
-                net.host(url) = net.host(page) or net.reg_domain(url) = net.reg_domain(
-                    page
-                ),
+                net.host(url) = net.host(page)
+                or net.reg_domain(url) = net.reg_domain(page),
                 true,
                 false
             ) as samedomain

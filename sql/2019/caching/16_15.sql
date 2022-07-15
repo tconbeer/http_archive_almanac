@@ -5,7 +5,8 @@ select
     countif(appcache_score is not null) as total_applicable,
     countif(cast(appcache_score as numeric) = 0) as total_using_appcache,
     round(
-        countif(cast(appcache_score as numeric) = 0) * 100 / countif(
+        countif(cast(appcache_score as numeric) = 0)
+        * 100 / countif(
             appcache_score is not null
         ),
         2

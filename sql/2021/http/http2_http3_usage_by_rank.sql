@@ -14,9 +14,9 @@ from
         select client, page, rank
         from `httparchive.almanac.requests`
         where
-            date = '2021-07-01' and firsthtml and lower(protocol) in (
-                'http/2', 'http/3', 'quic', 'h3-29', 'h3-q050'
-            )
+            date = '2021-07-01'
+            and firsthtml
+            and lower(protocol) in ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050')
     ),
     unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 join

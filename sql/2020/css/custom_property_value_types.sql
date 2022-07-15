@@ -146,14 +146,12 @@ select distinct
         partition by client, type
     ) as pages,
     count(distinct page) over (partition by client) as total_pages,
-    count(distinct if(type is null, null, page)) over (
-        partition by client, type
-    ) / count(distinct page) over (partition by client) as pct_pages,
+    count(distinct if(type is null, null, page)) over (partition by client, type)
+    / count(distinct page) over (partition by client) as pct_pages,
     sum(freq) over (partition by client, type) as freq,
     sum(freq) over (partition by client) as total,
-    sum(freq) over (partition by client, type) / sum(freq) over (
-        partition by client
-    ) as pct
+    sum(freq) over (partition by client, type)
+    / sum(freq) over (partition by client) as pct
 from
     (
         select _table_suffix as client, url as page, value.type, value.freq

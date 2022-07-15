@@ -14,9 +14,8 @@ select
     countif(total_td > 0) / count(0) as pct_sites_with_td,
 
     countif(total_th_with_scope > 0) / countif(total_th > 0) as pct_th_sites_with_scope,
-    countif(total_td_with_headers > 0) / countif(
-        total_td > 0
-    ) as pct_td_sites_with_headers
+    countif(total_td_with_headers > 0)
+    / countif(total_td > 0) as pct_td_sites_with_headers
 from
     (
         select

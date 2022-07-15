@@ -42,8 +42,7 @@ join
     )
     using(_table_suffix)
 where
-    json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true' and json_extract(
-        payload, '$._pwa.swRegistrationPropertiesInfo'
-    ) != '[]'
+    json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+    and json_extract(payload, '$._pwa.swRegistrationPropertiesInfo') != '[]'
 group by client, total, sw_registration_properties
 order by freq / total desc, client

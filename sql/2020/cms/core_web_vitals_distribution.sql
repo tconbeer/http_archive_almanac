@@ -25,9 +25,9 @@ join
         select _table_suffix as client, url, app as cms
         from `httparchive.technologies.2020_08_01_*`
         where category = 'CMS'
-    ) on concat(origin, '/') = url and if(
-        device = 'desktop', 'desktop', 'mobile'
-    ) = client
+    )
+    on concat(origin, '/') = url
+    and if(device = 'desktop', 'desktop', 'mobile') = client
 # The CrUX 202008 dataset is not available until September 8.
 where date = '2020-07-01'
 group by client, cms

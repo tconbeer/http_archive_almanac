@@ -3,8 +3,7 @@
 create temporary function getvulnerabilities(audit string)
 returns array < struct < severity string,
 freq int64
->> language js
-as '''
+>> language js as '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(({highestSeverity, vulnCount}) => {

@@ -3,8 +3,7 @@
 create temp function haspolicy(attr string, policy_type string)
 returns bool
 deterministic
-language js
-as '''
+language js as '''
   const $ = JSON.parse(attr);
   return $[policy_type] !== null;
 '''

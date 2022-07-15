@@ -2,8 +2,7 @@
 create temporary function getstylesheets(payload string)
 returns struct < remote int64,
 inline int64
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload)
   var sass = JSON.parse($._sass);
@@ -18,11 +17,11 @@ select
     percentile,
     _table_suffix as client,
     countif(stylesheets.remote = 1) / count(0) as pct_1_remote,
-    approx_quantiles(stylesheets.inline, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        stylesheets.inline, 1000) [offset (percentile * 10)
     ] as num_inline_stylesheets,
-    approx_quantiles(stylesheets.remote, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        stylesheets.remote, 1000) [offset (percentile * 10)
     ] as num_remote_stylesheets
 from
     (

@@ -3,9 +3,7 @@
 create temp function gettwittertypes(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.twitter.map(twitter => twitter.name.toLowerCase());
@@ -40,9 +38,8 @@ select
     twitter_type,
     count(twitter_type) as freq_twitter,
     sum(count(twitter_type)) over (partition by client) as total_twitter,
-    count(twitter_type) / sum(
-        count(twitter_type)
-    ) over (partition by client) as pct_twitter,
+    count(twitter_type)
+    / sum(count(twitter_type)) over (partition by client) as pct_twitter,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

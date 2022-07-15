@@ -5,8 +5,7 @@
 create temporary function getresourcehintshrefs(payload string, hint string)
 returns array
 < string
->
-language js
+> language js
 as '''
 try {
   var $ = JSON.parse(payload);

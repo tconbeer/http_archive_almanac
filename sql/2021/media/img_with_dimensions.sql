@@ -7,9 +7,7 @@ returns array < struct < haswidth int64,
 hasheight int64,
 hasalt int64,
 hasreservedlayoutdimension int64
->>
-language js
-as '''
+>> language js as '''
 try {
   let result = Array()
   const responsiveImages = JSON.parse(responsiveString)

@@ -8,8 +8,7 @@ create temp function as_percent(freq float64, total float64) returns float64 as 
 
 # returns all the data we need from _almanac
 create temporary function get_almanac_html_lang(almanac_string string)
-returns string language js
-as '''
+returns string language js as '''
 try {
     var almanac = JSON.parse(almanac_string);
 

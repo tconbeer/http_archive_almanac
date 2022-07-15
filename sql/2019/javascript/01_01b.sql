@@ -3,8 +3,8 @@
 select
     percentile,
     _table_suffix as client,
-    approx_quantiles(round(bytesjs / 1024, 2), 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        round(bytesjs / 1024, 2), 1000) [offset (percentile * 10)
     ] as js_kbytes
 from
     `httparchive.summary_pages.2019_07_01_*`,

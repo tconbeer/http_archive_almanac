@@ -22,9 +22,8 @@ from
             client,
             type,
             if(
-                strpos(
-                    net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)')
-                ) > 0,
+                strpos(net.host(url), regexp_extract(net.reg_domain(page), r'([\w-]+)'))
+                > 0,
                 1,
                 3
             ) as party,

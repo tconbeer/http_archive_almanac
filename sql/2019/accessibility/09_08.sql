@@ -10,11 +10,9 @@ select
 from
     (
         select
-            json_extract_scalar(
-                report, "$.audits['html-has-lang'].score"
-            ) = '1' as has_lang,
-            json_extract_scalar(
-                report, "$.audits['html-valid-lang'].score"
-            ) = '1' as valid_lang
+            json_extract_scalar(report, "$.audits['html-has-lang'].score")
+            = '1' as has_lang,
+            json_extract_scalar(report, "$.audits['html-valid-lang'].score")
+            = '1' as valid_lang
         from `httparchive.lighthouse.2019_07_01_mobile`
     )

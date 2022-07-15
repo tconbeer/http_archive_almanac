@@ -17,7 +17,8 @@ select
     count(0) / sum(count(0)) over (partition by client) as pct
 from `httparchive.almanac.requests`
 where
-    date = '2021-07-01' and (
+    date = '2021-07-01'
+    and (
         resp_content_type like 'text/%'
         or resp_content_type like '%svg+xml%'
         or resp_content_type like '%ttf%'

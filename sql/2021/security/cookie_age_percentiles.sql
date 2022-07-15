@@ -47,8 +47,10 @@ with
         select
             client,
             percentile,
-            approx_quantiles(safe_cast(max_age_value as numeric), 1000 ignore nulls) [
-                offset (percentile * 10)
+            approx_quantiles(
+                safe_cast(max_age_value as numeric),
+                1000 ignore nulls
+            ) [offset (percentile * 10)
             ] as max_age
         from
             age_values,
@@ -62,8 +64,10 @@ with
         select
             client,
             percentile,
-            approx_quantiles(safe_cast(expires_value as numeric), 1000 ignore nulls) [
-                offset (percentile * 10)
+            approx_quantiles(
+                safe_cast(expires_value as numeric),
+                1000 ignore nulls
+            ) [offset (percentile * 10)
             ] as expires
         from
             age_values,
@@ -77,8 +81,10 @@ with
         select
             client,
             percentile,
-            approx_quantiles(safe_cast(real_age_value as numeric), 1000 ignore nulls) [
-                offset (percentile * 10)
+            approx_quantiles(
+                safe_cast(real_age_value as numeric),
+                1000 ignore nulls
+            ) [offset (percentile * 10)
             ] as real_age
         from
             age_values,

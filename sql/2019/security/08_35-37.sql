@@ -11,9 +11,9 @@ select
             case
                 when
                     (
-                        strpos(lower(policy), 'samesite=strict') > 1 or strpos(
-                            lower(policy), 'samesite=lax'
-                        ) > 0 or strpos(lower(policy), 'samesite=none') > 1
+                        strpos(lower(policy), 'samesite=strict') > 1
+                        or strpos(lower(policy), 'samesite=lax') > 0
+                        or strpos(lower(policy), 'samesite=none') > 1
                     )
                 then length(policy)
                 when strpos(policy, '=') > 1

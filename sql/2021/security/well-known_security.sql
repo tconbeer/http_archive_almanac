@@ -9,13 +9,11 @@ select
     countif(signed = 'true') as count_signed,
     countif(signed = 'true') / countif(has_security_txt = 'true') as pct_signed,
     countif(canonical is not null) as canonical,
-    countif(canonical is not null) / countif(
-        has_security_txt = 'true'
-    ) as pct_canonical,
+    countif(canonical is not null)
+    / countif(has_security_txt = 'true') as pct_canonical,
     countif(encryption is not null) as encryption,
-    countif(encryption is not null) / countif(
-        has_security_txt = 'true'
-    ) as pct_encryption,
+    countif(encryption is not null)
+    / countif(has_security_txt = 'true') as pct_encryption,
     countif(expires is not null) as expires,
     countif(expires is not null) / countif(has_security_txt = 'true') as pct_expires,
     countif(policy is not null) as policy,

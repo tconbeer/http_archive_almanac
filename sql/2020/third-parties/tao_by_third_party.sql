@@ -3,8 +3,7 @@
 # Header reference:
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Timing-Allow-Origin
 create temp function get_tao(headers string)
-returns string language js
-as '''
+returns string language js as '''
   try {
     const regex = /timing-allow-origin = (\\*|(http.*?,? )+)/gm;
     output = regex.exec(headers)[1]+", ";
@@ -58,9 +57,9 @@ with
             timing_allow_origin,
             req_category,
             if(
-                page_origin = req_origin or timing_allow_origin = '*, ' or strpos(
-                    timing_allow_origin, concat(page_origin, ', ')
-                ) > 0,
+                page_origin = req_origin
+                or timing_allow_origin = '*, '
+                or strpos(timing_allow_origin, concat(page_origin, ', ')) > 0,
                 1,
                 0
             ) as timing_allowed

@@ -5,9 +5,8 @@ select
     count(0) as total_sites,
 
     countif(total_tab_selected_controls > 0) as total_with_tab_selected_controls,
-    countif(total_tab_selected_controls > 0) / count(
-        0
-    ) as pct_with_tab_selected_controls
+    countif(total_tab_selected_controls > 0)
+    / count(0) as pct_with_tab_selected_controls
 from
     (
         select

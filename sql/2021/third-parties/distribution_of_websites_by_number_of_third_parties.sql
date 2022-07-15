@@ -25,8 +25,8 @@ with
 select
     client,
     percentile,
-    approx_quantiles(third_parties_per_page, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        third_parties_per_page, 1000) [offset (percentile * 10)
     ] as approx_third_parties_per_page
 from base, unnest( [10, 25, 50, 75, 90]) as percentile
 group by client, percentile

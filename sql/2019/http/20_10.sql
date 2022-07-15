@@ -7,8 +7,8 @@ from
         select client, page
         from `httparchive.almanac.requests`
         where
-            date = '2019-07-01' and json_extract_scalar(
-                payload, '$._protocol'
-            ) = 'HTTP/2' and json_extract_scalar(payload, '$._was_pushed') = '1'
+            date = '2019-07-01'
+            and json_extract_scalar(payload, '$._protocol') = 'HTTP/2'
+            and json_extract_scalar(payload, '$._was_pushed') = '1'
     )
 group by client

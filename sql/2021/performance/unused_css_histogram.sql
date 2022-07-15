@@ -17,7 +17,8 @@ from
                 json_extract(
                     report, '$.audits.unused-css-rules.details.overallSavingsBytes'
                 ) as int64
-            ) / 1024 as unused_css_kbytes
+            )
+            / 1024 as unused_css_kbytes
         from `httparchive.lighthouse.2021_07_01_mobile`
     )
 group by unused_css_kbytes

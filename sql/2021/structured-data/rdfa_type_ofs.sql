@@ -3,8 +3,7 @@
 create temp function getrdfatypeofs(rendered string)
 returns array
 < string
->
-language js
+> language js
 as """
   try {
     rendered = JSON.parse(rendered);
@@ -40,9 +39,8 @@ select
     rdfa_type_of,
     count(rdfa_type_of) as freq_rdfa_type_of,
     sum(count(rdfa_type_of)) over (partition by client) as total_rdfa_type_of,
-    count(rdfa_type_of) / sum(
-        count(rdfa_type_of)
-    ) over (partition by client) as pct_rdfa_type_of,
+    count(rdfa_type_of)
+    / sum(count(rdfa_type_of)) over (partition by client) as pct_rdfa_type_of,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

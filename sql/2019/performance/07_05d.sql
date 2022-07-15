@@ -1913,10 +1913,12 @@ select
     round(countif(fast_fcp >= .9 and fast_fid >= .95) * 100 / count(0), 2) as pct_fast,
     round(
         countif(
-            not (slow_fcp >= .1 or slow_fid >= 0.05) and not (
-                fast_fcp >= .9 and fast_fid >= .95
-            )
-        ) * 100 / count(0),
+            not (slow_fcp >= .1 or slow_fid >= 0.05)
+            and not (fast_fcp >= .9 and fast_fid >= .95)
+        )
+        * 100 / count(
+            0
+        ),
         2
     ) as pct_avg,
     round(countif(slow_fcp >= .1 or slow_fid >= 0.05) * 100 / count(0), 2) as pct_slow

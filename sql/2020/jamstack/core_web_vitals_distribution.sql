@@ -43,7 +43,8 @@ join
                             )
                         ),
                         '(x-github-request)'
-                    ) = 'x-github-request'
+                    )
+                    = 'x-github-request'
                 then 'GitHub'
                 when
                     regexp_extract(
@@ -56,7 +57,8 @@ join
                             )
                         ),
                         '(netlify)'
-                    ) = 'netlify'
+                    )
+                    = 'netlify'
                 then 'Netlify'
                 when
                     regexp_extract(
@@ -69,7 +71,8 @@ join
                             )
                         ),
                         '(x-nf-request-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Netlify'
                 when
                     regexp_extract(
@@ -82,7 +85,8 @@ join
                             )
                         ),
                         '(x-vercel-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Vercel'
                 when
                     regexp_extract(
@@ -95,7 +99,8 @@ join
                             )
                         ),
                         '(x-amz-cf-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'AWS'
                 when
                     regexp_extract(
@@ -108,7 +113,8 @@ join
                             )
                         ),
                         '(x-azure-ref)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Azure'
                 when _cdn_provider = 'Microsoft Azure'
                 then 'Azure'

@@ -94,28 +94,28 @@ select
     approx_quantiles(bem, 1000 ignore nulls) [offset (percentile * 10)] as bem_per_page,
     countif(attribute_id > 0) as attribute_id_pages,
     countif(attribute_id > 0) / count(0) as attribute_id_pages_pct,
-    approx_quantiles(attribute_id, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        attribute_id, 1000 ignore nulls) [offset (percentile * 10)
     ] as attribute_id_per_page,
     countif(duplicate_classes > 0) as duplicate_classes_pages,
     countif(duplicate_classes > 0) / count(0) as duplicate_classes_pages_pct,
-    approx_quantiles(duplicate_classes, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        duplicate_classes, 1000 ignore nulls) [offset (percentile * 10)
     ] as duplicate_classes_per_page,
     countif(root_descendant > 0) as root_descendant_pages,
     countif(root_descendant > 0) / count(0) as root_descendant_pages_pct,
-    approx_quantiles(root_descendant, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        root_descendant, 1000 ignore nulls) [offset (percentile * 10)
     ] as root_descendantem_per_page,
     countif(html_descendant > 0) as html_descendant_pages,
     countif(html_descendant > 0) / count(0) as html_descendant_pages_pct,
-    approx_quantiles(html_descendant, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        html_descendant, 1000 ignore nulls) [offset (percentile * 10)
     ] as html_descendant_per_page,
     countif(not_id_descendant > 0) as not_id_descendant_pages,
     countif(not_id_descendant > 0) / count(0) as not_id_descendant_pages_pct,
-    approx_quantiles(not_id_descendant, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        not_id_descendant, 1000 ignore nulls) [offset (percentile * 10)
     ] as not_id_descendant_per_page
 from
     (

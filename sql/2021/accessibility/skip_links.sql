@@ -1,8 +1,7 @@
 # standardSQL
 # % of pages having skip links
 create temporary function getearlyhash(payload string)
-returns int64 language js
-as '''
+returns int64 language js as '''
 try {
   const almanac = JSON.parse(payload);
   return almanac['seo-anchor-elements'].earlyHash;
@@ -16,8 +15,7 @@ select
     _table_suffix as client,
     countif(getearlyhash(json_extract_scalar(payload, '$._almanac')) > 0) as pages,
     count(0) as total,
-    countif(getearlyhash(json_extract_scalar(payload, '$._almanac')) > 0) / count(
-        0
-    ) as pct
+    countif(getearlyhash(json_extract_scalar(payload, '$._almanac')) > 0)
+    / count(0) as pct
 from `httparchive.pages.2021_07_01_*`
 group by client

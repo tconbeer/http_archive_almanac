@@ -7,7 +7,9 @@ select
             json_extract_scalar(
                 report, '$.audits.uses-long-cache-ttl.details.summary.wastedBytes'
             ) as numeric
-        ) / 1024 / 1024
+        )
+        / 1024
+        / 1024
     ) as mbyte_savings,
     count(0) as num_pages,
     sum(count(0)) over (partition by _table_suffix) as total,

@@ -3,9 +3,7 @@
 create temp function getdublincoretypes(rendered string)
 returns array
 < string
->
-language js
-as """
+> language js as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.dublin_core.map(dublin_core => dublin_core.name.toLowerCase());
@@ -40,9 +38,8 @@ select
     dublin_core_type,
     count(dublin_core_type) as count,
     sum(count(dublin_core_type)) over (partition by client) as freq_dublin_core,
-    count(dublin_core_type) / sum(
-        count(dublin_core_type)
-    ) over (partition by client) as pct_dublin_core,
+    count(dublin_core_type)
+    / sum(count(dublin_core_type)) over (partition by client) as pct_dublin_core,
     count(distinct url) as freq_pages,
     total_pages,
     count(distinct url) / total_pages as pct_pages

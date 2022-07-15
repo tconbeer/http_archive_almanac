@@ -2,8 +2,7 @@
 create temporary function getstylesheets(payload string)
 returns struct < remote int64,
 inline int64
-> language js
-as '''
+> language js as '''
 try {
   var $ = JSON.parse(payload)
   var sass = JSON.parse($._sass);

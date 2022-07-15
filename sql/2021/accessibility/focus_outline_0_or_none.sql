@@ -1,11 +1,10 @@
 # standardSQL
 # Adoption of :focus pseudoclass and outline: 0 or outline: none style
-create temporary function getfocusstylesoutline0(
-    css string
-) returns array < bool > language js
-options(
-    library = "gs://httparchive/lib/css-utils.js"
-) as '''
+create temporary function getfocusstylesoutline0(css string) returns array
+< bool
+> language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {

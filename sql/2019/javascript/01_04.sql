@@ -3,11 +3,11 @@
 select
     percentile,
     client,
-    approx_quantiles(first_party, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        first_party, 1000) [offset (percentile * 10)
     ] as first_party_js_requests,
-    approx_quantiles(third_party, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        third_party, 1000) [offset (percentile * 10)
     ] as third_party_js_requests
 from
     (

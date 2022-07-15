@@ -2,8 +2,7 @@
 # Manifests that are not JSON parsable for service worker pages - based on
 # 2019/14_04b.sql
 create temporary function canparsemanifest(manifest string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   JSON.parse(manifest);
   return true;

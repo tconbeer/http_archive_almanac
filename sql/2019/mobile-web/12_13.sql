@@ -33,7 +33,8 @@ select
 
     countif(input_stats.found_advanced_types) as total_pages_using,
     round(
-        countif(input_stats.found_advanced_types) * 100 / countif(
+        countif(input_stats.found_advanced_types)
+        * 100 / countif(
             input_stats.total_inputs > 0
         ),
         2

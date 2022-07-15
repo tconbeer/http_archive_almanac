@@ -19,7 +19,8 @@ from
         select distinct _table_suffix as client, url
         from `httparchive.technologies.2021_07_01_*`
         where
-            category = 'Ecommerce' and (
+            category = 'Ecommerce'
+            and (
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
@@ -32,11 +33,13 @@ join
             json_value(
                 json_extract_scalar(payload, '$._well-known'),
                 '$."/.well-known/assetlinks.json".found'
-            ) = 'true' as android_app_links,
+            )
+            = 'true' as android_app_links,
             json_value(
                 json_extract_scalar(payload, '$._well-known'),
                 '$."/.well-known/apple-app-site-association".found'
-            ) = 'true' as ios_universal_links
+            )
+            = 'true' as ios_universal_links
         from `httparchive.pages.2021_07_01_*`
     )
     using

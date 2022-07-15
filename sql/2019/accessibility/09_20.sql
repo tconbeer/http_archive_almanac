@@ -8,9 +8,8 @@ select
 from
     (
         select
-            json_extract_scalar(
-                report, "$.audits['aria-valid-attr-value'].score"
-            ) = '1' as is_valid
+            json_extract_scalar(report, "$.audits['aria-valid-attr-value'].score")
+            = '1' as is_valid
         from `httparchive.lighthouse.2019_07_01_mobile`
     )
 # Ignore pages with no aria-* attributes

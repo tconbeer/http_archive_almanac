@@ -2,8 +2,7 @@
 create temporary function getcalcoperatorcomplexity(css string)
 returns array < struct < num int64,
 freq int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {

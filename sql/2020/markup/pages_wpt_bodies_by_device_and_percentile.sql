@@ -40,16 +40,16 @@ select
     count(distinct url) as total,
 
     # Comments per page
-    approx_quantiles(wpt_bodies_info.comment_count, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        wpt_bodies_info.comment_count, 1000) [offset (percentile * 10)
     ] as comment_count_m103,
-    approx_quantiles(wpt_bodies_info.conditional_comment_count, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        wpt_bodies_info.conditional_comment_count, 1000) [offset (percentile * 10)
     ] as conditional_comment_count_m105,
 
     # size of the head section in characters
-    approx_quantiles(wpt_bodies_info.head_size, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        wpt_bodies_info.head_size, 1000) [offset (percentile * 10)
     ] as head_size_m234
 from
     (

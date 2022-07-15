@@ -20,14 +20,14 @@ from
         select
             client,
             meta_viewport is not null as has_meta_viewport,
-            regexp_extract(
-                meta_viewport, r'(?i)user-scalable\s*=\s*(no|0)'
-            ) is not null as not_scalable,
+            regexp_extract(meta_viewport, r'(?i)user-scalable\s*=\s*(no|0)')
+            is not null as not_scalable,
             safe_cast(
                 regexp_extract(
                     meta_viewport, r'(?i)maximum-scale\s*=\s*([0-9]*\.[0-9]+|[0-9]+)'
                 ) as float64
-            ) <= 1 as max_scale_1_or_less
+            )
+            <= 1 as max_scale_1_or_less
         from
             (
                 select

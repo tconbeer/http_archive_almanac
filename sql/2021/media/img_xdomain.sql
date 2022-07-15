@@ -4,9 +4,7 @@ create temporary function get_images(images_string string)
 returns array
 < struct
 < url string
->>
-language js
-as '''
+>> language js as '''
 var result = [];
 try {
   var images = JSON.parse(images_string);

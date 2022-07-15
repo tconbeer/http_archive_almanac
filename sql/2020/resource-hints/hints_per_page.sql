@@ -6,8 +6,7 @@ prefetch int64,
 preconnect int64,
 prerender int64,
 `dns-prefetch` int64
->
-language js
+> language js
 as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch'];
 try {
@@ -35,8 +34,8 @@ select
     approx_quantiles(hints.prefetch, 1000) [offset (percentile * 10)] as prefetch,
     approx_quantiles(hints.preconnect, 1000) [offset (percentile * 10)] as preconnect,
     approx_quantiles(hints.prerender, 1000) [offset (percentile * 10)] as prerender,
-    approx_quantiles(hints.`dns-prefetch`, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        hints.`dns-prefetch`, 1000) [offset (percentile * 10)
     ] as dns_prefetch
 from
     (

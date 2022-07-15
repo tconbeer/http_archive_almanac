@@ -1,8 +1,7 @@
 # standardSQL
 # Usage of native lazy loading
 create temporary function usesloadinglazy(payload string)
-returns boolean language js
-as '''
+returns boolean language js as '''
 try {
   const almanac = JSON.parse(payload);
 
@@ -25,9 +24,8 @@ select
     countif(total_img > 0) as pages_with_images,
 
     countif(uses_loading_lazy) as pages_using_loading_attribute,
-    countif(uses_loading_lazy) / countif(
-        total_img > 0
-    ) as pct_pages_using_loading_attribute
+    countif(uses_loading_lazy)
+    / countif(total_img > 0) as pct_pages_using_loading_attribute
 from
     (
         select

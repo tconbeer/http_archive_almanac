@@ -3,8 +3,7 @@
 create temporary function getorientation(css string)
 returns struct < landscape boolean,
 portrait boolean
-> language js
-as '''
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {

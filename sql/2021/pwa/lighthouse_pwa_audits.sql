@@ -9,8 +9,7 @@ audit_group string,
 title string,
 description string,
 score int64
->> language js
-as '''
+>> language js as '''
 var auditrefs = JSON.parse(auditRefs);
 var audits = JSON.parse(audits);
 var results = [];
@@ -50,9 +49,8 @@ join
         select url
         from `httparchive.pages.2021_07_01_mobile`
         where
-            json_extract(
-                payload, '$._pwa.serviceWorkerHeuristic'
-            ) = 'true' and json_extract(payload, '$._pwa.manifests') != '[]'
+            json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+            and json_extract(payload, '$._pwa.manifests') != '[]'
     )
     using(url)
 group by audits.id

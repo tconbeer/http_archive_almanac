@@ -9,11 +9,9 @@ create temp function as_percent(freq float64, total float64) returns float64 as 
 # returns all the data we need from _wpt_bodies
 create temporary function get_wpt_bodies_info(wpt_bodies_string string)
 returns struct
-<
-hreflangs array
+< hreflangs array
 < string
->
-> language js
+> > language js
 as '''
 var result = {
   hreflangs: []

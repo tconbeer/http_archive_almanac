@@ -42,7 +42,8 @@ join
                             )
                         ),
                         '(x-github-request)'
-                    ) = 'x-github-request'
+                    )
+                    = 'x-github-request'
                 then 'GitHub'
                 when
                     regexp_extract(
@@ -55,7 +56,8 @@ join
                             )
                         ),
                         '(netlify)'
-                    ) = 'netlify'
+                    )
+                    = 'netlify'
                 then 'Netlify'
                 when
                     regexp_extract(
@@ -68,7 +70,8 @@ join
                             )
                         ),
                         '(x-nf-request-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Netlify'
                 when
                     regexp_extract(
@@ -81,7 +84,8 @@ join
                             )
                         ),
                         '(x-vercel-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Vercel'
                 when
                     regexp_extract(
@@ -94,7 +98,8 @@ join
                             )
                         ),
                         '(x-amz-cf-id)'
-                    ) is not null
+                    )
+                    is not null
                 then 'AWS'
                 when
                     regexp_extract(
@@ -107,7 +112,8 @@ join
                             )
                         ),
                         '(x-azure-ref)'
-                    ) is not null
+                    )
+                    is not null
                 then 'Azure'
                 when _cdn_provider = 'Microsoft Azure'
                 then 'Azure'
@@ -135,9 +141,9 @@ join
         select distinct _table_suffix as client, app
         from `httparchive.technologies.2021_07_01_*`
         where
-            lower(
-                category
-            ) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+            lower(category) = 'static site generator'
+            or app = 'Next.js'
+            or app = 'Nuxt.js'
     )
     using(client, url)
 where cdn is not null

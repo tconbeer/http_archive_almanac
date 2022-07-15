@@ -9,12 +9,10 @@ select
     countif(total_presentational > 0) as sites_with_presentational,
 
     countif(total_tables > 0) / count(0) as pct_sites_with_table,
-    countif(total_captioned > 0) / countif(
-        total_tables > 0
-    ) as pct_table_sites_with_captioned,
-    countif(total_presentational > 0) / countif(
-        total_tables > 0
-    ) as pct_table_sites_with_presentational,
+    countif(total_captioned > 0)
+    / countif(total_tables > 0) as pct_table_sites_with_captioned,
+    countif(total_presentational > 0)
+    / countif(total_tables > 0) as pct_table_sites_with_presentational,
 
     sum(total_tables) as total_tables,
     sum(total_captioned) as total_captioned,

@@ -13,15 +13,17 @@ select
         countif(lower(resp_cache_control) like '%s-maxage%') * 100 / count(0), 2
     ) as pct,
     round(
-        countif(
-            firsthtml and lower(resp_cache_control) like '%s-maxage%'
-        ) * 100 / count(0),
+        countif(firsthtml and lower(resp_cache_control) like '%s-maxage%')
+        * 100 / count(
+            0
+        ),
         2
     ) as firsthtmlpct,
     round(
-        countif(
-            not firsthtml and lower(resp_cache_control) like '%s-maxage%'
-        ) * 100 / count(0),
+        countif(not firsthtml and lower(resp_cache_control) like '%s-maxage%')
+        * 100 / count(
+            0
+        ),
         2
     ) as resourcepct
 from `httparchive.summary_requests.2019_07_01_*`

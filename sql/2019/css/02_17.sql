@@ -4,8 +4,7 @@ create temporary function getunits(css string)
 returns struct < em boolean,
 rem boolean,
 px boolean
-> language js
-as '''
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {

@@ -6,8 +6,7 @@ hsla boolean,
 rgb boolean,
 rgba boolean,
 hex boolean
-> language js
-as '''
+> language js as '''
 try {
   var getColorFormat = (value) => {
     value = value.toLowerCase();

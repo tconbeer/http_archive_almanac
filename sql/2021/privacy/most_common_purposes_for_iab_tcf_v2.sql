@@ -4,10 +4,11 @@
 # https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#tcdata
 # https://stackoverflow.com/a/65054751/7391782
 # Warning: fails if there are colons in the keys/values, but these are not expected
-create temporary function extractkeyvaluepairs(
-    input string
-) returns array < struct < key string,
-value string > > as (
+create temporary function extractkeyvaluepairs(input string) returns array
+< struct
+< key string,
+value string
+> > as (
     (
         select
             array(
@@ -30,9 +31,8 @@ with
             ) as metrics
         from `httparchive.pages.2021_07_01_*`
         where
-            json_query(
-                json_value(payload, '$._privacy'), '$.iab_tcf_v2.data'
-            ) is not null
+            json_query(json_value(payload, '$._privacy'), '$.iab_tcf_v2.data')
+            is not null
     )
 
 select

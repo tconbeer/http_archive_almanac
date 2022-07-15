@@ -1,7 +1,8 @@
 # standardSQL
 # All CMS popularity per geo
-create temp function get_geo(country_code string, geo string) returns string language js
-as '''
+create temp function get_geo(
+    country_code string, geo string
+) returns string language js as '''
 var countries = {
   "af": {
     "name": "Afghanistan",
@@ -1238,7 +1239,8 @@ from
                 select distinct _table_suffix as client, url
                 from `httparchive.technologies.2021_07_01_*`
                 where category = 'CMS'
-            ) using(client, url)
+            ) using(client, url
+            )
         group by client, region
     )
 where pages > 1000

@@ -3,8 +3,7 @@
 create temporary function getinvalidtypes(almanac_string string)
 returns array < struct < type string,
 num_occurrences numeric
->>
-language js
+>> language js
 as '''
 try {
   // obtained from https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload#what_types_of_content_can_be_preloaded

@@ -46,9 +46,9 @@ select
 
     count(0) as total,
     round(
-        count(0) * 100 / sum(
-            count(distinct url)
-        ) over (partition by viewport_info.directive),
+        count(0)
+        * 100
+        / sum(count(distinct url)) over (partition by viewport_info.directive),
         2
     ) as perc_value_in_directive,
     round(count(0) * 100 / total_pages, 2) as perc_in_all_pages

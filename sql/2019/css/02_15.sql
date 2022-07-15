@@ -3,8 +3,7 @@
 create temporary function getsnappoints(css string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {

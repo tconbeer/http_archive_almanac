@@ -17,12 +17,13 @@ from
             count(0) as num_requests
         from `httparchive.almanac.requests`
         where
-            date = '2021-07-01' and pushed = '1' and (
-                lower(protocol) = 'http/2' or lower(
-                    protocol
-                ) like '%quic%' or lower(protocol) like 'h3%' or lower(
-                    protocol
-                ) = 'http/3'
+            date = '2021-07-01'
+            and pushed = '1'
+            and (
+                lower(protocol) = 'http/2'
+                or lower(protocol) like '%quic%'
+                or lower(protocol) like 'h3%'
+                or lower(protocol) = 'http/3'
             )
         group by client, page, type
     ),

@@ -20,11 +20,10 @@ select
     client,
     count(distinct if(declarations > 0, page, null)) as pages,
     count(distinct page) as total,
-    count(distinct if(declarations > 0, page, null)) / count(
-        distinct page
-    ) as pct_pages,
-    approx_quantiles(declarations, 1000 ignore nulls) [
-        offset (percentile * 10)
+    count(distinct if(declarations > 0, page, null))
+    / count(distinct page) as pct_pages,
+    approx_quantiles(
+        declarations, 1000 ignore nulls) [offset (percentile * 10)
     ] as declarations_per_page
 from
     (

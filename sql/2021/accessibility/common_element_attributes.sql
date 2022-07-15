@@ -3,8 +3,7 @@
 create temporary function getusedattributes(payload string)
 returns array
 < string
-> language js
-as '''
+> language js as '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.attributes_used_on_elements);

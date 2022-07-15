@@ -161,8 +161,8 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(color_stops, 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        color_stops, 1000 ignore nulls) [offset (percentile * 10)
     ] as color_stops_per_gradient
 from
     `httparchive.almanac.parsed_css`,

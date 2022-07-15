@@ -4,8 +4,7 @@ create temporary function getoutgoinglinkmetrics(payload string)
 returns struct < same_site int64,
 same_property int64,
 other_property int64
-> language js
-as '''
+> language js as '''
 var result = {same_site: 0,
               same_property: 0,
               other_property: 0};
@@ -37,14 +36,14 @@ select
     percentile,
     rank_grouping,
     count(distinct page) as pages,
-    approx_quantiles(outgoing_link_metrics.same_site, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        outgoing_link_metrics.same_site, 1000) [offset (percentile * 10)
     ] as outgoing_links_same_site,
-    approx_quantiles(outgoing_link_metrics.same_property, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        outgoing_link_metrics.same_property, 1000) [offset (percentile * 10)
     ] as outgoing_links_same_property,
-    approx_quantiles(outgoing_link_metrics.other_property, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        outgoing_link_metrics.other_property, 1000) [offset (percentile * 10)
     ] as outgoing_links_other_property
 from
     (

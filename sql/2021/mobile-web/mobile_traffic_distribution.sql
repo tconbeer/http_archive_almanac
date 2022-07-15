@@ -2,8 +2,8 @@
 # Distribution of traffic coming from mobile devices
 select
     percentile,
-    approx_quantiles(phonedensity, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        phonedensity, 1000) [offset (percentile * 10)
     ] as pct_traffic_from_mobile
 from
     `chrome-ux-report.materialized.device_summary`,

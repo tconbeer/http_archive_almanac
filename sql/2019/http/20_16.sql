@@ -2,8 +2,7 @@
 # 20.16 - Detailed alt-svc headers
 create temporary function getupgradeheader(payload string)
 returns string
-language js
-as """
+language js as """
   try {
     var $ = JSON.parse(payload);
     var headers = $.response.headers;

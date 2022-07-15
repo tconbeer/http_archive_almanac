@@ -1,8 +1,7 @@
 # standardSQL
 # Requests with a content age older than its TTL
 create temporary function totimestamp(date_string string)
-returns int64 language js
-as '''
+returns int64 language js as '''
   try {
     var timestamp = Math.round(new Date(date_string).getTime() / 1000);
     return isNaN(timestamp) || timestamp < 0 ? -1 : timestamp;

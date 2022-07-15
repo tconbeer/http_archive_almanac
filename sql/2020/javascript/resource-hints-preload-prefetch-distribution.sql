@@ -3,9 +3,7 @@ create temporary function getresourcehintattrs(payload string)
 returns array < struct < name string,
 attribute string,
 value string
->>
-language js
-as '''
+>> language js as '''
 var hints = new Set(['preload', 'prefetch']);
 var attributes = ['as'];
 try {
@@ -36,17 +34,21 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(prefetch_hint, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        prefetch_hint, 1000) [offset (percentile * 10)
     ] as prefetch_hints_per_page,
-    approx_quantiles(if(prefetch_hint = 0, null, prefetch_hint), 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        if(prefetch_hint = 0, null, prefetch_hint),
+        1000 ignore nulls
+    ) [offset (percentile * 10)
     ] as prefetch_hints_per_page_with_hints,
-    approx_quantiles(preload_hint, 1000) [
-        offset (percentile * 10)
+    approx_quantiles(
+        preload_hint, 1000) [offset (percentile * 10)
     ] as preload_hints_per_page,
-    approx_quantiles(if(preload_hint = 0, null, preload_hint), 1000 ignore nulls) [
-        offset (percentile * 10)
+    approx_quantiles(
+        if(preload_hint = 0, null, preload_hint),
+        1000 ignore nulls
+    ) [offset (percentile * 10)
     ] as preload_hints_per_page_with_hints
 from
     (

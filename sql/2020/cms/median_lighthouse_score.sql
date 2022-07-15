@@ -13,19 +13,25 @@ select
             json_extract_scalar(report, '$.categories.accessibility.score') as numeric
         ),
         1000
-    ) [offset (500)] as median_accessibility,
+    ) [offset (500)
+    ] as median_accessibility,
     approx_quantiles(
-        cast(json_extract_scalar(report, '$.categories.pwa.score') as numeric), 1000
-    ) [offset (500)] as median_pwa,
+        cast(json_extract_scalar(report, '$.categories.pwa.score') as numeric),
+        1000
+    ) [offset (500)
+    ] as median_pwa,
     approx_quantiles(
-        cast(json_extract_scalar(report, '$.categories.seo.score') as numeric), 1000
-    ) [offset (500)] as median_seo,
+        cast(json_extract_scalar(report, '$.categories.seo.score') as numeric),
+        1000
+    ) [offset (500)
+    ] as median_seo,
     approx_quantiles(
         cast(
             json_extract_scalar(report, '$.categories.best-practices.score') as numeric
         ),
         1000
-    ) [offset (500)] as median_best_practices
+    ) [offset (500)
+    ] as median_best_practices
 from `httparchive.lighthouse.2020_08_01_mobile`
 join `httparchive.technologies.2020_08_01_mobile` using(url)
 where category = 'CMS'

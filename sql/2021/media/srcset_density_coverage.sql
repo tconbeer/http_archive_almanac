@@ -8,9 +8,7 @@ srcsetcandidatedensities array < float64 >,
 numberofsrcsetcandidates int64,
 mindensity float64,
 maxdensity float64
->>
-language js
-as '''
+>> language js as '''
   const parsed = JSON.parse( responsiveImagesJsonString );
   if ( parsed && parsed.map ) {
     return parsed.map( d => {
@@ -85,15 +83,11 @@ select
     number_of_srcsets_covering_1x_to_2p5x,
     number_of_srcsets_covering_1x_to_3x,
     number_of_srcsets_covering_1x_to_1p5x
-    / number_of_imgs_with_srcset
-    as pct_of_srcsets_covering_1x_to_1p5x,
+    / number_of_imgs_with_srcset as pct_of_srcsets_covering_1x_to_1p5x,
     number_of_srcsets_covering_1x_to_2x
-    / number_of_imgs_with_srcset
-    as pct_of_srcsets_covering_1x_to_2x,
+    / number_of_imgs_with_srcset as pct_of_srcsets_covering_1x_to_2x,
     number_of_srcsets_covering_1x_to_2p5x
-    / number_of_imgs_with_srcset
-    as pct_of_srcsets_covering_1x_to_2p5x,
+    / number_of_imgs_with_srcset as pct_of_srcsets_covering_1x_to_2p5x,
     number_of_srcsets_covering_1x_to_3x
-    / number_of_imgs_with_srcset
-    as pct_of_srcsets_covering_1x_to_3x
+    / number_of_imgs_with_srcset as pct_of_srcsets_covering_1x_to_3x
 from counts

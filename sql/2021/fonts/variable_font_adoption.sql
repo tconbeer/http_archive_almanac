@@ -26,7 +26,9 @@ from
         select client, page, getname(json_extract(payload, '$._font_details')) as name
         from `httparchive.almanac.requests`
         where
-            date = '2021-07-01' and type = 'font' and regexp_contains(
+            date = '2021-07-01'
+            and type = 'font'
+            and regexp_contains(
                 json_extract(payload, '$._font_details.table_sizes'), '(?i)gvar'
             )
     )

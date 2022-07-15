@@ -105,9 +105,8 @@ from
             count(distinct page) as pages,
             count(0) as freq,
             sum(count(if(prop = 'total', null, 0))) over (partition by client) as total,
-            count(if(prop = 'total', null, 0)) / sum(
-                count(if(prop = 'total', null, 0))
-            ) over (partition by client) as pct
+            count(if(prop = 'total', null, 0))
+            / sum(count(if(prop = 'total', null, 0))) over (partition by client) as pct
         from `httparchive.almanac.parsed_css`, unnest(getprefixstats(css)) as prop
         where date = '2020-08-01'
         group by client, prop
