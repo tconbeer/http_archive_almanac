@@ -1,6 +1,7 @@
-CREATE TEMPORARY FUNCTION getSizesAccuracy(payload STRING)
-RETURNS ARRAY<STRUCT<sizesAbsoluteError INT64, sizesRelativeError FLOAT64>>
-LANGUAGE js AS '''
+create temporary function getsizesaccuracy(payload string)
+returns array < struct < sizesabsoluteerror int64,
+sizesrelativeerror float64
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);
@@ -13,24 +14,24 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(image.sizesAbsoluteError, 1000)[OFFSET(percentile * 10)] AS sizesAbsoluteError,
-  APPROX_QUANTILES(image.sizesRelativeError, 1000)[OFFSET(percentile * 10)] AS sizesRelativeError
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    image
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getSizesAccuracy(payload)) AS image),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    client,
+    approx_quantiles(
+        image.sizesabsoluteerror, 1000) [offset (percentile * 10)
+    ] as sizesabsoluteerror,
+    approx_quantiles(
+        image.sizesrelativeerror, 1000) [offset (percentile * 10)
+    ] as sizesrelativeerror
+from
+    (
+        select _table_suffix as client, image
+        from
+            `httparchive.pages.2021_07_01_*`, unnest(getsizesaccuracy(payload)) as image
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

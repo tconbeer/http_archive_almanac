@@ -1,21 +1,31 @@
-#standardSQL
+# standardSQL
 # 18_01: Distribution of page weight by resource type and client.
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  APPROX_QUANTILES(ROUND(bytesTotal / 1024, 2), 1000)[OFFSET(percentile * 10)] AS total_kbytes,
-  APPROX_QUANTILES(ROUND(bytesHtml / 1024, 2), 1000)[OFFSET(percentile * 10)] AS html_kbytes,
-  APPROX_QUANTILES(ROUND(bytesJS / 1024, 2), 1000)[OFFSET(percentile * 10)] AS js_kbytes,
-  APPROX_QUANTILES(ROUND(bytesCSS / 1024, 2), 1000)[OFFSET(percentile * 10)] AS css_kbytes,
-  APPROX_QUANTILES(ROUND(bytesImg / 1024, 2), 1000)[OFFSET(percentile * 10)] AS img_kbytes,
-  APPROX_QUANTILES(ROUND(bytesOther / 1024, 2), 1000)[OFFSET(percentile * 10)] AS other_kbytes,
-  APPROX_QUANTILES(ROUND(bytesHtmlDoc / 1024, 2), 1000)[OFFSET(percentile * 10)] AS html_doc_kbytes
-FROM
-  `httparchive.summary_pages.2019_07_01_*`,
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  client,
-  percentile
+select
+    percentile,
+    _table_suffix as client,
+    approx_quantiles(
+        round(bytestotal / 1024, 2), 1000) [offset (percentile * 10)
+    ] as total_kbytes,
+    approx_quantiles(
+        round(byteshtml / 1024, 2), 1000) [offset (percentile * 10)
+    ] as html_kbytes,
+    approx_quantiles(
+        round(bytesjs / 1024, 2), 1000) [offset (percentile * 10)
+    ] as js_kbytes,
+    approx_quantiles(
+        round(bytescss / 1024, 2), 1000) [offset (percentile * 10)
+    ] as css_kbytes,
+    approx_quantiles(
+        round(bytesimg / 1024, 2), 1000) [offset (percentile * 10)
+    ] as img_kbytes,
+    approx_quantiles(
+        round(bytesother / 1024, 2), 1000) [offset (percentile * 10)
+    ] as other_kbytes,
+    approx_quantiles(
+        round(byteshtmldoc / 1024, 2), 1000) [offset (percentile * 10)
+    ] as html_doc_kbytes
+from
+    `httparchive.summary_pages.2019_07_01_*`,
+    unnest( [10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by client, percentile

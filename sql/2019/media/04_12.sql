@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 04_12: Use of "Vary: User-Agent" or "Vary: Accept" on image responses
-CREATE TEMPORARY FUNCTION getVary(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getvary(payload string)
+returns array
+< string
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var header = $._headers.response.find(h => h.toLowerCase().startsWith('vary'));
@@ -13,30 +15,29 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(varies > 0) AS pages,
-  total,
-  ROUND(COUNTIF(varies > 0) * 100 / total, 2) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(REGEXP_CONTAINS(vary, '(?i)User-Agent|Accept')) AS varies
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(getVary(payload)) AS vary
-  WHERE
-    date = '2019-07-01' AND
-    type = 'image'
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (client)
-GROUP BY
-  client,
-  total
+    countif(varies > 0) as pages,
+    total,
+    round(countif(varies > 0) * 100 / total, 2) as pct
+from
+    (
+        select
+            client,
+            page,
+            countif(regexp_contains(vary, '(?i)User-Agent|Accept')) as varies
+        from `httparchive.almanac.requests`, unnest(getvary(payload)) as vary
+        where date = '2019-07-01' and type = 'image'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    )
+    using(client)
+group by client, total

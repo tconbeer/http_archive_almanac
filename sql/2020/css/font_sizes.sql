@@ -1,9 +1,7 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getFontSizes(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getfontsizes(css string)
+returns array < string > language js
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   var ast = JSON.parse(css);
   var fontSizes = [];
@@ -16,22 +14,18 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(px, 1000)[OFFSET(percentile * 10)] AS font_size_px,
-  APPROX_QUANTILES(LENGTH(px), 1000)[OFFSET(percentile * 10)] AS font_size_digits
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontSizes(css)) AS px,
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-WHERE
-  date = '2020-08-01'
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    client,
+    approx_quantiles(px, 1000) [offset (percentile * 10)] as font_size_px,
+    approx_quantiles(length(px), 1000) [offset (percentile * 10)] as font_size_digits
+from
+    `httparchive.almanac.parsed_css`,
+    unnest(getfontsizes(css)) as px,
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+where date = '2020-08-01'
+group by percentile, client
+order by percentile, client

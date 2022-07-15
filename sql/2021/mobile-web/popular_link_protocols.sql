@@ -1,37 +1,33 @@
-#standardSQL
+# standardSQL
 # % of pages using each link protocol
-CREATE TEMPORARY FUNCTION getUsedProtocols(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getusedprotocols(payload string)
+returns array
+< string
+> language js as '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.link_protocols_used);
 } catch (e) {
   return [];
 }
-''';
-SELECT
-  _TABLE_SUFFIX AS client,
-  total_pages,
-  protocol,
-  COUNT(0) AS total_pages_using,
-  COUNT(0) / total_pages AS pct_pages_using
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getUsedProtocols(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS protocol
-LEFT JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY _TABLE_SUFFIX
-)
-USING (_TABLE_SUFFIX)
-GROUP BY
-  client,
-  protocol,
-  total_pages
-HAVING
-  total_pages_using >= 100
-ORDER BY
-  pct_pages_using DESC
+'''
+;
+select
+    _table_suffix as client,
+    total_pages,
+    protocol,
+    count(0) as total_pages_using,
+    count(0) / total_pages as pct_pages_using
+from
+    `httparchive.pages.2021_07_01_*`,
+    unnest(getusedprotocols(json_extract_scalar(payload, '$._almanac'))) as protocol
+left join
+    (
+        select _table_suffix, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
+    using(_table_suffix)
+group by client, protocol, total_pages
+having total_pages_using >= 100
+order by pct_pages_using desc

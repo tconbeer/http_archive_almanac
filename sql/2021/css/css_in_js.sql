@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # CSS in JS. Show number of sites that using each framework or not using any.
-CREATE TEMPORARY FUNCTION getCssInJS(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getcssinjs(payload string)
+returns array
+< string
+> language js as '''
   try {
     var $ = JSON.parse(payload);
     var css = JSON.parse($._css);
@@ -30,34 +32,26 @@ RETURNS ARRAY<STRING> LANGUAGE js AS '''
   } catch (e) {
     return [];
   }
-''';
+'''
+;
 
-SELECT
-  client,
-  cssInJs,
-  COUNT(DISTINCT url) AS pages,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    cssInJs
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getCssInJS(payload)) AS cssInJs)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING (client)
-GROUP BY
-  client,
-  cssInJs,
-  total
-ORDER BY
-  pct DESC
+select
+    client,
+    cssinjs,
+    count(distinct url) as pages,
+    total,
+    count(distinct url) / total as pct
+from
+    (
+        select _table_suffix as client, url, cssinjs
+        from `httparchive.pages.2021_07_01_*`, unnest(getcssinjs(payload)) as cssinjs
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    )
+    using(client)
+group by client, cssinjs, total
+order by pct desc

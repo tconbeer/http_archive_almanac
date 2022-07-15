@@ -1,12 +1,25 @@
-#standardSQL
-
+# standardSQL
 # color-contrast
 # score is not binary
-
-SELECT
-  COUNT(url) AS total,
-  COUNTIF(CAST(JSON_EXTRACT_SCALAR(report, '$.audits.color-contrast.score') AS NUMERIC) = 1) AS score_sum,
-  AVG(CAST(JSON_EXTRACT_SCALAR(report, '$.audits.color-contrast.score') AS NUMERIC)) AS score_average,
-  ROUND(COUNTIF(CAST(JSON_EXTRACT_SCALAR(report, '$.audits.color-contrast.score') AS NUMERIC) = 1) * 100 / COUNT(url), 2) AS score_percentage
-FROM
-  `httparchive.lighthouse.2019_07_01_mobile`
+select
+    count(url) as total,
+    countif(
+        cast(json_extract_scalar(report, '$.audits.color-contrast.score') as numeric)
+        = 1
+    ) as score_sum,
+    avg(
+        cast(json_extract_scalar(report, '$.audits.color-contrast.score') as numeric)
+    ) as score_average,
+    round(
+        countif(
+            cast(
+                json_extract_scalar(report, '$.audits.color-contrast.score') as numeric
+            )
+            = 1
+        )
+        * 100 / count(
+            url
+        ),
+        2
+    ) as score_percentage
+from `httparchive.lighthouse.2019_07_01_mobile`

@@ -1,18 +1,23 @@
-#standardSQL
+# standardSQL
 # percentage/count of pages that contain common elements and roles
-
-CREATE TEMPORARY FUNCTION getUsedRoles(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getusedroles(payload string)
+returns array
+< string
+> language js as '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.nodes_using_role.usage_and_count);
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION get_element_types(element_count_string STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function get_element_types(element_count_string string)
+returns array
+< string
+> language js
+as '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 
@@ -25,90 +30,68 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
-WITH mappings AS (
-  SELECT 1 AS mapping_id, 'main' AS element_type, 'main' AS role_type
-  UNION ALL
-  SELECT 2 AS mapping_id, 'header' AS element_type, 'banner' AS role_type
-  UNION ALL
-  SELECT 3 AS mapping_id, 'nav' AS element_type, 'navigation' AS role_type
-  UNION ALL
-  SELECT 4 AS mapping_id, 'footer' AS element_type, 'contentinfo' AS role_type
-),
+with
+    mappings as (
+        select 1 as mapping_id, 'main' as element_type, 'main' as role_type
+        union all
+        select 2 as mapping_id, 'header' as element_type, 'banner' as role_type
+        union all
+        select 3 as mapping_id, 'nav' as element_type, 'navigation' as role_type
+        union all
+        select 4 as mapping_id, 'footer' as element_type, 'contentinfo' as role_type
+    ),
 
-elements AS (
-  SELECT
-    _TABLE_SUFFIX,
-    url,
-    element_type
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(get_element_types(JSON_EXTRACT_SCALAR(payload, '$._element_count'))) AS element_type
-  JOIN
-    mappings
-  USING (element_type)
-),
+    elements as (
+        select _table_suffix, url, element_type
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                get_element_types(json_extract_scalar(payload, '$._element_count'))
+            ) as element_type
+        join mappings using(element_type)
+    ),
 
-roles AS (
-  SELECT
-    _TABLE_SUFFIX,
-    url,
-    role_type
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getUsedRoles(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS role_type
-  JOIN
-    mappings
-  USING (role_type)
-),
+    roles as (
+        select _table_suffix, url, role_type
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                getusedroles(json_extract_scalar(payload, '$._almanac'))
+            ) as role_type
+        join mappings using(role_type)
+    ),
 
-base AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
+    base as (
+        select
+            _table_suffix as client,
+            url,
+            mapping_id,
+            element_type,
+            role_type,
+            countif(e.element_type is not null) as element_usage,
+            countif(r.role_type is not null) as role_usage
+        from `httparchive.pages.2021_07_01_*`
+        inner join mappings on (true)
+        left outer join elements e using(_table_suffix, url, element_type)
+        left outer join roles r using(_table_suffix, url, role_type)
+        group by client, url, mapping_id, element_type, role_type
+    )
+
+select
+    client,
     mapping_id,
     element_type,
     role_type,
-    COUNTIF(e.element_type IS NOT NULL) AS element_usage,
-    COUNTIF(r.role_type IS NOT NULL) AS role_usage
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  INNER JOIN mappings ON (TRUE)
-  LEFT OUTER JOIN
-    elements e
-  USING (_TABLE_SUFFIX, url, element_type)
-  LEFT OUTER JOIN
-    roles r
-  USING (_TABLE_SUFFIX, url, role_type)
-  GROUP BY
-    client,
-    url,
-    mapping_id,
-    element_type,
-    role_type
-)
-
-SELECT
-  client,
-  mapping_id,
-  element_type,
-  role_type,
-  COUNT(DISTINCT url) AS total_pages,
-  COUNTIF(element_usage > 0) AS element_usage,
-  COUNTIF(role_usage > 0) AS role_usage,
-  COUNTIF(element_usage > 0 OR role_usage > 0) AS both_usage,
-  COUNTIF(element_usage > 0) / COUNT(DISTINCT url) AS element_pct,
-  COUNTIF(role_usage > 0) / COUNT(DISTINCT url) AS role_pct,
-  COUNTIF(element_usage > 0 OR role_usage > 0) / COUNT(DISTINCT url) AS both_pct
-FROM
-  base
-GROUP BY
-  client,
-  mapping_id,
-  element_type,
-  role_type
-ORDER BY
-  client,
-  mapping_id,
-  element_type
+    count(distinct url) as total_pages,
+    countif(element_usage > 0) as element_usage,
+    countif(role_usage > 0) as role_usage,
+    countif(element_usage > 0 or role_usage > 0) as both_usage,
+    countif(element_usage > 0) / count(distinct url) as element_pct,
+    countif(role_usage > 0) / count(distinct url) as role_pct,
+    countif(element_usage > 0 or role_usage > 0) / count(distinct url) as both_pct
+from base
+group by client, mapping_id, element_type, role_type
+order by client, mapping_id, element_type

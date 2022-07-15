@@ -1,32 +1,26 @@
-#standardSQL
+# standardSQL
 # 13_11b: List of AD Platforms used by vendor usage for eComm - solely from Wapp
-SELECT
-  _TABLE_SUFFIX AS client,
-  vendor,
-  app,
-  COUNTIF(category = 'Advertising') AS AdPlatfromFreq,
-  SUM(COUNT(0)) OVER (PARTITION BY vendor) AS total,
-  ROUND(COUNTIF(category = 'Advertising') * 100 / SUM(COUNT(0)) OVER (PARTITION BY vendor), 2) AS pct
-FROM
-  `httparchive.technologies.2020_08_01_*`
-JOIN
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url,
-      app AS vendor
-    FROM
-      `httparchive.technologies.2020_08_01_*`
-    WHERE
-      category = 'Ecommerce'
-  )
-USING
-  (url)
-GROUP BY
-  client, vendor, app
-HAVING
-  AdPlatfromFreq > 0
-ORDER BY
-  total DESC,
-  Vendor,
-  AdPlatfromFreq DESC
+select
+    _table_suffix as client,
+    vendor,
+    app,
+    countif(category = 'Advertising') as adplatfromfreq,
+    sum(count(0)) over (partition by vendor) as total,
+    round(
+        countif(category = 'Advertising')
+        * 100
+        / sum(count(0)) over (partition by vendor),
+        2
+    ) as pct
+from `httparchive.technologies.2020_08_01_*`
+join
+    (
+        select _table_suffix as client, url, app as vendor
+        from `httparchive.technologies.2020_08_01_*`
+        where category = 'Ecommerce'
+    )
+    using
+    (url)
+group by client, vendor, app
+having adplatfromfreq > 0
+order by total desc, vendor, adplatfromfreq desc

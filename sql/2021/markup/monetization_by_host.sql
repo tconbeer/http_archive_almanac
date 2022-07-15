@@ -1,8 +1,8 @@
-#standardSQL
-
+# standardSQL
 # returns the value of the monetization meta node
-CREATE TEMPORARY FUNCTION get_almanac_meta_monetization(almanac_string STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function get_almanac_meta_monetization(almanac_string string)
+returns string language js
+as '''
 try {
     const almanac = JSON.parse(almanac_string);
     if (Array.isArray(almanac) || typeof almanac != 'object') return '';
@@ -20,26 +20,24 @@ try {
 } catch (e) {
   return "";
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  NET.HOST(monetization) AS host,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_ratio
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    get_almanac_meta_monetization(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS monetization
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-WHERE
-  monetization != ''
-GROUP BY
-  client,
-  host
-ORDER BY
-  client,
-  freq DESC
+select
+    client,
+    net.host(monetization) as host,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct_ratio
+from
+    (
+        select
+            _table_suffix as client,
+            get_almanac_meta_monetization(
+                json_extract_scalar(payload, '$._almanac')
+            ) as monetization
+        from `httparchive.pages.2021_07_01_*`
+    )
+where monetization != ''
+group by client, host
+order by client, freq desc

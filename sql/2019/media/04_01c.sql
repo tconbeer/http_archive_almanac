@@ -1,38 +1,87 @@
-#standardSQL
+# standardSQL
 # 04_01: Lighthouse media scores for unoptimized images
-
-SELECT
-  COUNT(0) AS PageCount,
-  APPROX_QUANTILES(unoptimizedImagesCount, 1000)[OFFSET(100)] AS count_p10,
-  APPROX_QUANTILES(unoptimizedImagesCount, 1000)[OFFSET(250)] AS count_p25,
-  APPROX_QUANTILES(unoptimizedImagesCount, 1000)[OFFSET(500)] AS count_p50,
-  APPROX_QUANTILES(unoptimizedImagesCount, 1000)[OFFSET(750)] AS count_p75,
-  APPROX_QUANTILES(unoptimizedImagesCount, 1000)[OFFSET(900)] AS count_p90,
-  APPROX_QUANTILES(unoptimizedImagesBytes, 1000)[OFFSET(100)] AS bytes_p10,
-  APPROX_QUANTILES(unoptimizedImagesBytes, 1000)[OFFSET(250)] AS bytes_p25,
-  APPROX_QUANTILES(unoptimizedImagesBytes, 1000)[OFFSET(500)] AS bytes_p50,
-  APPROX_QUANTILES(unoptimizedImagesBytes, 1000)[OFFSET(750)] AS bytes_p75,
-  APPROX_QUANTILES(unoptimizedImagesBytes, 1000)[OFFSET(900)] AS bytes_p90,
-  APPROX_QUANTILES(ROUND(100 * unoptimizedImagesBytes / (totalImageBytes + 0.1), 2), 1000)[OFFSET(100)] AS pctImageBytes_p10,
-  APPROX_QUANTILES(ROUND(100 * unoptimizedImagesBytes / (totalImageBytes + 0.1), 2), 1000)[OFFSET(250)] AS pctImageBytes_p25,
-  APPROX_QUANTILES(ROUND(100 * unoptimizedImagesBytes / (totalImageBytes + 0.1), 2), 1000)[OFFSET(500)] AS pctImageBytes_p50,
-  APPROX_QUANTILES(ROUND(100 * unoptimizedImagesBytes / (totalImageBytes + 0.1), 2), 1000)[OFFSET(750)] AS pctImageBytes_p75,
-  APPROX_QUANTILES(ROUND(100 * unoptimizedImagesBytes / (totalImageBytes + 0.1), 2), 1000)[OFFSET(900)] AS pctImageBytes_p90,
-  APPROX_QUANTILES(unoptimizedImagesSavingsMs, 1000)[OFFSET(100)] AS ms_p10,
-  APPROX_QUANTILES(unoptimizedImagesSavingsMs, 1000)[OFFSET(250)] AS ms_p25,
-  APPROX_QUANTILES(unoptimizedImagesSavingsMs, 1000)[OFFSET(500)] AS ms_p50,
-  APPROX_QUANTILES(unoptimizedImagesSavingsMs, 1000)[OFFSET(750)] AS ms_p75,
-  APPROX_QUANTILES(unoptimizedImagesSavingsMs, 1000)[OFFSET(900)] AS ms_p90
-FROM
-  (
-    SELECT
-      url,
-      CAST(JSON_EXTRACT_SCALAR(report, '$.audits.resource-summary.details.items[0].size') AS INT64) AS totalBytes,
-      CAST(JSON_EXTRACT_SCALAR(report, '$.audits.resource-summary.details.items[1].size') AS INT64) AS totalImageBytes,
-      CAST(JSON_EXTRACT_SCALAR(report, '$.audits.uses-optimized-images.details.overallSavingsMs') AS INT64) AS unoptimizedImagesSavingsMs,
-      CAST(JSON_EXTRACT_SCALAR(report, '$.audits.uses-optimized-images.details.overallSavingsBytes') AS INT64) AS unoptimizedImagesBytes,
-      IF(REGEX_CONTAINS(JSON_EXTRACT(report, '$.audits.uses-optimized-images.details.items'), ','),
-        ARRAY_LENGTH(split(JSON_EXTRACT(report, '$.audits.uses-optimized-images.details.items'), ',')), 0) AS unoptimizedImagesCount
-    FROM
-      `httparchive.lighthouse.2019_07_01_mobile`
-  )
+select
+    count(0) as pagecount,
+    approx_quantiles(unoptimizedimagescount, 1000) [offset (100)] as count_p10,
+    approx_quantiles(unoptimizedimagescount, 1000) [offset (250)] as count_p25,
+    approx_quantiles(unoptimizedimagescount, 1000) [offset (500)] as count_p50,
+    approx_quantiles(unoptimizedimagescount, 1000) [offset (750)] as count_p75,
+    approx_quantiles(unoptimizedimagescount, 1000) [offset (900)] as count_p90,
+    approx_quantiles(unoptimizedimagesbytes, 1000) [offset (100)] as bytes_p10,
+    approx_quantiles(unoptimizedimagesbytes, 1000) [offset (250)] as bytes_p25,
+    approx_quantiles(unoptimizedimagesbytes, 1000) [offset (500)] as bytes_p50,
+    approx_quantiles(unoptimizedimagesbytes, 1000) [offset (750)] as bytes_p75,
+    approx_quantiles(unoptimizedimagesbytes, 1000) [offset (900)] as bytes_p90,
+    approx_quantiles(
+        round(100 * unoptimizedimagesbytes / (totalimagebytes + 0.1), 2),
+        1000
+    ) [offset (100)
+    ] as pctimagebytes_p10,
+    approx_quantiles(
+        round(100 * unoptimizedimagesbytes / (totalimagebytes + 0.1), 2),
+        1000
+    ) [offset (250)
+    ] as pctimagebytes_p25,
+    approx_quantiles(
+        round(100 * unoptimizedimagesbytes / (totalimagebytes + 0.1), 2),
+        1000
+    ) [offset (500)
+    ] as pctimagebytes_p50,
+    approx_quantiles(
+        round(100 * unoptimizedimagesbytes / (totalimagebytes + 0.1), 2),
+        1000
+    ) [offset (750)
+    ] as pctimagebytes_p75,
+    approx_quantiles(
+        round(100 * unoptimizedimagesbytes / (totalimagebytes + 0.1), 2),
+        1000
+    ) [offset (900)
+    ] as pctimagebytes_p90,
+    approx_quantiles(unoptimizedimagessavingsms, 1000) [offset (100)] as ms_p10,
+    approx_quantiles(unoptimizedimagessavingsms, 1000) [offset (250)] as ms_p25,
+    approx_quantiles(unoptimizedimagessavingsms, 1000) [offset (500)] as ms_p50,
+    approx_quantiles(unoptimizedimagessavingsms, 1000) [offset (750)] as ms_p75,
+    approx_quantiles(unoptimizedimagessavingsms, 1000) [offset (900)] as ms_p90
+from
+    (
+        select
+            url,
+            cast(
+                json_extract_scalar(
+                    report, '$.audits.resource-summary.details.items[0].size'
+                ) as int64
+            ) as totalbytes,
+            cast(
+                json_extract_scalar(
+                    report, '$.audits.resource-summary.details.items[1].size'
+                ) as int64
+            ) as totalimagebytes,
+            cast(
+                json_extract_scalar(
+                    report, '$.audits.uses-optimized-images.details.overallSavingsMs'
+                ) as int64
+            ) as unoptimizedimagessavingsms,
+            cast(
+                json_extract_scalar(
+                    report, '$.audits.uses-optimized-images.details.overallSavingsBytes'
+                ) as int64
+            ) as unoptimizedimagesbytes,
+            if(
+                regex_contains(
+                    json_extract(
+                        report, '$.audits.uses-optimized-images.details.items'
+                    ),
+                    ','
+                ),
+                array_length(
+                    split(
+                        json_extract(
+                            report, '$.audits.uses-optimized-images.details.items'
+                        ),
+                        ','
+                    )
+                ),
+                0
+            ) as unoptimizedimagescount
+        from `httparchive.lighthouse.2019_07_01_mobile`
+    )

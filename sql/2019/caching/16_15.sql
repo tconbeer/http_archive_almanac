@@ -1,14 +1,24 @@
-#standardSQL
+# standardSQL
 # 16_15: Use of AppCache
-SELECT
-  COUNT(0) AS total_sites,
-  COUNTIF(appcache_score IS NOT NULL) AS total_applicable,
-  COUNTIF(CAST(appcache_score AS NUMERIC) = 0) AS total_using_appcache,
-  ROUND(COUNTIF(CAST(appcache_score AS NUMERIC) = 0) * 100 / COUNTIF(appcache_score IS NOT NULL), 2) AS perc_in_applicable,
-  ROUND(COUNTIF(CAST(appcache_score AS NUMERIC) = 0) * 100 / COUNT(0), 2) AS perc_in_all_sites
-FROM (
-  SELECT
-    JSON_EXTRACT_SCALAR(report, '$.audits.appcache-manifest.score') AS appcache_score
-  FROM
-    `httparchive.lighthouse.2019_07_01_mobile`
-)
+select
+    count(0) as total_sites,
+    countif(appcache_score is not null) as total_applicable,
+    countif(cast(appcache_score as numeric) = 0) as total_using_appcache,
+    round(
+        countif(cast(appcache_score as numeric) = 0)
+        * 100 / countif(
+            appcache_score is not null
+        ),
+        2
+    ) as perc_in_applicable,
+    round(
+        countif(cast(appcache_score as numeric) = 0) * 100 / count(0), 2
+    ) as perc_in_all_sites
+from
+    (
+        select
+            json_extract_scalar(
+                report, '$.audits.appcache-manifest.score'
+            ) as appcache_score
+        from `httparchive.lighthouse.2019_07_01_mobile`
+    )

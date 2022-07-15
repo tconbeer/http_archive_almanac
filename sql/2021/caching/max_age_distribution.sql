@@ -1,22 +1,19 @@
-#standardSQL
+# standardSQL
 # Distribution of max-age values
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  APPROX_QUANTILES(CAST(max_age AS NUMERIC), 1000)[OFFSET(percentile * 10)] AS max_age
-FROM (
-  SELECT
-    _TABLE_SUFFIX,
-    REGEXP_EXTRACT(resp_cache_control, r'(?i)max-age\s*=\s*(\d+)') AS max_age
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-  ),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-WHERE
-  max_age IS NOT NULL
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    _table_suffix as client,
+    approx_quantiles(
+        cast(max_age as numeric), 1000) [offset (percentile * 10)
+    ] as max_age
+from
+    (
+        select
+            _table_suffix,
+            regexp_extract(resp_cache_control, r'(?i)max-age\s*=\s*(\d+)') as max_age
+        from `httparchive.summary_requests.2021_07_01_*`
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+where max_age is not null
+group by percentile, client
+order by percentile, client

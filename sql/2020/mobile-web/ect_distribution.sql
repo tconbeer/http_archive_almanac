@@ -1,21 +1,46 @@
-#standardSQL
+# standardSQL
 # ECT distribution
-SELECT
-  device,
-  percentile,
-  APPROX_QUANTILES(_4GDensity / (_4GDensity + _3GDensity + _2GDensity + slow2GDensity + offlineDensity), 1000)[OFFSET(percentile * 10)] AS _4GDensity,
-  APPROX_QUANTILES(_3GDensity / (_4GDensity + _3GDensity + _2GDensity + slow2GDensity + offlineDensity), 1000)[OFFSET(percentile * 10)] AS _3GDensity,
-  APPROX_QUANTILES(_2GDensity / (_4GDensity + _3GDensity + _2GDensity + slow2GDensity + offlineDensity), 1000)[OFFSET(percentile * 10)] AS _2GDensity,
-  APPROX_QUANTILES(slow2GDensity / (_4GDensity + _3GDensity + _2GDensity + slow2GDensity + offlineDensity), 1000)[OFFSET(percentile * 10)] AS slow2GDensity,
-  APPROX_QUANTILES(offlineDensity / (_4GDensity + _3GDensity + _2GDensity + slow2GDensity + offlineDensity), 1000)[OFFSET(percentile * 10)] AS offlineDensity
-FROM
-  `chrome-ux-report.materialized.device_summary`,
-  UNNEST(GENERATE_ARRAY(1, 100)) AS percentile
-WHERE
-  date = '2020-08-01'
-GROUP BY
-  device,
-  percentile
-ORDER BY
-  device,
-  percentile
+select
+    device,
+    percentile,
+    approx_quantiles(
+        _4gdensity / (
+            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
+        ),
+        1000
+    ) [offset (percentile * 10)
+    ] as _4gdensity,
+    approx_quantiles(
+        _3gdensity / (
+            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
+        ),
+        1000
+    ) [offset (percentile * 10)
+    ] as _3gdensity,
+    approx_quantiles(
+        _2gdensity / (
+            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
+        ),
+        1000
+    ) [offset (percentile * 10)
+    ] as _2gdensity,
+    approx_quantiles(
+        slow2gdensity / (
+            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
+        ),
+        1000
+    ) [offset (percentile * 10)
+    ] as slow2gdensity,
+    approx_quantiles(
+        offlinedensity / (
+            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
+        ),
+        1000
+    ) [offset (percentile * 10)
+    ] as offlinedensity
+from
+    `chrome-ux-report.materialized.device_summary`,
+    unnest(generate_array(1, 100)) as percentile
+where date = '2020-08-01'
+group by device, percentile
+order by device, percentile

@@ -1,28 +1,21 @@
-#standardSQL
+# standardSQL
 # A11Y technology usage
-SELECT
-  client,
-  total_sites,
-  sites_with_a11y_tech,
-  sites_with_a11y_tech / total_sites AS perc_sites_with_a11y_tech
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(DISTINCT url) AS sites_with_a11y_tech
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'Accessibility'
-  GROUP BY
-    client
-)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_sites
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client
-)
-USING (client)
+select
+    client,
+    total_sites,
+    sites_with_a11y_tech,
+    sites_with_a11y_tech / total_sites as perc_sites_with_a11y_tech
+from
+    (
+        select _table_suffix as client, count(distinct url) as sites_with_a11y_tech
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'Accessibility'
+        group by client
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total_sites
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    )
+    using(client)

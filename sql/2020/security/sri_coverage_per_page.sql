@@ -1,26 +1,38 @@
-#standardSQL
-# Subresource integrity: percentage of scripts on a page that have the integrity attribute
-CREATE TEMP FUNCTION getNumScriptElements(sris ARRAY<STRING>) AS (
-  (SELECT COUNT(0) FROM UNNEST(sris) AS sri WHERE JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'script')
-);
+# standardSQL
+# Subresource integrity: percentage of scripts on a page that have the integrity
+# attribute
+create temp function getnumscriptelements(sris array < string >) as (
+    (
+        select count(0)
+        from unnest(sris) as sri
+        where json_extract_scalar(sri, '$.tagname') = 'script'
+    )
+)
+;
 
-SELECT
-  client,
-  percentile,
-  APPROX_QUANTILES(getNumScriptElements(sris) / num_scripts, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS integrity_pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.sri-integrity') AS sris,
-    SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._element_count'), '$.script') AS INT64) AS num_scripts
-  FROM
-    `httparchive.pages.2020_08_01_*`),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-WHERE
-  getNumScriptElements(sris) > 0
-GROUP BY
-  client,
-  percentile
-ORDER BY
-  client,
-  percentile
+select
+    client,
+    percentile,
+    approx_quantiles(
+        getnumscriptelements(sris) / num_scripts,
+        1000 ignore nulls
+    ) [offset (percentile * 10)
+    ] as integrity_pct
+from
+    (
+        select
+            _table_suffix as client,
+            json_extract_array(
+                json_extract_scalar(payload, '$._security'), '$.sri-integrity'
+            ) as sris,
+            safe_cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._element_count'), '$.script'
+                ) as int64
+            ) as num_scripts
+        from `httparchive.pages.2020_08_01_*`
+    ),
+    unnest( [10, 25, 50, 75, 90]) as percentile
+where getnumscriptelements(sris) > 0
+group by client, percentile
+order by client, percentile

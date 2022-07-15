@@ -1,55 +1,49 @@
 # standardSQL
 # Count Facebook types
-CREATE TEMP FUNCTION getFacebookTypes(rendered STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS """
+create temp function getfacebooktypes(rendered string)
+returns array
+< string
+> language js as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.facebook.map(facebook => facebook.property.toLowerCase());
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
-WITH
-rendered_data AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    getFacebookTypes(JSON_EXTRACT(JSON_VALUE(JSON_EXTRACT(payload, '$._structured-data')), '$.structured_data.rendered')) AS facebook_type
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+with
+    rendered_data as (
+        select
+            _table_suffix as client,
+            url,
+            getfacebooktypes(
+                json_extract(
+                    json_value(json_extract(payload, '$._structured-data')),
+                    '$.structured_data.rendered'
+                )
+            ) as facebook_type
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-page_totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-)
+    page_totals as (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
 
-SELECT
-  client,
-  facebook_type,
-  COUNT(facebook_type) AS freq_facebook,
-  SUM(COUNT(facebook_type)) OVER (PARTITION BY client) AS total_facebook,
-  COUNT(facebook_type) / SUM(COUNT(facebook_type)) OVER (PARTITION BY client) AS pct_facebook,
-  COUNT(DISTINCT url) AS freq_pages,
-  total_pages,
-  COUNT(DISTINCT url) / total_pages AS pct_pages
-FROM
-  rendered_data,
-  UNNEST(facebook_type) AS facebook_type
-JOIN
-  page_totals
-USING (client)
-GROUP BY
-  client,
-  facebook_type,
-  total_pages
-ORDER BY
-  freq_facebook DESC,
-  client
+select
+    client,
+    facebook_type,
+    count(facebook_type) as freq_facebook,
+    sum(count(facebook_type)) over (partition by client) as total_facebook,
+    count(facebook_type)
+    / sum(count(facebook_type)) over (partition by client) as pct_facebook,
+    count(distinct url) as freq_pages,
+    total_pages,
+    count(distinct url) / total_pages as pct_pages
+from rendered_data, unnest(facebook_type) as facebook_type
+join page_totals using(client)
+group by client, facebook_type, total_pages
+order by freq_facebook desc, client

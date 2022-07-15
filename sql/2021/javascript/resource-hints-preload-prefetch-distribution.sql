@@ -1,7 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getResourceHintAttrs(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
-LANGUAGE js AS '''
+# standardSQL
+create temporary function getresourcehintattrs(payload string)
+returns array < struct < name string,
+attribute string,
+value string
+>> language js as '''
 var hints = new Set(['preload', 'prefetch']);
 var attributes = ['as'];
 try {
@@ -26,32 +28,39 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(prefetch_hint, 1000)[OFFSET(percentile * 10)] AS prefetch_hints_per_page,
-  APPROX_QUANTILES(IF(prefetch_hint = 0, NULL, prefetch_hint), 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS prefetch_hints_per_page_with_hints,
-  APPROX_QUANTILES(preload_hint, 1000)[OFFSET(percentile * 10)] AS preload_hints_per_page,
-  APPROX_QUANTILES(IF(preload_hint = 0, NULL, preload_hint), 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS preload_hints_per_page_with_hints
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    COUNTIF(hint.name = 'prefetch' AND hint.value = 'script') AS prefetch_hint,
-    COUNTIF(hint.name = 'preload' AND hint.value = 'script') AS preload_hint
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  LEFT JOIN
-    UNNEST(getResourceHintAttrs(payload)) AS hint
-  GROUP BY
+select
+    percentile,
     client,
-    page),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(
+        prefetch_hint, 1000) [offset (percentile * 10)
+    ] as prefetch_hints_per_page,
+    approx_quantiles(
+        if(prefetch_hint = 0, null, prefetch_hint),
+        1000 ignore nulls
+    ) [offset (percentile * 10)
+    ] as prefetch_hints_per_page_with_hints,
+    approx_quantiles(
+        preload_hint, 1000) [offset (percentile * 10)
+    ] as preload_hints_per_page,
+    approx_quantiles(
+        if(preload_hint = 0, null, preload_hint),
+        1000 ignore nulls
+    ) [offset (percentile * 10)
+    ] as preload_hints_per_page_with_hints
+from
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            countif(hint.name = 'prefetch' and hint.value = 'script') as prefetch_hint,
+            countif(hint.name = 'preload' and hint.value = 'script') as preload_hint
+        from `httparchive.pages.2021_07_01_*`
+        left join unnest(getresourcehintattrs(payload)) as hint
+        group by client, page
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

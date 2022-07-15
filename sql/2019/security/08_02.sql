@@ -1,17 +1,18 @@
-#standardSQL
+# standardSQL
 # 08_02: Distribution of issuers
-SELECT
-  client,
-  issuer,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  (SELECT _TABLE_SUFFIX AS client, JSON_EXTRACT_SCALAR(payload, '$._securityDetails.issuer') AS issuer FROM `httparchive.requests.2019_07_01_*`)
-WHERE
-  issuer IS NOT NULL
-GROUP BY
-  client,
-  issuer
-ORDER BY
-  freq / total DESC
+select
+    client,
+    issuer,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            json_extract_scalar(payload, '$._securityDetails.issuer') as issuer
+        from `httparchive.requests.2019_07_01_*`
+    )
+where issuer is not null
+group by client, issuer
+order by freq / total desc

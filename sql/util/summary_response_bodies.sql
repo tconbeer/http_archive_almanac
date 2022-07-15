@@ -1,28 +1,70 @@
-SELECT --noqa: disable=L044
-  date,
-  client,
-  page,
-  url,
-  body,
-  truncated,
-  NULL AS pageid,
-  requestId AS requestid,
-  startedDateTime, time, method, urlShort, redirectUrl, firstReq, firstHtml, reqHttpVersion, reqHeadersSize, reqBodySize, reqCookieLen, reqOtherHeaders, status, respHttpVersion, respHeadersSize, respBodySize, respSize, respCookieLen,
-  expAge AS expAge,
-  * EXCEPT (date, client, page, url, body, truncated, requestId, startedDateTime, time, method, urlShort, redirectUrl, firstReq, firstHtml, reqHttpVersion, reqHeadersSize, reqBodySize, reqCookieLen, reqOtherHeaders, status, respHttpVersion, respHeadersSize, respBodySize, respSize, respCookieLen, expAge, type, ext, format, payload),
-  NULL AS crawlid,
-  type,
-  ext,
-  format,
-  payload
-FROM (
-  SELECT
-    *
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01')
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, * FROM `httparchive.response_bodies.2020_08_01_*`)
-USING
-  (client, page, url, requestId)
+select  -- noqa: disable=L044
+    date,
+    client,
+    page,
+    url,
+    body,
+    truncated,
+    null as pageid,
+    requestid as requestid,
+    starteddatetime,
+    time,
+    method,
+    urlshort,
+    redirecturl,
+    firstreq,
+    firsthtml,
+    reqhttpversion,
+    reqheaderssize,
+    reqbodysize,
+    reqcookielen,
+    reqotherheaders,
+    status,
+    resphttpversion,
+    respheaderssize,
+    respbodysize,
+    respsize,
+    respcookielen,
+    expage as expage,
+    * except (
+        date,
+        client,
+        page,
+        url,
+        body,
+        truncated,
+        requestid,
+        starteddatetime,
+        time,
+        method,
+        urlshort,
+        redirecturl,
+        firstreq,
+        firsthtml,
+        reqhttpversion,
+        reqheaderssize,
+        reqbodysize,
+        reqcookielen,
+        reqotherheaders,
+        status,
+        resphttpversion,
+        respheaderssize,
+        respbodysize,
+        respsize,
+        respcookielen,
+        expage,
+        type,
+        ext,
+        format,
+        payload
+    ),
+    null as crawlid,
+    type,
+    ext,
+    format,
+    payload
+from (select * from `httparchive.almanac.requests` where date = '2020-08-01')
+join
+    (select _table_suffix as client, * from `httparchive.response_bodies.2020_08_01_*`)
+    using
+    (client, page, url, requestid)

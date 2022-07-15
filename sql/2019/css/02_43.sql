@@ -1,9 +1,12 @@
-#standardSQL
+# standardSQL
 # 02_43: % of sites that use [id="foo"] selectors
-CREATE TEMPORARY FUNCTION getAttributeSelectorType(css STRING)
-RETURNS STRUCT<`=` BOOLEAN, `*=` BOOLEAN, `^=` BOOLEAN, `$=` BOOLEAN, `~=` BOOLEAN>
-LANGUAGE js
-AS '''
+create temporary function getattributeselectortype(css string)
+returns struct < `=` boolean,
+`*=` boolean,
+`^=` boolean,
+`$=` boolean,
+`~=` boolean
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -28,45 +31,45 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(equals > 0) AS freq_equals,
-  COUNTIF(star_equals > 0) AS freq_star_equals,
-  COUNTIF(caret_equals > 0) AS freq_caret_equals,
-  COUNTIF(dollar_equals > 0) AS freq_dollar_equals,
-  COUNTIF(tilde_equals > 0) AS freq_tilde_equals,
-  total,
-  ROUND(COUNTIF(equals > 0) * 100 / total, 2) AS pct_equals,
-  ROUND(COUNTIF(star_equals > 0) * 100 / total, 2) AS pct_star_equals,
-  ROUND(COUNTIF(caret_equals > 0) * 100 / total, 2) AS pct_caret_equals,
-  ROUND(COUNTIF(dollar_equals > 0) * 100 / total, 2) AS pct_dollar_equals,
-  ROUND(COUNTIF(tilde_equals > 0) * 100 / total, 2) AS pct_tilde_equals
-FROM (
-  SELECT
+select
     client,
-    COUNTIF(type.`=`) AS equals, -- noqa: L057
-    COUNTIF(type.`*=`) AS star_equals, -- noqa: L057
-    COUNTIF(type.`^=`) AS caret_equals, -- noqa: L057
-    COUNTIF(type.`$=`) AS dollar_equals, -- noqa: L057
-    COUNTIF(type.`~=`) AS tilde_equals -- noqa: L057
-  FROM (
-    SELECT
-      client,
-      page,
-      getAttributeSelectorType(css) AS type
-    FROM
-      `httparchive.almanac.parsed_css`
-    WHERE
-      date = '2019-07-01')
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(equals > 0) as freq_equals,
+    countif(star_equals > 0) as freq_star_equals,
+    countif(caret_equals > 0) as freq_caret_equals,
+    countif(dollar_equals > 0) as freq_dollar_equals,
+    countif(tilde_equals > 0) as freq_tilde_equals,
+    total,
+    round(countif(equals > 0) * 100 / total, 2) as pct_equals,
+    round(countif(star_equals > 0) * 100 / total, 2) as pct_star_equals,
+    round(countif(caret_equals > 0) * 100 / total, 2) as pct_caret_equals,
+    round(countif(dollar_equals > 0) * 100 / total, 2) as pct_dollar_equals,
+    round(countif(tilde_equals > 0) * 100 / total, 2) as pct_tilde_equals
+from
+    (
+        select
+            client,
+            countif(type.`=`) as equals,  -- noqa: L057
+            countif(type.`*=`) as star_equals,  -- noqa: L057
+            countif(type.`^=`) as caret_equals,  -- noqa: L057
+            countif(type.`$=`) as dollar_equals,  -- noqa: L057
+            countif(type.`~=`) as tilde_equals  -- noqa: L057
+        from
+            (
+                select client, page, getattributeselectortype(css) as type
+                from `httparchive.almanac.parsed_css`
+                where date = '2019-07-01'
+            )
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    )
+    using
+    (client)
+group by client, total

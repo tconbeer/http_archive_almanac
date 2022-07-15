@@ -1,47 +1,45 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
-RETURNS STRING
-DETERMINISTIC
-LANGUAGE js AS '''
+# standardSQL
+create temporary function getheader(headers string, headername string)
+returns string
+deterministic
+language js
+as '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   if (matching_headers.length > 0) {
     return matching_headers[0].value;
   }
   return null;
-''';
+'''
+;
 
-SELECT
-  client,
-  compression,
-  COUNT(DISTINCT page) AS pages,
-  ANY_VALUE(total_pages) AS total_pages,
-  COUNT(DISTINCT page) / ANY_VALUE(total_pages) AS pct_pages,
-  COUNT(0) AS js_requests,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_js_requests,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_js_requests
-FROM (
-  SELECT
+select
     client,
-    page,
-    getHeader(JSON_EXTRACT(payload, '$.response.headers'), 'Content-Encoding') AS compression
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    type = 'script')
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  compression
-ORDER BY
-  pct_js_requests DESC
+    compression,
+    count(distinct page) as pages,
+    any_value(total_pages) as total_pages,
+    count(distinct page) / any_value(total_pages) as pct_pages,
+    count(0) as js_requests,
+    sum(count(0)) over (partition by client) as total_js_requests,
+    count(0) / sum(count(0)) over (partition by client) as pct_js_requests
+from
+    (
+        select
+            client,
+            page,
+            getheader(
+                json_extract(payload, '$.response.headers'), 'Content-Encoding'
+            ) as compression
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and type = 'script'
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    )
+    using
+    (client)
+group by client, compression
+order by pct_js_requests desc

@@ -1,17 +1,15 @@
-#standardSQL
+# standardSQL
 # 14_19b: Lighthouse PWA scores by CMS
-SELECT
-  app,
-  APPROX_QUANTILES(CAST(JSON_EXTRACT_SCALAR(report, '$.categories.pwa.score') AS NUMERIC), 1000)[OFFSET(501)] AS median_pwa_score,
-  COUNT(0) AS pages
-FROM
-  `httparchive.lighthouse.2019_07_01_mobile`
-LEFT JOIN
-  `httparchive.technologies.2019_07_01_mobile`
-USING (url)
-WHERE
-  category = 'CMS'
-GROUP BY
-  app
-ORDER BY
-  pages DESC
+select
+    app,
+    approx_quantiles(
+        cast(json_extract_scalar(report, '$.categories.pwa.score') as numeric),
+        1000
+    ) [offset (501)
+    ] as median_pwa_score,
+    count(0) as pages
+from `httparchive.lighthouse.2019_07_01_mobile`
+left join `httparchive.technologies.2019_07_01_mobile` using(url)
+where category = 'CMS'
+group by app
+order by pages desc

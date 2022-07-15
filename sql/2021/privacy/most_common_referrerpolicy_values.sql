@@ -1,68 +1,51 @@
-#standardSQL
+# standardSQL
 # Most common values for Referrer-Policy (at site level)
+with
+    totals as (
+        select _table_suffix as client, count(0) as total_websites
+        from `httparchive.pages.2021_07_01_*`
+        group by client
+    ),
 
-WITH totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_websites
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    client
-),
+    referrer_policy_custom_metrics as (
+        select
+            _table_suffix as client,
+            url,
+            json_value(
+                json_value(payload, '$._privacy'),
+                '$.referrerPolicy.entire_document_policy'
+            ) as entire_document_policy_meta
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-referrer_policy_custom_metrics AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    JSON_VALUE(JSON_VALUE(payload, '$._privacy'), '$.referrerPolicy.entire_document_policy') AS entire_document_policy_meta
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+    response_headers as (
+        select
+            client,
+            page,
+            lower(json_value(response_header, '$.name')) as name,
+            lower(json_value(response_header, '$.value')) as value
+        from
+            `httparchive.almanac.requests`,
+            unnest(json_query_array(response_headers)) response_header
+        where date = '2021-07-01' and firsthtml = true
+    ),
 
-response_headers AS (
-  SELECT
+    referrer_policy_headers as (
+        select client, page as url, value as entire_document_policy_header
+        from response_headers
+        where name = 'referrer-policy'
+    )
+
+select
     client,
-    page,
-    LOWER(JSON_VALUE(response_header, '$.name')) AS name,
-    LOWER(JSON_VALUE(response_header, '$.value')) AS value
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(JSON_QUERY_ARRAY(response_headers)) response_header
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml = TRUE
-),
-
-referrer_policy_headers AS (
-  SELECT
-    client,
-    page AS url,
-    value AS entire_document_policy_header
-  FROM
-    response_headers
-  WHERE
-    name = 'referrer-policy'
-)
-
-SELECT
-  client,
-  COALESCE(entire_document_policy_header, entire_document_policy_meta) AS entire_document_policy,
-  COUNT(0) AS number_of_websites_with_values,
-  total_websites,
-  COUNT(0) / total_websites AS pct_websites_with_values
-FROM
-  referrer_policy_custom_metrics
-FULL OUTER JOIN
-  referrer_policy_headers
-USING (client, url)
-JOIN
-  totals
-USING (client)
-GROUP BY
-  client,
-  entire_document_policy,
-  total_websites
-ORDER BY
-  client,
-  number_of_websites_with_values DESC
+    coalesce(
+        entire_document_policy_header, entire_document_policy_meta
+    ) as entire_document_policy,
+    count(0) as number_of_websites_with_values,
+    total_websites,
+    count(0) / total_websites as pct_websites_with_values
+from referrer_policy_custom_metrics
+full outer join referrer_policy_headers using(client, url)
+join totals using(client)
+group by client, entire_document_policy, total_websites
+order by client, number_of_websites_with_values desc

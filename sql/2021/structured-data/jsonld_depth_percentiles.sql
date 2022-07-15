@@ -1,8 +1,12 @@
 # standardSQL
 # Find the most nested entity in a JSON-LD document
-CREATE TEMP FUNCTION getJSONLDEntitiesRelationships(rendered STRING)
-RETURNS ARRAY<STRUCT<_from STRING, relationship STRING, _to STRING, depth NUMERIC>>
-LANGUAGE js AS """
+create temp function getjsonldentitiesrelationships(rendered string)
+returns array < struct < _from string,
+relationship string,
+_to string,
+depth numeric
+>> language js
+as """
   try {
     const types = new Map();
 
@@ -39,29 +43,33 @@ LANGUAGE js AS """
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
-WITH rendered_data AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    getJSONLDEntitiesRelationships(JSON_EXTRACT(JSON_VALUE(JSON_EXTRACT(payload, '$._structured-data')), '$.structured_data.rendered')) AS jsonld_entities_relationships
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
+with
+    rendered_data as (
+        select
+            _table_suffix as client,
+            url,
+            getjsonldentitiesrelationships(
+                json_extract(
+                    json_value(json_extract(payload, '$._structured-data')),
+                    '$.structured_data.rendered'
+                )
+            ) as jsonld_entities_relationships
+        from `httparchive.pages.2021_07_01_*`
+    )
 
-SELECT
-  client,
-  percentile,
-  APPROX_QUANTILES(jsonld_entity_relationship.depth, 1000)[OFFSET(percentile * 10)] AS depth,
-  ARRAY_TO_STRING(ARRAY_AGG(DISTINCT url LIMIT 5), ' ') AS sample_urls
-FROM
-  rendered_data,
-  UNNEST(jsonld_entities_relationships) AS jsonld_entity_relationship,
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  client,
-  percentile
-ORDER BY
-  client,
-  percentile
+select
+    client,
+    percentile,
+    approx_quantiles(
+        jsonld_entity_relationship.depth, 1000) [offset (percentile * 10)
+    ] as depth,
+    array_to_string(array_agg(distinct url limit 5), ' ') as sample_urls
+from
+    rendered_data,
+    unnest(jsonld_entities_relationships) as jsonld_entity_relationship,
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+group by client, percentile
+order by client, percentile

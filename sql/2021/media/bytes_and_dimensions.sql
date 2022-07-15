@@ -1,6 +1,14 @@
-CREATE TEMPORARY FUNCTION getSrcsetInfo(responsiveImagesJsonString STRING)
-RETURNS ARRAY<STRUCT<imgURL STRING, approximateResourceWidth INT64, approximateResourceHeight INT64, byteSize INT64, bitsPerPixel NUMERIC, isPixel BOOL, isDataURL BOOL, resourceFormat STRING>>
-LANGUAGE js AS '''
+create temporary function getsrcsetinfo(responsiveimagesjsonstring string)
+returns array < struct < imgurl string,
+approximateresourcewidth int64,
+approximateresourceheight int64,
+bytesize int64,
+bitsperpixel numeric,
+ispixel bool,
+isdataurl bool,
+resourceformat string
+>> language js
+as '''
 
 function pithyType( { contentType, url } ) {
   const subtypeMap = {
@@ -112,59 +120,65 @@ function pithyType( { contentType, url } ) {
             resourceFormat: pithyType({ contentType: d.mimeType, url: d.url })
     }) );
     }
-''';
+'''
+;
 
-WITH imgs AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS pageURL,
-    imgURL,
-    approximateResourceWidth,
-    approximateResourceHeight,
-    byteSize,
-    bitsPerPixel,
-    isPixel,
-    isDataURL,
-    ( approximateResourceWidth * approximateResourceHeight ) / 1000000 AS megapixels,
-    ( approximateResourceWidth / approximateResourceHeight ) AS aspectRatio,
-    resourceFormat
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getSrcsetInfo(JSON_QUERY(JSON_VALUE(payload, '$._responsive_images' ), '$.responsive-images')))
-),
+with
+    imgs as (
+        select
+            _table_suffix as client,
+            url as pageurl,
+            imgurl,
+            approximateresourcewidth,
+            approximateresourceheight,
+            bytesize,
+            bitsperpixel,
+            ispixel,
+            isdataurl,
+            (approximateresourcewidth * approximateresourceheight)
+            / 1000000 as megapixels,
+            (approximateresourcewidth / approximateresourceheight) as aspectratio,
+            resourceformat
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                getsrcsetinfo(
+                    json_query(
+                        json_value(payload, '$._responsive_images'),
+                        '$.responsive-images'
+                    )
+                )
+            )
+    ),
 
-percentiles AS (
-  SELECT
+    percentiles as (
+        select
+            client,
+            approx_quantiles(
+                approximateresourcewidth, 1000
+            ) as resourcewidthpercentiles,
+            approx_quantiles(
+                approximateresourceheight, 1000
+            ) as resourceheightpercentiles,
+            approx_quantiles(aspectratio, 1000) as aspectratiopercentiles,
+            approx_quantiles(megapixels, 1000) as megapixelspercentiles,
+            approx_quantiles(bytesize, 1000) as bytesizepercentiles,
+            approx_quantiles(bitsperpixel, 1000) as bitsperpixelpercentiles,
+            count(0) as imgcount
+        from imgs
+        where approximateresourcewidth > 1 and approximateresourceheight > 1
+        group by client
+    )
+
+select
+    percentile,
     client,
-    APPROX_QUANTILES(approximateResourceWidth, 1000) AS resourceWidthPercentiles,
-    APPROX_QUANTILES(approximateResourceHeight, 1000) AS resourceHeightPercentiles,
-    APPROX_QUANTILES(aspectRatio, 1000) AS aspectRatioPercentiles,
-    APPROX_QUANTILES(megapixels, 1000) AS megapixelsPercentiles,
-    APPROX_QUANTILES(byteSize, 1000) AS byteSizePercentiles,
-    APPROX_QUANTILES(bitsPerPixel, 1000) AS bitsPerPixelPercentiles,
-    COUNT(0) AS imgCount
-  FROM
-    imgs
-  WHERE
-    approximateResourceWidth > 1 AND
-    approximateResourceHeight > 1
-  GROUP BY
-    client
-)
-
-SELECT
-  percentile,
-  client,
-  imgCount,
-  resourceWidthPercentiles[OFFSET(percentile * 10)] AS resourceWidth,
-  resourceHeightPercentiles[OFFSET(percentile * 10)] AS resourceHeight,
-  aspectRatioPercentiles[OFFSET(percentile * 10)] AS aspectRatio,
-  megapixelsPercentiles[OFFSET(percentile * 10)] AS megapixels,
-  byteSizePercentiles[OFFSET(percentile * 10)] AS byteSize,
-  bitsPerPixelPercentiles[OFFSET(percentile * 10)] AS bitsPerPixel
-FROM
-  percentiles,
-  UNNEST([0, 10, 25, 50, 75, 90, 100]) AS percentile
-ORDER BY
-  imgCount DESC,
-  percentile
+    imgcount,
+    resourcewidthpercentiles[offset (percentile * 10)] as resourcewidth,
+    resourceheightpercentiles[offset (percentile * 10)] as resourceheight,
+    aspectratiopercentiles[offset (percentile * 10)] as aspectratio,
+    megapixelspercentiles[offset (percentile * 10)] as megapixels,
+    bytesizepercentiles[offset (percentile * 10)] as bytesize,
+    bitsperpixelpercentiles[offset (percentile * 10)] as bitsperpixel
+from percentiles, unnest( [0, 10, 25, 50, 75, 90, 100]) as percentile
+order by imgcount desc, percentile

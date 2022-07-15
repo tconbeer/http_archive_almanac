@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getDirValues(css STRING)
-RETURNS ARRAY<STRUCT<element STRING, value STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getdirvalues(css string)
+returns array < struct < element string,
+value string,
+freq int64 >> language js
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {
@@ -50,38 +50,27 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    element,
-    value,
-    SUM(freq) AS freq,
-    SUM(SUM(freq)) OVER (PARTITION BY client, element) AS total,
-    SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client, element) AS pct
-  FROM (
-    SELECT
-      client,
-      dir.element,
-      dir.value,
-      dir.freq
-    FROM
-      `httparchive.almanac.parsed_css`,
-      UNNEST(getDirValues(css)) AS dir
-    WHERE
-      date = '2021-07-01' AND
-      # Limit the size of the CSS to avoid OOM crashes.
-      LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client,
-    element,
-    value)
-WHERE
-  pct >= 0.01
-ORDER BY
-  client,
-  element,
-  pct DESC
+select *
+from
+    (
+        select
+            client,
+            element,
+            value,
+            sum(freq) as freq,
+            sum(sum(freq)) over (partition by client, element) as total,
+            sum(freq) / sum(sum(freq)) over (partition by client, element) as pct
+        from
+            (
+                select client, dir.element, dir.value, dir.freq
+                from `httparchive.almanac.parsed_css`, unnest(getdirvalues(css)) as dir
+                # Limit the size of the CSS to avoid OOM crashes.
+                where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client, element, value
+    )
+where pct >= 0.01
+order by client, element, pct desc

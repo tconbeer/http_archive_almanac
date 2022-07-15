@@ -1,22 +1,15 @@
-#standardSQL
+# standardSQL
 # 13_07: Distribution of HTML kilobytes per page
-SELECT
-  _TABLE_SUFFIX AS client,
-  ROUND(APPROX_QUANTILES(bytesHtml, 1000)[OFFSET(100)] / 1024, 2) AS p10,
-  ROUND(APPROX_QUANTILES(bytesHtml, 1000)[OFFSET(250)] / 1024, 2) AS p25,
-  ROUND(APPROX_QUANTILES(bytesHtml, 1000)[OFFSET(500)] / 1024, 2) AS p50,
-  ROUND(APPROX_QUANTILES(bytesHtml, 1000)[OFFSET(750)] / 1024, 2) AS p75,
-  ROUND(APPROX_QUANTILES(bytesHtml, 1000)[OFFSET(900)] / 1024, 2) AS p90
-FROM
-  `httparchive.summary_pages.2020_08_01_*`
-JOIN
-  `httparchive.technologies.2020_08_01_*`
-USING (_TABLE_SUFFIX, url)
-WHERE
-  category = 'Ecommerce' AND
-  (
-    app != 'Cart Functionality' AND
-    app != 'Google Analytics Enhanced eCommerce'
-  )
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    round(approx_quantiles(byteshtml, 1000) [offset (100)] / 1024, 2) as p10,
+    round(approx_quantiles(byteshtml, 1000) [offset (250)] / 1024, 2) as p25,
+    round(approx_quantiles(byteshtml, 1000) [offset (500)] / 1024, 2) as p50,
+    round(approx_quantiles(byteshtml, 1000) [offset (750)] / 1024, 2) as p75,
+    round(approx_quantiles(byteshtml, 1000) [offset (900)] / 1024, 2) as p90
+from `httparchive.summary_pages.2020_08_01_*`
+join `httparchive.technologies.2020_08_01_*` using(_table_suffix, url)
+where
+    category = 'Ecommerce'
+    and (app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce')
+group by client

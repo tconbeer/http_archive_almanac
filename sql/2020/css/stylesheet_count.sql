@@ -1,6 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getStylesheets(payload STRING)
-RETURNS STRUCT<remote INT64, inline INT64> LANGUAGE js AS '''
+# standardSQL
+create temporary function getstylesheets(payload string)
+returns struct < remote int64,
+inline int64
+> language js as '''
 try {
   var $ = JSON.parse(payload)
   var sass = JSON.parse($._sass);
@@ -8,25 +10,24 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  COUNTIF(stylesheets.remote = 1) / COUNT(0) AS pct_1_remote,
-  APPROX_QUANTILES(stylesheets.inline, 1000)[OFFSET(percentile * 10)] AS num_inline_stylesheets,
-  APPROX_QUANTILES(stylesheets.remote, 1000)[OFFSET(percentile * 10)] AS num_remote_stylesheets
-FROM (
-  SELECT
-    _TABLE_SUFFIX,
-    url,
-    getStylesheets(payload) AS stylesheets
-  FROM
-    `httparchive.pages.2020_08_01_*`),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    _table_suffix as client,
+    countif(stylesheets.remote = 1) / count(0) as pct_1_remote,
+    approx_quantiles(
+        stylesheets.inline, 1000) [offset (percentile * 10)
+    ] as num_inline_stylesheets,
+    approx_quantiles(
+        stylesheets.remote, 1000) [offset (percentile * 10)
+    ] as num_remote_stylesheets
+from
+    (
+        select _table_suffix, url, getstylesheets(payload) as stylesheets
+        from `httparchive.pages.2020_08_01_*`
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

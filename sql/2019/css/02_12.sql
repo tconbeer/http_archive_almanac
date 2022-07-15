@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 02_12: % of sites that use each dir value
-CREATE TEMPORARY FUNCTION getDirValues(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getdirvalues(css string)
+returns array
+< string
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -29,30 +31,23 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  direction,
-  freq,
-  total,
-  ROUND(freq * 100 / total, 2) AS pct
-FROM (
-  SELECT
-    client,
-    direction,
-    COUNT(DISTINCT page) AS freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getDirValues(css)) AS direction
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    direction)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-ORDER BY
-  freq / total DESC
+select client, direction, freq, total, round(freq * 100 / total, 2) as pct
+from
+    (
+        select client, direction, count(distinct page) as freq
+        from `httparchive.almanac.parsed_css`, unnest(getdirvalues(css)) as direction
+        where date = '2019-07-01'
+        group by client, direction
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    )
+    using
+    (client)
+order by freq / total desc

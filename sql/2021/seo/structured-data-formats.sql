@@ -1,11 +1,12 @@
-#standardSQL
+# standardSQL
 # Structured data formats
-
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION getStructuredDataWptBodies(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  items_by_format ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function getstructureddatawptbodies(wpt_bodies_string string)
+returns struct
+< items_by_format array
+< string
+> > language js
+as '''
 var result = {
 items_by_format: []
 };
@@ -33,38 +34,33 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  format,
-  total,
-  COUNT(0) AS count,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS pct
+select
+    client,
+    format,
+    total,
+    count(0) as count,
+    safe_divide(count(0), sum(count(0)) over (partition by client)) as pct
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      getStructuredDataWptBodies(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies')) AS structured_data_wpt_bodies_info
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    JOIN
-      (
-        SELECT
-          _TABLE_SUFFIX,
-          COUNT(0) AS total
-        FROM
-          `httparchive.pages.2021_07_01_*`
-        GROUP BY
-          _TABLE_SUFFIX
-      )
-    USING (_TABLE_SUFFIX)
-  ), UNNEST(structured_data_wpt_bodies_info.items_by_format) AS format
-GROUP BY
-  total,
-  format,
-  client
-ORDER BY
-  count DESC
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            getstructureddatawptbodies(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as structured_data_wpt_bodies_info
+        from `httparchive.pages.2021_07_01_*`
+        join
+            (
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2021_07_01_*`
+                group by _table_suffix
+            )
+            using(_table_suffix)
+    ),
+    unnest(structured_data_wpt_bodies_info.items_by_format) as format
+group by total, format, client
+order by count desc

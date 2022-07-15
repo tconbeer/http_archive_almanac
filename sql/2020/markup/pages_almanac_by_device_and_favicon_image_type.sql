@@ -1,15 +1,16 @@
-#standardSQL
+# standardSQL
 # page almanac favicon image types grouped by device and type M217
-
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64) returns float64 as (
+    round(safe_divide(freq, total), 4)
+)
+;
 
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_info(almanac_string STRING)
-RETURNS STRUCT<
-  image_type_extension STRING
-> LANGUAGE js AS '''
+create temporary function get_almanac_info(almanac_string string)
+returns struct
+< image_type_extension string
+> language js
+as '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -49,27 +50,24 @@ try {
 
 } catch (e) {result.image_type_extension = "NO_DATA";}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  almanac_info.image_type_extension AS image_type_extension,
+select
+    client,
+    almanac_info.image_type_extension as image_type_extension,
 
-  COUNT(0) AS freq,
+    count(0) as freq,
 
-  AS_PERCENT(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS pct
+    as_percent(count(0), sum(count(0)) over (partition by client)) as pct
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_almanac_info(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-  )
-GROUP BY
-  client,
-  image_type_extension
-ORDER BY
-  freq DESC
-LIMIT 1000
+from
+    (
+        select
+            _table_suffix as client,
+            get_almanac_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client, image_type_extension
+order by freq desc
+limit 1000

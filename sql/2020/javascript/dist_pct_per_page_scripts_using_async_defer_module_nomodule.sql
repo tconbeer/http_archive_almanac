@@ -1,48 +1,48 @@
-#standardSQL
-# Distribution of Percent per page of external scripts using Async, Defer, Module or NoModule attributes.
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(pct_external_async, 1000)[OFFSET(percentile * 10)] AS pct_external_async,
-  APPROX_QUANTILES(pct_external_defer, 1000)[OFFSET(percentile * 10)] AS pct_external_defer,
-  APPROX_QUANTILES(pct_external_module, 1000)[OFFSET(percentile * 10)] AS pct_external_module,
-  APPROX_QUANTILES(pct_external_nomodule, 1000)[OFFSET(percentile * 10)] AS pct_external_nomodule
-FROM
-  (
-    SELECT
-      client,
-      page,
-      COUNT(0) AS external_scripts,
-      SUM(IF(script LIKE '%async%', 1, 0)) AS async,
-      SUM(IF(script LIKE '%defer%', 1, 0)) AS defer,
-      SUM(IF(script LIKE '%module%', 1, 0)) AS module,
-      SUM(IF(script LIKE '%nomodule%', 1, 0)) AS nomodule,
-      SUM(IF(script LIKE '%async%', 1, 0)) / COUNT(0) AS pct_external_async,
-      SUM(IF(script LIKE '%defer%', 1, 0)) / COUNT(0) AS pct_external_defer,
-      SUM(IF(script LIKE '%module%', 1, 0)) / COUNT(0) AS pct_external_module,
-      SUM(IF(script LIKE '%nomodule%', 1, 0)) / COUNT(0) AS pct_external_nomodule
-    FROM
-      (
-        SELECT
-          client,
-          page,
-          url,
-          REGEXP_EXTRACT_ALL(LOWER(body), '(<script [^>]*)') AS scripts
-        FROM
-          `httparchive.almanac.summary_response_bodies`
-        WHERE
-          date = '2020-08-01' AND
-          firstHtml
-      )
-    CROSS JOIN
-      UNNEST(scripts) AS script
-    WHERE
-      script LIKE '%src%'
-    GROUP BY
-      client,
-      page
-  ),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
+# standardSQL
+# Distribution of Percent per page of external scripts using Async, Defer, Module or
+# NoModule attributes.
+select
+    percentile,
+    client,
+    approx_quantiles(
+        pct_external_async, 1000) [offset (percentile * 10)
+    ] as pct_external_async,
+    approx_quantiles(
+        pct_external_defer, 1000) [offset (percentile * 10)
+    ] as pct_external_defer,
+    approx_quantiles(
+        pct_external_module, 1000) [offset (percentile * 10)
+    ] as pct_external_module,
+    approx_quantiles(
+        pct_external_nomodule, 1000) [offset (percentile * 10)
+    ] as pct_external_nomodule
+from
+    (
+        select
+            client,
+            page,
+            count(0) as external_scripts,
+            sum(if(script like '%async%', 1, 0)) as async,
+            sum(if(script like '%defer%', 1, 0)) as defer,
+            sum(if(script like '%module%', 1, 0)) as module,
+            sum(if(script like '%nomodule%', 1, 0)) as nomodule,
+            sum(if(script like '%async%', 1, 0)) / count(0) as pct_external_async,
+            sum(if(script like '%defer%', 1, 0)) / count(0) as pct_external_defer,
+            sum(if(script like '%module%', 1, 0)) / count(0) as pct_external_module,
+            sum(if(script like '%nomodule%', 1, 0)) / count(0) as pct_external_nomodule
+        from
+            (
+                select
+                    client,
+                    page,
+                    url,
+                    regexp_extract_all(lower(body), '(<script [^>]*)') as scripts
+                from `httparchive.almanac.summary_response_bodies`
+                where date = '2020-08-01' and firsthtml
+            )
+        cross join unnest(scripts) as script
+        where script like '%src%'
+        group by client, page
+    ),
+    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client

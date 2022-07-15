@@ -1,6 +1,8 @@
-#standardSQL
+# standardSQL
 # All CMS popularity per geo
-CREATE TEMP FUNCTION GET_GEO(country_code STRING, geo STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function get_geo(
+    country_code string, geo string
+) returns string language js as '''
 var countries = {
   "af": {
     "name": "Afghanistan",
@@ -1195,55 +1197,51 @@ var countries = {
 };
 
 return countries[country_code][geo];
-''';
+'''
+;
 
-WITH geo_summary AS (
-  SELECT
-    GET_GEO(country_code, 'sub-region') AS sub_region,
-    IF(device = 'desktop', 'desktop', 'mobile') AS client,
-    origin,
-    COUNT(DISTINCT origin) OVER (PARTITION BY GET_GEO(country_code, 'sub-region'), IF(device = 'desktop', 'desktop', 'mobile')) AS total
-  FROM
-    `chrome-ux-report.materialized.country_summary`
-  WHERE
-    # We're intentionally using May 2021 CrUX data here.
-    # That's because there's a two month lag between CrUX and HA datasets.
-    # Since we're only JOINing with the CrUX dataset to see which URLs
-    # belong to different countries (as opposed to CWV field data)
-    # it's not necessary to look at the 202107 dataset.
-    yyyymm = 202105
-)
+with
+    geo_summary as (
+        select
+            get_geo(country_code, 'sub-region') as sub_region,
+            if(device = 'desktop', 'desktop', 'mobile') as client,
+            origin,
+            count(distinct origin) over (
+                partition by
+                    get_geo(country_code, 'sub-region'),
+                    if(device = 'desktop', 'desktop', 'mobile')
+            ) as total
+        from `chrome-ux-report.materialized.country_summary`
+        # We're intentionally using May 2021 CrUX data here.
+        # That's because there's a two month lag between CrUX and HA datasets.
+        # Since we're only JOINing with the CrUX dataset to see which URLs
+        # belong to different countries (as opposed to CWV field data)
+        # it's not necessary to look at the 202107 dataset.
+        where yyyymm = 202105
+    )
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    sub_region,
-    COUNT(0) AS pages,
-    ANY_VALUE(total) AS total,
-    COUNT(0) / ANY_VALUE(total) AS pct
-  FROM (
-    SELECT DISTINCT
-      sub_region,
-      client,
-      total,
-      CONCAT(origin, '/') AS url
-    FROM
-      geo_summary
-  ) JOIN (
-    SELECT DISTINCT
-      _TABLE_SUFFIX AS client,
-      url
-    FROM
-      `httparchive.technologies.2021_07_01_*`
-    WHERE
-      category = 'CMS'
-  ) USING (client, url)
-  GROUP BY
-    client,
-    sub_region)
-WHERE
-  pages > 1000
-ORDER BY
-  pages DESC
+select *
+from
+    (
+        select
+            client,
+            sub_region,
+            count(0) as pages,
+            any_value(total) as total,
+            count(0) / any_value(total) as pct
+        from
+            (
+                select distinct sub_region, client, total, concat(origin, '/') as url
+                from geo_summary
+            )
+        join
+            (
+                select distinct _table_suffix as client, url
+                from `httparchive.technologies.2021_07_01_*`
+                where category = 'CMS'
+            ) using(client, url
+            )
+        group by client, sub_region
+    )
+where pages > 1000
+order by pages desc

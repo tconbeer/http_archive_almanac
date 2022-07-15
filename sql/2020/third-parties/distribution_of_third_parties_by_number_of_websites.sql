@@ -1,53 +1,31 @@
-#standardSQL
+# standardSQL
 # Distribution of third parties by number of websites
+with
+    requests as (
+        select _table_suffix as client, pageid as page, req_host as host
+        from `httparchive.summary_requests.2020_08_01_*`
+    ),
 
-WITH requests AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    pageid AS page,
-    req_host AS host
-  FROM
-    `httparchive.summary_requests.2020_08_01_*`
-),
+    third_party as (
+        select domain, canonicaldomain
+        from `httparchive.almanac.third_parties`
+        where date = '2020-08-01'
+    ),
 
-third_party AS (
-  SELECT
-    domain,
-    canonicalDomain
-  FROM
-    `httparchive.almanac.third_parties`
-  WHERE
-    date = '2020-08-01'
-),
+    base as (
+        select client, canonicaldomain, count(distinct page) as pages_per_third_party
+        from requests
+        left join third_party on net.host(requests.host) = net.host(third_party.domain)
+        where canonicaldomain is not null
+        group by client, canonicaldomain
+    )
 
-base AS (
-  SELECT
+select
     client,
-    canonicalDomain,
-    COUNT(DISTINCT page) AS pages_per_third_party
-  FROM
-    requests
-  LEFT JOIN
-    third_party
-  ON
-    NET.HOST(requests.host) = NET.HOST(third_party.domain)
-  WHERE
-    canonicalDomain IS NOT NULL
-  GROUP BY
-    client,
-    canonicalDomain
-)
-
-SELECT
-  client,
-  percentile,
-  APPROX_QUANTILES(pages_per_third_party, 1000)[OFFSET(percentile * 10)] AS approx_pages_per_third_party
-FROM
-  base,
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  client,
-  percentile
-ORDER BY
-  client,
-  percentile
+    percentile,
+    approx_quantiles(
+        pages_per_third_party, 1000) [offset (percentile * 10)
+    ] as approx_pages_per_third_party
+from base, unnest( [10, 25, 50, 75, 90]) as percentile
+group by client, percentile
+order by client, percentile

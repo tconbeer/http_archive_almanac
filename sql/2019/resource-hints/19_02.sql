@@ -1,8 +1,13 @@
-#standardSQL
+# standardSQL
 # 19_02: Distribution of number of times each hint is used per site.
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload INT64, prefetch INT64, preconnect INT64, prerender INT64, `dns-prefetch` INT64>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns struct < preload int64,
+prefetch int64,
+preconnect int64,
+prerender int64,
+`dns-prefetch` int64
+> language js
+as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch'];
 try {
   var $ = JSON.parse(payload);
@@ -19,25 +24,24 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  APPROX_QUANTILES(hints.preload, 1000)[OFFSET(500)] AS median_preload,
-  APPROX_QUANTILES(hints.prefetch, 1000)[OFFSET(500)] AS median_prefetch,
-  APPROX_QUANTILES(hints.preconnect, 1000)[OFFSET(500)] AS median_preconnect,
-  APPROX_QUANTILES(hints.prerender, 1000)[OFFSET(500)] AS median_prerender,
-  APPROX_QUANTILES(hints.`dns-prefetch`, 1000)[OFFSET(500)] AS median_dns_prefetch,
-  APPROX_QUANTILES(hints.preload, 1000)[OFFSET(900)] AS p90_preload,
-  APPROX_QUANTILES(hints.prefetch, 1000)[OFFSET(900)] AS p90_prefetch,
-  APPROX_QUANTILES(hints.preconnect, 1000)[OFFSET(900)] AS p90_preconnect,
-  APPROX_QUANTILES(hints.prerender, 1000)[OFFSET(900)] AS p90_prerender,
-  APPROX_QUANTILES(hints.`dns-prefetch`, 1000)[OFFSET(900)] AS p90_dns_prefetch
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getResourceHints(payload) AS hints
-  FROM
-    `httparchive.pages.2019_07_01_*`)
-GROUP BY
-  client
+select
+    client,
+    approx_quantiles(hints.preload, 1000) [offset (500)] as median_preload,
+    approx_quantiles(hints.prefetch, 1000) [offset (500)] as median_prefetch,
+    approx_quantiles(hints.preconnect, 1000) [offset (500)] as median_preconnect,
+    approx_quantiles(hints.prerender, 1000) [offset (500)] as median_prerender,
+    approx_quantiles(hints.`dns-prefetch`, 1000) [offset (500)] as median_dns_prefetch,
+    approx_quantiles(hints.preload, 1000) [offset (900)] as p90_preload,
+    approx_quantiles(hints.prefetch, 1000) [offset (900)] as p90_prefetch,
+    approx_quantiles(hints.preconnect, 1000) [offset (900)] as p90_preconnect,
+    approx_quantiles(hints.prerender, 1000) [offset (900)] as p90_prerender,
+    approx_quantiles(hints.`dns-prefetch`, 1000) [offset (900)] as p90_dns_prefetch
+from
+    (
+        select _table_suffix as client, getresourcehints(payload) as hints
+        from `httparchive.pages.2019_07_01_*`
+    )
+group by client

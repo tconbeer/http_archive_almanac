@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION hasMulticol(css STRING)
-RETURNS BOOLEAN
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function hasmulticol(css string)
+returns boolean
+language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   const ast = JSON.parse(css);
   let props = countDeclarationsByProperty(ast.stylesheet.rules, {properties: /^column[s-]/});
@@ -11,35 +11,27 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(multicol) AS pages_with_multicol,
-  total,
-  COUNTIF(multicol) / total AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(hasMulticol(css)) > 0 AS multicol
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(multicol) as pages_with_multicol,
+    total,
+    countif(multicol) / total as pct
+from
+    (
+        select client, page, countif(hasmulticol(css)) > 0 as multicol
+        from `httparchive.almanac.parsed_css`
+        where date = '2020-08-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    )
+    using
+    (client)
+group by client, total

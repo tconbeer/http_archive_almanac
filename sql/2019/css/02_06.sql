@@ -1,7 +1,12 @@
-#standardSQL
+# standardSQL
 # 02_06: % of sites that use each color format
-CREATE TEMPORARY FUNCTION getColorFormats(css STRING)
-RETURNS STRUCT<hsl BOOLEAN, hsla BOOLEAN, rgb BOOLEAN, rgba BOOLEAN, hex BOOLEAN> LANGUAGE js AS '''
+create temporary function getcolorformats(css string)
+returns struct < hsl boolean,
+hsla boolean,
+rgb boolean,
+rgba boolean,
+hex boolean
+> language js as '''
 try {
   var getColorFormat = (value) => {
     value = value.toLowerCase();
@@ -44,45 +49,45 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(hsl > 0) AS freq_hsl,
-  COUNTIF(hsla > 0) AS freq_hsla,
-  COUNTIF(rgb > 0) AS freq_rgb,
-  COUNTIF(rgba > 0) AS freq_rgba,
-  COUNTIF(hex > 0) AS freq_hex,
-  total,
-  ROUND(COUNTIF(hsl > 0) * 100 / total, 2) AS pct_hsl,
-  ROUND(COUNTIF(hsla > 0) * 100 / total, 2) AS pct_hsla,
-  ROUND(COUNTIF(rgb > 0) * 100 / total, 2) AS pct_rgb,
-  ROUND(COUNTIF(rgba > 0) * 100 / total, 2) AS pct_rgba,
-  ROUND(COUNTIF(hex > 0) * 100 / total, 2) AS pct_hex
-FROM (
-  SELECT
+select
     client,
-    COUNTIF(color.hsl) AS hsl,
-    COUNTIF(color.hsla) AS hsla,
-    COUNTIF(color.rgb) AS rgb,
-    COUNTIF(color.rgba) AS rgba,
-    COUNTIF(color.hex) AS hex
-  FROM (
-    SELECT
-      client,
-      page,
-      getColorFormats(css) AS color
-    FROM
-      `httparchive.almanac.parsed_css`
-    WHERE
-      date = '2019-07-01')
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(hsl > 0) as freq_hsl,
+    countif(hsla > 0) as freq_hsla,
+    countif(rgb > 0) as freq_rgb,
+    countif(rgba > 0) as freq_rgba,
+    countif(hex > 0) as freq_hex,
+    total,
+    round(countif(hsl > 0) * 100 / total, 2) as pct_hsl,
+    round(countif(hsla > 0) * 100 / total, 2) as pct_hsla,
+    round(countif(rgb > 0) * 100 / total, 2) as pct_rgb,
+    round(countif(rgba > 0) * 100 / total, 2) as pct_rgba,
+    round(countif(hex > 0) * 100 / total, 2) as pct_hex
+from
+    (
+        select
+            client,
+            countif(color.hsl) as hsl,
+            countif(color.hsla) as hsla,
+            countif(color.rgb) as rgb,
+            countif(color.rgba) as rgba,
+            countif(color.hex) as hex
+        from
+            (
+                select client, page, getcolorformats(css) as color
+                from `httparchive.almanac.parsed_css`
+                where date = '2019-07-01'
+            )
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    )
+    using
+    (client)
+group by client, total

@@ -1,83 +1,68 @@
-#standardSQL
+# standardSQL
 # Third-Party domains which render block paint
-#
+# 
 # Unlike the blocking main thread queries, light nhouse only contains details if the
 # third-party is render blocking (i.e. wastedMs/total_bytes are never 0)
 # And also there are no categories given to each third-party
-# So we join to the usual almanac.third_parties table to get those totals and categories
-#
+# So we join to the usual almanac.third_parties table to get those totals and
+# categories
+# 
 # Based heavily on research by Houssein Djirdeh:
 # https://docs.google.com/spreadsheets/d/1Td-4qFjuBzxp8af_if5iBC0Lkqm_OROb7_2OcbxrU_g/edit?resourcekey=0-ZCfve5cngWxF0-sv5pLRzg#gid=1628564987
+with
+    total_third_party_usage as (
+        select canonicaldomain, category, count(distinct sp.url) as total_pages
+        from `httparchive.summary_pages.2021_07_01_mobile` sp
+        inner join `httparchive.summary_requests.2021_07_01_mobile` sr using(pageid)
+        inner join
+            `httparchive.almanac.third_parties`
+            on net.host(sr.url) = net.host(domain)
+            and date = '2021-07-01'
+            and category != 'hosting'
+        group by canonicaldomain, category
+        having total_pages >= 50
+    )
 
-WITH
-total_third_party_usage AS (
-  SELECT
-    canonicalDomain,
+select
+    canonicaldomain,
     category,
-    COUNT(DISTINCT sp.url) AS total_pages
-  FROM
-    `httparchive.summary_pages.2021_07_01_mobile` sp
-  INNER JOIN
-    `httparchive.summary_requests.2021_07_01_mobile` sr
-  USING (pageid)
-  INNER JOIN
-    `httparchive.almanac.third_parties`
-  ON
-    NET.HOST(sr.url) = NET.HOST(domain) AND
-    date = '2021-07-01' AND
-    category != 'hosting'
-  GROUP BY
-    canonicalDomain,
-    category
-  HAVING
-    total_pages >= 50
-)
-
-SELECT
-  canonicalDomain,
-  category,
-  total_pages,
-  COUNT(DISTINCT page) AS blocking_pages,
-  total_pages - COUNT(DISTINCT page) AS non_blocking_pages,
-  COUNT(DISTINCT page) / total_pages AS blocking_pages_pct,
-  (total_pages - COUNT(DISTINCT page)) / total_pages AS non_blocking_pages_pct,
-  APPROX_QUANTILES(wasted_ms, 1000)[OFFSET(500)] AS p50_wastedMs,
-  APPROX_QUANTILES(total_bytes_kib, 1000)[OFFSET(500)] AS p50_total_bytes_kib
-FROM (
-  SELECT
-    canonicalDomain,
-    domain,
-    page,
-    category,
-    SUM(SAFE_CAST(JSON_VALUE(renderBlockingItems, '$.wastedMs') AS FLOAT64)) AS wasted_ms,
-    SUM(SAFE_CAST(JSON_VALUE(renderBlockingItems, '$.totalBytes') AS FLOAT64) / 1024) AS total_bytes_kib
-  FROM
+    total_pages,
+    count(distinct page) as blocking_pages,
+    total_pages - count(distinct page) as non_blocking_pages,
+    count(distinct page) / total_pages as blocking_pages_pct,
+    (total_pages - count(distinct page)) / total_pages as non_blocking_pages_pct,
+    approx_quantiles(wasted_ms, 1000) [offset (500)] as p50_wastedms,
+    approx_quantiles(total_bytes_kib, 1000) [offset (500)] as p50_total_bytes_kib
+from
     (
-      SELECT
-        url AS page,
-        report
-      FROM
-        `httparchive.lighthouse.2021_07_01_mobile`
-    ),
-    UNNEST(JSON_QUERY_ARRAY(report, '$.audits.render-blocking-resources.details.items')) AS renderBlockingItems
-  INNER JOIN
-    `httparchive.almanac.third_parties`
-  ON
-    NET.HOST(JSON_VALUE(renderBlockingItems, '$.url')) = domain
-  GROUP BY
-    canonicalDomain,
-    domain,
-    page,
-    category
-  )
-INNER JOIN
-  total_third_party_usage
-USING (canonicalDomain, category)
-GROUP BY
-  canonicalDomain,
-  category,
-  total_pages
-ORDER BY
-  total_pages DESC,
-  category
-LIMIT 200
+        select
+            canonicaldomain,
+            domain,
+            page,
+            category,
+            sum(
+                safe_cast(json_value(renderblockingitems, '$.wastedMs') as float64)
+            ) as wasted_ms,
+            sum(
+                safe_cast(json_value(renderblockingitems, '$.totalBytes') as float64)
+                / 1024
+            ) as total_bytes_kib
+        from
+            (
+                select url as page, report
+                from `httparchive.lighthouse.2021_07_01_mobile`
+            ),
+            unnest(
+                json_query_array(
+                    report, '$.audits.render-blocking-resources.details.items'
+                )
+            ) as renderblockingitems
+        inner join
+            `httparchive.almanac.third_parties`
+            on net.host(json_value(renderblockingitems, '$.url')) = domain
+        group by canonicaldomain, domain, page, category
+    )
+inner join total_third_party_usage using(canonicaldomain, category)
+group by canonicaldomain, category, total_pages
+order by total_pages desc, category
+limit 200
