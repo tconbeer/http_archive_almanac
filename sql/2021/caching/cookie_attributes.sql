@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # Popularity of top Set-Cookie attributes/directives
-CREATE TEMPORARY FUNCTION getCookieAttributes(headers STRING)
-RETURNS ARRAY<STRING> DETERMINISTIC LANGUAGE js AS '''
+create temporary function getcookieattributes(headers string)
+returns array
+< string
+> deterministic language js as '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {
@@ -14,10 +16,11 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION countCookies(headers STRING)
-RETURNS INT64 DETERMINISTIC LANGUAGE js AS '''
+create temporary function countcookies(headers string)
+returns int64 deterministic language js as '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {
@@ -26,35 +29,26 @@ try {
 } catch (e) {
   return 0;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  attr.value AS attr,
-  attr.count AS freq,
-  total,
-  attr.count / total AS pct
-FROM (
-  SELECT
-    client,
-    APPROX_TOP_COUNT(attr, 100) AS attrs
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(getCookieAttributes(response_headers)) AS attr
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client)
-JOIN (
-  SELECT
-    client,
-    SUM(countCookies(response_headers)) AS total
-  FROM
-    `httparchive.almanac.requests`
-  GROUP BY
-    client)
-USING
-  (client),
-  UNNEST(attrs) AS attr
-ORDER BY
-  pct DESC
+select client, attr.value as attr, attr.count as freq, total, attr.count / total as pct
+from
+    (
+        select client, approx_top_count(attr, 100) as attrs
+        from
+            `httparchive.almanac.requests`,
+            unnest(getcookieattributes(response_headers)) as attr
+        where date = '2021-07-01'
+        group by client
+    )
+join
+    (
+        select client, sum(countcookies(response_headers)) as total
+        from `httparchive.almanac.requests`
+        group by client
+    )
+    using
+    (client),
+    unnest(attrs) as attr
+order by pct desc

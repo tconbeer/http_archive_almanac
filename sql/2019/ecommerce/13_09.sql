@@ -1,33 +1,31 @@
-#standardSQL
+# standardSQL
 # 13_09: Requests and weight of third party content on ecom pages
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(requests, 1000)[OFFSET(percentile * 10)] AS requests,
-  ROUND(APPROX_QUANTILES(bytes, 1000)[OFFSET(percentile * 10)] / 1024, 2) AS kbytes
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    COUNT(0) AS requests,
-    SUM(respSize) AS bytes
-  FROM
-    `httparchive.almanac.summary_requests`
-  JOIN (
-    SELECT _TABLE_SUFFIX AS client, url AS page
-    FROM `httparchive.technologies.2019_07_01_*`
-    WHERE category = 'Ecommerce')
-  USING
-    (client, page)
-  WHERE
-    date = '2019-07-01' AND
-    NET.HOST(url) IN (SELECT domain FROM `httparchive.almanac.third_parties` WHERE date = '2019-07-01' AND category != 'hosting')
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(requests, 1000)[offset(percentile * 10)] as requests,
+    round(approx_quantiles(bytes, 1000)[offset(percentile * 10)] / 1024, 2) as kbytes
+from
+    (
+        select client, count(0) as requests, sum(respsize) as bytes
+        from `httparchive.almanac.summary_requests`
+        join
+            (
+                select _table_suffix as client, url as page
+                from `httparchive.technologies.2019_07_01_*`
+                where category = 'Ecommerce'
+            )
+            using
+            (client, page)
+        where
+            date = '2019-07-01'
+            and net.host(url) in (
+                select domain
+                from `httparchive.almanac.third_parties`
+                where date = '2019-07-01' and category != 'hosting'
+            )
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

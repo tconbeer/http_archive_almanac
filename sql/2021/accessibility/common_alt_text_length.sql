@@ -1,34 +1,33 @@
-#standardSQL
+# standardSQL
 # Most common lengths of alt text
 # Note: A value of -1 means there is no alt tag. 0 means it is empty
 # Note: Lengths of 2000+ characters are grouped together
-SELECT
-  client,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_images,
-  SUM(COUNTIF(alt_length_clipped >= 0)) OVER (PARTITION BY client) AS total_alt_tags,
-
-  alt_length_clipped AS alt_length,
-  COUNT(0) AS occurrences,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_all_occurrences
-FROM (
-  SELECT
+select
     client,
-    LEAST(alt_length, 2000) AS alt_length_clipped
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      SAFE_CAST(alt_length_string AS INT64) AS alt_length
-    FROM
-      `httparchive.pages.2021_07_01_*`,
-      UNNEST(
-        JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.images.alt_lengths')
-      ) AS alt_length_string
-  )
-  WHERE
-    alt_length IS NOT NULL
-)
-GROUP BY
-  client,
-  alt_length
-ORDER BY
-  alt_length ASC
+    sum(count(0)) over (partition by client) as total_images,
+    sum(countif(alt_length_clipped >= 0)) over (partition by client) as total_alt_tags,
+
+    alt_length_clipped as alt_length,
+    count(0) as occurrences,
+    count(0) / sum(count(0)) over (partition by client) as pct_all_occurrences
+from
+    (
+        select client, least(alt_length, 2000) as alt_length_clipped
+        from
+            (
+                select
+                    _table_suffix as client,
+                    safe_cast(alt_length_string as int64) as alt_length
+                from
+                    `httparchive.pages.2021_07_01_*`,
+                    unnest(
+                        json_extract_array(
+                            json_extract_scalar(payload, '$._almanac'),
+                            '$.images.alt_lengths'
+                        )
+                    ) as alt_length_string
+            )
+        where alt_length is not null
+    )
+group by client, alt_length
+order by alt_length asc

@@ -1,9 +1,10 @@
-#standardSQL
+# standardSQL
 # Attribute popularity for imagesrcset and imagesizes on rel="preload"
-
-CREATE TEMPORARY FUNCTION getResourceHintAttrs(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
-LANGUAGE js AS '''
+create temporary function getresourcehintattrs(payload string)
+returns array < struct < name string,
+attribute string,
+value string
+>> language js as '''
 var hints = new Set(['preload']);
 var attributes = ['imagesrcset', 'imagesizes'];
 try {
@@ -28,24 +29,17 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  hint.name AS name,
-  hint.attribute AS attribute,
-  COUNTIF(hint.value IS NOT NULL) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, hint.name) AS total,
-  COUNTIF(hint.value IS NOT NULL) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, hint.name) AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getResourceHintAttrs(payload)) AS hint
-GROUP BY
-  client,
-  name,
-  attribute
-ORDER BY
-  client,
-  name,
-  attribute,
-  pct DESC
+select
+    _table_suffix as client,
+    hint.name as name,
+    hint.attribute as attribute,
+    countif(hint.value is not null) as freq,
+    sum(count(0)) over (partition by _table_suffix, hint.name) as total,
+    countif(hint.value is not null)
+    / sum(count(0)) over (partition by _table_suffix, hint.name) as pct
+from `httparchive.pages.2021_07_01_*`, unnest(getresourcehintattrs(payload)) as hint
+group by client, name, attribute
+order by client, name, attribute, pct desc

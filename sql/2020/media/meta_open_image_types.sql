@@ -1,11 +1,11 @@
-#standardSQL
+# standardSQL
 # meta open graph image types
-
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_meta_og_image_types(almanac_string STRING)
-RETURNS STRUCT<
-  image_types ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function get_meta_og_image_types(almanac_string string)
+returns struct
+< image_types array
+< string
+> > language js as '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -28,25 +28,26 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  image_type,
-  COUNT(0) AS image_type_count,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS image_type_pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    get_meta_og_image_types(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-  FROM
-    `httparchive.pages.2020_08_01_*`),
-  UNNEST(almanac_info.image_types) AS image_type
-GROUP BY
-  client, image_type
-HAVING
-  image_type_count > 100
-ORDER BY
-  client,
-  image_type_count DESC;
+select
+    client,
+    image_type,
+    count(0) as image_type_count,
+    safe_divide(count(0), sum(count(0)) over (partition by client)) as image_type_pct
+from
+    (
+        select
+            _table_suffix as client,
+            url,
+            get_meta_og_image_types(
+                json_extract_scalar(payload, '$._almanac')
+            ) as almanac_info
+        from `httparchive.pages.2020_08_01_*`
+    ),
+    unnest(almanac_info.image_types) as image_type
+group by client, image_type
+having image_type_count > 100
+order by client, image_type_count desc
+;

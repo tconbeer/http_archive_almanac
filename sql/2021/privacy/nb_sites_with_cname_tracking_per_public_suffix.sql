@@ -1,41 +1,28 @@
-WITH websites_using_cname_tracking AS (
-  SELECT DISTINCT
-    NET.REG_DOMAIN(domain) AS domain,
-    NET.PUBLIC_SUFFIX(NET.REG_DOMAIN(domain)) AS suffix,
-    tracker
-  FROM
-    `httparchive.almanac.cname_tracking`,
-    UNNEST(SPLIT(SUBSTRING(domains, 2, LENGTH(domains) - 2))) AS domain
-),
+with
+    websites_using_cname_tracking as (
+        select distinct
+            net.reg_domain(domain) as domain,
+            net.public_suffix(net.reg_domain(domain)) as suffix,
+            tracker
+        from
+            `httparchive.almanac.cname_tracking`,
+            unnest(split(substring(domains, 2, length(domains) - 2))) as domain
+    ),
 
-totals AS (
-  SELECT
-    _TABLE_SUFFIX AS _TABLE_SUFFIX,
-    count(0) AS total_pages
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-)
+    totals as (
+        select _table_suffix as _table_suffix, count(0) as total_pages
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    )
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  suffix,
-  COUNT(0) AS num_pages,
-  total_pages,
-  COUNT(0) / total_pages AS pct_pages
-FROM
-  `httparchive.summary_pages.2021_07_01_*`
-JOIN
-  totals
-USING (_TABLE_SUFFIX)
-JOIN
-  websites_using_cname_tracking
-ON domain = NET.REG_DOMAIN(urlShort)
-GROUP BY
-  client,
-  total_pages,
-  suffix
-ORDER BY
-  pct_pages DESC,
-  client
+select
+    _table_suffix as client,
+    suffix,
+    count(0) as num_pages,
+    total_pages,
+    count(0) / total_pages as pct_pages
+from `httparchive.summary_pages.2021_07_01_*`
+join totals using(_table_suffix)
+join websites_using_cname_tracking on domain = net.reg_domain(urlshort)
+group by client, total_pages, suffix
+order by pct_pages desc, client

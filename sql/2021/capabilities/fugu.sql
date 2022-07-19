@@ -1,39 +1,32 @@
-#standardSQL
-CREATE TEMP FUNCTION getFuguAPIs(data STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+# standardSQL
+create temp function getfuguapis(data string)
+returns array
+< string
+> language js as '''
 const $ = JSON.parse(data);
 return Object.keys($);
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  fuguAPI,
-  COUNT(DISTINCT url) AS pages,
-  total,
-  COUNT(DISTINCT url) / total AS pct,
-  ARRAY_TO_STRING(ARRAY_AGG(DISTINCT url LIMIT 50), ' ') AS sample_urls
-FROM
-  `httparchive.pages.2021_07_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (_TABLE_SUFFIX),
-  UNNEST(getFuguAPIs(JSON_QUERY(payload, '$."_fugu-apis"'))) AS fuguAPI
-WHERE
-  JSON_QUERY(payload, '$."_fugu-apis"') != '[]'
-GROUP BY
-  fuguAPI,
-  client,
-  total
-HAVING
-  COUNT(DISTINCT url) >= 10
-ORDER BY
-  pct DESC,
-  client;
+select
+    _table_suffix as client,
+    fuguapi,
+    count(distinct url) as pages,
+    total,
+    count(distinct url) / total as pct,
+    array_to_string(array_agg(distinct url limit 50), ' ') as sample_urls
+from `httparchive.pages.2021_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
+    using
+    (_table_suffix),
+    unnest(getfuguapis(json_query(payload, '$."_fugu-apis"'))) as fuguapi
+where json_query(payload, '$."_fugu-apis"') != '[]'
+group by fuguapi, client, total
+having count(distinct url) >= 10
+order by pct desc, client
+;

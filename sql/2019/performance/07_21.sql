@@ -1,24 +1,31 @@
-#standardSQL
+# standardSQL
 # 07_21: Percentiles of layout CPU time
-#corresponding to the time main thread of the browser was busy
-SELECT
-  percentile,
-  client,
-  ROUND(APPROX_QUANTILES(layout_cpu_time, 1000)[OFFSET(percentile * 10)] / 1000, 2) AS layout_cpu_time
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+# corresponding to the time main thread of the browser was busy
+select
+    percentile,
+    client,
+    round(
+        approx_quantiles(layout_cpu_time, 1000)[offset(percentile * 10)] / 1000, 2
+    ) as layout_cpu_time
+from
     (
-      CAST(IFNULL(JSON_EXTRACT(payload, "$['_cpu.ParseAuthorStyleSheet']"), '0') AS INT64) +
-      CAST(IFNULL(JSON_EXTRACT(payload, "$['_cpu.Layout']"), '0') AS INT64) +
-      CAST(IFNULL(JSON_EXTRACT(payload, "$['_cpu.UpdateLayoutTree']"), '0') AS INT64)
-    ) AS layout_cpu_time
-  FROM
-    `httparchive.pages.2019_07_01_*`),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+        select
+            _table_suffix as client,
+            (
+                cast(
+                    ifnull(
+                        json_extract(payload, "$['_cpu.ParseAuthorStyleSheet']"), '0'
+                    ) as int64
+                ) + cast(
+                    ifnull(json_extract(payload, "$['_cpu.Layout']"), '0') as int64
+                ) + cast(
+                    ifnull(
+                        json_extract(payload, "$['_cpu.UpdateLayoutTree']"), '0'
+                    ) as int64
+                )
+            ) as layout_cpu_time
+        from `httparchive.pages.2019_07_01_*`
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

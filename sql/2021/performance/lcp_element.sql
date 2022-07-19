@@ -1,29 +1,24 @@
-#standardSQL
+# standardSQL
 # LCP element node
-# This is a simplified query - the lcp_element_data.sql one will probably be used instead. Leaving this here for reference for now.
-
-SELECT
-  _TABLE_SUFFIX AS client,
-  JSON_EXTRACT_SCALAR(payload, '$._performance.lcp_elem_stats[0].nodeName') AS lcp_node,
-  COUNT(DISTINCT url) AS pages,
-  ANY_VALUE(total) AS total,
-  COUNT(DISTINCT url) / ANY_VALUE(total) AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (_TABLE_SUFFIX)
-GROUP BY
-  client,
-  lcp_node
-HAVING
-  pages > 1000
-ORDER BY
-  pct DESC
+# This is a simplified query - the lcp_element_data.sql one will probably be used
+# instead. Leaving this here for reference for now.
+select
+    _table_suffix as client,
+    json_extract_scalar(
+        payload, '$._performance.lcp_elem_stats[0].nodeName'
+    ) as lcp_node,
+    count(distinct url) as pages,
+    any_value(total) as total,
+    count(distinct url) / any_value(total) as pct
+from `httparchive.pages.2021_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    )
+    using
+    (_table_suffix)
+group by client, lcp_node
+having pages > 1000
+order by pct desc

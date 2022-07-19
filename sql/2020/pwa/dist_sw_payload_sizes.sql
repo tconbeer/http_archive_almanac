@@ -1,29 +1,16 @@
-#standardSQL
+# standardSQL
 # Distribution of SW payload sizes - based on 2019/14_03b.sql
-SELECT
-  date,
-  percentile,
-  client,
-  APPROX_QUANTILES(respSize, 1000)[OFFSET(percentile * 10)] AS bytes
-FROM
-  (SELECT DISTINCT
-      date,
-      client,
-      page,
-      url
-    FROM
-      `httparchive.almanac.service_workers`)
-JOIN
-  `httparchive.almanac.requests`
-USING (date, client, page, url),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-WHERE
-  date = '2020-08-01'
-GROUP BY
-  date,
-  percentile,
-  client
-ORDER BY
-  date,
-  percentile,
-  client
+select
+    date,
+    percentile,
+    client,
+    approx_quantiles(respsize, 1000)[offset(percentile * 10)] as bytes
+from
+    (select distinct date, client, page, url from `httparchive.almanac.service_workers`)
+join
+    `httparchive.almanac.requests`
+    using(date, client, page, url),
+    unnest([10, 25, 50, 75, 90]) as percentile
+where date = '2020-08-01'
+group by date, percentile, client
+order by date, percentile, client

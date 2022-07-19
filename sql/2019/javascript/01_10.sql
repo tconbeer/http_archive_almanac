@@ -1,21 +1,18 @@
-#standardSQL
+# standardSQL
 # 01_10: Top JS frameworks
-SELECT
-  app,
-  _TABLE_SUFFIX AS client,
-  COUNT(0) AS freq,
-  total,
-  ROUND(COUNT(0) * 100 / total, 2) AS pct
-FROM
-  (SELECT _TABLE_SUFFIX, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-JOIN
-  `httparchive.technologies.2019_07_01_*`
-USING (_TABLE_SUFFIX)
-WHERE
-  category = 'JavaScript Frameworks'
-GROUP BY
-  app,
-  client,
-  total
-ORDER BY
-  freq DESC
+select
+    app,
+    _table_suffix as client,
+    count(0) as freq,
+    total,
+    round(count(0) * 100 / total, 2) as pct
+from
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    )
+join `httparchive.technologies.2019_07_01_*` using(_table_suffix)
+where category = 'JavaScript Frameworks'
+group by app, client, total
+order by freq desc

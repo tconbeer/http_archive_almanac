@@ -1,51 +1,46 @@
 # standardSQL
 # Distribution of TLS versions by HHTP Version
-SELECT
-  client,
-  http_version_category,
-  tls_version,
-  COUNT(DISTINCT page) AS freq,
-  total,
-  COUNT(DISTINCT page) / total AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    protocol,
-    CASE
-      WHEN LOWER(protocol) = 'quic' OR LOWER(protocol) LIKE 'h3%' THEN 'HTTP/2+'
-      WHEN LOWER(protocol) = 'http/2' OR LOWER(protocol) = 'http/3' THEN 'HTTP/2+'
-      WHEN protocol IS NULL THEN 'Unknown'
-      ELSE UPPER(protocol)
-    END AS http_version_category,
-    CASE
-      WHEN LOWER(protocol) = 'quic' OR LOWER(protocol) LIKE 'h3%' THEN 'HTTP/3'
-      WHEN protocol IS NULL THEN 'Unknown'
-      ELSE UPPER(protocol)
-    END AS http_version,
-    IFNULL(tls_version, cert_protocol) AS tls_version
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    STARTS_WITH(url, 'https') AND
-    firstHtml)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  WHERE
-    STARTS_WITH(url, 'https')
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  http_version_category,
-  tls_version,
-  total
-ORDER BY
-  pct DESC
+    http_version_category,
+    tls_version,
+    count(distinct page) as freq,
+    total,
+    count(distinct page) / total as pct
+from
+    (
+        select
+            client,
+            page,
+            protocol,
+            case
+                when lower(protocol) = 'quic' or lower(protocol) like 'h3%'
+                then 'HTTP/2+'
+                when lower(protocol) = 'http/2' or lower(protocol) = 'http/3'
+                then 'HTTP/2+'
+                when protocol is null
+                then 'Unknown'
+                else upper(protocol)
+            end as http_version_category,
+            case
+                when lower(protocol) = 'quic' or lower(protocol) like 'h3%'
+                then 'HTTP/3'
+                when protocol is null
+                then 'Unknown'
+                else upper(protocol)
+            end as http_version,
+            ifnull(tls_version, cert_protocol) as tls_version
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and starts_with(url, 'https') and firsthtml
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        where starts_with(url, 'https')
+        group by client
+    )
+    using
+    (client)
+group by client, http_version_category, tls_version, total
+order by pct desc

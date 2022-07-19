@@ -1,12 +1,12 @@
-#standardSQL
+# standardSQL
 # Robots txt user agent usage
-
-
 # returns all the data we need from _robots_txt
-CREATE TEMPORARY FUNCTION getRobotsTextUserAgents(robots_txt_string STRING)
-RETURNS STRUCT<
-  user_agents ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function getrobotstextuseragents(robots_txt_string string)
+returns struct
+< user_agents array
+< string
+> > language js
+as '''
 var result = {
   user_agents: []
 };
@@ -23,38 +23,29 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  user_agent,
-  total,
-  COUNT(0) AS count,
-  SAFE_DIVIDE(COUNT(0), total) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      getRobotsTextUserAgents(JSON_EXTRACT_SCALAR(payload, '$._robots_txt')) AS robots_txt_user_agent_info
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    JOIN
-      (
+select client, user_agent, total, count(0) as count, safe_divide(count(0), total) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            getrobotstextuseragents(
+                json_extract_scalar(payload, '$._robots_txt')
+            ) as robots_txt_user_agent_info
+        from `httparchive.pages.2021_07_01_*`
+        join
+            (
 
-        SELECT _TABLE_SUFFIX, COUNT(0) AS total
-        FROM
-          `httparchive.pages.2021_07_01_*`
-        GROUP BY _TABLE_SUFFIX
-      )
-    USING (_TABLE_SUFFIX)
-  ),
-  UNNEST(robots_txt_user_agent_info.user_agents) AS user_agent
-GROUP BY
-  total,
-  user_agent,
-  client
-HAVING
-  count >= 20
-ORDER BY
-  count DESC
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2021_07_01_*`
+                group by _table_suffix
+            )
+            using(_table_suffix)
+    ),
+    unnest(robots_txt_user_agent_info.user_agents) as user_agent
+group by total, user_agent, client
+having count >= 20
+order by count desc

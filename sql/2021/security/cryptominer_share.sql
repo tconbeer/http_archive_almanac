@@ -1,19 +1,12 @@
-#standardSQL
+# standardSQL
 # Share of cryptominers
-SELECT
-  app,
-  _TABLE_SUFFIX AS client,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total_cryptominers,
-  COUNT(0) AS freq,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS pct
-FROM
-  `httparchive.technologies.2021_07_01_*`
-WHERE
-  category = 'Cryptominers' OR
-  category = 'Cryptominer'
-GROUP BY
-  client,
-  app
-ORDER BY
-  client,
-  pct DESC
+select
+    app,
+    _table_suffix as client,
+    sum(count(0)) over (partition by _table_suffix) as total_cryptominers,
+    count(0) as freq,
+    count(0) / sum(count(0)) over (partition by _table_suffix) as pct
+from `httparchive.technologies.2021_07_01_*`
+where category = 'Cryptominers' or category = 'Cryptominer'
+group by client, app
+order by client, pct desc

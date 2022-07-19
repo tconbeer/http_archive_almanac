@@ -1,23 +1,18 @@
-#standardSQL
+# standardSQL
 # Distribution of CA issuers for all requests
-SELECT
-  client,
-  issuer,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_requests,
-  COUNT(0) AS freq,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    JSON_EXTRACT_SCALAR(payload, '$._securityDetails.issuer') AS issuer
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01')
-WHERE
-  issuer IS NOT NULL
-GROUP BY
-  client,
-  issuer
-ORDER BY
-  pct DESC
+    issuer,
+    sum(count(0)) over (partition by client) as total_requests,
+    count(0) as freq,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select
+            client, json_extract_scalar(payload, '$._securityDetails.issuer') as issuer
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01'
+    )
+where issuer is not null
+group by client, issuer
+order by pct desc

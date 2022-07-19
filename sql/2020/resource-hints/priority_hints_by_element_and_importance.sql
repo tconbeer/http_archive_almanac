@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 21_10: Top tag/importance combinations on priority hints.
-CREATE TEMPORARY FUNCTION getPriorityHints(payload STRING)
-RETURNS ARRAY<STRUCT<tag STRING, importance STRING>> LANGUAGE js AS '''
+create temporary function getpriorityhints(payload string)
+returns array < struct < tag string,
+importance string
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -14,21 +16,16 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  hint.tag,
-  hint.importance,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS pct
-FROM
-  `httparchive.pages.2020_08_01_*`,
-  UNNEST(getPriorityHints(payload)) AS hint
-GROUP BY
-  client,
-  tag,
-  importance
-ORDER BY
-  pct DESC
+select
+    _table_suffix as client,
+    hint.tag,
+    hint.importance,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix) as total,
+    count(0) / sum(count(0)) over (partition by _table_suffix) as pct
+from `httparchive.pages.2020_08_01_*`, unnest(getpriorityhints(payload)) as hint
+group by client, tag, importance
+order by pct desc

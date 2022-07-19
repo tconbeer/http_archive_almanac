@@ -1,76 +1,45 @@
-#standardSQL
+# standardSQL
 # Top 100 third parties by number of websites
+with
+    requests as (
+        select _table_suffix as client, pageid as page, url
+        from `httparchive.summary_requests.2021_07_01_*`
+    ),
 
-WITH requests AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    pageid AS page,
-    url
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-),
+    totals as (
+        select
+            _table_suffix as client,
+            count(distinct pageid) as total_pages,
+            count(0) as total_requests
+        from `httparchive.summary_requests.2021_07_01_*`
+        group by _table_suffix
+    ),
 
-totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(DISTINCT pageid) AS total_pages,
-    COUNT(0) AS total_requests
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-),
+    third_party as (
+        select domain, canonicaldomain, category, count(distinct page) as page_usage
+        from `httparchive.almanac.third_parties` tp
+        join requests r on net.host(r.url) = net.host(tp.domain)
+        where date = '2021-07-01' and category != 'hosting'
+        group by domain, canonicaldomain, category
+        having page_usage >= 50
+    )
 
-third_party AS (
-  SELECT
-    domain,
-    canonicalDomain,
-    category,
-    COUNT(DISTINCT page) AS page_usage
-  FROM
-    `httparchive.almanac.third_parties` tp
-  JOIN
-    requests r
-  ON NET.HOST(r.url) = NET.HOST(tp.domain)
-  WHERE
-    date = '2021-07-01' AND
-    category != 'hosting'
-  GROUP BY
-    domain,
-    canonicalDomain,
-    category
-  HAVING
-    page_usage >= 50
-)
-
-SELECT
-  client,
-  canonicalDomain,
-  COUNT(DISTINCT page) AS pages,
-  total_pages,
-  COUNT(DISTINCT page) / total_pages AS pct_pages,
-  COUNT(0) AS requests,
-  total_requests,
-  COUNT(0) / total_requests AS pct_requests,
-  DENSE_RANK() OVER (PARTITION BY client ORDER BY COUNT(DISTINCT page) DESC) AS sorted_order
-FROM
-  requests
-LEFT JOIN
-  third_party
-ON
-  NET.HOST(requests.url) = NET.HOST(third_party.domain)
-JOIN
-  totals
-USING (client)
-WHERE
-  canonicalDomain IS NOT NULL
-GROUP BY
-  client,
-  total_pages,
-  total_requests,
-  canonicalDomain
-QUALIFY
-  sorted_order <= 100
-ORDER BY
-  pct_pages DESC,
-  client
+select
+    client,
+    canonicaldomain,
+    count(distinct page) as pages,
+    total_pages,
+    count(distinct page) / total_pages as pct_pages,
+    count(0) as requests,
+    total_requests,
+    count(0) / total_requests as pct_requests,
+    dense_rank() over (
+        partition by client order by count(distinct page) desc
+    ) as sorted_order
+from requests
+left join third_party on net.host(requests.url) = net.host(third_party.domain)
+join totals using(client)
+where canonicaldomain is not null
+group by client, total_pages, total_requests, canonicaldomain
+qualify sorted_order <= 100
+order by pct_pages desc, client

@@ -1,10 +1,10 @@
-#standardSQL
+# standardSQL
 # Count the number of lazily loaded iframes
-
-# returns true/false if the page has an iframe with `loading="lazy"` or null if the page has no iframes
-CREATE TEMPORARY FUNCTION hasLazyLoadedIframe(almanac_string STRING)
-RETURNS BOOL
-LANGUAGE js AS '''
+# returns true/false if the page has an iframe with `loading="lazy"` or null if the
+# page has no iframes
+create temporary function haslazyloadediframe(almanac_string string)
+returns bool
+language js as '''
 try {
     var almanac = JSON.parse(almanac_string)
     if (Array.isArray(almanac) || typeof almanac != 'object') return null;
@@ -20,22 +20,23 @@ try {
 catch {
     return null
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(has_lazy_iframes) AS is_lazy,
-  COUNTIF(has_lazy_iframes IS NOT NULL) AS has_iframe,
-  COUNTIF(has_lazy_iframes) / COUNTIF(has_lazy_iframes IS NOT NULL) AS pct,
-  COUNT(0) AS total
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    hasLazyLoadedIframe(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS has_lazy_iframes
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
-ORDER BY
-  client
+select
+    client,
+    countif(has_lazy_iframes) as is_lazy,
+    countif(has_lazy_iframes is not null) as has_iframe,
+    countif(has_lazy_iframes) / countif(has_lazy_iframes is not null) as pct,
+    count(0) as total
+from
+    (
+        select
+            _table_suffix as client,
+            haslazyloadediframe(
+                json_extract_scalar(payload, '$._almanac')
+            ) as has_lazy_iframes
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client
+order by client

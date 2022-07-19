@@ -1,36 +1,38 @@
-SELECT
-  percentile,
-  client,
-  path,
-  APPROX_QUANTILES(freq, 1000)[OFFSET(percentile * 10)] AS freq
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    page,
-    REGEXP_EXTRACT(url, r'/(themes|plugins|wp-includes)/') AS path,
-    COUNT(0) AS freq
-  FROM
-    (SELECT _TABLE_SUFFIX, url AS page FROM `httparchive.technologies.2020_09_01_*` WHERE app = 'WordPress')
-  JOIN
-    (SELECT _TABLE_SUFFIX, pageid, url AS page FROM `httparchive.summary_pages.2020_09_01_*`)
-  USING
-    (_TABLE_SUFFIX, page)
-  JOIN
-    (SELECT _TABLE_SUFFIX, pageid, url FROM `httparchive.summary_requests.2020_09_01_*`)
-  USING
-    (_TABLE_SUFFIX, pageid)
-  GROUP BY
+select
+    percentile,
     client,
-    page,
-    path
-  HAVING
-    path IS NOT NULL),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  path
-ORDER BY
-  percentile,
-  client,
-  path
+    path,
+    approx_quantiles(freq, 1000)[offset(percentile * 10)] as freq
+from
+    (
+        select
+            _table_suffix as client,
+            page,
+            regexp_extract(url, r'/(themes|plugins|wp-includes)/') as path,
+            count(0) as freq
+        from
+            (
+                select _table_suffix, url as page
+                from `httparchive.technologies.2020_09_01_*`
+                where app = 'WordPress'
+            )
+        join
+            (
+                select _table_suffix, pageid, url as page
+                from `httparchive.summary_pages.2020_09_01_*`
+            )
+            using
+            (_table_suffix, page)
+        join
+            (
+                select _table_suffix, pageid, url
+                from `httparchive.summary_requests.2020_09_01_*`
+            )
+            using
+            (_table_suffix, pageid)
+        group by client, page, path
+        having path is not null
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client, path
+order by percentile, client, path

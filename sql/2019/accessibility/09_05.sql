@@ -1,25 +1,23 @@
-#standardSQL
+# standardSQL
 # 09_05: ARIA role popularity
-SELECT
-  client,
-  role,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  `httparchive.almanac.summary_response_bodies`,
-  UNNEST(REGEXP_EXTRACT_ALL(LOWER(body), 'role=[\'"]?([\\w-]+)')) AS role
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING
-  (client)
-WHERE
-  date = '2019-07-01' AND
-  firstHtml
-GROUP BY
-  client,
-  total,
-  role
-ORDER BY
-  pages / total DESC
-LIMIT 1000
+select
+    client,
+    role,
+    count(distinct page) as pages,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from
+    `httparchive.almanac.summary_response_bodies`,
+    unnest(regexp_extract_all(lower(body), 'role=[\'"]?([\\w-]+)')) as role
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    )
+    using
+    (client)
+where date = '2019-07-01' and firsthtml
+group by client, total, role
+order by pages / total desc
+limit 1000

@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 02_15b: % of pages using landscape/portrait orientation in media queries
-CREATE TEMPORARY FUNCTION getOrientation(css STRING)
-RETURNS STRUCT<landscape BOOLEAN, portrait BOOLEAN> LANGUAGE js AS '''
+create temporary function getorientation(css string)
+returns struct < landscape boolean,
+portrait boolean
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {
@@ -21,38 +23,38 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(landscape > 0) AS freq_landscape,
-  COUNTIF(portrait > 0) AS freq_portrait,
-  COUNTIF(landscape > 0 AND portrait > 0) AS freq_both,
-  total,
-  ROUND(COUNTIF(landscape > 0) * 100 / total, 2) AS pct_landscape,
-  ROUND(COUNTIF(portrait > 0) * 100 / total, 2) AS pct_portrait,
-  ROUND(COUNTIF(landscape > 0 AND portrait > 0) * 100 / total, 2) AS pct_both
-FROM (
-  SELECT
+select
     client,
-    COUNTIF(orientation.landscape) AS landscape,
-    COUNTIF(orientation.portrait) AS portrait
-  FROM (
-    SELECT
-      client,
-      page,
-      getOrientation(css) AS orientation
-    FROM
-      `httparchive.almanac.parsed_css`
-    WHERE
-      date = '2019-07-01')
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(landscape > 0) as freq_landscape,
+    countif(portrait > 0) as freq_portrait,
+    countif(landscape > 0 and portrait > 0) as freq_both,
+    total,
+    round(countif(landscape > 0) * 100 / total, 2) as pct_landscape,
+    round(countif(portrait > 0) * 100 / total, 2) as pct_portrait,
+    round(countif(landscape > 0 and portrait > 0) * 100 / total, 2) as pct_both
+from
+    (
+        select
+            client,
+            countif(orientation.landscape) as landscape,
+            countif(orientation.portrait) as portrait
+        from
+            (
+                select client, page, getorientation(css) as orientation
+                from `httparchive.almanac.parsed_css`
+                where date = '2019-07-01'
+            )
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    )
+    using
+    (client)
+group by client, total

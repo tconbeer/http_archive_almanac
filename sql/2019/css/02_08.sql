@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 02_08: % of sites that use classes or IDs in selectors
-CREATE TEMPORARY FUNCTION getSelectorType(css STRING)
-RETURNS STRUCT<class BOOLEAN, id BOOLEAN> LANGUAGE js AS '''
+create temporary function getselectortype(css string)
+returns struct < class boolean,
+id boolean
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -27,36 +29,33 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(class > 0) AS freq_class,
-  COUNTIF(id > 0) AS freq_id,
-  total,
-  ROUND(COUNTIF(class > 0) * 100 / total, 2) AS pct_class,
-  ROUND(COUNTIF(id > 0) * 100 / total, 2) AS pct_id
-FROM (
-  SELECT
+select
     client,
-    COUNTIF(type.class) AS class,
-    COUNTIF(type.id) AS id
-  FROM (
-    SELECT
-      client,
-      page,
-      getSelectorType(css) AS type
-    FROM
-      `httparchive.almanac.parsed_css`
-    WHERE
-      date = '2019-07-01')
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(class > 0) as freq_class,
+    countif(id > 0) as freq_id,
+    total,
+    round(countif(class > 0) * 100 / total, 2) as pct_class,
+    round(countif(id > 0) * 100 / total, 2) as pct_id
+from
+    (
+        select client, countif(type.class) as class, countif(type.id) as id
+        from
+            (
+                select client, page, getselectortype(css) as type
+                from `httparchive.almanac.parsed_css`
+                where date = '2019-07-01'
+            )
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    )
+    using
+    (client)
+group by client, total

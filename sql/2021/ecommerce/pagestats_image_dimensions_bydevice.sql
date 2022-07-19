@@ -1,10 +1,10 @@
-#standardSQL
+# standardSQL
 # 13_06c: Distribution of image dimensions
-
-## $4.11 run
-
-CREATE TEMPORARY FUNCTION getImageDimensions(payload STRING)
-RETURNS ARRAY<STRUCT<height INT64, width INT64>> LANGUAGE js AS '''
+# # $4.11 run
+create temporary function getimagedimensions(payload string)
+returns array < struct < height int64,
+width int64
+>> language js as '''
 try {
   var $ = JSON.parse(payload);
   var images = JSON.parse($._Images);
@@ -12,29 +12,22 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  APPROX_QUANTILES(image.width, 1000)[OFFSET(percentile * 10)] AS image_width,
-  APPROX_QUANTILES(image.height, 1000)[OFFSET(percentile * 10)] AS image_height
-FROM
-  `httparchive.pages.2021_07_01_*`
-JOIN
-  `httparchive.technologies.2021_07_01_*`
-USING (_TABLE_SUFFIX, url),
-  UNNEST(getImageDimensions(payload)) AS image,
-  UNNEST([10, 25, 50, 75, 90])
-WHERE
-  category = 'Ecommerce' AND
-  (
-    app != 'Cart Functionality' AND
-    app != 'Google Analytics Enhanced eCommerce'
-  )
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    _table_suffix as client,
+    approx_quantiles(image.width, 1000)[offset(percentile * 10)] as image_width,
+    approx_quantiles(image.height, 1000)[offset(percentile * 10)] as image_height
+from `httparchive.pages.2021_07_01_*`
+join
+    `httparchive.technologies.2021_07_01_*`
+    using(_table_suffix, url),
+    unnest(getimagedimensions(payload)) as image,
+    unnest([10, 25, 50, 75, 90])
+where
+    category = 'Ecommerce'
+    and (app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce')
+group by percentile, client
+order by percentile, client

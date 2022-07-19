@@ -1,42 +1,46 @@
-#standardSQL #self_hosted_vs_hosted_with_fcp
-SELECT
-  client,
-  CASE
-    WHEN pct_self_hosted_hosted = 1 THEN 'self-hosted'
-    WHEN pct_self_hosted_hosted = 0 THEN 'external'
-    ELSE 'both'
-  END AS font_host,
-  COUNT(DISTINCT page) AS pages,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total,
-  COUNT(DISTINCT page) / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS pct,
-  APPROX_QUANTILES(fcp, 1000)[OFFSET(500)] AS median_fcp,
-  APPROX_QUANTILES(lcp, 1000)[OFFSET(500)] AS median_lcp
-FROM (
-  SELECT
+# standardSQL #self_hosted_vs_hosted_with_fcp
+select
     client,
-    page,
-    COUNTIF(NET.HOST(page) = NET.HOST(url)) / COUNT(0) AS pct_self_hosted_hosted
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    type = 'font'
-  GROUP BY
-    client,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    CAST(JSON_EXTRACT_SCALAR(payload, "$['_chromeUserTiming.firstContentfulPaint']") AS INT64) AS fcp,
-    CAST(JSON_EXTRACT_SCALAR(payload, "$['_chromeUserTiming.LargestContentfulPaint']") AS INT64) AS lcp
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-USING
-  (client, page)
-GROUP BY
-  client,
-  font_host
-ORDER BY
-  font_host,
-  client
+    case
+        when pct_self_hosted_hosted = 1
+        then 'self-hosted'
+        when pct_self_hosted_hosted = 0
+        then 'external'
+        else 'both'
+    end as font_host,
+    count(distinct page) as pages,
+    sum(count(distinct page)) over (partition by client) as total,
+    count(distinct page) / sum(count(distinct page)) over (partition by client) as pct,
+    approx_quantiles(fcp, 1000)[offset(500)] as median_fcp,
+    approx_quantiles(lcp, 1000)[offset(500)] as median_lcp
+from
+    (
+        select
+            client,
+            page,
+            countif(net.host(page) = net.host(url)) / count(0) as pct_self_hosted_hosted
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and type = 'font'
+        group by client, page
+    )
+join
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.firstContentfulPaint']"
+                ) as int64
+            ) as fcp,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.LargestContentfulPaint']"
+                ) as int64
+            ) as lcp
+        from `httparchive.pages.2021_07_01_*`
+    )
+    using
+    (client, page)
+group by client, font_host
+order by font_host, client

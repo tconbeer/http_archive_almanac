@@ -1,14 +1,12 @@
-#standardSQL
+# standardSQL
 # Image alt stats
-
 # returns all the data we need from _markup
-CREATE TEMPORARY FUNCTION get_markup_info(markup_string STRING)
-RETURNS STRUCT<
-  images_img_total INT64,
-  images_with_alt_present INT64,
-  images_with_alt_blank INT64,
-  images_with_alt_missing INT64
-> LANGUAGE js AS '''
+create temporary function get_markup_info(markup_string string)
+returns struct < images_img_total int64,
+images_with_alt_present int64,
+images_with_alt_blank int64,
+images_with_alt_missing int64
+> language js as '''
 var result = {
   images_img_total: 0,
   images_with_alt_present: 0,
@@ -35,47 +33,61 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  COUNT(DISTINCT url) AS total,
-
-  # images per page
-  APPROX_QUANTILES(markup_info.images_img_total, 1000)[OFFSET(percentile * 10)] AS img_count,
-
-  # percent of images containg alt text (not blank)
-  APPROX_QUANTILES(SAFE_DIVIDE(markup_info.images_with_alt_present, markup_info.images_img_total), 1000)[OFFSET(percentile * 10)] AS images_with_alt_present_percent,
-
-  # percent of images containg a blank alt text
-  APPROX_QUANTILES(SAFE_DIVIDE(markup_info.images_with_alt_blank, markup_info.images_img_total), 1000)[OFFSET(percentile * 10)] AS images_with_alt_blank_percent,
-
-  # percent of images without an alt attribute
-  APPROX_QUANTILES(SAFE_DIVIDE(markup_info.images_with_alt_missing, markup_info.images_img_total), 1000)[OFFSET(percentile * 10)] AS images_with_alt_missing_percent,
-
-  # number of images containg alt text (not blank)
-  APPROX_QUANTILES(markup_info.images_with_alt_present, 1000)[OFFSET(percentile * 10)] AS images_with_alt_present,
-
-  # number of images containg a blank alt text
-  APPROX_QUANTILES(markup_info.images_with_alt_blank, 1000)[OFFSET(percentile * 10)] AS images_with_alt_blank,
-
-  # number of images without an alt attribute
-  APPROX_QUANTILES(markup_info.images_with_alt_missing, 1000)[OFFSET(percentile * 10)] AS images_with_alt_missing
-
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
     percentile,
-    url,
-    get_markup_info(JSON_EXTRACT_SCALAR(payload, '$._markup')) AS markup_info
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST([10, 25, 50, 75, 90]) AS percentile
-)
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    client,
+    count(distinct url) as total,
+
+    # images per page
+    approx_quantiles(markup_info.images_img_total, 1000)[
+        offset(percentile * 10)
+    ] as img_count,
+
+    # percent of images containg alt text (not blank)
+    approx_quantiles(
+        safe_divide(markup_info.images_with_alt_present, markup_info.images_img_total),
+        1000
+    )[offset(percentile * 10)] as images_with_alt_present_percent,
+
+    # percent of images containg a blank alt text
+    approx_quantiles(
+        safe_divide(markup_info.images_with_alt_blank, markup_info.images_img_total),
+        1000
+    )[offset(percentile * 10)] as images_with_alt_blank_percent,
+
+    # percent of images without an alt attribute
+    approx_quantiles(
+        safe_divide(markup_info.images_with_alt_missing, markup_info.images_img_total),
+        1000
+    )[offset(percentile * 10)] as images_with_alt_missing_percent,
+
+    # number of images containg alt text (not blank)
+    approx_quantiles(markup_info.images_with_alt_present, 1000)[
+        offset(percentile * 10)
+    ] as images_with_alt_present,
+
+    # number of images containg a blank alt text
+    approx_quantiles(markup_info.images_with_alt_blank, 1000)[
+        offset(percentile * 10)
+    ] as images_with_alt_blank,
+
+    # number of images without an alt attribute
+    approx_quantiles(markup_info.images_with_alt_missing, 1000)[
+        offset(percentile * 10)
+    ] as images_with_alt_missing
+
+from
+    (
+        select
+            _table_suffix as client,
+            percentile,
+            url,
+            get_markup_info(json_extract_scalar(payload, '$._markup')) as markup_info
+        from
+            `httparchive.pages.2021_07_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
+    )
+group by percentile, client
+order by percentile, client
