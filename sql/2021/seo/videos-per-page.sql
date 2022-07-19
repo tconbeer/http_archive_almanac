@@ -27,8 +27,8 @@ select
     count(distinct url) as total,
 
     # videos per page
-    approx_quantiles(
-        almanac_info.videos_total, 1000) [offset (percentile * 10)
+    approx_quantiles(almanac_info.videos_total, 1000)[
+        offset(percentile * 10)
     ] as videos_count
 
 from
@@ -41,8 +41,7 @@ from
                 json_extract_scalar(payload, '$._almanac')
             ) as video_almanac_info
         from
-            `httparchive.pages.2021_07_01_*`,
-            unnest( [10, 25, 50, 75, 90]) as percentile
+            `httparchive.pages.2021_07_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
     )
 where video_almanac_info.videos_total > 0
 group by percentile, client

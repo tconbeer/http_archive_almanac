@@ -29,10 +29,8 @@ select
     total_pages,
     count(distinct page) as blocking_pages,
     percentile,
-    approx_quantiles(wasted_ms, 1000) [offset (percentile * 10)] as wasted_ms,
-    approx_quantiles(
-        total_bytes_kib, 1000) [offset (percentile * 10)
-    ] as total_bytes_kib
+    approx_quantiles(wasted_ms, 1000)[offset(percentile * 10)] as wasted_ms,
+    approx_quantiles(total_bytes_kib, 1000)[offset(percentile * 10)] as total_bytes_kib
 from
     (
         select
@@ -65,7 +63,7 @@ from
 inner join
     total_third_party_usage
     using(canonicaldomain, category),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by canonicaldomain, category, total_pages, percentile
 order by total_pages desc, category, percentile
 limit 200

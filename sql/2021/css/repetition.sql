@@ -33,10 +33,10 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(total, 1000 ignore nulls) [offset (percentile * 10)] as total,
-    approx_quantiles(unique, 1000 ignore nulls) [offset (percentile * 10)] as unique,
-    approx_quantiles(
-        safe_divide(unique, total), 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(total, 1000 ignore nulls)[offset(percentile * 10)] as total,
+    approx_quantiles(unique, 1000 ignore nulls)[offset(percentile * 10)] as unique,
+    approx_quantiles(safe_divide(unique, total), 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as unique_ratio
 from
     (
@@ -49,6 +49,6 @@ from
             )
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90, 95, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 95, 100]) as percentile
 group by percentile, client
 order by percentile, client

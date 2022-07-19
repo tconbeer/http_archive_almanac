@@ -41,7 +41,7 @@ with
         select client, rank_grouping, count(distinct page) as total_websites
         from
             `httparchive.almanac.requests`,
-            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+            unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where date = '2021-07-01' and firsthtml = true and rank <= rank_grouping
         group by client, rank_grouping
     ),
@@ -113,7 +113,7 @@ with
 select
     client,
     rank_grouping,
-    rtrim(split(trim(directive), ' ') [offset (0)], ':') as directive_name,
+    rtrim(split(trim(directive), ' ')[offset(0)], ':') as directive_name,
     trim(origin) as origin,
     count(distinct page) as number_of_websites_with_directive,
     total_websites,
@@ -130,7 +130,7 @@ from
                 from normalized_permissions_policy
             )
     ),
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 join page_ranks using(client, page)
 join
     totals
@@ -139,9 +139,8 @@ join
     unnest(  -- Directive may specify explicit origins or not.
         if(
             -- test if any explicit origin is provided
-            array_length(split(trim(directive), ' ')) = 1,
             -- if not, add a dummy empty origin to make the query work
-            [trim(directive), ''],
+            array_length(split(trim(directive), ' ')) = 1, [trim(directive), ''],
             split(trim(directive), ' ')  -- if it is, split the different origins
         )
     ) as origin

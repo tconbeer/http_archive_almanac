@@ -8,18 +8,18 @@ select
     round(100 * countif(hits > 0) / count(0), 2) as pct,
     sum(hits) as totalhits,
     sum(bytes) as totalbytes,
-    approx_quantiles(hits, 1000) [offset (100)] as hits_p10,
-    approx_quantiles(hits, 1000) [offset (250)] as hits_p25,
-    approx_quantiles(hits, 1000) [offset (500)] as hits_p50,
-    approx_quantiles(hits, 1000) [offset (750)] as hits_p75,
-    approx_quantiles(hits, 1000) [offset (900)] as hits_p90,
-    approx_quantiles(hits, 1000) [offset (990)] as hits_p99,
-    approx_quantiles(bytes, 1000) [offset (100)] as bytes_p10,
-    approx_quantiles(bytes, 1000) [offset (250)] as bytes_p25,
-    approx_quantiles(bytes, 1000) [offset (500)] as bytes_p50,
-    approx_quantiles(bytes, 1000) [offset (750)] as bytes_p75,
-    approx_quantiles(bytes, 1000) [offset (900)] as bytes_p90,
-    approx_quantiles(bytes, 1000) [offset (990)] as bytes_p99
+    approx_quantiles(hits, 1000)[offset(100)] as hits_p10,
+    approx_quantiles(hits, 1000)[offset(250)] as hits_p25,
+    approx_quantiles(hits, 1000)[offset(500)] as hits_p50,
+    approx_quantiles(hits, 1000)[offset(750)] as hits_p75,
+    approx_quantiles(hits, 1000)[offset(900)] as hits_p90,
+    approx_quantiles(hits, 1000)[offset(990)] as hits_p99,
+    approx_quantiles(bytes, 1000)[offset(100)] as bytes_p10,
+    approx_quantiles(bytes, 1000)[offset(250)] as bytes_p25,
+    approx_quantiles(bytes, 1000)[offset(500)] as bytes_p50,
+    approx_quantiles(bytes, 1000)[offset(750)] as bytes_p75,
+    approx_quantiles(bytes, 1000)[offset(900)] as bytes_p90,
+    approx_quantiles(bytes, 1000)[offset(990)] as bytes_p99
 from
     (
         select
@@ -77,7 +77,7 @@ from
                     format != 'ico' and not regexp_contains(mimetype, r'video|ico')
                 group by client, page, imagetype
             )
-        cross join unnest( ['jpg', 'png', 'webp', 'gif', 'svg']) as webimagetype
+        cross join unnest(['jpg', 'png', 'webp', 'gif', 'svg']) as webimagetype
         group by client, page, webimagetype
     )
 group by client, imagetype

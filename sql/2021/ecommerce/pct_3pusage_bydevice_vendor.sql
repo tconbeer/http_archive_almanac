@@ -5,8 +5,8 @@ select
     app,
     percentile,
     count(0) as pages,
-    approx_quantiles(requests, 1000) [offset (percentile * 10)] as requests,
-    approx_quantiles(bytes, 1000) [offset (percentile * 10)] / 1024 as kbytes
+    approx_quantiles(requests, 1000)[offset(percentile * 10)] as requests,
+    approx_quantiles(bytes, 1000)[offset(percentile * 10)] / 1024 as kbytes
 from
     (
         select client, app, count(0) as requests, sum(respsize) as bytes
@@ -28,6 +28,6 @@ from
             )
         group by client, app, page
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by client, app, percentile
 order by pages desc, client, percentile

@@ -56,7 +56,7 @@ from
             -- This is done to normalize the URL a bit before counting.
             concat(
                 net.reg_domain(rdfa_prefix),
-                split(rdfa_prefix, net.reg_domain(rdfa_prefix)) [safe_offset(1)]
+                split(rdfa_prefix, net.reg_domain(rdfa_prefix))[safe_offset(1)]
             ) as rdfa_prefix
         from rendered_data, unnest(rdfa_prefixes) as rdfa_prefix
     )

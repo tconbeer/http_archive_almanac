@@ -31,9 +31,7 @@ select
             ifnull(a.protocol, b.protocol) not in (
                 'HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2'
             )
-        ) / count(
-            0
-        ),
+        ) / count(0),
         2
     ) as http_other_pct,
     round(

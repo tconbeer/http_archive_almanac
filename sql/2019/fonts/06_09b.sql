@@ -29,7 +29,7 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(fonts, 1000) [offset (percentile * 10)] as font_families_per_page
+    approx_quantiles(fonts, 1000)[offset(percentile * 10)] as font_families_per_page
 from
     (
         select client, page, count(distinct value) as fonts
@@ -38,6 +38,6 @@ from
         where date = '2019-07-01'
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

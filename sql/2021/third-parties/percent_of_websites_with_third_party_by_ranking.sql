@@ -31,7 +31,7 @@ from pages
 join requests using(client, page)
 left join
     third_party on net.host(requests.url) = net.host(third_party.domain),
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 where rank <= rank_grouping
 group by client, rank_grouping
 order by client, rank_grouping

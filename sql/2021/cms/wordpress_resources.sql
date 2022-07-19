@@ -4,7 +4,7 @@ select
     percentile,
     client,
     path,
-    approx_quantiles(freq, 1000) [offset (percentile * 10)] as freq
+    approx_quantiles(freq, 1000)[offset(percentile * 10)] as freq
 from
     (
         select
@@ -35,6 +35,6 @@ from
         group by client, page, path
         having path is not null
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client, path
 order by percentile, client, path

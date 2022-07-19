@@ -4,7 +4,8 @@
 -- from https://stackoverflow.com/a/54835472
 create temp function array_slice(arr array < string >, start int64, finish int64)
 returns array
-< string > as (
+< string
+> as (
     array(
         select part
         from unnest(arr) part

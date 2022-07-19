@@ -33,7 +33,7 @@ select
     count(0) as total,
     countif(audits.score is not null) as total_applicable,
     safe_divide(countif(audits.score > 0), countif(audits.score is not null)) as pct,
-    approx_quantiles(audits.weight, 100) [offset (50)] as median_weight,
+    approx_quantiles(audits.weight, 100)[offset(50)] as median_weight,
     max(audits.audit_group) as audit_group,
     max(audits.description) as description
 from
@@ -62,7 +62,7 @@ select
     count(0) as total,
     countif(audits.score is not null) as total_applicable,
     safe_divide(countif(audits.score > 0), countif(audits.score is not null)) as pct,
-    approx_quantiles(audits.weight, 100) [offset (50)] as median_weight,
+    approx_quantiles(audits.weight, 100)[offset(50)] as median_weight,
     max(audits.audit_group) as audit_group,
     max(audits.description) as description
 from

@@ -16,9 +16,9 @@ select
     year,
     percentile,
     client,
-    approx_quantiles(
-        bytescss / 1024, 1000) [offset (percentile * 10)
+    approx_quantiles(bytescss / 1024, 1000)[
+        offset(percentile * 10)
     ] as stylesheet_kbytes
-from summary_pages, unnest( [10, 25, 50, 75, 90, 100]) as percentile
+from summary_pages, unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by year, percentile, client
 order by year, percentile, client

@@ -4,7 +4,7 @@ select
     _table_suffix as client,
     country,
     count(0) as freq_url,
-    approx_quantiles(bytesfont, 1000) [offset (500)] / 1024 as median_font_kbytes
+    approx_quantiles(bytesfont, 1000)[offset(500)] / 1024 as median_font_kbytes
 from
     (
         select distinct

@@ -1,11 +1,11 @@
 select
     client,
     percentile,
-    approx_quantiles(
-        xmlhttprequest_total, 1000) [offset (percentile * 10)
+    approx_quantiles(xmlhttprequest_total, 1000)[
+        offset(percentile * 10)
     ] as xmlhttprequest_total,
-    approx_quantiles(fetch_total, 1000) [offset (percentile * 10)] as fetch_total,
-    approx_quantiles(beacon_total, 1000) [offset (percentile * 10)] as beacon_total
+    approx_quantiles(fetch_total, 1000)[offset(percentile * 10)] as fetch_total,
+    approx_quantiles(beacon_total, 1000)[offset(percentile * 10)] as beacon_total
 from
     (
         select
@@ -22,6 +22,6 @@ from
             ) as beacon_total
         from `httparchive.pages.2021_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

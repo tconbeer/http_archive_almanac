@@ -4,14 +4,12 @@
 select
     percentile,
     client,
-    approx_quantiles(words_count, 1000) [offset (percentile * 10)] as words_count,
-    approx_quantiles(word_elements, 1000) [offset (percentile * 10)] as word_elements,
-    approx_quantiles(
-        header_words_count, 1000) [offset (percentile * 10)
+    approx_quantiles(words_count, 1000)[offset(percentile * 10)] as words_count,
+    approx_quantiles(word_elements, 1000)[offset(percentile * 10)] as word_elements,
+    approx_quantiles(header_words_count, 1000)[
+        offset(percentile * 10)
     ] as header_words_count,
-    approx_quantiles(
-        header_elements, 1000) [offset (percentile * 10)
-    ] as header_elements
+    approx_quantiles(header_elements, 1000)[offset(percentile * 10)] as header_elements
 from
     (
         select
@@ -42,6 +40,6 @@ from
             ) as header_elements
         from `httparchive.pages.2019_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

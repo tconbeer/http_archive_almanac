@@ -29,13 +29,13 @@ select
     count(distinct url) as total,
 
     # total number of elements on a page
-    approx_quantiles(
-        element_count_info.elements_count, 1000) [offset (percentile * 10)
+    approx_quantiles(element_count_info.elements_count, 1000)[
+        offset(percentile * 10)
     ] as elements_count,
 
     # number of types of elements on a page
-    approx_quantiles(
-        element_count_info.types_count, 1000) [offset (percentile * 10)
+    approx_quantiles(element_count_info.types_count, 1000)[
+        offset(percentile * 10)
     ] as types_count
 
 from
@@ -48,8 +48,7 @@ from
                 json_extract_scalar(payload, '$._element_count')
             ) as element_count_info
         from
-            `httparchive.pages.2020_08_01_*`,
-            unnest( [10, 25, 50, 75, 90]) as percentile
+            `httparchive.pages.2020_08_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
     )
 group by percentile, client
 order by percentile, client

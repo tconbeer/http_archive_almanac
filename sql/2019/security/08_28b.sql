@@ -18,8 +18,8 @@ try {
 
 select
     client,
-    split(trim(directive), ' ') [safe_offset(0)] as feature,
-    split(trim(directive), ' ') [safe_offset(1)] as rule,
+    split(trim(directive), ' ')[safe_offset(0)] as feature,
+    split(trim(directive), ' ')[safe_offset(1)] as rule,
     count(0) as freq,
     sum(count(0)) over (partition by client) as total,
     round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct

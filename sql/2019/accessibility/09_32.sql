@@ -9,23 +9,20 @@ select
 
     round(
         countif(uses_img_elements and good_or_na_image_alts)
-        * 100 / countif(
-            uses_img_elements
-        ),
+        * 100
+        / countif(uses_img_elements),
         2
     ) as perc_good_img_element_alts,
     round(
         countif(uses_input_img_elements and good_or_na_input_img_alts)
-        * 100 / countif(
-            uses_input_img_elements
-        ),
+        * 100
+        / countif(uses_input_img_elements),
         2
     ) as perc_good_input_img_alts,
     round(
         countif(uses_any_images and good_or_na_image_alts and good_or_na_input_img_alts)
-        * 100 / countif(
-            uses_any_images
-        ),
+        * 100
+        / countif(uses_any_images),
         2
     ) as perc_good_img_alts
 from

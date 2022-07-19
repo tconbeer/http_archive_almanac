@@ -114,13 +114,11 @@ try {
 ;
 
 select
-    percentile,
-    client,
-    approx_quantiles(delay, 1000) [offset (percentile * 10)] as delay
+    percentile, client, approx_quantiles(delay, 1000)[offset(percentile * 10)] as delay
 from
     `httparchive.almanac.parsed_css`,
     unnest(gettransitiondelays(css)) as delay,
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 where date = '2021-07-01'
 group by percentile, client
 order by percentile, client

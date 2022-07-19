@@ -28,7 +28,7 @@ with
         select _table_suffix as client, rank_grouping, count(0) as rank_page_count
         from
             `httparchive.summary_pages.2021_07_01_*`,
-            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+            unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where rank <= rank_grouping
         group by client, rank_grouping
     ),
@@ -59,7 +59,7 @@ select
     rank_page_count,
     count(distinct page) as pages,
     safe_divide(count(distinct page), rank_page_count) as pct
-from base, unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+from base, unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 join totals using(client, rank_grouping)
 where rank <= rank_grouping
 group by client, user_agent, rank_grouping, rank_page_count

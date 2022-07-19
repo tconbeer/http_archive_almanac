@@ -37,16 +37,16 @@ select
     # tool
     -- mimetype,
     count(0) as hits,
-    round( (count(0) * 100 / sum(count(0)) over (partition by client)), 2) as hits_pct,
+    round((count(0) * 100 / sum(count(0)) over (partition by client)), 2) as hits_pct,
     sum(respsize) as bytes,
     round(
         (sum(respsize) * 100 / sum(sum(respsize)) over (partition by client)), 2
     ) as bytes_pct,
-    approx_quantiles(respsize, 1000) [offset (100)] as size_p10,
-    approx_quantiles(respsize, 1000) [offset (250)] as size_p25,
-    approx_quantiles(respsize, 1000) [offset (500)] as size_p50,
-    approx_quantiles(respsize, 1000) [offset (750)] as size_p75,
-    approx_quantiles(respsize, 1000) [offset (900)] as size_p90
+    approx_quantiles(respsize, 1000)[offset(100)] as size_p10,
+    approx_quantiles(respsize, 1000)[offset(250)] as size_p25,
+    approx_quantiles(respsize, 1000)[offset(500)] as size_p50,
+    approx_quantiles(respsize, 1000)[offset(750)] as size_p75,
+    approx_quantiles(respsize, 1000)[offset(900)] as size_p90
 from `httparchive.almanac.requests3`
 where
     # many 404s and redirects show up as image/gif

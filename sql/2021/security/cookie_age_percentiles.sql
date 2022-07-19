@@ -47,15 +47,13 @@ with
         select
             client,
             percentile,
-            approx_quantiles(
-                safe_cast(max_age_value as numeric),
-                1000 ignore nulls
-            ) [offset (percentile * 10)
+            approx_quantiles(safe_cast(max_age_value as numeric), 1000 ignore nulls)[
+                offset(percentile * 10)
             ] as max_age
         from
             age_values,
             unnest(json_query_array(values, '$.maxAge')) as max_age_value,
-            unnest( [10, 25, 50, 75, 90, 100]) as percentile
+            unnest([10, 25, 50, 75, 90, 100]) as percentile
         group by percentile, client
         order by percentile, client
     ),
@@ -64,15 +62,13 @@ with
         select
             client,
             percentile,
-            approx_quantiles(
-                safe_cast(expires_value as numeric),
-                1000 ignore nulls
-            ) [offset (percentile * 10)
+            approx_quantiles(safe_cast(expires_value as numeric), 1000 ignore nulls)[
+                offset(percentile * 10)
             ] as expires
         from
             age_values,
             unnest(json_query_array(values, '$.expires')) as expires_value,
-            unnest( [10, 25, 50, 75, 90, 100]) as percentile
+            unnest([10, 25, 50, 75, 90, 100]) as percentile
         group by percentile, client
         order by percentile, client
     ),
@@ -81,15 +77,13 @@ with
         select
             client,
             percentile,
-            approx_quantiles(
-                safe_cast(real_age_value as numeric),
-                1000 ignore nulls
-            ) [offset (percentile * 10)
+            approx_quantiles(safe_cast(real_age_value as numeric), 1000 ignore nulls)[
+                offset(percentile * 10)
             ] as real_age
         from
             age_values,
             unnest(json_query_array(values, '$.realAge')) as real_age_value,
-            unnest( [10, 25, 50, 75, 90, 100]) as percentile
+            unnest([10, 25, 50, 75, 90, 100]) as percentile
         group by percentile, client
         order by percentile, client
     )

@@ -17,7 +17,7 @@ select
     client,
     app as js_framework,
     count(distinct page) as pages,
-    approx_quantiles(v8_time, 1000) [offset (percentile * 10)] as v8_time
+    approx_quantiles(v8_time, 1000)[offset(percentile * 10)] as v8_time
 from
     (
         select
@@ -34,6 +34,6 @@ join
     )
     using
     (client, page),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client, js_framework
 order by percentile, client, pages desc

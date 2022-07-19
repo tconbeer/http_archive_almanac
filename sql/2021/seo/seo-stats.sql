@@ -623,7 +623,7 @@ from
     (
         select
             _table_suffix as client,
-            split(url, ':') [offset (0)] as protocol,
+            split(url, ':')[offset(0)] as protocol,
             getseostatswptbodies(
                 json_extract_scalar(payload, '$._wpt_bodies')
             ) as wpt_bodies_info

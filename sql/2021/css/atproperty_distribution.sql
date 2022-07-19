@@ -22,8 +22,8 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(
-        atprops_per_page, 1000) [offset (percentile * 10)
+    approx_quantiles(atprops_per_page, 1000)[
+        offset(percentile * 10)
     ] as atprops_per_page
 from
     (
@@ -34,7 +34,7 @@ from
         where date = '2021-07-01'
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 where atprops_per_page > 0
 group by percentile, client
 order by percentile, client

@@ -43,7 +43,7 @@ from
             'X-XSS-Protection'
         ]
     ) as headername,
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 where
     date = '2021-07-01'
     and rank <= rank_grouping

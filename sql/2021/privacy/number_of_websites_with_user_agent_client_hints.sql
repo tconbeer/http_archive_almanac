@@ -36,7 +36,7 @@ with
         select client, rank_grouping, count(distinct page) as total_websites
         from
             `httparchive.almanac.requests`,
-            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+            unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where date = '2021-07-01' and firsthtml = true and rank <= rank_grouping
         group by client, rank_grouping
     )
@@ -51,7 +51,7 @@ from response_headers
 full outer join
     meta_tags
     using(client, page),
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 join totals using(client, rank_grouping)
 where (header_name = 'accept-ch' or tag_name = 'accept-ch') and rank <= rank_grouping
 group by client, rank_grouping, total_websites

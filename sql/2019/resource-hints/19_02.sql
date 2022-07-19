@@ -29,16 +29,16 @@ try {
 
 select
     client,
-    approx_quantiles(hints.preload, 1000) [offset (500)] as median_preload,
-    approx_quantiles(hints.prefetch, 1000) [offset (500)] as median_prefetch,
-    approx_quantiles(hints.preconnect, 1000) [offset (500)] as median_preconnect,
-    approx_quantiles(hints.prerender, 1000) [offset (500)] as median_prerender,
-    approx_quantiles(hints.`dns-prefetch`, 1000) [offset (500)] as median_dns_prefetch,
-    approx_quantiles(hints.preload, 1000) [offset (900)] as p90_preload,
-    approx_quantiles(hints.prefetch, 1000) [offset (900)] as p90_prefetch,
-    approx_quantiles(hints.preconnect, 1000) [offset (900)] as p90_preconnect,
-    approx_quantiles(hints.prerender, 1000) [offset (900)] as p90_prerender,
-    approx_quantiles(hints.`dns-prefetch`, 1000) [offset (900)] as p90_dns_prefetch
+    approx_quantiles(hints.preload, 1000)[offset(500)] as median_preload,
+    approx_quantiles(hints.prefetch, 1000)[offset(500)] as median_prefetch,
+    approx_quantiles(hints.preconnect, 1000)[offset(500)] as median_preconnect,
+    approx_quantiles(hints.prerender, 1000)[offset(500)] as median_prerender,
+    approx_quantiles(hints.`dns-prefetch`, 1000)[offset(500)] as median_dns_prefetch,
+    approx_quantiles(hints.preload, 1000)[offset(900)] as p90_preload,
+    approx_quantiles(hints.prefetch, 1000)[offset(900)] as p90_prefetch,
+    approx_quantiles(hints.preconnect, 1000)[offset(900)] as p90_preconnect,
+    approx_quantiles(hints.prerender, 1000)[offset(900)] as p90_prerender,
+    approx_quantiles(hints.`dns-prefetch`, 1000)[offset(900)] as p90_dns_prefetch
 from
     (
         select _table_suffix as client, getresourcehints(payload) as hints

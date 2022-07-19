@@ -63,8 +63,8 @@ select
         countif(regexp_contains(respotherheaders, '(?i)X-XSS-Protection ')), count(0)
     ) as pct_xss,
     avg(getnumsecurityheaders(respotherheaders)) as avg_security_headers,
-    approx_quantiles(
-        getnumsecurityheaders(respotherheaders), 1000) [offset (500)
+    approx_quantiles(getnumsecurityheaders(respotherheaders), 1000)[
+        offset(500)
     ] as median_security_headers
 from
     (

@@ -3,9 +3,9 @@
 select
     percentile,
     client,
-    approx_quantiles(requests, 1000) [offset (percentile * 10)] as requests,
+    approx_quantiles(requests, 1000)[offset(percentile * 10)] as requests,
     round(
-        approx_quantiles(bytes, 1000) [offset (percentile * 10)] / 1024 / 1024, 2
+        approx_quantiles(bytes, 1000)[offset(percentile * 10)] / 1024 / 1024, 2
     ) as mbytes
 from
     (
@@ -22,6 +22,6 @@ from
         where date = '2020-08-01'
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

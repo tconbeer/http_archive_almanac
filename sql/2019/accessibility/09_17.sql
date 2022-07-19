@@ -41,23 +41,20 @@ select
 
     round(
         countif(table_info.has_table and table_info.has_th)
-        * 100 / countif(
-            table_info.has_table
-        ),
+        * 100
+        / countif(table_info.has_table),
         2
     ) as perc_with_th,
     round(
         countif(table_info.has_table and has_columnheader_role)
-        * 100 / countif(
-            table_info.has_table
-        ),
+        * 100
+        / countif(table_info.has_table),
         2
     ) as perc_with_columnheader,
     round(
         countif(table_info.has_table and has_rowheader_role)
-        * 100 / countif(
-            table_info.has_table
-        ),
+        * 100
+        / countif(table_info.has_table),
         2
     ) as perc_with_rowheader,
     round(
@@ -65,9 +62,8 @@ select
             table_info.has_table
             and (table_info.has_th or has_rowheader_role or has_columnheader_role)
         )
-        * 100 / countif(
-            table_info.has_table
-        ),
+        * 100
+        / countif(table_info.has_table),
         2
     ) as perc_with_any
 from

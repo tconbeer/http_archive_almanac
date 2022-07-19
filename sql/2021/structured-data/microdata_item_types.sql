@@ -53,10 +53,8 @@ from
             -- This is done to normalize the URL a bit before counting.
             concat(
                 net.reg_domain(microdata_item_type),
-                split(
-                    microdata_item_type,
-                    net.reg_domain(microdata_item_type)
-                ) [safe_offset(1)
+                split(microdata_item_type, net.reg_domain(microdata_item_type))[
+                    safe_offset(1)
                 ]
             ) as microdata_item_type
         from rendered_data, unnest(microdata_item_types) as microdata_item_type

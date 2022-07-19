@@ -33,8 +33,8 @@ select
     percentile,
     client,
     countif(pct_important = 100) as all_important_pages,
-    approx_quantiles(
-        pct_important, 1000) [offset (percentile * 10)
+    approx_quantiles(pct_important, 1000)[
+        offset(percentile * 10)
     ] as pct_important_props
 from
     (
@@ -52,6 +52,6 @@ from
             )
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

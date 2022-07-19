@@ -26,11 +26,11 @@ try {
 
 select
     client,
-    approx_quantiles(duplicate_colors, 1000) [offset (100)] as p10,
-    approx_quantiles(duplicate_colors, 1000) [offset (250)] as p25,
-    approx_quantiles(duplicate_colors, 1000) [offset (500)] as p50,
-    approx_quantiles(duplicate_colors, 1000) [offset (750)] as p75,
-    approx_quantiles(duplicate_colors, 1000) [offset (900)] as p90
+    approx_quantiles(duplicate_colors, 1000)[offset(100)] as p10,
+    approx_quantiles(duplicate_colors, 1000)[offset(250)] as p25,
+    approx_quantiles(duplicate_colors, 1000)[offset(500)] as p50,
+    approx_quantiles(duplicate_colors, 1000)[offset(750)] as p75,
+    approx_quantiles(duplicate_colors, 1000)[offset(900)] as p90
 from
     (
         select client, page, countif(freq > 1) as duplicate_colors

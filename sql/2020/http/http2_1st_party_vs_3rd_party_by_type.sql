@@ -5,7 +5,7 @@ select
     client,
     is_third_party,
     type,
-    round(approx_quantiles(http2_pct, 1000) [offset (percentile * 10)], 2) as http2_pct
+    round(approx_quantiles(http2_pct, 1000)[offset(percentile * 10)], 2) as http2_pct
 from
     (
         select
@@ -34,6 +34,6 @@ from
             )
         group by client, page, is_third_party, type
     ),
-    unnest( [5, 10, 20, 30, 40, 50, 60, 70, 90, 95, 100]) as percentile
+    unnest([5, 10, 20, 30, 40, 50, 60, 70, 90, 95, 100]) as percentile
 group by percentile, client, is_third_party, type
 order by percentile, client, is_third_party, type

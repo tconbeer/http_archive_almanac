@@ -42,44 +42,41 @@ select
     count(distinct url) as total,
 
     # images per page
-    approx_quantiles(
-        markup_info.images_img_total, 1000) [offset (percentile * 10)
+    approx_quantiles(markup_info.images_img_total, 1000)[
+        offset(percentile * 10)
     ] as img_count,
 
     # percent of images containg alt text (not blank)
     approx_quantiles(
         safe_divide(markup_info.images_with_alt_present, markup_info.images_img_total),
         1000
-    ) [offset (percentile * 10)
-    ] as images_with_alt_present_percent,
+    )[offset(percentile * 10)] as images_with_alt_present_percent,
 
     # percent of images containg a blank alt text
     approx_quantiles(
         safe_divide(markup_info.images_with_alt_blank, markup_info.images_img_total),
         1000
-    ) [offset (percentile * 10)
-    ] as images_with_alt_blank_percent,
+    )[offset(percentile * 10)] as images_with_alt_blank_percent,
 
     # percent of images without an alt attribute
     approx_quantiles(
         safe_divide(markup_info.images_with_alt_missing, markup_info.images_img_total),
         1000
-    ) [offset (percentile * 10)
-    ] as images_with_alt_missing_percent,
+    )[offset(percentile * 10)] as images_with_alt_missing_percent,
 
     # number of images containg alt text (not blank)
-    approx_quantiles(
-        markup_info.images_with_alt_present, 1000) [offset (percentile * 10)
+    approx_quantiles(markup_info.images_with_alt_present, 1000)[
+        offset(percentile * 10)
     ] as images_with_alt_present,
 
     # number of images containg a blank alt text
-    approx_quantiles(
-        markup_info.images_with_alt_blank, 1000) [offset (percentile * 10)
+    approx_quantiles(markup_info.images_with_alt_blank, 1000)[
+        offset(percentile * 10)
     ] as images_with_alt_blank,
 
     # number of images without an alt attribute
-    approx_quantiles(
-        markup_info.images_with_alt_missing, 1000) [offset (percentile * 10)
+    approx_quantiles(markup_info.images_with_alt_missing, 1000)[
+        offset(percentile * 10)
     ] as images_with_alt_missing
 
 from
@@ -90,8 +87,7 @@ from
             url,
             get_markup_info(json_extract_scalar(payload, '$._markup')) as markup_info
         from
-            `httparchive.pages.2021_07_01_*`,
-            unnest( [10, 25, 50, 75, 90]) as percentile
+            `httparchive.pages.2021_07_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
     )
 group by percentile, client
 order by percentile, client

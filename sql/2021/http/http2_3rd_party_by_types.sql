@@ -4,7 +4,7 @@ select
     percentile,
     client,
     category,
-    approx_quantiles(http2_3_pct, 1000) [offset (percentile * 10)] as http2_3_pct
+    approx_quantiles(http2_3_pct, 1000)[offset(percentile * 10)] as http2_3_pct
 from
     (
         select
@@ -28,6 +28,6 @@ from
             )
         group by client, page, category
     ),
-    unnest( [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100]) as percentile
+    unnest([5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100]) as percentile
 group by percentile, client, category
 order by percentile, client, category

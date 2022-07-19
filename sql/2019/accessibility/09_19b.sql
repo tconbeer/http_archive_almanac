@@ -2,7 +2,7 @@
 # 09_19b: Top aria attributes
 select
     client,
-    split(regexp_replace(attr, '[\'"]', ''), '=') [offset (0)] as attribute,
+    split(regexp_replace(attr, '[\'"]', ''), '=')[offset(0)] as attribute,
     count(distinct page) as pages,
     total,
     round(count(distinct page) * 100 / total, 2) as pct

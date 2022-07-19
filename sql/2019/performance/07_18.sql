@@ -24,16 +24,16 @@ try {
 
 select
     percentile,
-    approx_quantiles(
-        render_blocking_js.requests, 1000) [offset (percentile * 10)
+    approx_quantiles(render_blocking_js.requests, 1000)[
+        offset(percentile * 10)
     ] as requests,
     round(
-        approx_quantiles(render_blocking_js.bytes, 1000) [offset (percentile * 10)]
+        approx_quantiles(render_blocking_js.bytes, 1000)[offset(percentile * 10)]
         / 1024,
         2
     ) as kbytes,
     round(
-        approx_quantiles(render_blocking_js.wasted_ms, 1000) [offset (percentile * 10)]
+        approx_quantiles(render_blocking_js.wasted_ms, 1000)[offset(percentile * 10)]
         / 1000,
         2
     ) as wasted_sec
@@ -42,6 +42,6 @@ from
         select renderblockingjs(report) as render_blocking_js
         from `httparchive.lighthouse.2019_07_01_mobile`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile
 order by percentile

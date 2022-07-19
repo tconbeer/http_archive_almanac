@@ -29,42 +29,42 @@ select
     any_value(viewportwidth) as viewportwidth,
     any_value(dpr) as dpr,
     any_value(viewportheight) * any_value(viewportwidth) as displaypx,
-    approx_quantiles(csspixels, 1000) [offset (100)] as csspixels_p10,
-    approx_quantiles(csspixels, 1000) [offset (250)] as csspixels_p25,
-    approx_quantiles(csspixels, 1000) [offset (500)] as csspixels_p50,
-    approx_quantiles(csspixels, 1000) [offset (750)] as csspixels_p75,
-    approx_quantiles(csspixels, 1000) [offset (900)] as csspixels_p90,
-    approx_quantiles(naturalpixels, 1000) [offset (100)] as naturalpixels_p10,
-    approx_quantiles(naturalpixels, 1000) [offset (250)] as naturalpixels_p25,
-    approx_quantiles(naturalpixels, 1000) [offset (500)] as naturalpixels_p50,
-    approx_quantiles(naturalpixels, 1000) [offset (750)] as naturalpixels_p75,
-    approx_quantiles(naturalpixels, 1000) [offset (900)] as naturalpixels_p90,
+    approx_quantiles(csspixels, 1000)[offset(100)] as csspixels_p10,
+    approx_quantiles(csspixels, 1000)[offset(250)] as csspixels_p25,
+    approx_quantiles(csspixels, 1000)[offset(500)] as csspixels_p50,
+    approx_quantiles(csspixels, 1000)[offset(750)] as csspixels_p75,
+    approx_quantiles(csspixels, 1000)[offset(900)] as csspixels_p90,
+    approx_quantiles(naturalpixels, 1000)[offset(100)] as naturalpixels_p10,
+    approx_quantiles(naturalpixels, 1000)[offset(250)] as naturalpixels_p25,
+    approx_quantiles(naturalpixels, 1000)[offset(500)] as naturalpixels_p50,
+    approx_quantiles(naturalpixels, 1000)[offset(750)] as naturalpixels_p75,
+    approx_quantiles(naturalpixels, 1000)[offset(900)] as naturalpixels_p90,
     round(
-        approx_quantiles(naturalpixels, 1000) [offset (100)] / (
+        approx_quantiles(naturalpixels, 1000)[offset(100)] / (
             any_value(viewportheight) * any_value(viewportwidth)
         ),
         2
     ) as pct_p10,
     round(
-        approx_quantiles(naturalpixels, 1000) [offset (250)] / (
+        approx_quantiles(naturalpixels, 1000)[offset(250)] / (
             any_value(viewportheight) * any_value(viewportwidth)
         ),
         2
     ) as pct_p25,
     round(
-        approx_quantiles(naturalpixels, 1000) [offset (500)] / (
+        approx_quantiles(naturalpixels, 1000)[offset(500)] / (
             any_value(viewportheight) * any_value(viewportwidth)
         ),
         2
     ) as pct_p50,
     round(
-        approx_quantiles(naturalpixels, 1000) [offset (750)] / (
+        approx_quantiles(naturalpixels, 1000)[offset(750)] / (
             any_value(viewportheight) * any_value(viewportwidth)
         ),
         2
     ) as pct_p75,
     round(
-        approx_quantiles(naturalpixels, 1000) [offset (900)] / (
+        approx_quantiles(naturalpixels, 1000)[offset(900)] / (
             any_value(viewportheight) * any_value(viewportwidth)
         ),
         2

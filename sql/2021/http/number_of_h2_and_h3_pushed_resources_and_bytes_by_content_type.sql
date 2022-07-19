@@ -5,8 +5,8 @@ select
     client,
     type,
     count(distinct page) as num_pages,
-    approx_quantiles(num_requests, 1000) [offset (percentile * 10)] as pushed_requests,
-    approx_quantiles(kib_transfered, 1000) [offset (percentile * 10)] as kib_transfered
+    approx_quantiles(num_requests, 1000)[offset(percentile * 10)] as pushed_requests,
+    approx_quantiles(kib_transfered, 1000)[offset(percentile * 10)] as kib_transfered
 from
     (
         select
@@ -27,6 +27,6 @@ from
             )
         group by client, page, type
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client, type
 order by percentile, client

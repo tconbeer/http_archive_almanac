@@ -4,7 +4,7 @@
 select
     percentile,
     client,
-    approx_quantiles(loading_cpu_time, 1000) [offset (100)] as loading_cpu_time
+    approx_quantiles(loading_cpu_time, 1000)[offset(100)] as loading_cpu_time
 from
     (
         select
@@ -14,6 +14,6 @@ from
             ) as loading_cpu_time
         from `httparchive.pages.2019_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

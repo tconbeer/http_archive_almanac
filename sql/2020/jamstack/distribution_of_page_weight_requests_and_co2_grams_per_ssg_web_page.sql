@@ -29,11 +29,11 @@ co2(url string, bytes int64) as (
 select
     percentile,
     client,
-    approx_quantiles(requests, 1000) [offset (percentile * 10)] as requests,
+    approx_quantiles(requests, 1000)[offset(percentile * 10)] as requests,
     round(
-        approx_quantiles(bytes, 1000) [offset (percentile * 10)] / 1024 / 1024, 2
+        approx_quantiles(bytes, 1000)[offset(percentile * 10)] / 1024 / 1024, 2
     ) as mbytes,
-    approx_quantiles(co2grams, 1000) [offset (percentile * 10)] as co2grams
+    approx_quantiles(co2grams, 1000)[offset(percentile * 10)] as co2grams
 from
     (
         select
@@ -55,6 +55,6 @@ from
             using
             (_table_suffix, url)
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

@@ -41,9 +41,7 @@ select
     sum(sum(microformats2_type.count)) over (
         partition by client
     ) as total_microformats2_type,
-    sum(microformats2_type.count) / sum(
-        sum(microformats2_type.count)
-    ) over (
+    sum(microformats2_type.count) / sum(sum(microformats2_type.count)) over (
         partition by client
     ) as pct_microformats2_type,
     count(distinct url) as freq_pages,

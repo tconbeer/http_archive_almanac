@@ -36,14 +36,14 @@ select
     percentile,
     rank_grouping,
     count(distinct page) as pages,
-    approx_quantiles(
-        outgoing_link_metrics.same_site, 1000) [offset (percentile * 10)
+    approx_quantiles(outgoing_link_metrics.same_site, 1000)[
+        offset(percentile * 10)
     ] as outgoing_links_same_site,
-    approx_quantiles(
-        outgoing_link_metrics.same_property, 1000) [offset (percentile * 10)
+    approx_quantiles(outgoing_link_metrics.same_property, 1000)[
+        offset(percentile * 10)
     ] as outgoing_links_same_property,
-    approx_quantiles(
-        outgoing_link_metrics.other_property, 1000) [offset (percentile * 10)
+    approx_quantiles(outgoing_link_metrics.other_property, 1000)[
+        offset(percentile * 10)
     ] as outgoing_links_other_property
 from
     (
@@ -53,7 +53,7 @@ from
             getoutgoinglinkmetrics(payload) as outgoing_link_metrics
         from `httparchive.pages.2021_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 left join
     (
         select _table_suffix as client, url as page, rank
@@ -61,7 +61,7 @@ left join
     )
     using
     (client, page),
-    unnest( [1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_grouping
+    unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_grouping
 where rank <= rank_grouping
 group by client, rank_grouping, percentile
 order by client, rank_grouping, percentile

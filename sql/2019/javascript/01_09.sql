@@ -7,9 +7,9 @@ select
     round(pct_2018 * 100, 2) as pct_2018,
     freq_2019,
     round(pct_2019 * 100, 2) as pct_2019,
-    round( (pct_2019 - pct_2018) * 100, 2) as pct_pt_change,
+    round((pct_2019 - pct_2018) * 100, 2) as pct_pt_change,
     if(
-        pct_2018 > 0, round( (pct_2019 - pct_2018) * 100 / pct_2018, 2), null
+        pct_2018 > 0, round((pct_2019 - pct_2018) * 100 / pct_2018, 2), null
     ) as pct_change
 from
     (

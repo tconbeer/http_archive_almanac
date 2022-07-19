@@ -29,9 +29,9 @@ select
     any_value(viewport_width) as viewport_width,
     any_value(dpr) as dpr,
     any_value(viewport_height) * any_value(viewport_width) as display_px,
-    approx_quantiles(css_pixels, 1000) [offset (percentile * 10)] as css_pixels,
-    approx_quantiles(natural_pixels, 1000) [offset (percentile * 10)] as natural_pixels,
-    approx_quantiles(natural_pixels, 1000) [offset (percentile * 10)]
+    approx_quantiles(css_pixels, 1000)[offset(percentile * 10)] as css_pixels,
+    approx_quantiles(natural_pixels, 1000)[offset(percentile * 10)] as natural_pixels,
+    approx_quantiles(natural_pixels, 1000)[offset(percentile * 10)]
     / (any_value(viewport_height) * any_value(viewport_width)) as pct
 from
     (
@@ -59,7 +59,7 @@ from
             ) as viewport_width
         from `httparchive.pages.2021_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 # it appears the _Images array is populated only from <img> tag requests and not CSS
 # or favicon
 # likewise the bigImageCount and smallImageCount only track images > 100,000 and <

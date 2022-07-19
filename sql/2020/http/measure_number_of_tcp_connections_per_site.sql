@@ -5,7 +5,7 @@ select
     client,
     protocol,
     count(0) as num_pages,
-    approx_quantiles(_connections, 1000) [offset (percentile * 10)] as connections
+    approx_quantiles(_connections, 1000)[offset(percentile * 10)] as connections
 from
     (
         select client, page, json_extract_scalar(payload, '$._protocol') as protocol
@@ -19,6 +19,6 @@ join
     )
     using
     (client, page),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client, protocol
 order by percentile, client, protocol

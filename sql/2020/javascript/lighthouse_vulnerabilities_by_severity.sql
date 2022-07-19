@@ -21,7 +21,7 @@ try {
 select
     severity,
     count(distinct page) as pages,
-    approx_quantiles(freq, 1000) [offset (500)] as median_vulnerability_count_per_page
+    approx_quantiles(freq, 1000)[offset(500)] as median_vulnerability_count_per_page
 from
     (
         select url as page, vulnerability.severity, sum(vulnerability.freq) as freq

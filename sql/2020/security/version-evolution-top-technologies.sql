@@ -10,9 +10,7 @@ from
             month,
             client,
             count(0) as freq,
-            count(0) / sum(
-                count(0)
-            ) over (
+            count(0) / sum(count(0)) over (
                 partition by client, month, category_lower, app_lower
             ) as pct
         from

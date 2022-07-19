@@ -21,11 +21,11 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(
-        image.currentsrcdensity, 1000) [offset (percentile * 10)
+    approx_quantiles(image.currentsrcdensity, 1000)[
+        offset(percentile * 10)
     ] as currentsrcdensity,
-    approx_quantiles(
-        srcsetcandidatedensity, 1000) [offset (percentile * 10)
+    approx_quantiles(srcsetcandidatedensity, 1000)[
+        offset(percentile * 10)
     ] as srcsetcandidatedensity
 from
     (
@@ -35,6 +35,6 @@ from
             unnest(getsrcsetdensities(payload)) as image
     ),
     unnest(image.srcsetcandidatedensities) as srcsetcandidatedensity,
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

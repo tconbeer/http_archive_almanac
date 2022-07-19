@@ -8,9 +8,8 @@ select
     count(0) as total,
     round(
         countif(regexp_contains(key_exchange, r'DHE') or protocol = 'TLS 1.3')
-        * 100 / count(
-            0
-        ),
+        * 100
+        / count(0),
         2
     ) as pct
 from

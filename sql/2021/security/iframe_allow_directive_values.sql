@@ -17,7 +17,7 @@ create temp function getnumwithallowattribute(payload string) as (
 
 select
     client,
-    split(trim(allow_attr), ' ') [offset (0)] as directive,
+    split(trim(allow_attr), ' ')[offset(0)] as directive,
     trim(origin) as origin,
     total_iframes_with_allow,
     count(0) as freq,
@@ -47,9 +47,8 @@ join
     unnest(  -- Directive may specify explicit origins or not.
         if(
             -- test if any explicit origin is provided
-            array_length(split(trim(allow_attr), ' ')) = 1,
             -- if not, add a dummy empty origin to make the query work
-            [trim(allow_attr), ''],
+            array_length(split(trim(allow_attr), ' ')) = 1, [trim(allow_attr), ''],
             split(trim(allow_attr), ' ')  -- if it is, split the different origins
         )
     ) as origin

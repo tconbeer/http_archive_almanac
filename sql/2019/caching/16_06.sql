@@ -25,9 +25,8 @@ select
     ) as pct_invalid_date_header,
     round(
         countif(uses_last_modified and not has_valid_last_modified)
-        * 100 / countif(
-            uses_last_modified
-        ),
+        * 100
+        / countif(uses_last_modified),
         2
     ) as pct_invalid_last_modified,
     round(
@@ -35,9 +34,8 @@ select
             (uses_date and not has_valid_date_header)
             or (uses_last_modified and not has_valid_last_modified)
         )
-        * 100 / count(
-            0
-        ),
+        * 100
+        / count(0),
         2
     ) as pct_req_with_invalid_header
 from

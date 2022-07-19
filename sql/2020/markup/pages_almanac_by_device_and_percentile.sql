@@ -36,18 +36,18 @@ select
     count(distinct url) as total,
 
     # scripts per page
-    approx_quantiles(
-        almanac_info.none_jsonld_scripts_total, 1000) [offset (percentile * 10)
+    approx_quantiles(almanac_info.none_jsonld_scripts_total, 1000)[
+        offset(percentile * 10)
     ] as none_jsonld_scripts_count_m205,
 
     # inline scripts ex jsonld
-    approx_quantiles(
-        almanac_info.inline_scripts_total, 1000) [offset (percentile * 10)
+    approx_quantiles(almanac_info.inline_scripts_total, 1000)[
+        offset(percentile * 10)
     ] as inline_scripts_count_m207,
 
     # src scripts
-    approx_quantiles(
-        almanac_info.src_scripts_total, 1000) [offset (percentile * 10)
+    approx_quantiles(almanac_info.src_scripts_total, 1000)[
+        offset(percentile * 10)
     ] as src_scripts_count_m209
 
 from
@@ -58,8 +58,7 @@ from
             url,
             get_almanac_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
         from
-            `httparchive.pages.2020_08_01_*`,
-            unnest( [10, 25, 50, 75, 90]) as percentile
+            `httparchive.pages.2020_08_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
     )
 group by percentile, client
 order by percentile, client

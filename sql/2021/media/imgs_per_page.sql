@@ -32,5 +32,5 @@ with
 select
     client,
     percentile,
-    numberofimagespercentiles[offset (percentile * 10)] as numberofimages
-from percentiles, unnest( [0, 10, 25, 50, 75, 90, 100]) as percentile
+    numberofimagespercentiles[offset(percentile * 10)] as numberofimages
+from percentiles, unnest([0, 10, 25, 50, 75, 90, 100]) as percentile

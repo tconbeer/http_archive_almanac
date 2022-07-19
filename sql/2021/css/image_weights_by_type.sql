@@ -4,13 +4,11 @@ select
     percentile,
     client,
     format,
-    approx_quantiles(
-        css_initiated_images_per_page, 1000) [offset (percentile * 10)
+    approx_quantiles(css_initiated_images_per_page, 1000)[
+        offset(percentile * 10)
     ] as css_initiated_images_per_page,
-    approx_quantiles(
-        total_css_initiated_image_weight_per_page / 1024,
-        1000
-    ) [offset (percentile * 10)
+    approx_quantiles(total_css_initiated_image_weight_per_page / 1024, 1000)[
+        offset(percentile * 10)
     ] as total_css_initiated_image_kbytes_per_page
 from
     (
@@ -40,6 +38,6 @@ from
             (client, page, url)
         group by client, page, format
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client, format
 order by percentile, client, css_initiated_images_per_page desc

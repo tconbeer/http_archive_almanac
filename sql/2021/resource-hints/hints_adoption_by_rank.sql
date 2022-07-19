@@ -54,7 +54,7 @@ join
     )
     using
     (client, page),
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank
 where _rank <= rank
 group by client, rank
 order by client, rank

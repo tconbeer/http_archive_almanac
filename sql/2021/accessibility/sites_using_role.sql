@@ -10,8 +10,8 @@ select
     / sum(count(0)) over (partition by client) as pct_using_role,
 
     percentile,
-    approx_quantiles(
-        total_role_attributes, 1000) [offset (percentile * 10)
+    approx_quantiles(total_role_attributes, 1000)[
+        offset(percentile * 10)
     ] as total_role_usages
 from
     (
@@ -25,6 +25,6 @@ from
             ) as total_role_attributes
         from `httparchive.pages.2021_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

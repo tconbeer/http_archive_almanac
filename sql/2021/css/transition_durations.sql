@@ -102,11 +102,11 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(duration, 1000) [offset (percentile * 10)] as duration
+    approx_quantiles(duration, 1000)[offset(percentile * 10)] as duration
 from
     `httparchive.almanac.parsed_css`,
     unnest(gettransitiondurations(css)) as duration,
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 where date = '2021-07-01'
 group by percentile, client
 order by percentile, client

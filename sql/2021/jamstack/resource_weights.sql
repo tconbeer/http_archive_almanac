@@ -4,12 +4,12 @@ select
     client,
     ssg,
     count(0) as pages,
-    approx_quantiles(total_kb, 1000) [offset (500)] as median_total_kb,
-    approx_quantiles(html_kb, 1000) [offset (500)] as median_html_kb,
-    approx_quantiles(js_kb, 1000) [offset (500)] as median_js_kb,
-    approx_quantiles(css_kb, 1000) [offset (500)] as median_css_kb,
-    approx_quantiles(img_kb, 1000) [offset (500)] as median_img_kb,
-    approx_quantiles(font_kb, 1000) [offset (500)] as median_font_kb
+    approx_quantiles(total_kb, 1000)[offset(500)] as median_total_kb,
+    approx_quantiles(html_kb, 1000)[offset(500)] as median_html_kb,
+    approx_quantiles(js_kb, 1000)[offset(500)] as median_js_kb,
+    approx_quantiles(css_kb, 1000)[offset(500)] as median_css_kb,
+    approx_quantiles(img_kb, 1000)[offset(500)] as median_img_kb,
+    approx_quantiles(font_kb, 1000)[offset(500)] as median_font_kb
 from
     (
         select distinct _table_suffix as client, url, app as ssg

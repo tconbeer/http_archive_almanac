@@ -41,7 +41,7 @@ with
         select client, rank_grouping, count(distinct page) as total_websites
         from
             `httparchive.almanac.requests`,
-            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+            unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where date = '2021-07-01' and firsthtml = true and rank <= rank_grouping
         group by client, rank_grouping
     ),
@@ -75,7 +75,7 @@ with
             client,
             page,
             array_agg(
-                trim(split(trim(feature_policy_directive), ' ') [offset (0)])
+                trim(split(trim(feature_policy_directive), ' ')[offset(0)])
             ) as directives
         from
             merged_feature_policy,
@@ -88,7 +88,7 @@ with
             client,
             page,
             array_agg(
-                trim(split(trim(permissions_policy_directive), '=') [offset (0)])
+                trim(split(trim(permissions_policy_directive), '=')[offset(0)])
             ) as directives
         from
             merged_permissions_policy,
@@ -124,7 +124,7 @@ select
     count(distinct page) as number_of_websites_with_directive,
     total_websites,
     count(distinct page) / total_websites as pct_websites_with_directive
-from site_directives, unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+from site_directives, unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 join page_ranks using(client, page)
 join totals using(client, rank_grouping), unnest(site_directives.directives) directive
 where rank <= rank_grouping

@@ -14,8 +14,8 @@ returns int64 language js as '''
 select
     client,
     percentile,
-    approx_quantiles(
-        diff_in_days, 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(diff_in_days, 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as diff_in_days
 from
     (
@@ -30,6 +30,6 @@ from
         from `httparchive.summary_requests.2021_07_01_*`
         where resp_last_modified != '' and expage > 0
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by client, percentile
 order by client, percentile

@@ -5,7 +5,7 @@ select
     client,
     cms,
     count(0) as pages,
-    approx_quantiles(total_kb, 1000) [offset (percentile * 10)] as total_kb
+    approx_quantiles(total_kb, 1000)[offset(percentile * 10)] as total_kb
 from
     (
         select distinct _table_suffix as client, url, app as cms
@@ -19,7 +19,7 @@ join
     )
     using
     (client, url),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client, cms
 having pages > 1000
 order by percentile, pages desc

@@ -3,7 +3,7 @@
 select
     client,
     percentile,
-    approx_quantiles(max_age, 1000 ignore nulls) [offset (percentile * 10)] as max_age
+    approx_quantiles(max_age, 1000 ignore nulls)[offset(percentile * 10)] as max_age
 from
     (
         select
@@ -19,6 +19,6 @@ from
         from `httparchive.almanac.requests`
         where date = '2020-08-01'
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

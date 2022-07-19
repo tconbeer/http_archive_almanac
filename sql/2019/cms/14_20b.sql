@@ -7,8 +7,7 @@ select
             json_extract_scalar(report, '$.categories.accessibility.score') as numeric
         ),
         1000
-    ) [offset (501)
-    ] as median_a11y_score,
+    )[offset(501)] as median_a11y_score,
     count(0) as pages
 from `httparchive.lighthouse.2019_07_01_mobile`
 left join `httparchive.technologies.2019_07_01_mobile` using(url)

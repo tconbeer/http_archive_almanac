@@ -31,10 +31,10 @@ with
 select
     client,
     rank_grouping,
-    approx_quantiles(
-        third_parties_per_page, 1000) [offset (500)
+    approx_quantiles(third_parties_per_page, 1000)[
+        offset(500)
     ] as p50_third_parties_per_page
-from base, unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+from base, unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 where rank <= rank_grouping
 group by client, rank_grouping
 order by client, rank_grouping

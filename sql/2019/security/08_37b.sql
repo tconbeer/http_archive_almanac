@@ -18,7 +18,7 @@ try {
 
 select
     client,
-    normalize_and_casefold(trim(split(directive, '=') [safe_offset(1)])) as value,
+    normalize_and_casefold(trim(split(directive, '=')[safe_offset(1)])) as value,
     count(0) as freq,
     sum(count(0)) over (partition by client) as total,
     round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct

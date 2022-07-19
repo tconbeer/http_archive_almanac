@@ -22,8 +22,8 @@ with
 select
     category,
     percentile,
-    approx_quantiles(body_size, 1000) [offset (percentile * 10)] as body_size,
-    approx_quantiles(time, 1000) [offset (percentile * 10)] as time  -- noqa: L010
-from base, unnest( [10, 25, 50, 75, 90]) as percentile
+    approx_quantiles(body_size, 1000)[offset(percentile * 10)] as body_size,
+    approx_quantiles(time, 1000)[offset(percentile * 10)] as time  -- noqa: L010
+from base, unnest([10, 25, 50, 75, 90]) as percentile
 group by category, percentile
 order by category, percentile

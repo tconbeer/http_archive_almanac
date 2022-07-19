@@ -30,7 +30,7 @@ select
     as pct_pages_over_https_with_http_reference
 from
     `httparchive.almanac.requests`,
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 where date = '2021-07-01' and rank <= rank_grouping
 group by client, rank_grouping
 order by client, rank_grouping

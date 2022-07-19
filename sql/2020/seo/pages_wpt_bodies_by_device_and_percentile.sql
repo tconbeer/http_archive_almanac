@@ -75,62 +75,59 @@ select
     count(distinct url) as total,
 
     # title
-    approx_quantiles(
-        wpt_bodies_info.title_words, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.title_words, 1000)[
+        offset(percentile * 10)
     ] as title_words,
-    approx_quantiles(
-        wpt_bodies_info.title_characters, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.title_characters, 1000)[
+        offset(percentile * 10)
     ] as title_characters,
 
     # meta description
-    approx_quantiles(
-        wpt_bodies_info.meta_description_words, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.meta_description_words, 1000)[
+        offset(percentile * 10)
     ] as meta_description_words,
-    approx_quantiles(
-        wpt_bodies_info.meta_description_characters, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.meta_description_characters, 1000)[
+        offset(percentile * 10)
     ] as meta_description_characters,
 
     # links
-    approx_quantiles(
-        wpt_bodies_info.links_other_property, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.links_other_property, 1000)[
+        offset(percentile * 10)
     ] as outgoing_links_external,
     approx_quantiles(
         wpt_bodies_info.links_same_property
         + wpt_bodies_info.links_same_site
         + wpt_bodies_info.links_other_property,
         1000
-    ) [offset (percentile * 10)
-    ] as outgoing_links,
+    )[offset(percentile * 10)] as outgoing_links,
     approx_quantiles(
-        wpt_bodies_info.links_same_property + wpt_bodies_info.links_same_site,
-        1000
-    ) [offset (percentile * 10)
-    ] as outgoing_links_internal,
+        wpt_bodies_info.links_same_property + wpt_bodies_info.links_same_site, 1000
+    )[offset(percentile * 10)] as outgoing_links_internal,
 
-    approx_quantiles(
-        wpt_bodies_info.image_links, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.image_links, 1000)[
+        offset(percentile * 10)
     ] as image_links,
-    approx_quantiles(
-        wpt_bodies_info.text_links, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.text_links, 1000)[
+        offset(percentile * 10)
     ] as text_links,
 
-    approx_quantiles(
-        wpt_bodies_info.hash_link, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.hash_link, 1000)[
+        offset(percentile * 10)
     ] as hash_links,
-    approx_quantiles(
-        wpt_bodies_info.hash_only_link, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.hash_only_link, 1000)[
+        offset(percentile * 10)
     ] as hash_only_links,
-    approx_quantiles(
-        wpt_bodies_info.javascript_void_links, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.javascript_void_links, 1000)[
+        offset(percentile * 10)
     ] as javascript_void_links,
-    approx_quantiles(
-        wpt_bodies_info.same_page_jumpto_total, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.same_page_jumpto_total, 1000)[
+        offset(percentile * 10)
     ] as same_page_jumpto_links,
-    approx_quantiles(
-        wpt_bodies_info.same_page_dynamic_total, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.same_page_dynamic_total, 1000)[
+        offset(percentile * 10)
     ] as same_page_dynamic_links,
-    approx_quantiles(
-        wpt_bodies_info.same_page_other_total, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.same_page_other_total, 1000)[
+        offset(percentile * 10)
     ] as same_page_other_links,
 
     # percent of links are image links
@@ -141,17 +138,16 @@ select
                 wpt_bodies_info.image_links + wpt_bodies_info.text_links
             ),
             1000
-        ) [offset (percentile * 10)
-        ],
+        )[offset(percentile * 10)],
         4
     ) as image_links_percent,
 
     # words
-    approx_quantiles(
-        wpt_bodies_info.visible_words_rendered_count, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.visible_words_rendered_count, 1000)[
+        offset(percentile * 10)
     ] as visible_words_rendered,
-    approx_quantiles(
-        wpt_bodies_info.visible_words_raw_count, 1000) [offset (percentile * 10)
+    approx_quantiles(wpt_bodies_info.visible_words_raw_count, 1000)[
+        offset(percentile * 10)
     ] as visible_words_raw
 
 from
@@ -164,8 +160,7 @@ from
                 json_extract_scalar(payload, '$._wpt_bodies')
             ) as wpt_bodies_info
         from
-            `httparchive.pages.2020_08_01_*`,
-            unnest( [10, 25, 50, 75, 90]) as percentile
+            `httparchive.pages.2020_08_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
     )
 group by percentile, client
 order by percentile, client

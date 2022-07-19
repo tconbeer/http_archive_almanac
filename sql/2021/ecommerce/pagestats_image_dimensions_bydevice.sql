@@ -18,14 +18,14 @@ try {
 select
     percentile,
     _table_suffix as client,
-    approx_quantiles(image.width, 1000) [offset (percentile * 10)] as image_width,
-    approx_quantiles(image.height, 1000) [offset (percentile * 10)] as image_height
+    approx_quantiles(image.width, 1000)[offset(percentile * 10)] as image_width,
+    approx_quantiles(image.height, 1000)[offset(percentile * 10)] as image_height
 from `httparchive.pages.2021_07_01_*`
 join
     `httparchive.technologies.2021_07_01_*`
     using(_table_suffix, url),
     unnest(getimagedimensions(payload)) as image,
-    unnest( [10, 25, 50, 75, 90])
+    unnest([10, 25, 50, 75, 90])
 where
     category = 'Ecommerce'
     and (app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce')

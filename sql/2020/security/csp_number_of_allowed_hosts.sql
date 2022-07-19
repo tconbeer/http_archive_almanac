@@ -14,7 +14,8 @@ as '''
   return null;
 '''
 ;
-create temp function getnumuniquehosts(str string
+create temp function getnumuniquehosts(
+    str string
 ) as (
     (
         select count(distinct x)
@@ -30,11 +31,11 @@ select
     countif(csp_header is not null) as total_csp_headers,
     countif(csp_header is not null) / count(0) as pct_csp_headers,
     count(distinct csp_header) as num_unique_csp_headers,
-    approx_quantiles(
-        length(csp_header), 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(length(csp_header), 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as csp_header_length,
-    approx_quantiles(
-        getnumuniquehosts(csp_header), 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(getnumuniquehosts(csp_header), 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as unique_allowed_hosts
 from
     (
@@ -46,6 +47,6 @@ from
         from `httparchive.almanac.requests`
         where date = '2020-08-01' and firsthtml
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by client, percentile
 order by client, percentile

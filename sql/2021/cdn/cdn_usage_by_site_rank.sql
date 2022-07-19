@@ -24,7 +24,7 @@ from
         from `httparchive.almanac.requests`
         where date = '2021-07-01' and firsthtml and rank is not null
     ),
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as nested_rank
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as nested_rank
 where rank <= nested_rank
 group by client, cdn, nested_rank
 order by client, nested_rank, cdn

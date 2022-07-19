@@ -89,10 +89,10 @@ select
     percentile,
     client,
     extractspecificity(
-        approx_quantiles(max_specificity_cmp, 1000) [offset (percentile * 10)]
+        approx_quantiles(max_specificity_cmp, 1000)[offset(percentile * 10)]
     ) as max_specificity,
     extractspecificity(
-        approx_quantiles(median_specificity_cmp, 1000) [offset (percentile * 10)]
+        approx_quantiles(median_specificity_cmp, 1000)[offset(percentile * 10)]
     ) as median_specificity
 from
     (
@@ -122,6 +122,6 @@ from
             )
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90, 95, 99, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 95, 99, 100]) as percentile
 group by percentile, client
 order by percentile, client

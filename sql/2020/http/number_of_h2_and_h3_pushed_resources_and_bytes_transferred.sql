@@ -5,8 +5,8 @@ select
     client,
     http_version,
     count(distinct page) as num_pages,
-    approx_quantiles(num_requests, 1000) [offset (percentile * 10)] as pushed_requests,
-    approx_quantiles(kb_transfered, 1000) [offset (percentile * 10)] as kb_transfered
+    approx_quantiles(num_requests, 1000)[offset(percentile * 10)] as pushed_requests,
+    approx_quantiles(kb_transfered, 1000)[offset(percentile * 10)] as kb_transfered
 from
     (
         select
@@ -29,6 +29,6 @@ from
             )
         group by client, http_version, page
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client, http_version
 order by percentile, client

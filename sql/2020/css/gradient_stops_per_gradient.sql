@@ -161,13 +161,13 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(
-        color_stops, 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(color_stops, 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as color_stops_per_gradient
 from
     `httparchive.almanac.parsed_css`,
     unnest(getcolorstops(css)) as color_stops,
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 where date = '2020-08-01'
 group by percentile, client
 order by percentile, client

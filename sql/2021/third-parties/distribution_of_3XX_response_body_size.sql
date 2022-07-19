@@ -35,8 +35,8 @@ with
 select
     client,
     percentile,
-    approx_quantiles(
-        body_size, 1000) [offset (percentile * 10)
+    approx_quantiles(body_size, 1000)[
+        offset(percentile * 10)
     ] as approx_redirect_body_size
 from base, unnest(generate_array(1, 100)) as percentile
 where redirected = 1

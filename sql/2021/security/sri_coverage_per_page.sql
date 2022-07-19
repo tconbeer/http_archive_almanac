@@ -13,10 +13,8 @@ create temp function getnumscriptelements(sris array < string >) as (
 select
     client,
     percentile,
-    approx_quantiles(
-        getnumscriptelements(sris) / num_scripts,
-        1000 ignore nulls
-    ) [offset (percentile * 10)
+    approx_quantiles(getnumscriptelements(sris) / num_scripts, 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as integrity_pct
 from
     (
@@ -32,7 +30,7 @@ from
             ) as num_scripts
         from `httparchive.pages.2021_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 where getnumscriptelements(sris) > 0
 group by client, percentile
 order by client, percentile

@@ -14,9 +14,8 @@ select
     ) as perc_good_links,
     round(
         countif(uses_either and good_or_na_buttons and good_or_na_links)
-        * 100 / countif(
-            uses_either
-        ),
+        * 100
+        / countif(uses_either),
         2
     ) as perc_both_good
 from

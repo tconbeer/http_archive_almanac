@@ -13,9 +13,8 @@ select
             )
             = 1
         )
-        * 100 / count(
-            url
-        ),
+        * 100
+        / count(url),
         2
     ) as score_percentage
 from `httparchive.lighthouse.2019_07_01_mobile`

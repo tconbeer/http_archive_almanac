@@ -37,9 +37,8 @@ select
     countif(input_stats.has_advanced_attributes) as total_pages_using,
     round(
         countif(input_stats.has_advanced_attributes)
-        * 100 / countif(
-            input_stats.total_inputs > 0
-        ),
+        * 100
+        / countif(input_stats.total_inputs > 0),
         2
     ) as occurence_perc
 from

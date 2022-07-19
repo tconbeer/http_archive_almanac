@@ -2,8 +2,8 @@
 # Calculates percentile for delta of LH5 and LH6 performance score for mobile
 select
     percentile,
-    approx_quantiles(
-        perf_score_delta, 1000) [offset (percentile * 10)
+    approx_quantiles(perf_score_delta, 1000)[
+        offset(percentile * 10)
     ] as perf_score_delta
 from
     (
@@ -25,6 +25,6 @@ from
                 join `httparchive.lighthouse.2019_07_01_mobile` lh5 on lh5.url = lh6.url
             )
     ),
-    unnest( [0, 10, 25, 50, 75, 90, 100]) as percentile
+    unnest([0, 10, 25, 50, 75, 90, 100]) as percentile
 group by percentile
 order by percentile

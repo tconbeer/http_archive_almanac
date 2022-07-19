@@ -21,51 +21,46 @@ select
     client,
     imagetype,
     count(0) as count,
-    approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (100)
+    approx_quantiles(if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000)[
+        offset(100)
     ] as pixels_p10,
-    approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (250)
+    approx_quantiles(if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000)[
+        offset(250)
     ] as pixels_p25,
-    approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (500)
+    approx_quantiles(if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000)[
+        offset(500)
     ] as pixels_p50,
-    approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (750)
+    approx_quantiles(if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000)[
+        offset(750)
     ] as pixels_p75,
-    approx_quantiles(
-        if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000) [offset (900)
+    approx_quantiles(if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 1000)[
+        offset(900)
     ] as pixels_p90,
-    approx_quantiles(bytes, 1000) [offset (100)] as bytes_p10,
-    approx_quantiles(bytes, 1000) [offset (250)] as bytes_p25,
-    approx_quantiles(bytes, 1000) [offset (500)] as bytes_p50,
-    approx_quantiles(bytes, 1000) [offset (750)] as bytes_p75,
-    approx_quantiles(bytes, 1000) [offset (900)] as bytes_p90,
+    approx_quantiles(bytes, 1000)[offset(100)] as bytes_p10,
+    approx_quantiles(bytes, 1000)[offset(250)] as bytes_p25,
+    approx_quantiles(bytes, 1000)[offset(500)] as bytes_p50,
+    approx_quantiles(bytes, 1000)[offset(750)] as bytes_p75,
+    approx_quantiles(bytes, 1000)[offset(900)] as bytes_p90,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (100)
-    ] as bpp_p10,
+    )[offset(100)] as bpp_p10,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (250)
-    ] as bpp_p25,
+    )[offset(250)] as bpp_p25,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (500)
-    ] as bpp_p50,
+    )[offset(500)] as bpp_p50,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (750)
-    ] as bpp_p75,
+    )[offset(750)] as bpp_p75,
     approx_quantiles(
         round(bytes / if(imagetype = 'svg' and pixels > 0, pixels, naturalpixels), 4),
         1000
-    ) [offset (900)
-    ] as bpp_p90
+    )[offset(900)] as bpp_p90
 from
     (
         select

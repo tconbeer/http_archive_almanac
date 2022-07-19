@@ -25,15 +25,12 @@ select
     ) as party,
     type as resource_type,
     approx_quantiles(
-        round(
-            (starteddatetime - totimestamp(resp_last_modified)) / (60 * 60 * 24 * 7)
-        ),
+        round((starteddatetime - totimestamp(resp_last_modified)) / (60 * 60 * 24 * 7)),
         1000 ignore nulls
-    ) [offset (percentile * 10)
-    ] as age_weeks
+    )[offset(percentile * 10)] as age_weeks
 from
     `httparchive.summary_requests.2020_08_01_*`,
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 where trim(resp_last_modified) != ''
 group by percentile, client, party, resource_type
 order by percentile, client, party, resource_type

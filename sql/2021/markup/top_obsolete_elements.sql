@@ -61,9 +61,7 @@ select
     count(distinct url) as pages,
     total as total_pages,
     count(distinct url) / total as pct_pages_with_obsolete_elements,
-    count(0) / sum(
-        count(0)
-    ) over (
+    count(0) / sum(count(0)) over (
         partition by _table_suffix
     ) as ratio_compared_to_all_obsolete_elements
 from `httparchive.pages.2021_07_01_*`

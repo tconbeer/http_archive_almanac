@@ -15,8 +15,8 @@ select
     count(distinct page) - countif(blocking > 0) as non_blocking_pages,
     countif(blocking > 0) / count(0) as blocking_pages_pct,
     (count(distinct page) - countif(blocking > 0)) / count(0) as non_blocking_pages_pct,
-    approx_quantiles(transfer_size_kib, 1000) [offset (500)] as p50_transfer_size_kib,
-    approx_quantiles(blocking_time, 1000) [offset (500)] as p50_blocking_time
+    approx_quantiles(transfer_size_kib, 1000)[offset(500)] as p50_transfer_size_kib,
+    approx_quantiles(blocking_time, 1000)[offset(500)] as p50_blocking_time
 from
     (
         select

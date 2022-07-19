@@ -11,7 +11,9 @@ create temp function is_poor(
 ;
 
 create temp function is_ni(
-    good float64, needs_improvement float64, poor float64
+    good float64,
+    needs_improvement float64,
+    poor float64
 ) returns bool as (
     not is_good(good, needs_improvement, poor)
     and not is_poor(good, needs_improvement, poor)

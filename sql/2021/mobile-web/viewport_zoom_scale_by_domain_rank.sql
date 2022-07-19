@@ -41,7 +41,7 @@ left join
         select _table_suffix as client, url, rank_grouping
         from
             `httparchive.summary_pages.2021_07_01_*`,
-            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+            unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where rank <= rank_grouping
     ) using(client, url
     )

@@ -22,8 +22,8 @@ select
     count(distinct page) as total,
     count(distinct if(declarations > 0, page, null))
     / count(distinct page) as pct_pages,
-    approx_quantiles(
-        declarations, 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(declarations, 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as declarations_per_page
 from
     (
@@ -31,6 +31,6 @@ from
         from `httparchive.almanac.parsed_css`
         where date = '2021-07-01'
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

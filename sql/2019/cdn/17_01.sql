@@ -11,9 +11,8 @@ select
     round(
         (
             countif(firsthtml)
-            * 100 / (
-                0.001 + sum(countif(firsthtml)) over (partition by client)
-            )
+            * 100
+            / (0.001 + sum(countif(firsthtml)) over (partition by client))
         ),
         2
     ) as firsthtmlhitspct,
@@ -23,12 +22,11 @@ select
     round(
         (
             countif(not firsthtml and not samehost and samedomain)
-            * 100 / (
+            * 100
+            / (
                 0.001 + sum(
                     countif(not firsthtml and not samehost and samedomain)
-                ) over (
-                    partition by client
-                )
+                ) over (partition by client)
             )
         ),
         2
@@ -39,12 +37,11 @@ select
     round(
         (
             countif(not firsthtml and not samehost and not samedomain)
-            * 100 / (
+            * 100
+            / (
                 0.001 + sum(
                     countif(not firsthtml and not samehost and not samedomain)
-                ) over (
-                    partition by client
-                )
+                ) over (partition by client)
             )
         ),
         2

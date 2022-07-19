@@ -448,8 +448,8 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(
-        freq_longhand_first, 1000) [offset (percentile * 10)
+    approx_quantiles(freq_longhand_first, 1000)[
+        offset(percentile * 10)
     ] as longhand_first_per_page
 from
     (
@@ -459,6 +459,6 @@ from
             unnest(getlonghandfirstproperties(css)) as property
         where date = '2021-07-01' and property.freq > 0
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

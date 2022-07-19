@@ -49,9 +49,7 @@ from
             sum(sum(if(kw.property = 'total', 0, kw.freq))) over (
                 partition by client, kw.keyword
             ) as total,
-            sum(kw.freq) / sum(
-                sum(if(kw.property = 'total', 0, kw.freq))
-            ) over (
+            sum(kw.freq) / sum(sum(if(kw.property = 'total', 0, kw.freq))) over (
                 partition by client, kw.keyword
             ) as pct,
             count(distinct page) as pages

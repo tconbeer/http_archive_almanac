@@ -31,8 +31,8 @@ select
     total_pages - count(distinct page) as non_blocking_pages,
     count(distinct page) / total_pages as blocking_pages_pct,
     (total_pages - count(distinct page)) / total_pages as non_blocking_pages_pct,
-    approx_quantiles(wasted_ms, 1000) [offset (500)] as p50_wastedms,
-    approx_quantiles(total_bytes_kib, 1000) [offset (500)] as p50_total_bytes_kib
+    approx_quantiles(wasted_ms, 1000)[offset(500)] as p50_wastedms,
+    approx_quantiles(total_bytes_kib, 1000)[offset(500)] as p50_total_bytes_kib
 from
     (
         select

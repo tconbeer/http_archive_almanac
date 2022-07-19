@@ -4,7 +4,7 @@ select
     percentile,
     client,
     host,
-    approx_quantiles(kbytes, 1000) [offset (percentile * 10)] as kbytes
+    approx_quantiles(kbytes, 1000)[offset(percentile * 10)] as kbytes
 from
     (
         select
@@ -24,6 +24,6 @@ from
         where date = '2020-08-01' and type = 'script'
         group by client, page, host
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client, host
 order by percentile, client, host

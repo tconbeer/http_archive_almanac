@@ -5,7 +5,7 @@ select
     client,
     firsthtml,
     cdn,
-    round(approx_quantiles(http2_pct, 1000) [offset (percentile * 10)], 2) as http2_pct
+    round(approx_quantiles(http2_pct, 1000)[offset(percentile * 10)], 2) as http2_pct
 from
     (
         select

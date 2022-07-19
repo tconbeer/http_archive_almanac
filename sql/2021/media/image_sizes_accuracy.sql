@@ -20,11 +20,11 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(
-        image.sizesabsoluteerror, 1000) [offset (percentile * 10)
+    approx_quantiles(image.sizesabsoluteerror, 1000)[
+        offset(percentile * 10)
     ] as sizesabsoluteerror,
-    approx_quantiles(
-        image.sizesrelativeerror, 1000) [offset (percentile * 10)
+    approx_quantiles(image.sizesrelativeerror, 1000)[
+        offset(percentile * 10)
     ] as sizesrelativeerror
 from
     (
@@ -32,6 +32,6 @@ from
         from
             `httparchive.pages.2021_07_01_*`, unnest(getsizesaccuracy(payload)) as image
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

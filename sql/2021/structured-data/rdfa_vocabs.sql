@@ -53,7 +53,7 @@ from
             -- This is done to normalize the URL a bit before counting.
             concat(
                 net.reg_domain(rdfa_vocab),
-                split(rdfa_vocab, net.reg_domain(rdfa_vocab)) [safe_offset(1)]
+                split(rdfa_vocab, net.reg_domain(rdfa_vocab))[safe_offset(1)]
             ) as rdfa_vocab
         from rendered_data, unnest(rdfa_vocabs) as rdfa_vocab
     )

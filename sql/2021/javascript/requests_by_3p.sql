@@ -4,7 +4,7 @@ select
     percentile,
     client,
     host,
-    approx_quantiles(requests, 1000) [offset (percentile * 10)] as num_requests
+    approx_quantiles(requests, 1000)[offset(percentile * 10)] as num_requests
 from
     (
         select
@@ -24,6 +24,6 @@ from
         where date = '2021-07-01' and type = 'script'
         group by client, page, host
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client, host
 order by percentile, client, host

@@ -5,7 +5,7 @@ select
     client,
     http_version_category,
     count(0) as num_pages,
-    approx_quantiles(_connections, 1000) [offset (percentile * 10)] as connections
+    approx_quantiles(_connections, 1000)[offset(percentile * 10)] as connections
 from
     (
         select
@@ -30,6 +30,6 @@ join
     )
     using
     (client, page),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client, http_version_category
 order by percentile, client, num_pages desc, http_version_category

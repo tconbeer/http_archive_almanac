@@ -56,7 +56,7 @@ from
         from `httparchive.almanac.requests`
         where date = '2021-07-01'
     ),
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as nested_rank
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as nested_rank
 where rank <= nested_rank
 group by client, nested_rank, cdn
 order by client desc, nested_rank, firsthtmlhits desc

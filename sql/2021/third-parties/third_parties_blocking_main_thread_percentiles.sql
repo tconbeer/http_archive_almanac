@@ -13,12 +13,10 @@ select
     count(distinct page) as total_pages,
     countif(blocking > 0) as blocking_pages,
     percentile,
-    approx_quantiles(
-        transfer_size_kib, 1000) [offset (percentile * 10)
+    approx_quantiles(transfer_size_kib, 1000)[
+        offset(percentile * 10)
     ] as p50_transfer_size_kib,
-    approx_quantiles(
-        blocking_time, 1000) [offset (percentile * 10)
-    ] as p50_blocking_time
+    approx_quantiles(blocking_time, 1000)[offset(percentile * 10)] as p50_blocking_time
 from
     (
         select
@@ -50,7 +48,7 @@ from
             ) as third_party_items
         group by domain, page, category
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by domain, category, percentile
 having total_pages >= 50
 order by total_pages desc, category, percentile

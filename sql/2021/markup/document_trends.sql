@@ -19,7 +19,7 @@ select
     countif(trim(doctype) != '') / count(0) as pct_doctype,
     min(byteshtml) as min_bytes_html,
     max(byteshtml) as max_bytes_html,
-    approx_quantiles(byteshtml, 1000) [offset (500)] as median_bytes_html,
+    approx_quantiles(byteshtml, 1000)[offset(500)] as median_bytes_html,
     countif(byteshtml = 0) as freq_zero_bytes_html,
     countif(byteshtml = 0) / count(0) as pct_zero_bytes_html,
     count(0) as total

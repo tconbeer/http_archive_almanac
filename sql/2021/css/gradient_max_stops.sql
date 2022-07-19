@@ -169,11 +169,11 @@ create temporary function getstops(value string
 select
     percentile,
     client,
-    approx_quantiles(
-        getstops(max_color_stops), 1000) [offset (percentile * 10)
+    approx_quantiles(getstops(max_color_stops), 1000)[
+        offset(percentile * 10)
     ] as max_color_stops,
     getgradient(
-        approx_quantiles(max_color_stops, 1000) [offset (percentile * 10)]
+        approx_quantiles(max_color_stops, 1000)[offset(percentile * 10)]
     ) as gradient
 from
     (
@@ -182,7 +182,7 @@ from
         where date = '2021-07-01'
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 where getstops(max_color_stops) > 0
 group by percentile, client
 order by percentile, client

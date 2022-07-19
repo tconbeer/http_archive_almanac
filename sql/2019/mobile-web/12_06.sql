@@ -28,9 +28,8 @@ select
     count(distinct page) as pages,
     round(
         count(distinct page)
-        * 100 / (
-            select count(0) as total from `httparchive.summary_pages.2019_07_01_mobile`
-        ),
+        * 100
+        / (select count(0) as total from `httparchive.summary_pages.2019_07_01_mobile`),
         2
     ) as pct
 from `httparchive.almanac.parsed_css`

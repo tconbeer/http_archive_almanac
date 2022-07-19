@@ -19,7 +19,7 @@ left join
     )
     using
     (client, page),
-    unnest( [1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank
+    unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank
 where _rank <= rank
 group by client, framework, rank
 order by rank, pct desc

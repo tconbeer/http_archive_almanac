@@ -13,11 +13,11 @@ try {
 
 select
     client,
-    round(approx_quantiles(v8_time, 1000) [offset (100)], 3) as p10,
-    round(approx_quantiles(v8_time, 1000) [offset (250)], 3) as p25,
-    round(approx_quantiles(v8_time, 1000) [offset (500)], 3) as p50,
-    round(approx_quantiles(v8_time, 1000) [offset (750)], 3) as p75,
-    round(approx_quantiles(v8_time, 1000) [offset (900)], 3) as p90
+    round(approx_quantiles(v8_time, 1000)[offset(100)], 3) as p10,
+    round(approx_quantiles(v8_time, 1000)[offset(250)], 3) as p25,
+    round(approx_quantiles(v8_time, 1000)[offset(500)], 3) as p50,
+    round(approx_quantiles(v8_time, 1000)[offset(750)], 3) as p75,
+    round(approx_quantiles(v8_time, 1000)[offset(900)], 3) as p90
 from
     (
         select _table_suffix as client, totalmainthreadtime(payload) as v8_time

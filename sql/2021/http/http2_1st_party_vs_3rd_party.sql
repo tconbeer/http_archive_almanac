@@ -4,7 +4,7 @@ select
     percentile,
     client,
     is_third_party,
-    approx_quantiles(http2_3_pct, 1000) [offset (percentile * 10)] as http2_3_pct
+    approx_quantiles(http2_3_pct, 1000)[offset(percentile * 10)] as http2_3_pct
 from
     (
         select

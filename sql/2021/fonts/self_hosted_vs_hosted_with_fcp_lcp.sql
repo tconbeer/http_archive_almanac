@@ -11,8 +11,8 @@ select
     count(distinct page) as pages,
     sum(count(distinct page)) over (partition by client) as total,
     count(distinct page) / sum(count(distinct page)) over (partition by client) as pct,
-    approx_quantiles(fcp, 1000) [offset (500)] as median_fcp,
-    approx_quantiles(lcp, 1000) [offset (500)] as median_lcp
+    approx_quantiles(fcp, 1000)[offset(500)] as median_fcp,
+    approx_quantiles(lcp, 1000)[offset(500)] as median_lcp
 from
     (
         select

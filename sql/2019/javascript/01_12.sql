@@ -9,9 +9,8 @@ select
             )
             = '1'
         )
-        * 100 / count(
-            0
-        ),
+        * 100
+        / count(0),
         2
     ) as pct_module
 from `httparchive.pages.2019_07_01_*`

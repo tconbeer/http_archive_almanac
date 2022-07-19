@@ -6,7 +6,9 @@ create temp function is_good(
 ;
 
 create temp function is_ni(
-    good float64, needs_improvement float64, poor float64
+    good float64,
+    needs_improvement float64,
+    poor float64
 ) returns bool as (
     good / (good + needs_improvement + poor) < 0.75
     and poor / (good + needs_improvement + poor) < 0.25

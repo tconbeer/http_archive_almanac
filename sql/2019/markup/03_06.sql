@@ -18,7 +18,7 @@ select
     percentile,
     client,
     count(distinct url) as pages,
-    approx_quantiles(elements, 1000) [offset (percentile * 10)] as elements,
+    approx_quantiles(elements, 1000)[offset(percentile * 10)] as elements,
     cast(round(avg(elements)) as int64) as avg,
     min(elements) as min,
     max(elements) as max
@@ -27,6 +27,6 @@ from
         select _table_suffix as client, url, countelements(payload) as elements
         from `httparchive.pages.2019_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

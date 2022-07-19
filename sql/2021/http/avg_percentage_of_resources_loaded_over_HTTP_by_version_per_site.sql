@@ -2,12 +2,12 @@
 # Median percentage of resources loaded over HTTP 0.9, 1.0, 1.1, 2+ per site
 select
     client,
-    approx_quantiles(http09_pct, 1000) [offset (50 * 10)] as http09_pct,
-    approx_quantiles(http10_pct, 1000) [offset (50 * 10)] as http10_pct,
-    approx_quantiles(http11_pct, 1000) [offset (50 * 10)] as http11_pct,
-    approx_quantiles(http2_3_pct, 1000) [offset (50 * 10)] as http2_3_pct,
-    approx_quantiles(other_pct, 1000) [offset (50 * 10)] as other_pct,
-    approx_quantiles(null_pct, 1000) [offset (50 * 10)] as null_pct
+    approx_quantiles(http09_pct, 1000)[offset(50 * 10)] as http09_pct,
+    approx_quantiles(http10_pct, 1000)[offset(50 * 10)] as http10_pct,
+    approx_quantiles(http11_pct, 1000)[offset(50 * 10)] as http11_pct,
+    approx_quantiles(http2_3_pct, 1000)[offset(50 * 10)] as http2_3_pct,
+    approx_quantiles(other_pct, 1000)[offset(50 * 10)] as other_pct,
+    approx_quantiles(null_pct, 1000)[offset(50 * 10)] as null_pct
 from
     (
         select

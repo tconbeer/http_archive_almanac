@@ -32,7 +32,7 @@ join
         select _table_suffix as client, url, max(rank) as rank
         from
             `httparchive.summary_pages.2021_07_01_*`,
-            unnest( [10, 100, 1000, 10000, 100000, 1000000, 10000000]) as rank_magnitude
+            unnest([10, 100, 1000, 10000, 100000, 1000000, 10000000]) as rank_magnitude
         where rank <= rank_magnitude
         group by client, url
     )

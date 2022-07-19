@@ -83,16 +83,14 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(
-        rule_count, 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(rule_count, 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as rule_count,
-    approx_quantiles(
-        selector_count, 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(selector_count, 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as selector_count,
-    approx_quantiles(
-        safe_divide(selector_count, rule_count),
-        1000 ignore nulls
-    ) [offset (percentile * 10)
+    approx_quantiles(safe_divide(selector_count, rule_count), 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as selectors_per_rule
 from
     (
@@ -110,6 +108,6 @@ from
             )
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

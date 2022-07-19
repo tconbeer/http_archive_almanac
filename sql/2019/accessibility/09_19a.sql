@@ -2,8 +2,8 @@
 # 09_19a: Top 10,000 aria attribute/value pairs
 select
     client,
-    split(regexp_replace(attr, '[\'"]', ''), '=') [offset (0)] as attribute,
-    split(regexp_replace(attr, '[\'"]', ''), '=') [offset (1)] as value,
+    split(regexp_replace(attr, '[\'"]', ''), '=')[offset(0)] as attribute,
+    split(regexp_replace(attr, '[\'"]', ''), '=')[offset(1)] as value,
     count(distinct page) as pages,
     total,
     round(count(distinct page) * 100 / total, 2) as pct

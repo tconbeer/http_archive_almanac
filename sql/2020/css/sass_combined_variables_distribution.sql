@@ -22,7 +22,7 @@ select
     percentile,
     client,
     usage,
-    approx_quantiles(freq, 1000 ignore nulls) [offset (percentile * 10)] as freq
+    approx_quantiles(freq, 1000 ignore nulls)[offset(percentile * 10)] as freq
 from
     (
         select _table_suffix as client, var.usage, var.freq
@@ -30,6 +30,6 @@ from
             `httparchive.pages.2020_08_01_*`,
             unnest(countcombinedvariables(payload)) as var
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client, usage
 order by percentile, client, usage

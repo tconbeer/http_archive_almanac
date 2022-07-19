@@ -16,7 +16,7 @@ from
         from `httparchive.blink_features.features`
         where feature = 'ServiceWorkerControlledPage' and yyyymmdd >= '2021-05-01'
     ),
-    unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 join
     (
         select
@@ -26,7 +26,7 @@ join
             count(0) as total
         from
             `httparchive.summary_pages.*`,
-            unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+            unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where _table_suffix > '2021_05_01' and rank <= rank_grouping
         group by yyyymmdd, rank_grouping, client
     )

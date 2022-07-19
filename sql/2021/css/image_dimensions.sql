@@ -3,9 +3,9 @@
 select
     percentile,
     client,
-    approx_quantiles(height, 1000) [offset (percentile * 10)] as height,
-    approx_quantiles(width, 1000) [offset (percentile * 10)] as width,
-    approx_quantiles(area, 1000) [offset (percentile * 10)] as area
+    approx_quantiles(height, 1000)[offset(percentile * 10)] as height,
+    approx_quantiles(width, 1000)[offset(percentile * 10)] as width,
+    approx_quantiles(area, 1000)[offset(percentile * 10)] as area
 from
     (
         select client, height, width, height * width as area
@@ -50,6 +50,6 @@ from
             using
             (client, page, img_url)
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

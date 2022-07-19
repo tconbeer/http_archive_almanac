@@ -25,9 +25,7 @@ select
     _table_suffix as client,
     almanac_attribute_info.name,
     sum(almanac_attribute_info.freq) as freq,  # total count from all pages
-    sum(almanac_attribute_info.freq) / sum(
-        sum(almanac_attribute_info.freq)
-    ) over (
+    sum(almanac_attribute_info.freq) / sum(sum(almanac_attribute_info.freq)) over (
         partition by _table_suffix
     ) as pct_ratio
 from

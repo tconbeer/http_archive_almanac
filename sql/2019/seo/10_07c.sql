@@ -17,7 +17,7 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(description_length, 1000) [offset (percentile * 10)] as desc_length
+    approx_quantiles(description_length, 1000)[offset(percentile * 10)] as desc_length
 from
     (
         select
@@ -25,6 +25,6 @@ from
             getmetadescriptionlength(payload) as description_length
         from `httparchive.pages.2019_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

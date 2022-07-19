@@ -450,7 +450,7 @@ select
     percentile,
     client,
     shorthand,
-    approx_quantiles(value, 1000) [offset (percentile * 10)] as number_of_values
+    approx_quantiles(value, 1000)[offset(percentile * 10)] as number_of_values
 from
     (
         select client, shorthand.property as shorthand, value
@@ -460,6 +460,6 @@ from
             unnest(shorthand.values) as value
         where date = '2021-07-01'
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client, shorthand
 order by percentile, client, shorthand

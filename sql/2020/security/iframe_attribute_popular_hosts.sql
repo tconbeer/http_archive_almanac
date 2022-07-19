@@ -34,7 +34,7 @@ from
                 from `httparchive.pages.2020_08_01_*`
             ),
             unnest(iframeattrs) as iframeattr,
-            unnest( ['allow', 'sandbox']) as policy_type
+            unnest(['allow', 'sandbox']) as policy_type
     )
 join
     (

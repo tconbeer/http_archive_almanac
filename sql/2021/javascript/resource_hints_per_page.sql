@@ -34,11 +34,9 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(script_hint, 1000) [offset (percentile * 10)] as hints_per_page,
-    approx_quantiles(
-        if(script_hint = 0, null, script_hint),
-        1000 ignore nulls
-    ) [offset (percentile * 10)
+    approx_quantiles(script_hint, 1000)[offset(percentile * 10)] as hints_per_page,
+    approx_quantiles(if(script_hint = 0, null, script_hint), 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as hints_per_page_with_hints
 from
     (
@@ -52,6 +50,6 @@ from
         left join unnest(getresourcehintattrs(payload)) as hint
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

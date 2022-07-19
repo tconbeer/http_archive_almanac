@@ -4,7 +4,7 @@
 select
     percentile,
     client,
-    approx_quantiles(paint_cpu_time, 1000) [offset (percentile * 10)] as paint_cpu_time
+    approx_quantiles(paint_cpu_time, 1000)[offset(percentile * 10)] as paint_cpu_time
 from
     (
         select
@@ -20,6 +20,6 @@ from
             ) as paint_cpu_time
         from `httparchive.pages.2019_07_01_*`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

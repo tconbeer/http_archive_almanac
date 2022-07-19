@@ -6,9 +6,8 @@ select
     count(0) as total,
     round(
         countif(regexp_contains(respotherheaders, '(?i)clear-site-data ='))
-        * 100 / count(
-            0
-        ),
+        * 100
+        / count(0),
         2
     ) as pct
 from `httparchive.almanac.summary_response_bodies`

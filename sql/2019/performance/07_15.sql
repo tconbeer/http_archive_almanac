@@ -4,7 +4,7 @@
 select
     percentile,
     round(
-        approx_quantiles(first_cpu_idle, 1000) [offset (percentile * 10)] / 1000, 2
+        approx_quantiles(first_cpu_idle, 1000)[offset(percentile * 10)] / 1000, 2
     ) as first_cpu_idle
 from
     (
@@ -17,6 +17,6 @@ from
             ) as first_cpu_idle
         from `httparchive.lighthouse.2019_07_01_mobile`
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile
 order by percentile

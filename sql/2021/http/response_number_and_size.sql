@@ -3,13 +3,11 @@
 select
     client,
     percentile,
-    approx_quantiles(number, 1000) [offset (percentile * 10)] as responsescount,
-    approx_quantiles(
-        respheadersizekib, 1000) [offset (percentile * 10)
+    approx_quantiles(number, 1000)[offset(percentile * 10)] as responsescount,
+    approx_quantiles(respheadersizekib, 1000)[
+        offset(percentile * 10)
     ] as respheadersizekib,
-    approx_quantiles(
-        respbodysizekib, 1000) [offset (percentile * 10)
-    ] as respbodysizekib
+    approx_quantiles(respbodysizekib, 1000)[offset(percentile * 10)] as respbodysizekib
 from
     (
         select
@@ -22,6 +20,6 @@ from
         where date = '2021-07-01'
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by client, percentile
 order by client, percentile

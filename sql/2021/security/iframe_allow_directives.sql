@@ -17,7 +17,7 @@ create temp function getnumwithallowattribute(payload string) as (
 
 select
     client,
-    split(trim(allow_attr), ' ') [offset (0)] as directive,
+    split(trim(allow_attr), ' ')[offset(0)] as directive,
     total_iframes_with_allow,
     count(0) as freq,
     count(0) / total_iframes_with_allow as pct

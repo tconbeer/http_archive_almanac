@@ -13,11 +13,11 @@ value string
         select
             array(
                 select as struct
-                    trim(split(kv, ':') [safe_offset(0)]) as key,
-                    trim(split(kv, ':') [safe_offset(1)]) as value
+                    trim(split(kv, ':')[safe_offset(0)]) as key,
+                    trim(split(kv, ':')[safe_offset(1)]) as value
                 from t.kv
             )
-        from unnest( [struct(split(translate(input, '{}"', '')) as kv)]) t
+        from unnest([struct(split(translate(input, '{}"', '')) as kv)]) t
     )
 )
 ;

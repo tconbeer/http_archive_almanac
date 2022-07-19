@@ -19,8 +19,8 @@ try {
 select
     percentile,
     client,
-    approx_quantiles(
-        fn, 1000 ignore nulls) [offset (percentile * 10)
+    approx_quantiles(fn, 1000 ignore nulls)[
+        offset(percentile * 10)
     ] as sass_custom_functions
 from
     (
@@ -31,6 +31,6 @@ from
         from `httparchive.pages.2021_07_01_*`
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

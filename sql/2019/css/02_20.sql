@@ -10,7 +10,7 @@ from
     (
         select
             _table_suffix as client,
-            array_reverse(split(url, '/')) [offset (0)] as filename
+            array_reverse(split(url, '/'))[offset(0)] as filename
         from `httparchive.summary_requests.2019_07_01_*`
         where type = 'css'
     )

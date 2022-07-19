@@ -28,7 +28,7 @@ select
     client,
     count(distinct url) as total,
 
-    approx_quantiles(total, 1000) [offset (percentile * 10)] as heading_count
+    approx_quantiles(total, 1000)[offset(percentile * 10)] as heading_count
 
 from
     (
@@ -40,7 +40,7 @@ from
             url
         from
             `httparchive.pages.2020_08_01_*`,
-            unnest( [10, 25, 50, 75, 90]) as percentile,
+            unnest([10, 25, 50, 75, 90]) as percentile,
             unnest(
                 get_heading_info(json_extract_scalar(payload, '$._wpt_bodies'))
             ) as heading_info

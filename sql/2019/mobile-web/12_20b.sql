@@ -2,10 +2,10 @@
 # 12_20b: Sites with majority of CLS >=medium, >=large
 select
     count(0) as total_sites,
-    countif( (perc_medium_cls + perc_large_cls) >= 50) as total_majority_medium_cls,
+    countif((perc_medium_cls + perc_large_cls) >= 50) as total_majority_medium_cls,
     countif(perc_large_cls >= 50) as total_majority_large_cls,
     round(
-        countif( (perc_medium_cls + perc_large_cls) >= 50) * 100 / count(0), 2
+        countif((perc_medium_cls + perc_large_cls) >= 50) * 100 / count(0), 2
     ) as perc_majority_medium_cls,
     round(countif(perc_large_cls >= 50) * 100 / count(0), 2) as perc_majority_large_cls
 from

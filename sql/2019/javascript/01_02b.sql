@@ -4,10 +4,10 @@ select
     percentile,
     client,
     round(
-        approx_quantiles(first_party, 1000) [offset (percentile * 10)], 2
+        approx_quantiles(first_party, 1000)[offset(percentile * 10)], 2
     ) as first_party_js_kbytes,
     round(
-        approx_quantiles(third_party, 1000) [offset (percentile * 10)], 2
+        approx_quantiles(third_party, 1000)[offset(percentile * 10)], 2
     ) as third_party_js_kbytes
 from
     (
@@ -19,6 +19,6 @@ from
         where date = '2019-07-01' and type = 'script'
         group by client, page
     ),
-    unnest( [10, 25, 50, 75, 90]) as percentile
+    unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

@@ -173,11 +173,11 @@ select
     client,
     resourceformat,
     imgcount,
-    resourcewidthpercentiles[offset (percentile * 10)] as resourcewidth,
-    resourceheightpercentiles[offset (percentile * 10)] as resourceheight,
-    aspectratiopercentiles[offset (percentile * 10)] as aspectratio,
-    megapixelspercentiles[offset (percentile * 10)] as megapixels,
-    bytesizepercentiles[offset (percentile * 10)] as bytesize,
-    bitsperpixelpercentiles[offset (percentile * 10)] as bitsperpixel
-from percentiles, unnest( [0, 10, 25, 50, 75, 90, 100]) as percentile
+    resourcewidthpercentiles[offset(percentile * 10)] as resourcewidth,
+    resourceheightpercentiles[offset(percentile * 10)] as resourceheight,
+    aspectratiopercentiles[offset(percentile * 10)] as aspectratio,
+    megapixelspercentiles[offset(percentile * 10)] as megapixels,
+    bytesizepercentiles[offset(percentile * 10)] as bytesize,
+    bitsperpixelpercentiles[offset(percentile * 10)] as bitsperpixel
+from percentiles, unnest([0, 10, 25, 50, 75, 90, 100]) as percentile
 order by imgcount desc, percentile

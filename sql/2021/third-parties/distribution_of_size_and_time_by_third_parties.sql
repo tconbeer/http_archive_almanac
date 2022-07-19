@@ -30,8 +30,8 @@ select
     client,
     category,
     percentile,
-    approx_quantiles(body_size, 1000) [offset (percentile * 10)] as body_size,
-    approx_quantiles(time, 1000) [offset (percentile * 10)] as time  -- noqa: L010
+    approx_quantiles(body_size, 1000)[offset(percentile * 10)] as body_size,
+    approx_quantiles(time, 1000)[offset(percentile * 10)] as time  -- noqa: L010
 from base, unnest(generate_array(1, 100)) as percentile
 group by client, category, percentile
 order by client, category, percentile

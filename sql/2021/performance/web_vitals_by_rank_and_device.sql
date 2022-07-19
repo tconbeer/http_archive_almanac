@@ -6,7 +6,9 @@ create temp function is_good(
 ;
 
 create temp function is_ni(
-    good float64, needs_improvement float64, poor float64
+    good float64,
+    needs_improvement float64,
+    poor float64
 ) returns bool as (
     good / (good + needs_improvement + poor) < 0.75
     and poor / (good + needs_improvement + poor) < 0.25
@@ -148,7 +150,7 @@ select
         count(distinct if(is_non_zero(fast_ttfb, avg_ttfb, slow_ttfb), origin, null))
     ) as pct_ttfb_poor
 
-from base, unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+from base, unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 where rank <= rank_grouping
 group by date, device, rank_grouping
 order by rank_grouping

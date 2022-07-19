@@ -36,7 +36,7 @@ select
         count(distinct if(desktopdensity > phonedensity, origin, null)),
         count(distinct origin)
     ) as perc_more_desktop
-from base, unnest( [1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+from base, unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
 where rank <= rank_grouping
 group by date, rank_grouping
 order by rank_grouping

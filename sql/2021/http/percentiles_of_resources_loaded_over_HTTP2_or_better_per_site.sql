@@ -3,7 +3,7 @@
 select
     client,
     percentile,
-    approx_quantiles(http2_3_pct, 1000) [offset (percentile * 10)] as http2_or_above
+    approx_quantiles(http2_3_pct, 1000)[offset(percentile * 10)] as http2_or_above
 from
     (
         select

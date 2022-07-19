@@ -63,13 +63,13 @@ with
 select
     client,
     percentile,
-    approx_quantiles(
-        jsonld_entity_relationship.depth, 1000) [offset (percentile * 10)
+    approx_quantiles(jsonld_entity_relationship.depth, 1000)[
+        offset(percentile * 10)
     ] as depth,
     array_to_string(array_agg(distinct url limit 5), ' ') as sample_urls
 from
     rendered_data,
     unnest(jsonld_entities_relationships) as jsonld_entity_relationship,
-    unnest( [10, 25, 50, 75, 90, 100]) as percentile
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by client, percentile
 order by client, percentile
