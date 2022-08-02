@@ -1,156 +1,152 @@
-#standardSQL
+# standardSQL
 # Core WebVitals by country
+create temp function is_good(
+    good float64, needs_improvement float64, poor float64
+) returns bool as (safe_divide(good, (good + needs_improvement + poor)) >= 0.75)
+;
 
-CREATE TEMP FUNCTION IS_GOOD (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
-  SAFE_DIVIDE(good, (good + needs_improvement + poor)) >= 0.75
-);
+create temp function is_poor(
+    good float64, needs_improvement float64, poor float64
+) returns bool as (safe_divide(poor, (good + needs_improvement + poor)) >= 0.25)
+;
 
-CREATE TEMP FUNCTION IS_POOR (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
-  SAFE_DIVIDE(poor, (good + needs_improvement + poor)) >= 0.25
-);
-
-CREATE TEMP FUNCTION IS_NI (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
-  NOT IS_GOOD(good, needs_improvement, poor) AND
-  NOT IS_POOR(good, needs_improvement, poor)
-);
-
-CREATE TEMP FUNCTION IS_NON_ZERO (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
-  good + needs_improvement + poor > 0
-);
-
-WITH
-base AS (
-  SELECT
-    origin,
-    country_code,
-
-    SUM(fast_fid) / SUM(fast_fid + avg_fid + slow_fid) AS fast_fid,
-    SUM(avg_fid) / SUM(fast_fid + avg_fid + slow_fid) AS avg_fid,
-    SUM(slow_fid) / SUM(fast_fid + avg_fid + slow_fid) AS slow_fid,
-
-    SUM(fast_lcp) / SUM(fast_lcp + avg_lcp + slow_lcp) AS fast_lcp,
-    SUM(avg_lcp) / SUM(fast_lcp + avg_lcp + slow_lcp) AS avg_lcp,
-    SUM(slow_lcp) / SUM(fast_lcp + avg_lcp + slow_lcp) AS slow_lcp,
-
-    SUM(small_cls) / SUM(small_cls + medium_cls + large_cls) AS small_cls,
-    SUM(medium_cls) / SUM(small_cls + medium_cls + large_cls) AS medium_cls,
-    SUM(large_cls) / SUM(small_cls + medium_cls + large_cls) AS large_cls,
-
-    SUM(fast_fcp) / SUM(fast_fcp + avg_fcp + slow_fcp) AS fast_fcp,
-    SUM(avg_fcp) / SUM(fast_fcp + avg_fcp + slow_fcp) AS avg_fcp,
-    SUM(slow_fcp) / SUM(fast_fcp + avg_fcp + slow_fcp) AS slow_fcp,
-
-    SUM(fast_ttfb) / SUM(fast_ttfb + avg_ttfb + slow_ttfb) AS fast_ttfb,
-    SUM(avg_ttfb) / SUM(fast_ttfb + avg_ttfb + slow_ttfb) AS avg_ttfb,
-    SUM(slow_ttfb) / SUM(fast_ttfb + avg_ttfb + slow_ttfb) AS slow_ttfb
-
-  FROM
-    `chrome-ux-report.materialized.country_summary`
-  WHERE
-    yyyymm = 202107
-  GROUP BY
-    origin,
-    country_code
+create temp function is_ni(
+    good float64,
+    needs_improvement float64,
+    poor float64
+) returns bool as (
+    not is_good(good, needs_improvement, poor)
+    and not is_poor(good, needs_improvement, poor)
 )
+;
 
-SELECT
-  `chrome-ux-report`.experimental.GET_COUNTRY(country_code) AS country,
+create temp function is_non_zero(
+    good float64, needs_improvement float64, poor float64
+) returns bool as (good + needs_improvement + poor > 0)
+;
 
-  COUNT(DISTINCT origin) AS total_origins,
+with
+    base as (
+        select
+            origin,
+            country_code,
 
-  # Good CWV with optional FID
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_GOOD(fast_fid, avg_fid, slow_fid) IS NOT FALSE AND
-        IS_GOOD(fast_lcp, avg_lcp, slow_lcp) AND
-        IS_GOOD(small_cls, medium_cls, large_cls), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_lcp, avg_lcp, slow_lcp) AND
-        IS_NON_ZERO(small_cls, medium_cls, large_cls), origin, NULL))) AS pct_cwv_good,
+            sum(fast_fid) / sum(fast_fid + avg_fid + slow_fid) as fast_fid,
+            sum(avg_fid) / sum(fast_fid + avg_fid + slow_fid) as avg_fid,
+            sum(slow_fid) / sum(fast_fid + avg_fid + slow_fid) as slow_fid,
 
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_GOOD(fast_lcp, avg_lcp, slow_lcp), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_lcp, avg_lcp, slow_lcp), origin, NULL))) AS pct_lcp_good,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_NI(fast_lcp, avg_lcp, slow_lcp), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_lcp, avg_lcp, slow_lcp), origin, NULL))) AS pct_lcp_ni,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_POOR(fast_lcp, avg_lcp, slow_lcp), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_lcp, avg_lcp, slow_lcp), origin, NULL))) AS pct_lcp_poor,
+            sum(fast_lcp) / sum(fast_lcp + avg_lcp + slow_lcp) as fast_lcp,
+            sum(avg_lcp) / sum(fast_lcp + avg_lcp + slow_lcp) as avg_lcp,
+            sum(slow_lcp) / sum(fast_lcp + avg_lcp + slow_lcp) as slow_lcp,
 
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_GOOD(fast_fid, avg_fid, slow_fid), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_fid, avg_fid, slow_fid), origin, NULL))) AS pct_fid_good,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_NI(fast_fid, avg_fid, slow_fid), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_fid, avg_fid, slow_fid), origin, NULL))) AS pct_fid_ni,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_POOR(fast_fid, avg_fid, slow_fid), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_fid, avg_fid, slow_fid), origin, NULL))) AS pct_fid_poor,
+            sum(small_cls) / sum(small_cls + medium_cls + large_cls) as small_cls,
+            sum(medium_cls) / sum(small_cls + medium_cls + large_cls) as medium_cls,
+            sum(large_cls) / sum(small_cls + medium_cls + large_cls) as large_cls,
 
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_GOOD(small_cls, medium_cls, large_cls), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(small_cls, medium_cls, large_cls), origin, NULL))) AS pct_cls_good,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_NI(small_cls, medium_cls, large_cls), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(small_cls, medium_cls, large_cls), origin, NULL))) AS pct_cls_ni,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_POOR(small_cls, medium_cls, large_cls), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(small_cls, medium_cls, large_cls), origin, NULL))) AS pct_cls_poor,
+            sum(fast_fcp) / sum(fast_fcp + avg_fcp + slow_fcp) as fast_fcp,
+            sum(avg_fcp) / sum(fast_fcp + avg_fcp + slow_fcp) as avg_fcp,
+            sum(slow_fcp) / sum(fast_fcp + avg_fcp + slow_fcp) as slow_fcp,
 
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_GOOD(fast_fcp, avg_fcp, slow_fcp), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_fcp, avg_fcp, slow_fcp), origin, NULL))) AS pct_fcp_good,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_NI(fast_fcp, avg_fcp, slow_fcp), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_fcp, avg_fcp, slow_fcp), origin, NULL))) AS pct_fcp_ni,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_POOR(fast_fcp, avg_fcp, slow_fcp), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_fcp, avg_fcp, slow_fcp), origin, NULL))) AS pct_fcp_poor,
+            sum(fast_ttfb) / sum(fast_ttfb + avg_ttfb + slow_ttfb) as fast_ttfb,
+            sum(avg_ttfb) / sum(fast_ttfb + avg_ttfb + slow_ttfb) as avg_ttfb,
+            sum(slow_ttfb) / sum(fast_ttfb + avg_ttfb + slow_ttfb) as slow_ttfb
 
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_GOOD(fast_ttfb, avg_ttfb, slow_ttfb), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_ttfb, avg_ttfb, slow_ttfb), origin, NULL))) AS pct_ttfb_good,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_NI(fast_ttfb, avg_ttfb, slow_ttfb), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_ttfb, avg_ttfb, slow_ttfb), origin, NULL))) AS pct_ttfb_ni,
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-        IS_POOR(fast_ttfb, avg_ttfb, slow_ttfb), origin, NULL)),
-    COUNT(DISTINCT IF(
-        IS_NON_ZERO(fast_ttfb, avg_ttfb, slow_ttfb), origin, NULL))) AS pct_ttfb_poor
+        from `chrome-ux-report.materialized.country_summary`
+        where yyyymm = 202107
+        group by origin, country_code
+    )
 
-FROM
-  base
-GROUP BY
-  country
-ORDER BY
-  total_origins DESC
+select
+    `chrome-ux-report`.experimental.get_country(country_code) as country,
+
+    count(distinct origin) as total_origins,
+
+    # Good CWV with optional FID
+    safe_divide(
+        count(
+            distinct if(
+                is_good(fast_fid, avg_fid, slow_fid) is not false
+                and is_good(fast_lcp, avg_lcp, slow_lcp)
+                and is_good(small_cls, medium_cls, large_cls),
+                origin,
+                null
+            )
+        ),
+        count(
+            distinct if(
+                is_non_zero(fast_lcp, avg_lcp, slow_lcp)
+                and is_non_zero(small_cls, medium_cls, large_cls),
+                origin,
+                null
+            )
+        )
+    ) as pct_cwv_good,
+
+    safe_divide(
+        count(distinct if(is_good(fast_lcp, avg_lcp, slow_lcp), origin, null)),
+        count(distinct if(is_non_zero(fast_lcp, avg_lcp, slow_lcp), origin, null))
+    ) as pct_lcp_good,
+    safe_divide(
+        count(distinct if(is_ni(fast_lcp, avg_lcp, slow_lcp), origin, null)),
+        count(distinct if(is_non_zero(fast_lcp, avg_lcp, slow_lcp), origin, null))
+    ) as pct_lcp_ni,
+    safe_divide(
+        count(distinct if(is_poor(fast_lcp, avg_lcp, slow_lcp), origin, null)),
+        count(distinct if(is_non_zero(fast_lcp, avg_lcp, slow_lcp), origin, null))
+    ) as pct_lcp_poor,
+
+    safe_divide(
+        count(distinct if(is_good(fast_fid, avg_fid, slow_fid), origin, null)),
+        count(distinct if(is_non_zero(fast_fid, avg_fid, slow_fid), origin, null))
+    ) as pct_fid_good,
+    safe_divide(
+        count(distinct if(is_ni(fast_fid, avg_fid, slow_fid), origin, null)),
+        count(distinct if(is_non_zero(fast_fid, avg_fid, slow_fid), origin, null))
+    ) as pct_fid_ni,
+    safe_divide(
+        count(distinct if(is_poor(fast_fid, avg_fid, slow_fid), origin, null)),
+        count(distinct if(is_non_zero(fast_fid, avg_fid, slow_fid), origin, null))
+    ) as pct_fid_poor,
+
+    safe_divide(
+        count(distinct if(is_good(small_cls, medium_cls, large_cls), origin, null)),
+        count(distinct if(is_non_zero(small_cls, medium_cls, large_cls), origin, null))
+    ) as pct_cls_good,
+    safe_divide(
+        count(distinct if(is_ni(small_cls, medium_cls, large_cls), origin, null)),
+        count(distinct if(is_non_zero(small_cls, medium_cls, large_cls), origin, null))
+    ) as pct_cls_ni,
+    safe_divide(
+        count(distinct if(is_poor(small_cls, medium_cls, large_cls), origin, null)),
+        count(distinct if(is_non_zero(small_cls, medium_cls, large_cls), origin, null))
+    ) as pct_cls_poor,
+
+    safe_divide(
+        count(distinct if(is_good(fast_fcp, avg_fcp, slow_fcp), origin, null)),
+        count(distinct if(is_non_zero(fast_fcp, avg_fcp, slow_fcp), origin, null))
+    ) as pct_fcp_good,
+    safe_divide(
+        count(distinct if(is_ni(fast_fcp, avg_fcp, slow_fcp), origin, null)),
+        count(distinct if(is_non_zero(fast_fcp, avg_fcp, slow_fcp), origin, null))
+    ) as pct_fcp_ni,
+    safe_divide(
+        count(distinct if(is_poor(fast_fcp, avg_fcp, slow_fcp), origin, null)),
+        count(distinct if(is_non_zero(fast_fcp, avg_fcp, slow_fcp), origin, null))
+    ) as pct_fcp_poor,
+
+    safe_divide(
+        count(distinct if(is_good(fast_ttfb, avg_ttfb, slow_ttfb), origin, null)),
+        count(distinct if(is_non_zero(fast_ttfb, avg_ttfb, slow_ttfb), origin, null))
+    ) as pct_ttfb_good,
+    safe_divide(
+        count(distinct if(is_ni(fast_ttfb, avg_ttfb, slow_ttfb), origin, null)),
+        count(distinct if(is_non_zero(fast_ttfb, avg_ttfb, slow_ttfb), origin, null))
+    ) as pct_ttfb_ni,
+    safe_divide(
+        count(distinct if(is_poor(fast_ttfb, avg_ttfb, slow_ttfb), origin, null)),
+        count(distinct if(is_non_zero(fast_ttfb, avg_ttfb, slow_ttfb), origin, null))
+    ) as pct_ttfb_poor
+
+from base
+group by country
+order by total_origins desc

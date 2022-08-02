@@ -1,8 +1,10 @@
-#standardSQL
+# standardSQL
 # 21_03: Attribute popularity for each hint.
-CREATE TEMPORARY FUNCTION getResourceHintAttrs(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
-LANGUAGE js AS '''
+create temporary function getresourcehintattrs(payload string)
+returns array < struct < name string,
+attribute string,
+value string
+>> language js as '''
 var hints = new Set(['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch']);
 var attributes = ['as', 'crossorigin', 'media'];
 try {
@@ -27,23 +29,17 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  hint.name,
-  hint.attribute,
-  IFNULL(NORMALIZE_AND_CASEFOLD(hint.value), 'not set') AS value,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, hint.name) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, hint.name) AS pct
-FROM
-  `httparchive.pages.2020_08_01_*`,
-  UNNEST(getResourceHintAttrs(payload)) AS hint
-GROUP BY
-  client,
-  name,
-  attribute,
-  value
-ORDER BY
-  pct DESC
+select
+    _table_suffix as client,
+    hint.name,
+    hint.attribute,
+    ifnull(normalize_and_casefold(hint.value), 'not set') as value,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix, hint.name) as total,
+    count(0) / sum(count(0)) over (partition by _table_suffix, hint.name) as pct
+from `httparchive.pages.2020_08_01_*`, unnest(getresourcehintattrs(payload)) as hint
+group by client, name, attribute, value
+order by pct desc

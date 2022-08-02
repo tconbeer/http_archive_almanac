@@ -1,20 +1,12 @@
-#standardSQL
+# standardSQL
 # 20.01 - Adoption of HTTP/2 by site and requests
-SELECT
-  client,
-  firstHtml,
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') AS http_version,
-  COUNT(0) AS num_requests,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  firstHtml,
-  http_version
-ORDER BY
-  client,
-  firstHtml,
-  http_version
+select
+    client,
+    firsthtml,
+    json_extract_scalar(payload, '$._protocol') as http_version,
+    count(0) as num_requests,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.requests`
+where date = '2019-07-01'
+group by client, firsthtml, http_version
+order by client, firsthtml, http_version

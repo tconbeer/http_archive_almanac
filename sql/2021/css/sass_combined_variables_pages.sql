@@ -1,6 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION countCombinedVariables(payload STRING) RETURNS
-ARRAY<STRUCT<usage STRING, freq INT64>> LANGUAGE js AS '''
+# standardSQL
+create temporary function countcombinedvariables(payload string) returns
+array < struct < usage string,
+freq int64
+>> language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -12,36 +15,28 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  usage,
-  COUNTIF(freq > 0) AS sass_pages_with_combined_variables,
-  COUNT(DISTINCT url) AS total_sass_pages,
-  total AS total_all_pages,
-  COUNTIF(freq > 0) / COUNT(DISTINCT url) AS pct_sass_pages,
-  COUNTIF(freq > 0) / total AS pct_all_pages
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    var.usage,
-    var.freq
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(countCombinedVariables(payload)) AS var)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  usage,
-  total
+select
+    client,
+    usage,
+    countif(freq > 0) as sass_pages_with_combined_variables,
+    count(distinct url) as total_sass_pages,
+    total as total_all_pages,
+    countif(freq > 0) / count(distinct url) as pct_sass_pages,
+    countif(freq > 0) / total as pct_all_pages
+from
+    (
+        select _table_suffix as client, url, var.usage, var.freq
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(countcombinedvariables(payload)) as var
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, usage, total

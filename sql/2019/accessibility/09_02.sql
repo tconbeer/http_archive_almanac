@@ -1,8 +1,10 @@
-#standardSQL
+# standardSQL
 # 09_02: % of pages having minimum set of accessible elements
 # Compliant pages have: header, footer, nav, and main (or [role=main]) elements
-CREATE TEMPORARY FUNCTION getCompliantElements(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getcompliantelements(payload string)
+returns array
+< string
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -12,27 +14,38 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  (SELECT _TABLE_SUFFIX AS client, url AS page, getCompliantElements(payload) AS compliant_elements FROM `httparchive.pages.2019_07_01_*`)
-JOIN
-  (SELECT client, page, REGEXP_CONTAINS(body, '(?i)role=[\'"]?main') AS has_role_main FROM `httparchive.almanac.summary_response_bodies` WHERE date = '2019-07-01' AND firstHtml)
-USING
-  (client, page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (client)
-WHERE
-  'header' IN UNNEST(compliant_elements) AND
-  'footer' IN UNNEST(compliant_elements) AND
-  'nav' IN UNNEST(compliant_elements) AND
-  ('main' IN UNNEST(compliant_elements) OR has_role_main)
-GROUP BY
-  client,
-  total
+select
+    client,
+    count(distinct page) as pages,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            getcompliantelements(payload) as compliant_elements
+        from `httparchive.pages.2019_07_01_*`
+    )
+join
+    (
+        select
+            client, page, regexp_contains(body, '(?i)role=[\'"]?main') as has_role_main
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    ) using (client, page)
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+where
+    'header' in unnest(compliant_elements)
+    and 'footer' in unnest(compliant_elements)
+    and 'nav' in unnest(compliant_elements)
+    and ('main' in unnest(compliant_elements) or has_role_main)
+group by client, total

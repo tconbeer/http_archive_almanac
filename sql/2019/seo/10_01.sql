@@ -1,10 +1,12 @@
-#standardSQL
+# standardSQL
 # 10_01: structured data rich results eligibility
-# note: the RegExp options based on: https://developers.google.com/search/docs/guides/search-gallery
+# note: the RegExp options based on:
+# https://developers.google.com/search/docs/guides/search-gallery
 # note: homepage only data
 # note: also see 10.05
-CREATE TEMPORARY FUNCTION hasEligibleType(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function haseligibletype(payload string)
+returns boolean language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -17,18 +19,17 @@ RETURNS BOOLEAN LANGUAGE js AS '''
   } catch (e) {
     return false;
   }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(has_eligible_type) AS freq,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(has_eligible_type) * 100 / SUM(COUNT(0)) OVER (), 2) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    hasEligibleType(payload) AS has_eligible_type
-  FROM
-    `httparchive.pages.2019_07_01_*`)
-GROUP BY
-  client
+select
+    client,
+    countif(has_eligible_type) as freq,
+    count(0) as total,
+    round(countif(has_eligible_type) * 100 / sum(count(0)) over (), 2) as pct
+from
+    (
+        select _table_suffix as client, haseligibletype(payload) as has_eligible_type
+        from `httparchive.pages.2019_07_01_*`
+    )
+group by client

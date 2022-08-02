@@ -1,16 +1,18 @@
-#standardSQL
+# standardSQL
 # pages robots_txt metrics grouped by device and status code
-
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64) returns float64 as (
+    round(safe_divide(freq, total), 4)
+)
+;
 
 # returns all the data we need from _robots_txt
-CREATE TEMPORARY FUNCTION get_robots_txt_info(robots_txt_string STRING)
-RETURNS STRUCT<
-  user_agents ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function get_robots_txt_info(robots_txt_string string)
+returns struct
+< user_agents array
+< string
+> > language js
+as '''
 var result = {
   user_agents: []
 };
@@ -27,33 +29,28 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  user_agent,
-  total,
-  COUNT(0) AS count,
-  AS_PERCENT(COUNT(0), total) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      get_robots_txt_info(JSON_EXTRACT_SCALAR(payload, '$._robots_txt')) AS robots_txt_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-    JOIN
-      (
-        # to get an accurate total of pages per device. also seems fast
-        SELECT _TABLE_SUFFIX, COUNT(0) AS total
-        FROM
-          `httparchive.pages.2020_08_01_*`
-        GROUP BY _TABLE_SUFFIX
-      )
-    USING (_TABLE_SUFFIX)
-  ),
-  UNNEST(robots_txt_info.user_agents) AS user_agent
-GROUP BY total, user_agent, client
-HAVING count >= 100
-ORDER BY count DESC
+select client, user_agent, total, count(0) as count, as_percent(count(0), total) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            get_robots_txt_info(
+                json_extract_scalar(payload, '$._robots_txt')
+            ) as robots_txt_info
+        from `httparchive.pages.2020_08_01_*`
+        join
+            (
+                # to get an accurate total of pages per device. also seems fast
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2020_08_01_*`
+                group by _table_suffix
+            ) using (_table_suffix)
+    ),
+    unnest(robots_txt_info.user_agents) as user_agent
+group by total, user_agent, client
+having count >= 100
+order by count desc

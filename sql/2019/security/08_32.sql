@@ -1,19 +1,18 @@
-#standardSQL
+# standardSQL
 # 08_32: Groupings of "cross-origin-resource-policy" values
-SELECT
-  client,
-  policy,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.summary_response_bodies`,
-  UNNEST(REGEXP_EXTRACT_ALL(LOWER(respOtherHeaders), r'cross-origin-resource-policy = ([^,\r\n]+)')) AS policy
-WHERE
-  date = '2019-07-01' AND
-  firstHtml
-GROUP BY
-  client,
-  policy
-ORDER BY
-  freq / total DESC
+select
+    client,
+    policy,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from
+    `httparchive.almanac.summary_response_bodies`,
+    unnest(
+        regexp_extract_all(
+            lower(respotherheaders), r'cross-origin-resource-policy = ([^,\r\n]+)'
+        )
+    ) as policy
+where date = '2019-07-01' and firsthtml
+group by client, policy
+order by freq / total desc

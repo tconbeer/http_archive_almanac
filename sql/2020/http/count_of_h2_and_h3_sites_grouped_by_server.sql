@@ -1,29 +1,25 @@
 # standardSQL
 # Count of H2 and H3 Sites Grouped By Server
-SELECT
-  client,
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') AS http_version,
-  # Omit server version
-  NORMALIZE_AND_CASEFOLD(REGEXP_EXTRACT(resp_server, r'\s*([^/]*)\s*')) AS server_header,
-  COUNT(0) AS num_pages,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client), 4) AS pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2020-08-01' AND
-  firstHtml AND
-  (
-    LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'http/2' OR
-    LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE '%quic%' OR
-    LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'h3%' OR
-    LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'http/3%'
-  )
-GROUP BY
-  client,
-  http_version,
-  server_header
-HAVING
-  num_pages >= 100
-ORDER BY
-  num_pages DESC
+select
+    client,
+    json_extract_scalar(payload, '$._protocol') as http_version,
+    # Omit server version
+    normalize_and_casefold(
+        regexp_extract(resp_server, r'\s*([^/]*)\s*')
+    ) as server_header,
+    count(0) as num_pages,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) / sum(count(0)) over (partition by client), 4) as pct
+from `httparchive.almanac.requests`
+where
+    date = '2020-08-01'
+    and firsthtml
+    and (
+        lower(json_extract_scalar(payload, '$._protocol')) like 'http/2'
+        or lower(json_extract_scalar(payload, '$._protocol')) like '%quic%'
+        or lower(json_extract_scalar(payload, '$._protocol')) like 'h3%'
+        or lower(json_extract_scalar(payload, '$._protocol')) like 'http/3%'
+    )
+group by client, http_version, server_header
+having num_pages >= 100
+order by num_pages desc
