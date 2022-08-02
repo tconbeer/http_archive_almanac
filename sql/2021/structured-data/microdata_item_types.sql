@@ -59,6 +59,6 @@ from
             ) as microdata_item_type
         from rendered_data, unnest(microdata_item_types) as microdata_item_type
     )
-join page_totals using(client)
+join page_totals using (client)
 group by client, microdata_item_type, total_pages
 order by freq_microdata desc, client

@@ -31,8 +31,7 @@ join
         select _table_suffix as client, count(0) as total
         from `httparchive.summary_pages.2019_07_01_*`
         group by _table_suffix
-    )
-    using(client)
+    ) using (client)
 where date = '2019-07-01' and firsthtml and prefix is not null
 group by client, total, prefix
 order by pages / total desc

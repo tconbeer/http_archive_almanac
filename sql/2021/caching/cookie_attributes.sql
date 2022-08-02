@@ -47,8 +47,6 @@ join
         select client, sum(countcookies(response_headers)) as total
         from `httparchive.almanac.requests`
         group by client
-    )
-    using
-    (client),
+    ) using (client),
     unnest(attrs) as attr
 order by pct desc

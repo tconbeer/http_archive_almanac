@@ -23,7 +23,5 @@ join
         select _table_suffix as client, url
         from `httparchive.technologies.2019_07_01_*`
         where app = 'WordPress'
-    )
-    using
-    (client, url)
+    ) using (client, url)
 group by client, amp_plugin_version

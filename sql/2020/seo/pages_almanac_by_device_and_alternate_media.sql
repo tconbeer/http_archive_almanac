@@ -43,8 +43,7 @@ from
                 select _table_suffix, count(0) as total
                 from `httparchive.pages.2020_08_01_*`
                 group by _table_suffix
-            )
-            using(_table_suffix)
+            ) using (_table_suffix)
     ),
     unnest(almanac_info) as media
 group by total, media, client

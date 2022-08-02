@@ -42,7 +42,6 @@ join
         select _table_suffix as client, count(0) as total_pages
         from `httparchive.summary_pages.2019_07_01_*`
         group by _table_suffix
-    )
-    using(client)
+    ) using (client)
 group by client, total_pages
 order by occurrences desc

@@ -20,8 +20,6 @@ join
             lower(category) = 'static site generator'
             or app = 'Next.js'
             or app = 'Nuxt.js'
-    )
-    using
-    (client, page)
+    ) using (client, page)
 group by client, format
 order by pct desc

@@ -28,7 +28,7 @@ select
     count(distinct if(domain is not null, page, null))
     / count(distinct page) as pct_pages_with_third_party
 from pages
-join requests using(client, page)
+join requests using (client, page)
 left join
     third_party on net.host(requests.url) = net.host(third_party.domain),
     unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping

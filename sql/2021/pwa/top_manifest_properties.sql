@@ -48,7 +48,7 @@ with
             unnest(
                 getmanifestprops(json_extract(payload, '$._pwa.manifests'))
             ) as property
-        join totals using(_table_suffix)
+        join totals using (_table_suffix)
         where json_extract(payload, '$._pwa.manifests') != '[]'
         group by client, property, total, pwa_total
         having property is not null

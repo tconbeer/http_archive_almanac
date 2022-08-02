@@ -54,7 +54,7 @@ with
                 header_name = 'feature-policy', header_value, tag_value
             ) as feature_policy_value
         from response_headers
-        full outer join meta_tags using(client, page)
+        full outer join meta_tags using (client, page)
         where header_name = 'feature-policy' or tag_name = 'feature-policy'
     ),
 
@@ -66,7 +66,7 @@ with
                 header_name = 'permissions-policy', header_value, tag_value
             ) as permissions_policy_value
         from response_headers
-        full outer join meta_tags using(client, page)
+        full outer join meta_tags using (client, page)
         where header_name = 'permissions-policy' or tag_name = 'permissions-policy'
     ),
 
@@ -114,7 +114,7 @@ with
                 order by d
             ) as directives
         from feature_policy_directives
-        full outer join permissions_policy_directives using(client, page)
+        full outer join permissions_policy_directives using (client, page)
     )
 
 select
@@ -125,8 +125,8 @@ select
     total_websites,
     count(distinct page) / total_websites as pct_websites_with_directive
 from site_directives, unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
-join page_ranks using(client, page)
-join totals using(client, rank_grouping), unnest(site_directives.directives) directive
+join page_ranks using (client, page)
+join totals using (client, rank_grouping), unnest(site_directives.directives) directive
 where rank <= rank_grouping
 group by client, rank_grouping, directive, total_websites
 order by rank_grouping, client, number_of_websites_with_directive desc, directive

@@ -43,7 +43,7 @@ with
         from
             `httparchive.pages.2021_07_01_*`,
             unnest(geticonsizes(json_extract(payload, '$._pwa.manifests'))) as size
-        join totals using(_table_suffix)
+        join totals using (_table_suffix)
         where json_extract(payload, '$._pwa.manifests') != '[]'
         group by client, size, total, pwa_total
         having size is not null

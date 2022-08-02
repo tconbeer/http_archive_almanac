@@ -58,8 +58,7 @@ from
                 select _table_suffix, count(0) as total
                 from `httparchive.pages.2021_07_01_*`
                 group by _table_suffix
-            )
-            using(_table_suffix)
+            ) using (_table_suffix)
     ),
     unnest(structured_data_wpt_bodies_info.items_by_format) as format
 group by total, format, client

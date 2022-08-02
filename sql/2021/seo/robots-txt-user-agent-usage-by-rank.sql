@@ -46,7 +46,7 @@ with
     base as (
         select distinct _table_suffix as client, user_agent, rank, url as page
         from robots, unnest(robots_txt_user_agent_info.user_agents) as user_agent
-        join `httparchive.summary_pages.2021_07_01_*` using(_table_suffix, url)
+        join `httparchive.summary_pages.2021_07_01_*` using (_table_suffix, url)
     )
 
 select
@@ -60,7 +60,7 @@ select
     count(distinct page) as pages,
     safe_divide(count(distinct page), rank_page_count) as pct
 from base, unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
-join totals using(client, rank_grouping)
+join totals using (client, rank_grouping)
 where rank <= rank_grouping
 group by client, user_agent, rank_grouping, rank_page_count
 having pages > 500

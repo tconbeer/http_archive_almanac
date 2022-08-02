@@ -49,10 +49,9 @@ select
     count(distinct page) / total_websites as pct_websites
 from response_headers
 full outer join
-    meta_tags
-    using(client, page),
+    meta_tags using (client, page),
     unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
-join totals using(client, rank_grouping)
+join totals using (client, rank_grouping)
 where (header_name = 'accept-ch' or tag_name = 'accept-ch') and rank <= rank_grouping
 group by client, rank_grouping, total_websites
 order by rank_grouping, client

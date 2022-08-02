@@ -29,9 +29,7 @@ join
             unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where _table_suffix > '2021_05_01' and rank <= rank_grouping
         group by yyyymmdd, rank_grouping, client
-    )
-    using
-    (yyyymmdd, client, rank_grouping)
+    ) using (yyyymmdd, client, rank_grouping)
 where rank <= rank_grouping
 group by yyyymmdd, client, total, rank_grouping
 order by date desc, rank_grouping, client

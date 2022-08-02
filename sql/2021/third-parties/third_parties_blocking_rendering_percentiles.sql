@@ -13,7 +13,7 @@ with
     total_third_party_usage as (
         select canonicaldomain, category, count(distinct sp.url) as total_pages
         from `httparchive.summary_pages.2021_07_01_mobile` sp
-        inner join `httparchive.summary_requests.2021_07_01_mobile` sr using(pageid)
+        inner join `httparchive.summary_requests.2021_07_01_mobile` sr using (pageid)
         inner join
             `httparchive.almanac.third_parties`
             on net.host(sr.url) = net.host(domain)
@@ -61,8 +61,7 @@ from
         group by canonicaldomain, page, category
     )
 inner join
-    total_third_party_usage
-    using(canonicaldomain, category),
+    total_third_party_usage using (canonicaldomain, category),
     unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by canonicaldomain, category, total_pages, percentile
 order by total_pages desc, category, percentile

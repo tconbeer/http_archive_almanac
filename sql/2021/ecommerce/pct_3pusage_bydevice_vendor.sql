@@ -16,9 +16,7 @@ from
                 select _table_suffix as client, url as page, app
                 from `httparchive.technologies.2021_07_01_*`
                 where category = 'Ecommerce'
-            )
-            using
-            (client, page)
+            ) using (client, page)
         where
             date = '2021-07-01'
             and net.host(url) in (

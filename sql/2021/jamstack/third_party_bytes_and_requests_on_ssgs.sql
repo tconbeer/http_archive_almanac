@@ -22,9 +22,7 @@ from
                     lower(category) = 'static site generator'
                     or app = 'Next.js'
                     or app = 'Nuxt.js'
-            )
-            using
-            (client, page)
+            ) using (client, page)
         where
             net.host(url) in (
                 select domain

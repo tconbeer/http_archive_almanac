@@ -20,9 +20,7 @@ from
                 select _table_suffix as client, url as page
                 from `httparchive.technologies.2020_08_01_*`
                 where category = 'CMS'
-            )
-            using
-            (client, page)
+            ) using (client, page)
         group by client, type, page
     ),
     unnest([10, 25, 50, 75, 90]) as percentile

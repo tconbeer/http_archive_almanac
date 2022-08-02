@@ -10,8 +10,6 @@ join
         select _table_suffix as client, count(0) as total
         from `httparchive.summary_pages.2019_07_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 where yyyymmdd = '20190701' and feature = 'CSSGridLayout'
 group by client, feature, total

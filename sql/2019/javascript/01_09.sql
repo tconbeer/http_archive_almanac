@@ -24,7 +24,7 @@ from
                 from `httparchive.summary_pages.2018_07_01_*`
                 group by _table_suffix
             )
-        join `httparchive.technologies.2018_07_01_*` using(_table_suffix)
+        join `httparchive.technologies.2018_07_01_*` using (_table_suffix)
         group by app, client, total
     )
 join
@@ -40,10 +40,9 @@ join
                 from `httparchive.summary_pages.2019_07_01_*`
                 group by _table_suffix
             )
-        join `httparchive.technologies.2019_07_01_*` using(_table_suffix)
+        join `httparchive.technologies.2019_07_01_*` using (_table_suffix)
         where category = 'JavaScript Libraries'
         group by app, client, total
-    )
-    using(app, client)
+    ) using (app, client)
 where freq_2019 > 10
 order by freq_2019 desc

@@ -39,8 +39,6 @@ join
         from `httparchive.summary_pages.2021_07_01_*`
         where starts_with(url, 'https')
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, http_version_category, tls_version, total
 order by pct desc

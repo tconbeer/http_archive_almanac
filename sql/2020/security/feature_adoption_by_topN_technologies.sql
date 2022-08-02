@@ -133,9 +133,7 @@ inner join
                 having pct > 0.8 and freq > 1000
             )
         group by client, headername
-    )
-    using
-    (client, headername)
+    ) using (client, headername)
 inner join
     (
         select
@@ -150,9 +148,7 @@ inner join
             ) as global_freq
         from app_headers
         group by client, headername
-    )
-    using
-    (client, headername),
+    ) using (client, headername),
     unnest(generate_array(1, 10)) as topn
 group by client, topn, topn_apps, headername, global_freq
 order by client, headername, topn

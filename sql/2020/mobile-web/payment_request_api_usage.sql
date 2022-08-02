@@ -17,6 +17,5 @@ left outer join
         select client, url, true as uses_payment_requst
         from `httparchive.blink_features.features`
         where yyyymmdd = '20200801' and feature = 'PaymentRequestInitialized'
-    )
-    using(client, url)
+    ) using (client, url)
 group by client

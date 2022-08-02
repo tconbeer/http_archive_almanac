@@ -54,7 +54,7 @@ with
                 header_name = 'feature-policy', header_value, tag_value
             ) as feature_policy_value
         from response_headers
-        full outer join meta_tags using(client, page)
+        full outer join meta_tags using (client, page)
         where header_name = 'feature-policy' or tag_name = 'feature-policy'
     ),
 
@@ -66,7 +66,7 @@ with
                 header_name = 'permissions-policy', header_value, tag_value
             ) as permissions_policy_value
         from response_headers
-        full outer join meta_tags using(client, page)
+        full outer join meta_tags using (client, page)
         where header_name = 'permissions-policy' or tag_name = 'permissions-policy'
     ),
 
@@ -131,10 +131,9 @@ from
             )
     ),
     unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
-join page_ranks using(client, page)
+join page_ranks using (client, page)
 join
-    totals
-    using(client, rank_grouping),
+    totals using (client, rank_grouping),
     unnest(split(policy_value, ';')) directive,
     unnest(  -- Directive may specify explicit origins or not.
         if(

@@ -25,7 +25,6 @@ join
         from `httparchive.almanac.requests`
         where date = '2021-07-01'
         group by client
-    )
-    using(client)
+    ) using (client)
 group by client, http_version, total
 order by pct desc, client, http_version

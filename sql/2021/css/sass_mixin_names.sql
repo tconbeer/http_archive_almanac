@@ -41,9 +41,7 @@ join
             ) as total_sass
         from `httparchive.pages.2021_07_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, mixin, total_sass
 order by pct desc
 limit 1000

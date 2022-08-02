@@ -8,8 +8,7 @@ select
 from
     (select distinct date, client, page, url from `httparchive.almanac.service_workers`)
 join
-    `httparchive.almanac.requests`
-    using(date, client, page, url),
+    `httparchive.almanac.requests` using (date, client, page, url),
     unnest([10, 25, 50, 75, 90]) as percentile
 where date = '2020-08-01'
 group by date, percentile, client

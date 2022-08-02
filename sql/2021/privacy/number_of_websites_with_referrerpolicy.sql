@@ -87,7 +87,7 @@ from
             ) as number_of_websites_with_any_referrer_policy,
             count(distinct page) as number_of_websites
         from referrer_policy_custom_metrics
-        full outer join referrer_policy_headers using(client, page)
+        full outer join referrer_policy_headers using (client, page)
         group by client
     )
 order by client

@@ -70,8 +70,7 @@ join
         select _table_suffix, count(0) as total
         from `httparchive.pages.2021_07_01_*`
         group by _table_suffix
-    )
-    using(_table_suffix),
+    ) using (_table_suffix),
     unnest(
         get_element_types(json_extract_scalar(payload, '$._element_count'))
     ) as element_type

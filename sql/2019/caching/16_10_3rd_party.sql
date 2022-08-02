@@ -42,7 +42,6 @@ join
         from `httparchive.almanac.requests`
         where date = '2019-07-01'
         group by client, party
-    )
-    using(client, party)
+    ) using (client, party)
 group by client, all_requests, total_using_control, directive, party
 order by occurrences desc

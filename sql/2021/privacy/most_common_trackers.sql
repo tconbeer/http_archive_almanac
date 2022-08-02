@@ -40,7 +40,7 @@ join
         net.host(urlshort) = domain
         or ends_with(net.host(urlshort), concat('.', domain))
     )
-join totals using(client)
+join totals using (client)
 -- third party
 where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
 group by client, tracker, category, istracker, total_websites

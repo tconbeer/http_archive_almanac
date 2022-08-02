@@ -14,9 +14,7 @@ join
         select _table_suffix, count(0) as total
         from `httparchive.summary_pages.2021_07_01_*`
         group by _table_suffix
-    )
-    using
-    (_table_suffix)
+    ) using (_table_suffix)
 where
     app in (
         'jQuery',

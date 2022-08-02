@@ -21,8 +21,6 @@ join
         from `httparchive.technologies.2021_07_01_*`
         where category = 'Page builders'
         group by client, url
-    )
-    using
-    (client, url)
+    ) using (client, url)
 group by client, page_builders
 order by pct desc

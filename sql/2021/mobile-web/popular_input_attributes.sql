@@ -26,8 +26,7 @@ left join
         select _table_suffix, count(0) as total_pages
         from `httparchive.pages.2021_07_01_*`
         group by _table_suffix
-    )
-    using(_table_suffix)
+    ) using (_table_suffix)
 group by client, attribute, total_pages
 having total_pages_using >= 100
 order by pct_pages_using desc

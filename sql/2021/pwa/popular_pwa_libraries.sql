@@ -92,7 +92,6 @@ join
         from `httparchive.pages.2021_07_01_*`
         where json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
         group by client
-    )
-    using(client)
+    ) using (client)
 group by client, total
 order by client

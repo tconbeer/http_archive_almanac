@@ -35,7 +35,7 @@ from
         where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
         group by client, page
     )
-join totals using(client)
+join totals using (client)
 group by client, number_of_trackers, total_websites
 union all
 select
@@ -68,6 +68,6 @@ from
             )
         group by client, page
     )
-join totals using(client)
+join totals using (client)
 group by client, number_of_trackers, total_websites
 order by client, type, number_of_trackers

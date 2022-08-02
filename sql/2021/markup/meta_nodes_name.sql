@@ -29,7 +29,7 @@ select
     count(distinct url) as num_urls,
     count(distinct url) / total_pages as pct_pages
 from `httparchive.pages.2021_07_01_*`, unnest(getmetanodes(payload)) as name
-join totals using(_table_suffix)
+join totals using (_table_suffix)
 group by client, total_pages, name
 having freq > 1
 order by pct_nodes desc, client, name

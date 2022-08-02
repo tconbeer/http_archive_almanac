@@ -20,9 +20,7 @@ join
             `httparchive.summary_pages.2021_07_01_*`,
             unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_magnitude
         where rank <= rank_magnitude
-    )
-    using
-    (client, url)
+    ) using (client, url)
 join
     (
         select _table_suffix as client, rank_magnitude as rank, count(0) as total
@@ -31,8 +29,6 @@ join
             unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_magnitude
         where rank <= rank_magnitude
         group by _table_suffix, rank_magnitude
-    )
-    using
-    (client, rank)
+    ) using (client, rank)
 group by client, cms, rank
 order by rank, pages desc

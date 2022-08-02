@@ -88,7 +88,7 @@ select
     ) / countif(robots_content is not null or robot_header_value is not null)
     as pct_noarchive
 from meta_tags
-full outer join robot_headers using(client, page)
-join total_nb_pages using(client)
+full outer join robot_headers using (client, page)
+join total_nb_pages using (client)
 group by client, total_nb_pages
 order by client

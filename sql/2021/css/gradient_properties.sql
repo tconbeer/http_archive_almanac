@@ -163,8 +163,6 @@ join
         select _table_suffix as client, count(0) as total
         from `httparchive.summary_pages.2021_07_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, property, total
 order by pct desc

@@ -20,9 +20,7 @@ from
                         app != 'Cart Functionality'
                         and app != 'Google Analytics Enhanced eCommerce'
                     )
-            )
-            using
-            (client, page)
+            ) using (client, page)
         join `httparchive.almanac.third_parties` on net.host(url) = domain
         where `httparchive.almanac.requests`.date = '2021-07-01'
         group by client, category, page

@@ -28,6 +28,6 @@ from
                 or lower(json_extract_scalar(payload, '$._protocol')) like 'http/3%'
             )
     ) as pages
-left join `httparchive.almanac.h2_prioritization_cdns` using(cdn, date)
+left join `httparchive.almanac.h2_prioritization_cdns` using (cdn, date)
 group by client, http_version, cdn, prioritizes_correctly
 order by num_pages desc

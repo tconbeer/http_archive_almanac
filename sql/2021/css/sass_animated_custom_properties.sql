@@ -82,7 +82,5 @@ join
         from
             `httparchive.pages.2021_07_01_*`,
             unnest(getcustompropertieswithcomputedstyle(payload)) as prop
-    )
-    using
-    (client, page, prop)
+    ) using (client, page, prop)
 group by client

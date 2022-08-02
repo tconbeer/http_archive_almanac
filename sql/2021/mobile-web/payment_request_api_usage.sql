@@ -19,6 +19,5 @@ left outer join
         where
             yyyymmdd = cast('2021-07-01' as date)
             and feature = 'PaymentRequestInitialized'
-    )
-    using(client, url)
+    ) using (client, url)
 group by client

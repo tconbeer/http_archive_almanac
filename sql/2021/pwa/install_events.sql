@@ -51,8 +51,7 @@ join
         -- empty fields
         where json_extract(payload, '$._pwa') != '[]'
         group by _table_suffix
-    )
-    using(_table_suffix)
+    ) using (_table_suffix)
 where
     (
         json_extract(payload, '$._pwa.windowEventListenersInfo') != '[]'

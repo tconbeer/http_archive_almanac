@@ -12,8 +12,7 @@ join
         from `httparchive.almanac.service_workers`
         where date = '2019-07-01'
         group by client
-    )
-    using(date, client),
+    ) using (date, client),
     unnest(
         regexp_extract_all(
             body, r'new Workbox|new workbox|workbox\.precaching\.|workbox\.strategies\.'

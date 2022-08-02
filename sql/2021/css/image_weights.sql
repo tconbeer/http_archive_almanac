@@ -27,9 +27,7 @@ from
                 select client, page, url
                 from `httparchive.almanac.requests`
                 where date = '2021-07-01' and type = 'css'
-            )
-            using
-            (client, page, url)
+            ) using (client, page, url)
         group by client, page
     ),
     unnest([10, 25, 50, 75, 90, 100]) as percentile

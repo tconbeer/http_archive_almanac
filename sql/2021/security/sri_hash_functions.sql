@@ -32,7 +32,7 @@ from
     unnest(
         regexp_extract_all(json_extract_scalar(sri, '$.integrity'), r'(sha[^-]+)-')
     ) as hash_function
-join totals using(client)
+join totals using (client)
 where sri is not null
 group by client, total_sri_elements, hash_function
 order by client, pct desc

@@ -49,7 +49,7 @@ select
     count(styles) as freq,
     count(styles) / total_video_nodes as videos_pct
 from videonotes
-join total_videos using(client)
+join total_videos using (client)
 where num_video_nodes > 0
 group by client, styles, total_video_nodes
 order by freq desc, styles asc

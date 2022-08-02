@@ -32,8 +32,7 @@ from
                 select _table_suffix, count(distinct url) as total
                 from `httparchive.pages.2020_08_01_*`
                 group by _table_suffix
-            )
-            using(_table_suffix)
+            ) using (_table_suffix)
     ),
     unnest(values) as value
 group by client, value, total

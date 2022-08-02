@@ -30,8 +30,7 @@ join
         from `httparchive.pages.2021_07_01_*`
         where json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
         group by _table_suffix
-    )
-    using(_table_suffix)
+    ) using (_table_suffix)
 where json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
 group by client, total, event
 order by freq / total desc, client

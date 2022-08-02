@@ -183,8 +183,8 @@ select
     avg_ttfb,
     slow_ttfb
 from fid
-full join lcp using(row, device)
-full join cls using(row, device)
-full join fcp using(row, device)
-full join ttfb using(row, device)
+full join lcp using (row, device)
+full join cls using (row, device)
+full join fcp using (row, device)
+full join ttfb using (row, device)
 order by device, row

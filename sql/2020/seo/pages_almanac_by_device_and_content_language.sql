@@ -49,8 +49,7 @@ from
                 from `httparchive.pages.2020_08_01_*`
 
                 group by _table_suffix
-            )
-            using(_table_suffix)
+            ) using (_table_suffix)
     )
 group by total, content_language, client
 order by count desc

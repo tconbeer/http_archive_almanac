@@ -8,7 +8,7 @@ select
 from
     `httparchive.technologies.2019_07_01_mobile`,
     (select count(0) as total from `httparchive.summary_pages.2019_07_01_mobile`)
-join `httparchive.lighthouse.2019_07_01_mobile` using(url)
+join `httparchive.lighthouse.2019_07_01_mobile` using (url)
 where category = 'CMS'
 group by crawlable
 having crawlable is not null

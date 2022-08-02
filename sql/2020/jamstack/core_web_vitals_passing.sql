@@ -169,9 +169,7 @@ join
             page as url
         from `httparchive.almanac.requests`
         where date = '2020-08-01' and firsthtml
-    )
-    using
-    (client, url)
+    ) using (client, url)
 join
     (
         select _table_suffix as client, app, url
@@ -181,8 +179,7 @@ join
             or app = 'Next.js'
             or app = 'Nuxt.js'
             or app = 'Docusaurus'
-    )
-    using(client, url)
+    ) using (client, url)
 where cdn is not null
 group by app, cdn, client
 order by origins desc

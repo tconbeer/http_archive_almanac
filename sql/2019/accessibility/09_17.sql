@@ -84,6 +84,5 @@ join
     (
         select _table_suffix as client, url as page, gettableinfo(payload) as table_info
         from `httparchive.pages.2019_07_01_*`
-    )
-    using(client, page)
+    ) using (client, page)
 group by client

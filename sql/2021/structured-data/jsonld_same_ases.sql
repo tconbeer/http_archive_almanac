@@ -62,7 +62,7 @@ select
     total_pages,
     count(distinct url) / total_pages as pct_pages
 from rendered_data, unnest(jsonld_sameases) as jsonld_sameas
-join page_totals using(client)
+join page_totals using (client)
 group by client, jsonld_sameas, total_pages
 order by pct_jsonld_sameas desc, client
 limit 1000

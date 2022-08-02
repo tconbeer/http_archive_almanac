@@ -16,9 +16,7 @@ join
         select _table_suffix, count(0) as total
         from `httparchive.pages.2020_08_01_*`
         group by _table_suffix
-    )
-    using
-    (_table_suffix)
+    ) using (_table_suffix)
 group by client, loading, total
 having freq >= 10
 order by freq desc

@@ -24,9 +24,7 @@ join
         select _table_suffix as client, count(0) as total_pages
         from `httparchive.summary_pages.2021_07_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 join
     (
         select _table_suffix as client, url, max(rank) as rank
@@ -35,8 +33,6 @@ join
             unnest([10, 100, 1000, 10000, 100000, 1000000, 10000000]) as rank_magnitude
         where rank <= rank_magnitude
         group by client, url
-    )
-    using
-    (client, url)
+    ) using (client, url)
 group by client, rank, app, total_pages
 order by rank, pct desc

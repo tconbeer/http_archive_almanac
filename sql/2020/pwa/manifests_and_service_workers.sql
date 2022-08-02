@@ -20,7 +20,7 @@ from
             count(distinct m.page || sw.page) as both
         from `httparchive.almanac.manifests` m
         full outer join
-            `httparchive.almanac.service_workers` sw using(date, client, page)
+            `httparchive.almanac.service_workers` sw using (date, client, page)
         group by date, client
     )
 join
@@ -28,7 +28,5 @@ join
         select date, client, count(distinct page) as total
         from `httparchive.almanac.summary_requests`
         group by date, client
-    )
-    using
-    (date, client)
+    ) using (date, client)
 order by date, client

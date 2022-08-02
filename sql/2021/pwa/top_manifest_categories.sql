@@ -47,7 +47,7 @@ with
         from
             `httparchive.pages.2021_07_01_*`,
             unnest(getcategories(json_extract(payload, '$._pwa.manifests'))) as category
-        join totals using(_table_suffix)
+        join totals using (_table_suffix)
         where json_extract(payload, '$._pwa.manifests') != '[]'
         group by client, category, total, pwa_total
         having category is not null

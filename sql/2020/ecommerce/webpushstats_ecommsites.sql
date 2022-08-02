@@ -149,9 +149,7 @@ join
         select distinct _table_suffix as client, rtrim(url, '/') as origin
         from `httparchive.technologies.2020_08_01_*`
         where category = 'Ecommerce'
-    )
-    using
-    (origin)
+    ) using (origin)
 where date in ('2020-08-01') and notification_permission_accept is not null
 group by date, client
 order by date, client

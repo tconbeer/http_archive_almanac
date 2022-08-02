@@ -17,9 +17,7 @@ join
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
-    )
-    using
-    (origin)
+    ) using (origin)
 where date in ('2021-07-01')
 group by client
 order by client

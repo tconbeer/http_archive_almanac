@@ -57,6 +57,6 @@ from
             ) as rdfa_vocab
         from rendered_data, unnest(rdfa_vocabs) as rdfa_vocab
     )
-join page_totals using(client)
+join page_totals using (client)
 group by client, rdfa_vocab, total_pages
 order by pct_pages desc, client

@@ -13,8 +13,7 @@ join
         select client, date, count(distinct page) as total
         from `httparchive.almanac.service_workers`
         group by client, date
-    )
-    using(client, date),
+    ) using (client, date),
     unnest(
         array_concat(
             regexp_extract_all(body, r'(?i)importscripts\([\'"]([^(]*)[\'"]\)')

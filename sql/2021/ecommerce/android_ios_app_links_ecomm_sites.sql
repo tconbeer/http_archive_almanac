@@ -41,8 +41,6 @@ join
             )
             = 'true' as ios_universal_links
         from `httparchive.pages.2021_07_01_*`
-    )
-    using
-    (client, url)
+    ) using (client, url)
 group by client
 order by client

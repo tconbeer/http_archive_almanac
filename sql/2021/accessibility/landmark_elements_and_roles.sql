@@ -51,7 +51,7 @@ with
             unnest(
                 get_element_types(json_extract_scalar(payload, '$._element_count'))
             ) as element_type
-        join mappings using(element_type)
+        join mappings using (element_type)
     ),
 
     roles as (
@@ -61,7 +61,7 @@ with
             unnest(
                 getusedroles(json_extract_scalar(payload, '$._almanac'))
             ) as role_type
-        join mappings using(role_type)
+        join mappings using (role_type)
     ),
 
     base as (
@@ -75,8 +75,8 @@ with
             countif(r.role_type is not null) as role_usage
         from `httparchive.pages.2021_07_01_*`
         inner join mappings on (true)
-        left outer join elements e using(_table_suffix, url, element_type)
-        left outer join roles r using(_table_suffix, url, role_type)
+        left outer join elements e using (_table_suffix, url, element_type)
+        left outer join roles r using (_table_suffix, url, role_type)
         group by client, url, mapping_id, element_type, role_type
     )
 

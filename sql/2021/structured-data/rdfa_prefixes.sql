@@ -60,6 +60,6 @@ from
             ) as rdfa_prefix
         from rendered_data, unnest(rdfa_prefixes) as rdfa_prefix
     )
-join page_totals using(client)
+join page_totals using (client)
 group by client, rdfa_prefix, total_pages
 order by pct_rdfa desc, client

@@ -29,7 +29,7 @@ with
             count(canonicaldomain) as third_parties_per_page
         from requests
         left join third_party on net.host(requests.url) = net.host(third_party.domain)
-        inner join pages using(client, page)
+        inner join pages using (client, page)
         group by client, category, page, rank
     )
 

@@ -32,9 +32,7 @@ join
         select client, page as url
         from `httparchive.almanac.requests`
         where date = '2021-07-01' and firsthtml
-    )
-    using
-    (client, url)
+    ) using (client, url)
 join
     (
         select distinct _table_suffix as client, app, url
@@ -43,7 +41,6 @@ join
             lower(category) = 'static site generator'
             or app = 'Next.js'
             or app = 'Nuxt.js'
-    )
-    using(client, url)
+    ) using (client, url)
 group by app, client
 order by origins desc

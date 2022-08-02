@@ -37,8 +37,6 @@ join
         select _table_suffix as client, count(0) as total_pages
         from `httparchive.summary_pages.2020_08_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, has_sourcemap_header
 order by client, has_sourcemap_header

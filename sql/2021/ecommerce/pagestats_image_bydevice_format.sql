@@ -17,8 +17,7 @@ join
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
-    )
-    using(client, page)
+    ) using (client, page)
 where type = 'image'
 group by client, format
 order by freq / total desc

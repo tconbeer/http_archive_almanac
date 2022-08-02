@@ -41,8 +41,7 @@ join
             sum(getnumwithallowattribute(payload)) as total_iframes_with_allow
         from `httparchive.pages.2020_08_01_*`
         group by client
-    ) using(client
-    )
+    ) using (client)
 group by client, directive, total_iframes_with_allow
 having pct > 0.001
 order by client, pct desc

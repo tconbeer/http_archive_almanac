@@ -16,8 +16,7 @@ join
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
-    )
-    using(_table_suffix, url),
+    ) using (_table_suffix, url),
     unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client
 order by percentile, client

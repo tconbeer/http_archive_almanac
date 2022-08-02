@@ -11,5 +11,4 @@ join
         from `httparchive.almanac.pwa_candidates`
         where date = '2020-08-01'
         group by date, client, page, url
-    )
-    using(date, client, page, url)
+    ) using (date, client, page, url)

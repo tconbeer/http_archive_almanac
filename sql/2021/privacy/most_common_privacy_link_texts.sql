@@ -29,6 +29,6 @@ select
     total_websites,
     count(0) / total_websites as pct_websites_with_text
 from privacy_link_texts
-join totals using(client), unnest(texts_per_site) text
+join totals using (client), unnest(texts_per_site) text
 group by client, text, total_websites
 order by client, number_of_websites_with_text desc, text

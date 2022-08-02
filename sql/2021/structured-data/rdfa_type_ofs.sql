@@ -45,6 +45,6 @@ select
     total_pages,
     count(distinct url) / total_pages as pct_pages
 from rendered_data, unnest(rdfa_type_ofs) as rdfa_type_of
-join page_totals using(client)
+join page_totals using (client)
 group by client, rdfa_type_of, total_pages
 order by pct_rdfa_type_of desc, client

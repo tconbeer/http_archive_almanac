@@ -21,8 +21,7 @@ select
     approx_quantiles(image.height, 1000)[offset(percentile * 10)] as image_height
 from `httparchive.pages.2019_07_01_*`
 join
-    `httparchive.technologies.2019_07_01_*`
-    using(_table_suffix, url),
+    `httparchive.technologies.2019_07_01_*` using (_table_suffix, url),
     unnest(getimagedimensions(payload)) as image,
     unnest([10, 25, 50, 75, 90]) as percentile
 where category = 'Ecommerce'

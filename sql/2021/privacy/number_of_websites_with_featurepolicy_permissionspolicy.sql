@@ -77,10 +77,9 @@ from
             ) as number_of_websites_with_any_policy,
             count(distinct page) as number_of_websites
         from response_headers
-        full outer join meta_tags using(client, page)
+        full outer join meta_tags using (client, page)
         join
-            page_ranks
-            using(client, page),
+            page_ranks using (client, page),
             unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where rank <= rank_grouping
         group by client, rank_grouping

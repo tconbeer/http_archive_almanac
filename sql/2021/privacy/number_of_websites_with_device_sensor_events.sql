@@ -51,7 +51,7 @@ select
     count(distinct site) / total as pct_of_websites,
     count(distinct url) as number_of_urls
 from sites_and_events
-join total_pages using(client)
+join total_pages using (client)
 -- device* events, from
 -- https://www.esat.kuleuven.be/cosic/publications/article-3078.pdf
 where event like 'device%'

@@ -26,9 +26,7 @@ join
         from `httparchive.pages.2021_07_01_*`
         where json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
         group by _table_suffix, url
-    )
-    using
-    (origin),
+    ) using (origin),
     unnest([10, 25, 50, 75, 90, 100]) as percentile
 where
     date in ('2021-07-01')

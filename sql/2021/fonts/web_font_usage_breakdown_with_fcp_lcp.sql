@@ -31,9 +31,7 @@ join
                 ) as int64
             ) as lcp
         from `httparchive.pages.2021_07_01_*`
-    )
-    using
-    (client, page)
+    ) using (client, page)
 group by client, host
 having pages >= 1000
 order by pct desc

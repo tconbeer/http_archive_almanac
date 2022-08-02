@@ -1243,8 +1243,7 @@ from
                     lower(category) = 'static site generator'
                     or app = 'Next.js'
                     or app = 'Nuxt.js'
-            ) using(client, url
-            )
+            ) using (client, url)
         group by app, client, region
         order by origins desc
     )

@@ -22,16 +22,12 @@ from
             (
                 select _table_suffix, pageid, url as page
                 from `httparchive.summary_pages.2021_07_01_*`
-            )
-            using
-            (_table_suffix, page)
+            ) using (_table_suffix, page)
         join
             (
                 select _table_suffix, pageid, url
                 from `httparchive.summary_requests.2021_07_01_*`
-            )
-            using
-            (_table_suffix, pageid)
+            ) using (_table_suffix, pageid)
         group by client, page, path
         having path is not null
     ),

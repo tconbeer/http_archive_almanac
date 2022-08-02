@@ -202,7 +202,7 @@ with
                 if(header_name = 'origin-trial', header_value, tag_value)
             ) as origin_trials_from_headers_and_meta_tags
         from response_headers
-        full outer join meta_tags using(client, page)
+        full outer join meta_tags using (client, page)
         where header_name = 'origin-trial' or tag_name = 'origin-trial'
     )
 
@@ -222,7 +222,7 @@ select
         )
     ) as number_of_origins  -- origins with an origin trial
 from extracted_origin_trials_from_custom_metric
-full outer join extracted_origin_trials_from_headers_and_meta_tags using(client, site)
+full outer join extracted_origin_trials_from_headers_and_meta_tags using (client, site)
 where
     (
         origin_trials_from_custom_metric.featureelem = 'InterestCohortAPI'

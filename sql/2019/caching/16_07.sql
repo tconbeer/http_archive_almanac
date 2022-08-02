@@ -29,8 +29,7 @@ join
         select requestid, reqcookielen > 0 as uses_cookies
         from `httparchive.almanac.summary_requests`
         where date = '2019-07-01'
-    )
-    using(requestid)
+    ) using (requestid)
 where date = '2019-07-01'
 group by client, type, uses_cookies
 order by uses_cookies desc, pct_of_all_pages desc

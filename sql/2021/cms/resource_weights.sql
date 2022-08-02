@@ -28,8 +28,6 @@ join
             bytesimg / 1024 as img_kb,
             bytesfont / 1024 as font_kb
         from `httparchive.summary_pages.2021_07_01_*`
-    )
-    using
-    (client, url)
+    ) using (client, url)
 group by client, cms
 order by pages desc

@@ -38,7 +38,7 @@ select
     ) as sorted_order
 from requests
 left join third_party on net.host(requests.url) = net.host(third_party.domain)
-join totals using(client)
+join totals using (client)
 where canonicaldomain is not null
 group by client, total_pages, total_requests, canonicaldomain
 qualify sorted_order <= 100

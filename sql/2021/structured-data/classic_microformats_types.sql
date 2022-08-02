@@ -48,6 +48,6 @@ select
     total_pages,
     count(distinct url) / total_pages as pct_pages
 from rendered_data, unnest(classic_microformats_types) as classic_microformats_type
-join page_totals using(client)
+join page_totals using (client)
 group by client, classic_microformats_type, total_pages
 order by freq_microformat desc, client

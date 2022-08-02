@@ -16,7 +16,7 @@ select
     total_websites,
     count(0) / total_websites as pct_websites
 from `httparchive.pages.2021_07_01_*`
-join totals using(_table_suffix)
+join totals using (_table_suffix)
 where
     json_value(json_value(payload, '$._privacy'), '$.iab_tcf_v2.data.cmpId') is not null
 group by client, total_websites, cmpid

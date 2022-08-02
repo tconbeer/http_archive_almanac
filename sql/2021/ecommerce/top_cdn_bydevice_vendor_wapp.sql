@@ -13,9 +13,7 @@ join
         select _table_suffix as client, url, app as vendor
         from `httparchive.technologies.2021_07_01_*`
         where category = 'Ecommerce'
-    )
-    using
-    (url)
+    ) using (url)
 group by client, vendor, app
 having cdnplatfromfreq > 0
 order by total desc, vendor, cdnplatfromfreq desc

@@ -57,7 +57,7 @@ select
     total_pages,
     count(0) / total_pages as pct_pages
 from `httparchive.summary_pages.2021_07_01_*`
-join totals using(_table_suffix)
+join totals using (_table_suffix)
 join websites_using_cname_tracking on domain = net.reg_domain(urlshort)
 group by client, company, total_pages
 order by pct_pages desc, client

@@ -13,9 +13,7 @@ join
         select _table_suffix, count(0) as total
         from `httparchive.summary_pages.2020_08_01_*`
         group by _table_suffix
-    )
-    using
-    (_table_suffix)
+    ) using (_table_suffix)
 where
     lower(category) = 'static site generator'
     or app = 'Next.js'
@@ -36,9 +34,7 @@ join
         select _table_suffix, count(0) as total
         from `httparchive.summary_pages.2019_07_01_*`
         group by _table_suffix
-    )
-    using
-    (_table_suffix)
+    ) using (_table_suffix)
 where
     lower(category) = 'static site generator'
     or app = 'Next.js'

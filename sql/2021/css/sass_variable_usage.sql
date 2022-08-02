@@ -40,9 +40,7 @@ join
         select _table_suffix as client, count(distinct url) as total_sass
         from `httparchive.pages.2021_07_01_*`, unnest(getvariableusage(payload))
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, variable, total_sass
 order by pct desc
 limit 500

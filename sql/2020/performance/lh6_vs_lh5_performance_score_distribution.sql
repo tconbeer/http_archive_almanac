@@ -22,7 +22,7 @@ from
                         ) as numeric
                     ) as perf_score_lh5
                 from `httparchive.lighthouse.2020_09_01_mobile` as lh6
-                join `httparchive.lighthouse.2019_07_01_mobile` as lh5 using(url)
+                join `httparchive.lighthouse.2019_07_01_mobile` as lh5 using (url)
             )
     )
 where perf_score_delta is not null

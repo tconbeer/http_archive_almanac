@@ -14,9 +14,7 @@ from
                 select _table_suffix as client, url as page
                 from `httparchive.technologies.2019_07_01_*`
                 where category = 'CMS'
-            )
-            using
-            (client, page)
+            ) using (client, page)
         where
             date = '2019-07-01'
             and net.host(url) in (

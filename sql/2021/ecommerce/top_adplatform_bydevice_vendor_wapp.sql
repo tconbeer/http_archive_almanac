@@ -18,9 +18,7 @@ join
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
-    )
-    using
-    (url)
+    ) using (url)
 group by client, vendor, app
 having adplatfromfreq > 0
 order by total desc, vendor, adplatfromfreq desc

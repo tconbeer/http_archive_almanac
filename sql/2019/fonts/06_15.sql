@@ -30,17 +30,13 @@ join
         select client, page, url
         from `httparchive.almanac.requests`
         where date = '2019-07-01' and type = 'font'
-    )
-    using
-    (client, page)
+    ) using (client, page)
 join
     (
         select _table_suffix as client, count(0) as total
         from `httparchive.summary_pages.2019_07_01_*`
         group by _table_suffix
-    )
-    using
-    (client),
+    ) using (client),
     unnest(getpreconnecturls(payload)) as preconnect_url
 where
     # hosts match

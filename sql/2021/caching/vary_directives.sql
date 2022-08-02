@@ -32,9 +32,7 @@ join
                 regexp_extract_all(lower(resp_vary), r'([a-z][^,\s="\']*)')
             ) as vary_header
         group by client, vary_header
-    )
-    using
-    (client)
+    ) using (client)
 where vary_header is not null
 group by client, vary_header
 order by occurrences desc

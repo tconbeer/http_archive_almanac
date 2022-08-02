@@ -38,8 +38,7 @@ join
         from `httparchive.pages.2020_08_01_*`
         # to get an accurate total of pages per device. also seems fast
         group by _table_suffix
-    )
-    using(_table_suffix),
+    ) using (_table_suffix),
     unnest(
         get_almanac_attribute_names(json_extract_scalar(payload, '$._almanac'))
     ) as attribute_name

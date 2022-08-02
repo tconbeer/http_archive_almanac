@@ -47,8 +47,7 @@ from
                 select _table_suffix, count(0) as total
                 from `httparchive.pages.2021_07_01_*`
                 group by _table_suffix
-            )
-            using(_table_suffix)
+            ) using (_table_suffix)
     ),
     unnest(wpt_bodies_info.rel) as rel
 group by total, rel, client

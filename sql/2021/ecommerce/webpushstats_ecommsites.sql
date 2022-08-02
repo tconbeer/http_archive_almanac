@@ -87,9 +87,7 @@ join
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
-    )
-    using
-    (origin)
+    ) using (origin)
 where date in ('2021-07-01') and notification_permission_accept is not null
 group by date, client
 order by date, client

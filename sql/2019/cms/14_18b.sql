@@ -11,8 +11,7 @@ join
         select
             url, json_extract_scalar(report, '$.audits.is-crawlable.score') as crawlable
         from `httparchive.lighthouse.2019_07_01_mobile`
-    )
-    using(url)
+    ) using (url)
 where category = 'CMS' and crawlable is not null
 group by app
 order by total desc

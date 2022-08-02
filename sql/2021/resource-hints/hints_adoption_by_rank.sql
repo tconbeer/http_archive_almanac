@@ -51,9 +51,7 @@ join
     (
         select _table_suffix as client, url as page, rank as _rank
         from `httparchive.summary_pages.2021_07_01_*`
-    )
-    using
-    (client, page),
+    ) using (client, page),
     unnest([1000, 10000, 100000, 1000000, 10000000]) as rank
 where _rank <= rank
 group by client, rank

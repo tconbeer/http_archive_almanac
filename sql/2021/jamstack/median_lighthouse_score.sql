@@ -31,8 +31,6 @@ join
             lower(category) = 'static site generator'
             or app = 'Next.js'
             or app = 'Nuxt.js'
-    )
-    using
-    (url)
+    ) using (url)
 group by ssg
 order by freq desc

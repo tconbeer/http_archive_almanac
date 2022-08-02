@@ -27,7 +27,7 @@ join
         net.host(urlshort) = domain
         or ends_with(net.host(urlshort), concat('.', domain))
     )
-join totals using(client)
+join totals using (client)
 -- third party
 where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
 group by client, category, total_websites
@@ -45,7 +45,7 @@ join
         net.host(urlshort) = domain
         or ends_with(net.host(urlshort), concat('.', domain))
     )
-join totals using(client)
+join totals using (client)
 -- third party
 where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
 group by client, total_websites
@@ -63,7 +63,7 @@ join
         net.host(urlshort) = domain
         or ends_with(net.host(urlshort), concat('.', domain))
     )
-join totals using(client)
+join totals using (client)
 where
     date = '2021-07-01'
     and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party

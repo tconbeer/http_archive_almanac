@@ -27,8 +27,7 @@ join
         select _table_suffix, count(0) as total
         from `httparchive.pages.2019_07_01_*`
         group by _table_suffix
-    )
-    using(_table_suffix),
+    ) using (_table_suffix),
     unnest(getelements(payload)) as element
 group by client, total, element
 order by pages / total desc, client

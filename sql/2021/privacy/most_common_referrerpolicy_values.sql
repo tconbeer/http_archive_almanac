@@ -45,7 +45,7 @@ select
     total_websites,
     count(0) / total_websites as pct_websites_with_values
 from referrer_policy_custom_metrics
-full outer join referrer_policy_headers using(client, url)
-join totals using(client)
+full outer join referrer_policy_headers using (client, url)
+join totals using (client)
 group by client, entire_document_policy, total_websites
 order by client, number_of_websites_with_values desc

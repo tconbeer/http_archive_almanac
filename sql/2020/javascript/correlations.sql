@@ -41,9 +41,7 @@ join
                 ) as float64
             ) as tbt
         from `httparchive.lighthouse.2020_09_01_mobile`
-    )
-    using
-    (page)
+    ) using (page)
 join
     (
         select pageid, sum(respsize) as third_party_scripts
@@ -56,9 +54,7 @@ join
                 where date = '2020-08-01' and category != 'hosting'
             )
         group by pageid
-    )
-    using
-    (pageid)
+    ) using (pageid)
 join
     (
         select
@@ -67,6 +63,4 @@ join
                 json_extract_scalar(payload, '$._num_scripts_async') as int64
             ) as num_async_scripts
         from `httparchive.pages.2020_09_01_mobile`
-    )
-    using
-    (page)
+    ) using (page)

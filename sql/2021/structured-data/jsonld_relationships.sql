@@ -63,7 +63,7 @@ select
     total_pages,
     count(distinct url) / total_pages as pct_pages
 from rendered_data, unnest(jsonld_relationships) as jsonld_relationship
-join page_totals using(client)
+join page_totals using (client)
 group by client, jsonld_relationship, total_pages
 order by pct_relationship desc, client
 limit 1000

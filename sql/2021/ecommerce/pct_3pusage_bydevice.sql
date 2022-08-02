@@ -19,9 +19,7 @@ from
                         app != 'Cart Functionality'
                         and app != 'Google Analytics Enhanced eCommerce'
                     )
-            )
-            using
-            (client, page)
+            ) using (client, page)
         where
             date = '2021-07-01'
             and net.host(url) in (

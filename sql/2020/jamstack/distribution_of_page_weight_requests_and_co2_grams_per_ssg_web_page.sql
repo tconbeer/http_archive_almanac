@@ -51,9 +51,7 @@ from
                     or app = 'Next.js'
                     or app = 'Nuxt.js'
                     or app = 'Docusaurus'
-            )
-            using
-            (_table_suffix, url)
+            ) using (_table_suffix, url)
     ),
     unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client

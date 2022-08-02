@@ -12,7 +12,7 @@ from
         from `httparchive.summary_pages.2019_07_01_*`
         group by _table_suffix
     )
-join `httparchive.technologies.2019_07_01_*` using(_table_suffix)
+join `httparchive.technologies.2019_07_01_*` using (_table_suffix)
 where category = 'JavaScript Frameworks'
 group by app, client, total
 order by freq desc

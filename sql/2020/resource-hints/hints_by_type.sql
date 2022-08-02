@@ -58,8 +58,6 @@ left join
         select client, page, url, type
         from `httparchive.almanac.requests`
         where date = '2020-08-01'
-    )
-    using
-    (client, page, url)
+    ) using (client, page, url)
 group by client, name, type
 order by pct desc

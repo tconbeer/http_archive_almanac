@@ -8,7 +8,7 @@ select
     round(approx_quantiles(byteshtml, 1000)[offset(750)] / 1024, 2) as p75,
     round(approx_quantiles(byteshtml, 1000)[offset(900)] / 1024, 2) as p90
 from `httparchive.summary_pages.2020_08_01_*`
-join `httparchive.technologies.2020_08_01_*` using(_table_suffix, url)
+join `httparchive.technologies.2020_08_01_*` using (_table_suffix, url)
 where
     category = 'Ecommerce'
     and (app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce')

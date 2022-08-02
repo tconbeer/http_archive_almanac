@@ -30,6 +30,6 @@ select
     total_websites,
     count(0) / total_websites as pct_websites_with_keyword
 from privacy_link_keywords
-join totals using(client), unnest(keywords_per_site) keyword
+join totals using (client), unnest(keywords_per_site) keyword
 group by client, keyword, total_websites
 order by client, number_of_websites_with_keyword desc, keyword

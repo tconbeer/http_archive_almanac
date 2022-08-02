@@ -14,8 +14,7 @@ join
         from `httparchive.almanac.service_workers`
         where date = '2020-08-01'
         group by client
-    )
-    using(client),
+    ) using (client),
     unnest(
         array_concat(regexp_extract_all(body, r'workbox\.([a-zA-Z]+\.?[a-zA-Z]*)'))
     ) as workbox,

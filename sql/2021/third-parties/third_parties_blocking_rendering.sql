@@ -13,7 +13,7 @@ with
     total_third_party_usage as (
         select canonicaldomain, category, count(distinct sp.url) as total_pages
         from `httparchive.summary_pages.2021_07_01_mobile` sp
-        inner join `httparchive.summary_requests.2021_07_01_mobile` sr using(pageid)
+        inner join `httparchive.summary_requests.2021_07_01_mobile` sr using (pageid)
         inner join
             `httparchive.almanac.third_parties`
             on net.host(sr.url) = net.host(domain)
@@ -62,7 +62,7 @@ from
             on net.host(json_value(renderblockingitems, '$.url')) = domain
         group by canonicaldomain, domain, page, category
     )
-inner join total_third_party_usage using(canonicaldomain, category)
+inner join total_third_party_usage using (canonicaldomain, category)
 group by canonicaldomain, category, total_pages
 order by total_pages desc, category
 limit 200

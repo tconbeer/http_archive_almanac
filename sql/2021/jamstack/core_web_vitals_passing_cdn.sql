@@ -170,9 +170,7 @@ join
             page as url
         from `httparchive.almanac.requests`
         where date = '2021-07-01' and firsthtml
-    )
-    using
-    (client, url)
+    ) using (client, url)
 join
     (
         select distinct _table_suffix as client, url
@@ -181,8 +179,7 @@ join
             lower(category) = 'static site generator'
             or app = 'Next.js'
             or app = 'Nuxt.js'
-    )
-    using(client, url)
+    ) using (client, url)
 where cdn is not null
 group by cdn, client
 order by origins desc

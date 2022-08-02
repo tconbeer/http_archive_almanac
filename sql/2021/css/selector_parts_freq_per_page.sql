@@ -110,9 +110,7 @@ join
             id.name as id_name,
             sum(id.value) over (partition by client, id.name) as id_freq
         from selector_parts, unnest(parts.id) as id
-    )
-    using
-    (client)
+    ) using (client)
 join
     (
         select
@@ -122,9 +120,7 @@ join
                 partition by client, attribute.name
             ) as attribute_freq
         from selector_parts, unnest(parts.attribute) as attribute
-    )
-    using
-    (client)
+    ) using (client)
 join
     (
         select
@@ -134,9 +130,7 @@ join
                 partition by client, pseudo_class.name
             ) as pseudo_class_freq
         from selector_parts, unnest(parts.pseudo_class) as pseudo_class
-    )
-    using
-    (client)
+    ) using (client)
 join
     (
         select
@@ -146,7 +140,5 @@ join
                 partition by client, pseudo_element.name
             ) as pseudo_element_freq
         from selector_parts, unnest(parts.pseudo_element) as pseudo_element
-    )
-    using
-    (client)
+    ) using (client)
 group by client

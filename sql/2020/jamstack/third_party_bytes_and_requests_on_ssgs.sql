@@ -23,9 +23,7 @@ from
                     or app = 'Next.js'
                     or app = 'Nuxt.js'
                     or app = 'Docusaurus'
-            )
-            using
-            (client, page)
+            ) using (client, page)
         where
             net.host(url) in (
                 select domain

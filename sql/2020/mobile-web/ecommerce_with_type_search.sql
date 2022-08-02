@@ -45,6 +45,5 @@ join
         select _table_suffix as client, url
         from `httparchive.technologies.2020_08_01_*`
         where category = 'Ecommerce'
-    )
-    using(client, url)
+    ) using (client, url)
 group by client

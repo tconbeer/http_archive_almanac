@@ -22,6 +22,6 @@ from
                 or lower(protocol) = 'http/3'
             )
     ) as pages
-left join `httparchive.almanac.h2_prioritization_cdns` using(cdn, date)
+left join `httparchive.almanac.h2_prioritization_cdns` using (cdn, date)
 group by client, cdn, prioritizes_correctly
 order by num_pages desc

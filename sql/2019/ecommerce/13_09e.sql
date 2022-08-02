@@ -15,9 +15,7 @@ from
                 select _table_suffix as client, url as page
                 from `httparchive.technologies.2019_07_01_*`
                 where category = 'Ecommerce'
-            )
-            using
-            (client, page)
+            ) using (client, page)
         where date = '2019-07-01'
         group by client, type, page
     ),

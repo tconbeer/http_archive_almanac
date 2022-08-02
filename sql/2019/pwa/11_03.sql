@@ -12,8 +12,7 @@ join
         select client, count(distinct page) as total
         from `httparchive.almanac.service_workers`
         group by client
-    )
-    using(client),
+    ) using (client),
     unnest(
         array_concat(
             regexp_extract_all(

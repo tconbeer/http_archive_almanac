@@ -26,18 +26,14 @@ join
             ) as format
         from `httparchive.almanac.requests`
         where date = '2021-07-01' and type = 'image'
-    )
-    using
-    (client, url)
+    ) using (client, url)
 join
     (
         select _table_suffix as client, app as cms, count(distinct url) as pages
         from `httparchive.technologies.2021_07_01_*`
         where category = 'CMS'
         group by client, cms
-    )
-    using
-    (client, cms)
+    ) using (client, cms)
 where pages > 1000
 group by client, cms, format
 order by freq desc

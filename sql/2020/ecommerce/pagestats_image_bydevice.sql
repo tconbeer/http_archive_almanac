@@ -13,8 +13,7 @@ join
         select distinct _table_suffix, url
         from `httparchive.technologies.2020_08_01_*`
         where category = 'Ecommerce'
-    )
-    using(_table_suffix, url),
+    ) using (_table_suffix, url),
     unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client
 order by percentile, client

@@ -36,16 +36,13 @@ join
             client, page, regexp_contains(body, '(?i)role=[\'"]?main') as has_role_main
         from `httparchive.almanac.summary_response_bodies`
         where date = '2019-07-01' and firsthtml
-    )
-    using
-    (client, page)
+    ) using (client, page)
 join
     (
         select _table_suffix as client, count(0) as total
         from `httparchive.pages.2019_07_01_*`
         group by _table_suffix
-    )
-    using(client)
+    ) using (client)
 where
     'header' in unnest(compliant_elements)
     and 'footer' in unnest(compliant_elements)

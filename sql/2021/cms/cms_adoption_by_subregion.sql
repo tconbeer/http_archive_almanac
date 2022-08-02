@@ -1239,8 +1239,7 @@ from
                 select distinct _table_suffix as client, url
                 from `httparchive.technologies.2021_07_01_*`
                 where category = 'CMS'
-            ) using(client, url
-            )
+            ) using (client, url)
         group by client, sub_region
     )
 where pages > 1000

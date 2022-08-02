@@ -32,7 +32,5 @@ join
         select client, page, regexp_contains(body, r'(?i)alt=[\'"]?') as has_alt_tags
         from `httparchive.almanac.summary_response_bodies`
         where date = '2019-07-01' and firsthtml
-    )
-    using
-    (client, page)
+    ) using (client, page)
 group by client

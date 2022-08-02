@@ -16,8 +16,7 @@ join
         select _table_suffix, count(distinct url) as total
         from `httparchive.summary_pages.2021_07_01_*`
         group by _table_suffix
-    )
-    using(_table_suffix)
+    ) using (_table_suffix)
 where
     category = 'Ecommerce'
     and (app != 'Cart Functionality' and app != 'Google Analytics Enhanced eCommerce')

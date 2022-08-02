@@ -67,7 +67,7 @@ select
     sum(cnt) / sum(sum(cnt)) over (partition by client, attribute) as pct_attribute,
     sum(cnt) / num_video_nodes as pct_videos
 from video_attributes
-join total_videos using(client)
+join total_videos using (client)
 group by client, attribute, value, num_video_nodes
 qualify freq > 100
 order by freq desc, attribute asc

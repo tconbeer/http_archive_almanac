@@ -12,8 +12,7 @@ join
         select distinct _table_suffix as client, url as page
         from `httparchive.technologies.2020_08_01_*`
         where category = 'Ecommerce'
-    )
-    using(client, page)
+    ) using (client, page)
 where type = 'image'
 group by client, format
 order by freq / total desc

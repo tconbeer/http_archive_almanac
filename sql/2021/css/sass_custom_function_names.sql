@@ -43,9 +43,7 @@ join
             ) as total_sass
         from `httparchive.pages.2021_07_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, sass_custom_function, total_sass
 order by pct_pages desc
 limit 1000

@@ -67,8 +67,7 @@ with
                 select client, count(0) as total_cookies_with_max_age
                 from max_age_values
                 group by client
-            )
-            using(client)
+            ) using (client)
         group by client, total, attribute_value
         order by freq desc
         limit 50
@@ -88,8 +87,7 @@ with
                 select client, count(0) as total_cookies_with_expires
                 from expires_values
                 group by client
-            )
-            using(client)
+            ) using (client)
         group by client, total, attribute_value
         order by freq desc
         limit 50

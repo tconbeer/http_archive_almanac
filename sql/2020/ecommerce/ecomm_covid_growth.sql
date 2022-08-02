@@ -17,8 +17,7 @@ join
         select _table_suffix, count(distinct url) as total
         from `httparchive.summary_pages.2020_*`
         group by _table_suffix
-    )
-    using(_table_suffix)
+    ) using (_table_suffix)
 where category = 'Ecommerce'
 group by client, year, month, total
 
@@ -37,8 +36,7 @@ join
         select _table_suffix, count(distinct url) as total
         from `httparchive.summary_pages.2019_*`
         group by _table_suffix
-    )
-    using(_table_suffix)
+    ) using (_table_suffix)
 where category = 'Ecommerce'
 group by client, year, month, total
 

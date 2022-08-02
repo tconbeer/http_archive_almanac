@@ -125,8 +125,7 @@ left join
             # strip favicon requests
             # strip video mimetypes and other favicons
             format != 'ico' and not regexp_contains(mimetype, r'video|ico')
-    )
-    using(client, page, url)
+    ) using (client, page, url)
 where
     naturalpixels > 0
     and bytes > 0

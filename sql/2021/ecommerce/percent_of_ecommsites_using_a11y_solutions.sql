@@ -16,9 +16,7 @@ join
                 app != 'Cart Functionality'
                 and app != 'Google Analytics Enhanced eCommerce'
             )
-    )
-    using
-    (_table_suffix, url)
+    ) using (_table_suffix, url)
 join
     (
         select _table_suffix, count(distinct url) as total
@@ -30,8 +28,6 @@ join
                 and app != 'Google Analytics Enhanced eCommerce'
             )
         group by _table_suffix
-    )
-    using
-    (_table_suffix)
+    ) using (_table_suffix)
 where category = 'Accessibility'
 group by client, total

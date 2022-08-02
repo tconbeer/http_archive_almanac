@@ -52,9 +52,7 @@ from
                 select _table_suffix as client, count(0) as total_pages
                 from `httparchive.summary_pages.2021_07_01_*`
                 group by client
-            )
-            using
-            (client)
+            ) using (client)
         group by client, selector
     )
 order by pct desc

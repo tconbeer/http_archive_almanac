@@ -44,6 +44,6 @@ select
     total_pages,
     count(distinct url) / total_pages as pct_pages
 from rendered_data, unnest(dublin_core_types) as dublin_core_type
-join page_totals using(client)
+join page_totals using (client)
 group by client, dublin_core_type, total_pages
 order by pct_dublin_core desc, client

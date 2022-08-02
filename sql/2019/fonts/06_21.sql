@@ -42,15 +42,11 @@ join
             and json_extract_scalar(payload, '$._font_details.table_sizes.gvar')
             is not null
         group by client, page
-    )
-    using
-    (client, page)
+    ) using (client, page)
 join
     (
         select _table_suffix as client, count(0) as total
         from `httparchive.summary_pages.2019_07_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, total

@@ -65,8 +65,6 @@ join
         from `httparchive.almanac.parsed_css`
         where date = '2019-07-01'
         group by client, page
-    )
-    using
-    (client, page)
+    ) using (client, page)
 group by client
 order by freq / total desc, client

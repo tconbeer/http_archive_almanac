@@ -48,8 +48,6 @@ left join
         select client as _table_suffix, page, url, type
         from `httparchive.almanac.summary_requests`
         where date = '2019-07-01'
-    )
-    using
-    (_table_suffix, page, url)
+    ) using (_table_suffix, page, url)
 group by client, name, type
 order by freq desc

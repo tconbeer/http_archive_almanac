@@ -51,9 +51,7 @@ from
                 group by client
             )
         join
-            `httparchive.almanac.parsed_css`
-            using
-            (client),
+            `httparchive.almanac.parsed_css` using (client),
             unnest(getcontentstrings(css)) as content
         where date = '2021-07-01'
         group by client, content, total_pages

@@ -103,8 +103,7 @@ left join
                 getinputinfo(json_extract_scalar(payload, '$._almanac'))
             ) as input_info
         group by input_info.detected_type
-    )
-    using(detected_type)
+    ) using (detected_type)
 group by
     input_info.detected_type,
     input_info.using_best_type,

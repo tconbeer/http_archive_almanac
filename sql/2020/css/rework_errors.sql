@@ -17,6 +17,4 @@ join
         from `httparchive.almanac.parsed_css`
         where date = '2020-08-01' and url != 'inline'
         group by client
-    )
-    using
-    (client)
+    ) using (client)

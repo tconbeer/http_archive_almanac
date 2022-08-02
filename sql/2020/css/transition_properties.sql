@@ -118,9 +118,7 @@ join
         select _table_suffix as client, count(0) as total
         from `httparchive.summary_pages.2020_08_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, property, total
 having pages >= 100
 order by pct desc

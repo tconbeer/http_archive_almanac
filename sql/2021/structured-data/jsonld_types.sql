@@ -63,6 +63,6 @@ select
     total_pages,
     count(distinct url) / total_pages as pct_pages
 from rendered_data, unnest(jsonld_types) as jsonld_type
-join page_totals using(client)
+join page_totals using (client)
 group by client, jsonld_type, total_pages
 order by pct_jsonld_type desc, client

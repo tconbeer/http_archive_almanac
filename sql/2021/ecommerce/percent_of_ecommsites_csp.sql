@@ -35,9 +35,7 @@ from
                         app != 'Cart Functionality'
                         and app != 'Google Analytics Enhanced eCommerce'
                     )
-            )
-            using
-            (_table_suffix, url)
+            ) using (_table_suffix, url)
     ),
     unnest(
         ['Content-Security-Policy', 'Content-Security-Policy-Report-Only']

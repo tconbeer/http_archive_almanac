@@ -38,8 +38,6 @@ join
         from `httparchive.summary_pages.2020_08_01_*`
         where starts_with(url, 'https')
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, protocol, tls_version, total
 order by pct desc

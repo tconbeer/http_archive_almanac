@@ -25,9 +25,7 @@ from
                 select client, page, url as css_url
                 from `httparchive.almanac.requests`
                 where date = '2021-07-01' and type = 'css'
-            )
-            using
-            (client, page, css_url)
+            ) using (client, page, css_url)
         join
             (
                 select
@@ -47,9 +45,7 @@ from
                             json_extract_scalar(payload, '$._Images'), '$'
                         )
                     ) as image
-            )
-            using
-            (client, page, img_url)
+            ) using (client, page, img_url)
         where height is not null and width is not null
         group by client, height, width
         order by pct desc

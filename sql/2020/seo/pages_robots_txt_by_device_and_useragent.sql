@@ -48,8 +48,7 @@ from
                 select _table_suffix, count(0) as total
                 from `httparchive.pages.2020_08_01_*`
                 group by _table_suffix
-            )
-            using(_table_suffix)
+            ) using (_table_suffix)
     ),
     unnest(robots_txt_info.user_agents) as user_agent
 group by total, user_agent, client

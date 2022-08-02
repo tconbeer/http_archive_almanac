@@ -50,18 +50,14 @@ from
                         app != 'Cart Functionality'
                         and app != 'Google Analytics Enhanced eCommerce'
                     )
-            )
-            using
-            (_table_suffix, url)
+            ) using (_table_suffix, url)
         join
             (
                 select _table_suffix, count(0) as total
                 from `httparchive.pages.2021_07_01_*`
                 # to get an accurate total of pages per device. also seems fast
                 group by _table_suffix
-            )
-            using
-            (_table_suffix)
+            ) using (_table_suffix)
     ),
     unnest(wpt_bodies_info.hreflangs) as hreflang
 group by total, hreflang, client

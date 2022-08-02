@@ -27,7 +27,7 @@ select
         1000
     )[offset(500)] as median_best_practices
 from `httparchive.lighthouse.2020_08_01_mobile`
-join `httparchive.technologies.2020_08_01_mobile` using(url)
+join `httparchive.technologies.2020_08_01_mobile` using (url)
 where category = 'CMS'
 group by cms
 order by freq desc

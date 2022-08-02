@@ -46,9 +46,7 @@ from
                 select _table_suffix as client, count(0) as total
                 from `httparchive.summary_pages.2021_07_01_*`
                 group by client
-            )
-            using
-            (client)
+            ) using (client)
         where date = '2021-07-01'
         group by client, position
         order by pct desc

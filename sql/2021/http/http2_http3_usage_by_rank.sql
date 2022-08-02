@@ -27,8 +27,7 @@ join
             unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where date = '2021-07-01' and rank <= rank_grouping and firsthtml
         group by client, rank_grouping
-    )
-    using(client, rank_grouping)
+    ) using (client, rank_grouping)
 where rank <= rank_grouping
 group by client, total, rank_grouping
 order by client, rank_grouping

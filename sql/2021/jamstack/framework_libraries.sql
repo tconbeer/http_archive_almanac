@@ -54,9 +54,9 @@ select
     total,
     count(distinct url) / total as pct_urls_total
 from ssg
-join js using(client, url)
-join totals using(client)
-join total_ssg_app using(client, ssg_app)
-join total_ssg using(client)
+join js using (client, url)
+join totals using (client)
+join total_ssg_app using (client, ssg_app)
+join total_ssg using (client)
 group by client, ssg_app, ssg_app_total, ssg_total, js_app, total
 order by pct_urls_total desc, client, ssg_app, js_app

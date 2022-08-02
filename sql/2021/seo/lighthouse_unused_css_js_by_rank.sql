@@ -36,10 +36,7 @@ left join
                 1024
             ) as unused_css_rules
         from `httparchive.lighthouse.2021_07_01_*`
-    )
-
-    using
-    (client, page),
+    ) using (client, page),
     unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_grouping
 where rank <= rank_grouping
 group by client, rank_grouping

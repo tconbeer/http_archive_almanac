@@ -119,8 +119,7 @@ join
             lower(category) = 'static site generator'
             or app = 'Next.js'
             or app = 'Nuxt.js'
-    )
-    using(client, url)
+    ) using (client, url)
 where cdn is not null
 group by cdn, app, client
 order by origins desc

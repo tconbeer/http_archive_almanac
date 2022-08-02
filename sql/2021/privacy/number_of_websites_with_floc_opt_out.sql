@@ -49,10 +49,9 @@ select
     count(distinct page) / total_websites as pct_websites
 from response_headers
 full outer join
-    meta_tags
-    using(client, page),
+    meta_tags using (client, page),
     unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
-join totals using(client, rank_grouping)
+join totals using (client, rank_grouping)
 where
     (
         # value could contain other policies

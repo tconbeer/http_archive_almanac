@@ -268,5 +268,4 @@ left join
     (
         select _table_suffix, url as page, rank
         from `httparchive.summary_pages.2021_07_01_*`
-    )
-    using(_table_suffix, page)
+    ) using (_table_suffix, page)

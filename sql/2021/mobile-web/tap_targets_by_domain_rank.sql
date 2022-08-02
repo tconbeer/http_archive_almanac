@@ -24,6 +24,5 @@ left join
             `httparchive.summary_pages.2021_07_01_mobile`,
             unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
         where rank <= rank_grouping
-    ) using(url
-    )
+    ) using (url)
 group by rank_grouping

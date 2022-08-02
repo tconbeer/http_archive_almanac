@@ -30,7 +30,7 @@ select
 from
     `httparchive.summary_pages.2021_07_01_*`,
     unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
-join totals using(_table_suffix, rank_grouping)
+join totals using (_table_suffix, rank_grouping)
 join websites_using_cname_tracking on domain = net.reg_domain(urlshort)
 where rank <= rank_grouping
 group by client, total_pages, rank_grouping

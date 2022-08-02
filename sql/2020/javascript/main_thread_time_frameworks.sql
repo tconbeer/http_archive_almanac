@@ -31,9 +31,7 @@ join
         select distinct _table_suffix as client, url as page, app
         from `httparchive.technologies.2020_08_01_*`
         where category = 'JavaScript frameworks'
-    )
-    using
-    (client, page),
+    ) using (client, page),
     unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client, js_framework
 order by percentile, client, pages desc

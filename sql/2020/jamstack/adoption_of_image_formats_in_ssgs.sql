@@ -21,8 +21,6 @@ join
             or app = 'Next.js'
             or app = 'Nuxt.js'
             or app = 'Docusaurus'
-    )
-    using
-    (client, page)
+    ) using (client, page)
 group by client, format
 order by pct desc

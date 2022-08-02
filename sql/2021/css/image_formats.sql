@@ -26,9 +26,7 @@ join
         select client, page, url as css_url
         from `httparchive.almanac.requests`
         where date = '2021-07-01' and type = 'css'
-    )
-    using
-    (client, page, css_url)
+    ) using (client, page, css_url)
 join
     (
         select
@@ -40,8 +38,6 @@ join
             unnest(
                 json_extract_array(json_extract_scalar(payload, '$._Images'), '$')
             ) as image
-    )
-    using
-    (client, page, img_url)
+    ) using (client, page, img_url)
 group by client, format
 order by pct desc

@@ -16,9 +16,7 @@ join
     (
         select _table_suffix as client, url as page, _connections
         from `httparchive.summary_pages.2020_08_01_*`
-    )
-    using
-    (client, page),
+    ) using (client, page),
     unnest([10, 25, 50, 75, 90]) as percentile
 group by percentile, client, protocol
 order by percentile, client, protocol

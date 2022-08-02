@@ -35,7 +35,7 @@ from
         from `httparchive.pages.2021_07_01_*`
     ),
     unnest(sris) as sri
-join totals using(client)
+join totals using (client)
 where sri is not null and json_extract_scalar(sri, '$.tagname') = 'script'
 group by client, total_sri_scripts, host
 order by pct desc

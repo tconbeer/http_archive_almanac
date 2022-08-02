@@ -49,7 +49,7 @@ with
             get_tao(lower(respotherheaders)) as timing_allow_origin,
             third_party.category as req_category
         from requests
-        left join pages using(client, page)
+        left join pages using (client, page)
         inner join
             third_party on net.host(requests.origin) = net.host(third_party.domain)
     ),

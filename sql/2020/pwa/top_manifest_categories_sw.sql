@@ -27,7 +27,7 @@ from
     (
         select distinct client, body
         from `httparchive.almanac.manifests`
-        join `httparchive.almanac.service_workers` using(date, client, page)
+        join `httparchive.almanac.service_workers` using (date, client, page)
         where date = '2020-08-01'
     ),
     unnest(getcategories(body)) as category

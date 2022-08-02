@@ -67,9 +67,7 @@ join
         select distinct _table_suffix as client, url, app as cms
         from `httparchive.technologies.2021_07_01_*`
         where category = 'CMS'
-    )
-    using
-    (client, url)
+    ) using (client, url)
 group by client, geo, cms
 having origins > 1000
 order by origins desc

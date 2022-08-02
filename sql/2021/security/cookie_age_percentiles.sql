@@ -90,6 +90,6 @@ with
 
 select client, percentile, max_age, expires, real_age
 from max_age_values
-join expires_values using(client, percentile)
-join real_age_values using(client, percentile)
+join expires_values using (client, percentile)
+join real_age_values using (client, percentile)
 order by client, percentile

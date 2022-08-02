@@ -9,8 +9,7 @@ select
     ) as image_kbytes
 from `httparchive.summary_pages.2019_07_01_*`
 join
-    `httparchive.technologies.2019_07_01_*`
-    using(_table_suffix, url),
+    `httparchive.technologies.2019_07_01_*` using (_table_suffix, url),
     unnest([10, 25, 50, 75, 90]) as percentile
 where category = 'Ecommerce'
 group by percentile, client

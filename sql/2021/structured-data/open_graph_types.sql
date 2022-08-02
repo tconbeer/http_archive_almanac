@@ -44,6 +44,6 @@ select
     total_pages,
     count(distinct url) / total_pages as pct_pages
 from rendered_data, unnest(open_graph_types) as open_graph_type
-join page_totals using(client)
+join page_totals using (client)
 group by client, open_graph_type, total_pages
 order by pct_open_graph_types desc, client

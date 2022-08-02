@@ -12,6 +12,5 @@ join
         from `httparchive.almanac.wasm_stats`
         where date = '2021-09-01'
         group by client
-    )
-    using(client)
+    ) using (client)
 order by client

@@ -47,8 +47,7 @@ from
                 from `httparchive.pages.2020_08_01_*`
                 # to get an accurate total of pages per device. also seems fast
                 group by _table_suffix
-            )
-            using(_table_suffix)
+            ) using (_table_suffix)
     ),
     unnest(wpt_bodies_info.jsonld_and_microdata_types) as type
 group by total, type, client

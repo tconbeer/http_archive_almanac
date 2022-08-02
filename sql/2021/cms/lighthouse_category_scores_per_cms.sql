@@ -28,8 +28,6 @@ join
         select distinct app as cms, url
         from `httparchive.technologies.2021_07_01_mobile`
         where category = 'CMS'
-    )
-    using
-    (url)
+    ) using (url)
 group by cms
 order by freq desc

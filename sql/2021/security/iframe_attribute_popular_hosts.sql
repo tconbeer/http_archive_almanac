@@ -49,9 +49,7 @@ join
             ) as total_iframes
         from `httparchive.pages.2021_07_01_*`
         group by client
-    )
-    using
-    (client)
+    ) using (client)
 group by client, total_iframes, policy_type, hostname
 having pct > 0.001
 order by client, pct desc

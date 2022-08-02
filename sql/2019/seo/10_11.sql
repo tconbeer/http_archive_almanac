@@ -23,7 +23,7 @@ from
             > 0 as navigate_hash
         from `httparchive.pages.2019_07_01_*`
     )
-join `httparchive.technologies.2019_07_01_*` using(_table_suffix, url)
+join `httparchive.technologies.2019_07_01_*` using (_table_suffix, url)
 where app in ('React', 'Angular', 'Vue.js')
 group by client, app
 order by freq / total desc

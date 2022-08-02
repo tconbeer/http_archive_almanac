@@ -135,10 +135,10 @@ with
             ttfb.slow as slow_ttfb,
             ttfb.p75 as p75_ttfb
         from cls
-        left join lcp using(origin, network)
-        left join fid using(origin, network)
-        left join fcp using(origin, network)
-        left join ttfb using(origin, network)
+        left join lcp using (origin, network)
+        left join fid using (origin, network)
+        left join fcp using (origin, network)
+        left join ttfb using (origin, network)
     )
 
 select

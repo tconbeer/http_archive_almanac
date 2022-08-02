@@ -60,5 +60,5 @@ select
         numberofimagesperclientandaspectratio, numberofimagesperclient
     ) as percentofimages
 from counts_per_client_and_aspect_ratio
-left join counts_per_client using(client)
+left join counts_per_client using (client)
 order by percentofimages desc

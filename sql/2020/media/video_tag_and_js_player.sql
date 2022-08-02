@@ -50,8 +50,7 @@ from
                 from `httparchive.almanac.requests`
                 where date = '2020-08-01' and type = 'script'
                 group by client, page, player
-            )
-            using(client, url)
+            ) using (client, url)
         group by client, url, video_nodes, player
         having video_nodes or player is not null
     )

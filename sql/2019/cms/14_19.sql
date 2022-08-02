@@ -6,7 +6,7 @@ select
     sum(count(0)) over () as total,
     round(count(0) * 100 / sum(count(0)) over (), 2) as pct
 from `httparchive.lighthouse.2019_07_01_mobile`
-left join `httparchive.technologies.2019_07_01_mobile` using(url)
+left join `httparchive.technologies.2019_07_01_mobile` using (url)
 where category = 'CMS'
 group by pwa_score
 having pwa_score is not null

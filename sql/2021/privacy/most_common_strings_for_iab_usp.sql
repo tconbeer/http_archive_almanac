@@ -18,7 +18,7 @@ select
     total_websites,
     count(0) / total_websites as pct_websites
 from `httparchive.pages.2021_07_01_*`
-join totals using(_table_suffix)
+join totals using (_table_suffix)
 where
     json_query(json_value(payload, '$._privacy'), '$.iab_usp.privacy_string.uspString')
     is not null

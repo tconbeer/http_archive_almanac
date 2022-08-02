@@ -16,9 +16,7 @@ join
     (
         select _table_suffix as client, url, bytestotal / 1024 as total_kb
         from `httparchive.summary_pages.2021_07_01_*`
-    )
-    using
-    (client, url),
+    ) using (client, url),
     unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client, cms
 having pages > 1000

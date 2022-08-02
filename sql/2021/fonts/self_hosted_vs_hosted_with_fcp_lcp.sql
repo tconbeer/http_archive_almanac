@@ -39,8 +39,6 @@ join
                 ) as int64
             ) as lcp
         from `httparchive.pages.2021_07_01_*`
-    )
-    using
-    (client, page)
+    ) using (client, page)
 group by client, font_host
 order by font_host, client

@@ -64,6 +64,5 @@ join
             url as page,
             gettotalinputsused(payload) as total_inputs
         from `httparchive.pages.2019_07_01_*`
-    )
-    using(client, page)
+    ) using (client, page)
 group by client

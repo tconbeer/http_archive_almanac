@@ -18,8 +18,7 @@ join
         from `httparchive.almanac.requests`
         where date = '2021-07-01' and firsthtml
         group by client
-    )
-    using(client)
+    ) using (client)
 
 where
     date = '2021-07-01'

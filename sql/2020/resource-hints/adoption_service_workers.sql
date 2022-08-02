@@ -46,8 +46,6 @@ from
                 select url
                 from `httparchive.blink_features.features`
                 where yyyymmdd = '20200801' and feature = 'ServiceWorkerControlledPage'
-            )
-            using
-            (url)
+            ) using (url)
     )
 group by client

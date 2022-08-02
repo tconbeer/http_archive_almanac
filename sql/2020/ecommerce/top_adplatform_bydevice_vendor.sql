@@ -15,18 +15,14 @@ join
         select _table_suffix as client, url as page
         from `httparchive.technologies.2020_08_01_*`
         where category = 'Ecommerce'
-    )
-    using
-    (client, page)
+    ) using (client, page)
 join `httparchive.almanac.third_parties` on net.host(url) = domain
 join
     (
         select _table_suffix as client, count(0) as total
         from `httparchive.summary_pages.2020_08_01_*`
         group by _table_suffix
-    )
-    using
-    (client)
+    ) using (client)
 where
     `httparchive.almanac.summary_requests`.date = '2020-08-01'
     and lower(category) = 'ad'

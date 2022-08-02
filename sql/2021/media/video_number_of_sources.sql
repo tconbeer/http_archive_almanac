@@ -68,7 +68,7 @@ select
     count(cast(source_count as int64))
     / total_video_nodes as pct_numberofoccurances_per_video
 from videonotes
-join total_videos using(client)
+join total_videos using (client)
 where num_video_nodes > 0
 group by client, source_count, total_video_nodes
 order by numberofoccurances desc, source_counter desc

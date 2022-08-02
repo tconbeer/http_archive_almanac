@@ -32,7 +32,7 @@ select
     total,
     count(distinct url) / total as pct
 from `httparchive.blink_features.features`
-join totals using(yyyymmdd, client)
+join totals using (yyyymmdd, client)
 where
     yyyymmdd in ('2021-07-01', '2020-08-01', '2019-07-01')
     and feature in ('CSSFlexibleBox', 'CSSGridLayout')

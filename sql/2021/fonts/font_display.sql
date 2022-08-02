@@ -63,8 +63,6 @@ join
             ) as lcp
         from `httparchive.pages.2021_07_01_*`
         group by _table_suffix, url, payload
-    )
-    using
-    (client, page)
+    ) using (client, page)
 group by client, font_display
 order by pages desc

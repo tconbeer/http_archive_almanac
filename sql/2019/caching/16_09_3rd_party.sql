@@ -39,7 +39,6 @@ join
         from `httparchive.almanac.requests`
         where date = '2019-07-01'
         group by client, party
-    )
-    using(date, client, party)
+    ) using (date, client, party)
 group by client, all_requests, total_with_vary, header_name, party
 order by occurrences desc

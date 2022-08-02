@@ -17,7 +17,7 @@ select
     count(distinct url) as number_of_websites,
     count(distinct url) / total_websites as percent_of_websites
 from `httparchive.technologies.2021_07_01_*`
-join totals using(_table_suffix)
+join totals using (_table_suffix)
 where category = 'Retargeting' and app != ''
 group by client, total_websites, app
 order by client, number_of_websites desc

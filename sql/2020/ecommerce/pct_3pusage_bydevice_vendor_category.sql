@@ -15,9 +15,7 @@ from
                 select distinct _table_suffix as client, url as page
                 from `httparchive.technologies.2020_08_01_*`
                 where category = 'Ecommerce'
-            )
-            using
-            (client, page)
+            ) using (client, page)
         join `httparchive.almanac.third_parties` on net.host(url) = domain
         where `httparchive.almanac.requests`.date = '2020-08-01'
         group by client, category, page

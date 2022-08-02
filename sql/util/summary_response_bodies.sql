@@ -65,6 +65,7 @@ select  -- noqa: disable=L044
     payload
 from (select * from `httparchive.almanac.requests` where date = '2020-08-01')
 join
-    (select _table_suffix as client, * from `httparchive.response_bodies.2020_08_01_*`)
-    using
-    (client, page, url, requestid)
+    (
+        select _table_suffix as client, *
+        from `httparchive.response_bodies.2020_08_01_*`
+    ) using (client, page, url, requestid)

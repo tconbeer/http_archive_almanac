@@ -37,8 +37,7 @@ from
         where date = '2021-07-01' and firsthtml
     )
 join
-    totals
-    using(client),
+    totals using (client),
     unnest(
         regexp_extract_all(csp_header, r'(?i)(https*://[^\s;]+)[\s;]')
     ) as csp_allowed_host

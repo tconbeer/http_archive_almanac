@@ -51,8 +51,7 @@ join
         where
             json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
             and json_extract(payload, '$._pwa.manifests') != '[]'
-    )
-    using(url)
+    ) using (url)
 group by audits.id
 union all
 select

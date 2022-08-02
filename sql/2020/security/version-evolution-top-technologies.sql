@@ -39,8 +39,7 @@ from
                 group by category_lower, app_lower
                 order by num desc
                 limit 20
-            )
-            using(category_lower, app_lower)
+            ) using (category_lower, app_lower)
         group by category_lower, app_lower, month, info, client
     )
 where pct > 0.01

@@ -44,6 +44,6 @@ select
     total_pages,
     count(distinct url) / total_pages as pct_pages
 from rendered_data, unnest(facebook_type) as facebook_type
-join page_totals using(client)
+join page_totals using (client)
 group by client, facebook_type, total_pages
 order by freq_facebook desc, client

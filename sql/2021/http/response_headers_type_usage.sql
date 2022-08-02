@@ -26,8 +26,7 @@ join
         select client, count(0) as total
         from `httparchive.almanac.requests`
         group by client
-    )
-    using(client)
+    ) using (client)
 where date = '2021-07-01'
 group by client, header, total
 order by pct desc, client
