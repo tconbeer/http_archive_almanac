@@ -1,22 +1,33 @@
-#standardSQL
+# standardSQL
 # 08_21: CSP 'upgrade-insecure-requests' usage
-SELECT
-  client,
-  csp_count,
-  csp_upgrade_insecure_requests_count,
-  total,
-  ROUND(csp_count * 100 / total, 2) AS pct_csp,
-  ROUND(csp_upgrade_insecure_requests_count * 100 / total, 2) AS pct_csp_upgrade_insecure_requests
-FROM (
-  SELECT
+select
     client,
-    COUNT(0) AS total,
-    COUNTIF(REGEXP_CONTAINS(respOtherHeaders, r'(?i)\Wcontent-security-policy =')) AS csp_count,
-    COUNTIF(REGEXP_CONTAINS(LOWER(REGEXP_EXTRACT(respOtherHeaders, r'(?i)\Wcontent-security-policy =([^,]+)') ), 'upgrade-insecure-requests')) AS csp_upgrade_insecure_requests_count
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01' AND
-    firstHtml
-  GROUP BY
-    client)
+    csp_count,
+    csp_upgrade_insecure_requests_count,
+    total,
+    round(csp_count * 100 / total, 2) as pct_csp,
+    round(
+        csp_upgrade_insecure_requests_count * 100 / total, 2
+    ) as pct_csp_upgrade_insecure_requests
+from
+    (
+        select
+            client,
+            count(0) as total,
+            countif(
+                regexp_contains(respotherheaders, r'(?i)\Wcontent-security-policy =')
+            ) as csp_count,
+            countif(
+                regexp_contains(
+                    lower(
+                        regexp_extract(
+                            respotherheaders, r'(?i)\Wcontent-security-policy =([^,]+)'
+                        )
+                    ),
+                    'upgrade-insecure-requests'
+                )
+            ) as csp_upgrade_insecure_requests_count
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01' and firsthtml
+        group by client
+    )

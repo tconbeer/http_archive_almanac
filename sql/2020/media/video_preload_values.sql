@@ -1,23 +1,18 @@
-#standardSQL
+# standardSQL
 # preload attribute values
-
-SELECT
-  client,
-  LOWER(preload_value) AS preload_value,
-  COUNT(0) AS preload_value_count,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS preload_value_pct
-FROM
-  `httparchive.almanac.summary_response_bodies`,
-  # extract preload attribute value, or empty if none
-  UNNEST(REGEXP_EXTRACT_ALL(body, '<video[^>]*?preload=*(?:"|\')*(.*?)(?:"|\'|\\s|>)')) AS preload_value
-WHERE
-  date = '2020-08-01' AND
-  firstHtml
-GROUP BY
-  client,
-  preload_value
-HAVING
-  preload_value_count > 10
-ORDER BY
-  client,
-  preload_value_count DESC;
+select
+    client,
+    lower(preload_value) as preload_value,
+    count(0) as preload_value_count,
+    safe_divide(count(0), sum(count(0)) over (partition by client)) as preload_value_pct
+from
+    `httparchive.almanac.summary_response_bodies`,
+    # extract preload attribute value, or empty if none
+    unnest(
+        regexp_extract_all(body, '<video[^>]*?preload=*(?:"|\')*(.*?)(?:"|\'|\\s|>)')
+    ) as preload_value
+where date = '2020-08-01' and firsthtml
+group by client, preload_value
+having preload_value_count > 10
+order by client, preload_value_count desc
+;

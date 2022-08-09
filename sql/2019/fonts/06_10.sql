@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 06_10: % of pages that declare a font with italics
-CREATE TEMPORARY FUNCTION getFonts(css STRING)
-RETURNS ARRAY<STRUCT<weight STRING, style STRING>> LANGUAGE js AS '''
+create temporary function getfonts(css string)
+returns array < struct < weight string,
+style string
+>> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -32,47 +34,45 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(italic > 0) AS freq_italic,
-  COUNTIF(oblique > 0) AS freq_oblique,
-  COUNTIF(style_normal > 0) AS freq_style_normal,
-  COUNTIF(weight_400_normal > 0) AS freq_weight_400_normal,
-  COUNTIF(weight_700_bold > 0) AS freq_weight_700_bold,
-  COUNTIF(lighter > 0) AS freq_lighter,
-  COUNTIF(bolder > 0) AS freq_bolder,
-  total,
-  ROUND(COUNTIF(italics > 0) * 100 / total, 2) AS pct_italic,
-  ROUND(COUNTIF(oblique > 0) * 100 / total, 2) AS pct_oblique,
-  ROUND(COUNTIF(style_normal > 0) * 100 / total, 2) AS pct_style_normal,
-  ROUND(COUNTIF(weight_400_normal > 0) * 100 / total, 2) AS pct_weight_400_normal,
-  ROUND(COUNTIF(weight_700_bold > 0) * 100 / total, 2) AS pct_weight_700_bold,
-  ROUND(COUNTIF(lighter > 0) * 100 / total, 2) AS pct_lighter,
-  ROUND(COUNTIF(bolder > 0) * 100 / total, 2) AS pct_bolder
-FROM (
-  SELECT
+select
     client,
-    COUNTIF(font.style = 'italic') AS italic,
-    COUNTIF(font.style = 'oblique') AS oblique,
-    COUNTIF(font.style = 'normal') AS style_normal,
-    COUNTIF(font.weight = 'normal' OR font.weight = '400') AS weight_400_normal,
-    COUNTIF(font.weight = 'bold' OR font.weight = '700') AS weight_700_bold,
-    COUNTIF(CAST(font.weight AS NUMERIC) > 400) AS bolder,
-    COUNTIF(CAST(font.weight AS NUMERIC) < 400) AS lighter
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getFonts(css)) AS font
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(italic > 0) as freq_italic,
+    countif(oblique > 0) as freq_oblique,
+    countif(style_normal > 0) as freq_style_normal,
+    countif(weight_400_normal > 0) as freq_weight_400_normal,
+    countif(weight_700_bold > 0) as freq_weight_700_bold,
+    countif(lighter > 0) as freq_lighter,
+    countif(bolder > 0) as freq_bolder,
+    total,
+    round(countif(italics > 0) * 100 / total, 2) as pct_italic,
+    round(countif(oblique > 0) * 100 / total, 2) as pct_oblique,
+    round(countif(style_normal > 0) * 100 / total, 2) as pct_style_normal,
+    round(countif(weight_400_normal > 0) * 100 / total, 2) as pct_weight_400_normal,
+    round(countif(weight_700_bold > 0) * 100 / total, 2) as pct_weight_700_bold,
+    round(countif(lighter > 0) * 100 / total, 2) as pct_lighter,
+    round(countif(bolder > 0) * 100 / total, 2) as pct_bolder
+from
+    (
+        select
+            client,
+            countif(font.style = 'italic') as italic,
+            countif(font.style = 'oblique') as oblique,
+            countif(font.style = 'normal') as style_normal,
+            countif(font.weight = 'normal' or font.weight = '400') as weight_400_normal,
+            countif(font.weight = 'bold' or font.weight = '700') as weight_700_bold,
+            countif(cast(font.weight as numeric) > 400) as bolder,
+            countif(cast(font.weight as numeric) < 400) as lighter
+        from `httparchive.almanac.parsed_css`, unnest(getfonts(css)) as font
+        where date = '2019-07-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+group by client, total

@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # Where button elements get their A11Y names from
-CREATE TEMPORARY FUNCTION a11yButtonNameSources(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function a11ybuttonnamesources(payload string)
+returns array
+< string
+> language js
+as '''
   try {
     const a11y = JSON.parse(payload);
 
@@ -42,27 +45,24 @@ RETURNS ARRAY<STRING> LANGUAGE js AS '''
   } catch (e) {
     return [];
   }
-''';
+'''
+;
 
-SELECT
-  client,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_buttons,
+select
+    client,
+    sum(count(0)) over (partition by client) as total_buttons,
 
-  button_name_source,
-  COUNT(0) AS total_with_this_source,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS perc_of_all_buttons
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    button_name_source
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(
-      a11yButtonNameSources(JSON_EXTRACT_SCALAR(payload, '$._a11y'))
-    ) AS button_name_source
-)
-GROUP BY
-  client,
-  button_name_source
-ORDER BY
-  perc_of_all_buttons DESC
+    button_name_source,
+    count(0) as total_with_this_source,
+    count(0) / sum(count(0)) over (partition by client) as perc_of_all_buttons
+from
+    (
+        select _table_suffix as client, button_name_source
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                a11ybuttonnamesources(json_extract_scalar(payload, '$._a11y'))
+            ) as button_name_source
+    )
+group by client, button_name_source
+order by perc_of_all_buttons desc

@@ -1,86 +1,57 @@
-#standardSQL
+# standardSQL
 # Percent of third party requests and bytes by category and content type.
+with
+    requests as (
+        select
+            _table_suffix as client,
+            pageid as page,
+            url,
+            type as contenttype,
+            respbodysize as body_size
+        from `httparchive.summary_requests.2021_07_01_*`
+    ),
 
-WITH requests AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    pageid AS page,
-    url,
-    type AS contentType,
-    respBodySize AS body_size
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-),
+    third_party as (
+        select domain, category, count(distinct page) as page_usage
+        from `httparchive.almanac.third_parties` tp
+        join requests r on net.host(r.url) = net.host(tp.domain)
+        where date = '2021-07-01' and category != 'hosting'
+        group by domain, category
+        having page_usage >= 50
+    ),
 
-third_party AS (
-  SELECT
-    domain,
-    category,
-    COUNT(DISTINCT page) AS page_usage
-  FROM
-    `httparchive.almanac.third_parties` tp
-  JOIN
-    requests r
-  ON NET.HOST(r.url) = NET.HOST(tp.domain)
-  WHERE
-    date = '2021-07-01' AND
-    category != 'hosting'
-  GROUP BY
-    domain,
-    category
-  HAVING
-    page_usage >= 50
-),
+    base as (
+        select client, page, category, contenttype, body_size
+        from requests
+        inner join third_party on net.host(requests.url) = net.host(third_party.domain)
+    ),
 
-base AS (
-  SELECT
+    requests_per_page_and_category as (
+        select
+            client,
+            page,
+            category,
+            contenttype,
+            sum(sum(body_size)) over (partition by page) as total_page_size,
+            sum(body_size) as body_size,
+            sum(count(0)) over (partition by page) as total_page_requests,
+            count(0) as requests
+        from base
+        group by client, page, category, contenttype
+    )
+
+select
     client,
-    page,
     category,
-    contentType,
-    body_size
-  FROM
-    requests
-  INNER JOIN
-    third_party
-  ON
-    NET.HOST(requests.url) = NET.HOST(third_party.domain)
-),
-
-requests_per_page_and_category AS (
-  SELECT
-    client,
-    page,
-    category,
-    contentType,
-    SUM(SUM(body_size)) OVER (PARTITION BY page) AS total_page_size,
-    SUM(body_size) AS body_size,
-    SUM(COUNT(0)) OVER (PARTITION BY page) AS total_page_requests,
-    COUNT(0) AS requests
-  FROM
-    base
-  GROUP BY
-    client,
-    page,
-    category,
-    contentType
-)
-
-SELECT
-  client,
-  category,
-  contentType,
-  SUM(requests) AS requests,
-  SAFE_DIVIDE(SUM(requests), SUM(SUM(requests)) OVER (PARTITION BY client, category)) AS pct_requests,
-  SUM(body_size) AS body_size,
-  SAFE_DIVIDE(SUM(body_size), SUM(SUM(body_size)) OVER (PARTITION BY client, category)) AS pct_body_size
-FROM
-  requests_per_page_and_category
-GROUP BY
-  client,
-  category,
-  contentType
-ORDER BY
-  client,
-  category,
-  contentType
+    contenttype,
+    sum(requests) as requests,
+    safe_divide(
+        sum(requests), sum(sum(requests)) over (partition by client, category)
+    ) as pct_requests,
+    sum(body_size) as body_size,
+    safe_divide(
+        sum(body_size), sum(sum(body_size)) over (partition by client, category)
+    ) as pct_body_size
+from requests_per_page_and_category
+group by client, category, contenttype
+order by client, category, contenttype
