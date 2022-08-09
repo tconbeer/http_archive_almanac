@@ -46,8 +46,9 @@ join
     unnest(  -- Directive may specify explicit origins or not.
         if(
             -- test if any explicit origin is provided
+            array_length(split(trim(allow_attr), ' ')) = 1,
             -- if not, add a dummy empty origin to make the query work
-            array_length(split(trim(allow_attr), ' ')) = 1, [trim(allow_attr), ''],
+            [trim(allow_attr), ''],
             split(trim(allow_attr), ' ')  -- if it is, split the different origins
         )
     ) as origin

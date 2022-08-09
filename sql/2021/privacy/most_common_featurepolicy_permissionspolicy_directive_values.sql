@@ -138,8 +138,9 @@ join
     unnest(  -- Directive may specify explicit origins or not.
         if(
             -- test if any explicit origin is provided
+            array_length(split(trim(directive), ' ')) = 1,
             -- if not, add a dummy empty origin to make the query work
-            array_length(split(trim(directive), ' ')) = 1, [trim(directive), ''],
+            [trim(directive), ''],
             split(trim(directive), ' ')  -- if it is, split the different origins
         )
     ) as origin
