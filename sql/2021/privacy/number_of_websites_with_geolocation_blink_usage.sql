@@ -1,23 +1,9 @@
-#standardSQL
+# standardSQL
 # Pages that use geolocation features (based on Blink features)
-
-SELECT DISTINCT
-  client,
-  feature,
-  num_urls,
-  total_urls,
-  pct_urls AS pct_urls
-FROM
-  `httparchive.blink_features.usage`
-WHERE
-  yyyymmdd = '20210701' AND
-  feature LIKE '%Geolocation%'
-ORDER BY
-  feature,
-  client
-
+select distinct client, feature, num_urls, total_urls, pct_urls as pct_urls
+from `httparchive.blink_features.usage`
+where yyyymmdd = '20210701' and feature like '%Geolocation%'
 # relevant Blink features:
-
 # GeolocationGetCurrentPosition
 # GeolocationWatchPosition
 # GeolocationDisabledByFeaturePolicy
@@ -28,3 +14,4 @@ ORDER BY
 # GeolocationSecureOriginIframe
 # GeolocationInsecureOriginDeprecatedNotRemoved
 # GeolocationInsecureOriginIframeDeprecatedNotRemoved
+order by feature, client

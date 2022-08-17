@@ -1,32 +1,31 @@
-#standardSQL
-# Percentage of total bytes that are from third party requests broken down by third party category by resource type.
-SELECT
-  client,
-  thirdPartyCategory,
-  contentType,
-  SUM(requestBytes) AS totalBytes,
-  ROUND(SUM(requestBytes) * 100 / SUM(SUM(requestBytes)) OVER (), 4) AS percentBytes
-FROM (
-  SELECT
+# standardSQL
+# Percentage of total bytes that are from third party requests broken down by third
+# party category by resource type.
+select
     client,
-    type AS contentType,
-    respBodySize AS requestBytes,
-    IFNULL(ThirdPartyTable.category,
-      IF(DomainsOver50Table.requestDomain IS NULL, 'first-party', 'other')
-    ) AS thirdPartyCategory
-  FROM
-    `httparchive.almanac.summary_requests`
-  LEFT JOIN
-    `lighthouse-infrastructure.third_party_web.2019_07_01` AS ThirdPartyTable
-  ON NET.HOST(url) = ThirdPartyTable.domain
-  LEFT JOIN
-    `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains` AS DomainsOver50Table
-  ON NET.HOST(url) = DomainsOver50Table.requestDomain
-  WHERE
-    date = '2019-07-01'
-)
-GROUP BY
-  client,
-  thirdPartyCategory,
-  contentType
-ORDER BY percentBytes DESC
+    thirdpartycategory,
+    contenttype,
+    sum(requestbytes) as totalbytes,
+    round(sum(requestbytes) * 100 / sum(sum(requestbytes)) over (), 4) as percentbytes
+from
+    (
+        select
+            client,
+            type as contenttype,
+            respbodysize as requestbytes,
+            ifnull(
+                thirdpartytable.category,
+                if(domainsover50table.requestdomain is null, 'first-party', 'other')
+            ) as thirdpartycategory
+        from `httparchive.almanac.summary_requests`
+        left join
+            `lighthouse-infrastructure.third_party_web.2019_07_01` as thirdpartytable
+            on net.host(url) = thirdpartytable.domain
+        left join
+            `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains`
+            as domainsover50table
+            on net.host(url) = domainsover50table.requestdomain
+        where date = '2019-07-01'
+    )
+group by client, thirdpartycategory, contenttype
+order by percentbytes desc

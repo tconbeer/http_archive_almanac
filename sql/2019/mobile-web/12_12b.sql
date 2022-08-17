@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 12_12b: Correct type used for email and phone inputs
-CREATE TEMPORARY FUNCTION getInputInfo(payload STRING)
-RETURNS ARRAY<STRUCT<detected_type STRING, using_best_type BOOLEAN>> LANGUAGE js AS '''
+create temporary function getinputinfo(payload string)
+returns array < struct < detected_type string,
+using_best_type boolean
+>> language js as '''
   var new_line_regex = new RegExp('(?:\\r\\n|\\r|\\n)', 'g');
   function isFuzzyMatch(value, options) {
     value = value.replace(new_line_regex, '').trim().toLowerCase();
@@ -65,22 +67,28 @@ RETURNS ARRAY<STRUCT<detected_type STRING, using_best_type BOOLEAN>> LANGUAGE js
   } catch (e) {
     return [];
   }
-''';
+'''
+;
 
-SELECT
-  input_info.detected_type AS detected_type,
-  input_info.using_best_type AS using_best_type,
-  SUM(COUNT(0)) OVER (PARTITION BY input_info.detected_type) AS total_type_occurences,
-  SUM(COUNT(DISTINCT url)) OVER (PARTITION BY input_info.detected_type) AS total_sites_with_type,
+select
+    input_info.detected_type as detected_type,
+    input_info.using_best_type as using_best_type,
+    sum(count(0)) over (partition by input_info.detected_type) as total_type_occurences,
+    sum(count(distinct url)) over (
+        partition by input_info.detected_type
+    ) as total_sites_with_type,
 
-  COUNT(0) AS total,
-  COUNT(DISTINCT url) AS total_sites,
+    count(0) as total,
+    count(distinct url) as total_sites,
 
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY input_info.detected_type), 2) AS perc_inputs,
-  ROUND(COUNT(DISTINCT url) * 100 / SUM(COUNT(DISTINCT url)) OVER (PARTITION BY input_info.detected_type), 2) AS perc_sites
-FROM
-  `httparchive.pages.2019_07_01_mobile`,
-  UNNEST(getInputInfo(payload)) AS input_info
-GROUP BY
-  input_info.detected_type,
-  input_info.using_best_type
+    round(
+        count(0) * 100 / sum(count(0)) over (partition by input_info.detected_type), 2
+    ) as perc_inputs,
+    round(
+        count(distinct url)
+        * 100
+        / sum(count(distinct url)) over (partition by input_info.detected_type),
+        2
+    ) as perc_sites
+from `httparchive.pages.2019_07_01_mobile`, unnest(getinputinfo(payload)) as input_info
+group by input_info.detected_type, input_info.using_best_type

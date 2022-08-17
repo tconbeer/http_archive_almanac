@@ -1,10 +1,8 @@
-#standardSQL
-
+# standardSQL
 # % of pages that include a stylesheet with a breakpoint under 600px.
 # (!) 7.71 TB
-
-CREATE TEMPORARY FUNCTION hasBreakpoint(css STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function hasbreakpoint(css string)
+returns boolean language js as '''
 function matchAll(re, str) {
   var results = [];
   while ((matches = re.exec(str)) !== null) {
@@ -23,14 +21,16 @@ try {
 } catch (e) {
   false;
 }
-''';
+'''
+;
 
-SELECT
-  COUNT(DISTINCT page) AS pages,
-  ROUND(COUNT(DISTINCT page) * 100 / (SELECT COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_mobile`), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`
-WHERE
-  date = '2019-07-01' AND
-  client = 'mobile' AND
-  hasBreakpoint(css)
+select
+    count(distinct page) as pages,
+    round(
+        count(distinct page)
+        * 100
+        / (select count(0) as total from `httparchive.summary_pages.2019_07_01_mobile`),
+        2
+    ) as pct
+from `httparchive.almanac.parsed_css`
+where date = '2019-07-01' and client = 'mobile' and hasbreakpoint(css)

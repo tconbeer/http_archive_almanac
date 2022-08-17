@@ -1,9 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getColorStops(css STRING)
-RETURNS ARRAY<INT64>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcolorstops(css string)
+returns array < int64 > language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -156,29 +155,27 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(median_color_stop, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS median_color_stop
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
-    APPROX_QUANTILES(color_stops, 1000 IGNORE NULLS)[OFFSET(500)] AS median_color_stop
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getColorStops(css)) AS color_stops
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(median_color_stop, 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as median_color_stop
+from
+    (
+        select
+            client,
+            page,
+            approx_quantiles(color_stops, 1000 ignore nulls)[
+                offset(500)
+            ] as median_color_stop
+        from `httparchive.almanac.parsed_css`, unnest(getcolorstops(css)) as color_stops
+        where date = '2020-08-01'
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

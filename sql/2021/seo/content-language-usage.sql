@@ -1,10 +1,11 @@
-#standardSQL
+# standardSQL
 # Content language usage
-
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION getContentLanguagesAlmanac(almanac_string STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+create temporary function getcontentlanguagesalmanac(almanac_string string)
+returns array
+< string
+> language js
+as '''
 var result = [];
 try {
     var almanac = JSON.parse(almanac_string);
@@ -20,41 +21,35 @@ try {
 
 } catch (e) {result.push("ERROR "+e);} // results show some issues with the validity of the payload
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  total,
+select
+    client,
+    total,
 
-  content_language,
-  COUNT(0) AS count,
-  SAFE_DIVIDE(COUNT(0), total) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      getContentLanguagesAlmanac(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS content_languages
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    JOIN
-      (
+    content_language,
+    count(0) as count,
+    safe_divide(count(0), total) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            getcontentlanguagesalmanac(
+                json_extract_scalar(payload, '$._almanac')
+            ) as content_languages
+        from `httparchive.pages.2021_07_01_*`
+        join
+            (
 
-        SELECT _TABLE_SUFFIX, COUNT(0) AS total
-        FROM
-          `httparchive.pages.2021_07_01_*`
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2021_07_01_*`
 
-        GROUP BY _TABLE_SUFFIX
-      )
-    USING (_TABLE_SUFFIX)
-  ),
-  UNNEST(content_languages) AS content_language
-GROUP BY
-  total,
-  content_language,
-  client
-ORDER BY
-  count DESC,
-  content_language,
-  client DESC
-LIMIT 1000
+                group by _table_suffix
+            ) using (_table_suffix)
+    ),
+    unnest(content_languages) as content_language
+group by total, content_language, client
+order by count desc, content_language, client desc
+limit 1000

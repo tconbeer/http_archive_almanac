@@ -1,9 +1,15 @@
-#standardSQL
-# returns the number of pages using preload tags without the required crossorigin attribute
-
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload BOOLEAN, prefetch BOOLEAN, preconnect BOOLEAN, prerender BOOLEAN, `dns-prefetch` BOOLEAN, `modulepreload` BOOLEAN>
-LANGUAGE js AS '''
+# standardSQL
+# returns the number of pages using preload tags without the required crossorigin
+# attribute
+create temporary function getresourcehints(payload string)
+returns struct < preload boolean,
+prefetch boolean,
+preconnect boolean,
+prerender boolean,
+`dns-prefetch` boolean,
+`modulepreload` boolean
+> language js
+as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 try {
   var $ = JSON.parse(payload);
@@ -18,31 +24,32 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  ARRAY_LENGTH(value) AS num_incorrect_crossorigin,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    REGEXP_EXTRACT_ALL(consoleLog, r'A preload for (.+?) is found, but is not used because the request credentials mode does not match') AS value
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      JSON_EXTRACT(payload, '$._consoleLog') AS consoleLog,
-      getResourceHints(payload) AS hints
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-  WHERE hints.preload
-)
-GROUP BY
-  client,
-  num_incorrect_crossorigin
-ORDER BY
-  client,
-  freq DESC
+    array_length(value) as num_incorrect_crossorigin,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select
+            client,
+            regexp_extract_all(
+                consolelog,
+                r'A preload for (.+?) is found, but is not used because the request credentials mode does not match'
+            ) as value
+        from
+            (
+                select
+                    _table_suffix as client,
+                    json_extract(payload, '$._consoleLog') as consolelog,
+                    getresourcehints(payload) as hints
+                from `httparchive.pages.2021_07_01_*`
+            )
+        where hints.preload
+    )
+group by client, num_incorrect_crossorigin
+order by client, freq desc

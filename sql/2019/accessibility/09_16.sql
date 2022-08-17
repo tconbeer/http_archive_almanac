@@ -1,26 +1,25 @@
-#standardSQL
+# standardSQL
 # 09_16: % pages using invalid/required form field attributes
-SELECT
-  client,
-  attr,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  `httparchive.almanac.summary_response_bodies`,
-  UNNEST(ARRAY_CONCAT(
-    REGEXP_EXTRACT_ALL(body, '<input[^>]+(aria-invalid|aria-required)\\b'),
-    REGEXP_EXTRACT_ALL(body, '<input[^>]+[^-](required)\\b')
-  )) AS attr
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (client)
-WHERE
-  date = '2019-07-01' AND
-  firstHtml
-GROUP BY
-  client,
-  total,
-  attr
-ORDER BY
-  pages / total DESC
+select
+    client,
+    attr,
+    count(distinct page) as pages,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from
+    `httparchive.almanac.summary_response_bodies`,
+    unnest(
+        array_concat(
+            regexp_extract_all(body, '<input[^>]+(aria-invalid|aria-required)\\b'),
+            regexp_extract_all(body, '<input[^>]+[^-](required)\\b')
+        )
+    ) as attr
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+where date = '2019-07-01' and firsthtml
+group by client, total, attr
+order by pages / total desc

@@ -1,8 +1,9 @@
-#standardSQL
+# standardSQL
 # Top 100 third party requests by total script execution time.
-CREATE TEMPORARY FUNCTION getExecutionTimes(report STRING)
-RETURNS ARRAY<STRUCT<url STRING, execution_time FLOAT64>>
-LANGUAGE js AS '''
+create temporary function getexecutiontimes(report string)
+returns array < struct < url string,
+execution_time float64
+>> language js as '''
 try {
   var $ = JSON.parse(report);
   return $.audits['bootup-time'].details.items.map(item => ({
@@ -12,29 +13,30 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  requestUrl,
-  COUNT(0) AS totalScripts,
-  SUM(executionTime) AS totalExecutionTime,
-  ROUND(SUM(executionTime) * 100 / MAX(t2.totalExecutionTime), 2) AS percentExecutionTime
-FROM (
-  SELECT
-    item.url AS requestUrl,
-    item.execution_time AS executionTime
-  FROM
-    `httparchive.lighthouse.2019_07_01_mobile`,
-    UNNEST(getExecutionTimes(report)) AS item) t1,
-  (
-    SELECT
-      SUM(item.execution_time) AS totalExecutionTime
-    FROM
-      `httparchive.lighthouse.2019_07_01_mobile`,
-      UNNEST(getExecutionTimes(report)) AS item ) t2
-WHERE requestUrl != 'Other'
-GROUP BY
-  requestUrl
-ORDER BY
-  totalExecutionTime DESC
-LIMIT 100
+select
+    requesturl,
+    count(0) as totalscripts,
+    sum(executiontime) as totalexecutiontime,
+    round(
+        sum(executiontime) * 100 / max(t2.totalexecutiontime), 2
+    ) as percentexecutiontime
+from
+    (
+        select item.url as requesturl, item.execution_time as executiontime
+        from
+            `httparchive.lighthouse.2019_07_01_mobile`,
+            unnest(getexecutiontimes(report)) as item
+    ) t1,
+    (
+        select sum(item.execution_time) as totalexecutiontime
+        from
+            `httparchive.lighthouse.2019_07_01_mobile`,
+            unnest(getexecutiontimes(report)) as item
+    ) t2
+where requesturl != 'Other'
+group by requesturl
+order by totalexecutiontime desc
+limit 100

@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 06_44: % of pages that use font-display
-CREATE TEMPORARY FUNCTION getFontDisplay(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getfontdisplay(css string)
+returns array
+< string
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -26,26 +28,22 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  font_display,
-  COUNT(DISTINCT page) AS freq,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontDisplay(css)) AS font_display
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING
-  (client)
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  total,
-  font_display
-ORDER BY
-  freq / total DESC
+select
+    client,
+    font_display,
+    count(distinct page) as freq,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from `httparchive.almanac.parsed_css`, unnest(getfontdisplay(css)) as font_display
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+where date = '2019-07-01'
+group by client, total, font_display
+order by freq / total desc

@@ -1,13 +1,8 @@
-SELECT
-  ANY_VALUE(url) AS url,
-  ANY_VALUE(size.custom) AS custom_sections_size,
-  ARRAY_TO_STRING(ANY_VALUE(custom_sections), ', ') AS custom_sections
-FROM
-  `httparchive.almanac.wasm_stats`
-WHERE
-  date = '2021-09-01' AND
-  size.custom > 0
-GROUP BY
-  filename
-ORDER BY
-  custom_sections_size DESC
+select
+    any_value(url) as url,
+    any_value(size.custom) as custom_sections_size,
+    array_to_string(any_value(custom_sections), ', ') as custom_sections
+from `httparchive.almanac.wasm_stats`
+where date = '2021-09-01' and size.custom > 0
+group by filename
+order by custom_sections_size desc
