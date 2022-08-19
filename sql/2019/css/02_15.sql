@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 02_15: Top snap points in media queries
-CREATE TEMPORARY FUNCTION getSnapPoints(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getsnappoints(css string)
+returns array
+< string
+> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {
@@ -19,22 +21,17 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  snap_point,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getSnapPoints(css)) AS snap_point
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  snap_point
-ORDER BY
-  freq / total DESC
-LIMIT 1000
+select
+    client,
+    snap_point,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.parsed_css`, unnest(getsnappoints(css)) as snap_point
+where date = '2019-07-01'
+group by client, snap_point
+order by freq / total desc
+limit 1000

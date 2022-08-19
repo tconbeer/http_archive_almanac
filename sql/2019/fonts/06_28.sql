@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # 06_28: Popularity of font-variation-settings axes
-CREATE TEMPORARY FUNCTION getFontVariationSettings(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getfontvariationsettings(css string)
+returns array
+< string
+> language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -17,24 +20,20 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  REGEXP_EXTRACT(LOWER(value), '[\'"]([\\w]{4})[\'"]') AS axis,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontVariationSettings(css)) AS values,
-  UNNEST(SPLIT(values, ',')) AS value
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  axis
-HAVING
-  axis IS NOT NULL
-ORDER BY
-  freq / total DESC
+select
+    client,
+    regexp_extract(lower(value), '[\'"]([\\w]{4})[\'"]') as axis,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from
+    `httparchive.almanac.parsed_css`,
+    unnest(getfontvariationsettings(css)) as values,
+    unnest(split(values, ',')) as value
+where date = '2019-07-01'
+group by client, axis
+having axis is not null
+order by freq / total desc

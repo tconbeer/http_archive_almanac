@@ -1,35 +1,48 @@
 # standardSQL
 # Average percentage of resources loaded over HTTP .9, 1, 1.1, 2, and QUIC per site
-SELECT
-  client,
-  AVG(http09_pct) AS http09_pct,
-  AVG(http10_pct) AS http10_pct,
-  AVG(http11_pct) AS http11_pct,
-  AVG(http2_pct) AS http2_pct,
-  AVG(quic_pct) AS quic_pct,
-  AVG(http2quic46_pct) AS http2quic46_pct,
-  AVG(other_pct) AS other_pct,
-  AVG(null_pct) AS null_pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(JSON_EXTRACT_SCALAR(payload, '$._protocol') = 'http/0.9') / COUNT(0) AS http09_pct,
-    COUNTIF(JSON_EXTRACT_SCALAR(payload, '$._protocol') = 'http/1.0') / COUNT(0) AS http10_pct,
-    COUNTIF(JSON_EXTRACT_SCALAR(payload, '$._protocol') = 'http/1.1') / COUNT(0) AS http11_pct,
-    COUNTIF(JSON_EXTRACT_SCALAR(payload, '$._protocol') = 'HTTP/2') / COUNT(0) AS http2_pct,
-    COUNTIF(JSON_EXTRACT_SCALAR(payload, '$._protocol') = 'QUIC') / COUNT(0) AS quic_pct,
-    COUNTIF(JSON_EXTRACT_SCALAR(payload, '$._protocol') = 'http/2+quic/46') / COUNT(0) AS http2quic46_pct,
-    COUNTIF(JSON_EXTRACT_SCALAR(payload, '$._protocol') NOT IN ('http/0.9', 'http/1.0', 'http/1.1', 'HTTP/2', 'QUIC', 'http/2+quic/46')) / COUNT(0) AS other_pct,
-    COUNTIF(JSON_EXTRACT_SCALAR(payload, '$._protocol') IS NULL) / COUNT(0) AS null_pct
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    page)
-GROUP BY
-  client
-ORDER BY
-  client
+    avg(http09_pct) as http09_pct,
+    avg(http10_pct) as http10_pct,
+    avg(http11_pct) as http11_pct,
+    avg(http2_pct) as http2_pct,
+    avg(quic_pct) as quic_pct,
+    avg(http2quic46_pct) as http2quic46_pct,
+    avg(other_pct) as other_pct,
+    avg(null_pct) as null_pct
+from
+    (
+        select
+            client,
+            page,
+            countif(json_extract_scalar(payload, '$._protocol') = 'http/0.9')
+            / count(0) as http09_pct,
+            countif(json_extract_scalar(payload, '$._protocol') = 'http/1.0')
+            / count(0) as http10_pct,
+            countif(json_extract_scalar(payload, '$._protocol') = 'http/1.1')
+            / count(0) as http11_pct,
+            countif(json_extract_scalar(payload, '$._protocol') = 'HTTP/2')
+            / count(0) as http2_pct,
+            countif(json_extract_scalar(payload, '$._protocol') = 'QUIC')
+            / count(0) as quic_pct,
+            countif(json_extract_scalar(payload, '$._protocol') = 'http/2+quic/46')
+            / count(0) as http2quic46_pct,
+            countif(
+                json_extract_scalar(payload, '$._protocol') not in (
+                    'http/0.9',
+                    'http/1.0',
+                    'http/1.1',
+                    'HTTP/2',
+                    'QUIC',
+                    'http/2+quic/46'
+                )
+            )
+            / count(0) as other_pct,
+            countif(json_extract_scalar(payload, '$._protocol') is null)
+            / count(0) as null_pct
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01'
+        group by client, page
+    )
+group by client
+order by client

@@ -1,9 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getColorFunctions(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcolorfunctions(css string)
+returns array < string > language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let usage = {
@@ -150,39 +149,27 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  function,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  COUNT(DISTINCT page) / total AS pct
-FROM (
-  SELECT DISTINCT
+select
     client,
-    page,
-    LOWER(function) AS function
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getColorFunctions(css)) AS function
-  WHERE
-    date = '2020-08-01' AND
-    function IS NOT NULL)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total,
-  function
-ORDER BY
-  pct DESC
+    function,
+    count(distinct page) as pages,
+    total,
+    count(distinct page) / total as pct
+from
+    (
+        select distinct client, page, lower(function) as function
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getcolorfunctions(css)) as function
+        where date = '2020-08-01' and function is not null
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    ) using (client)
+group by client, total, function
+order by pct desc

@@ -1,18 +1,11 @@
-#standardSQL
+# standardSQL
 # HTML response: vary header used
-
-SELECT
-  _TABLE_SUFFIX AS client,
-  REGEXP_CONTAINS(LOWER(resp_vary), r'user-agent') AS resp_vary_user_agent,
-  COUNT(0) AS freq,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX)) AS pct
-FROM
-  `httparchive.summary_requests.2021_07_01_*`
-WHERE
-  firstHtml
-GROUP BY
-  client,
-  resp_vary_user_agent
-ORDER BY
-  freq DESC,
-  client
+select
+    _table_suffix as client,
+    regexp_contains(lower(resp_vary), r'user-agent') as resp_vary_user_agent,
+    count(0) as freq,
+    safe_divide(count(0), sum(count(0)) over (partition by _table_suffix)) as pct
+from `httparchive.summary_requests.2021_07_01_*`
+where firsthtml
+group by client, resp_vary_user_agent
+order by freq desc, client

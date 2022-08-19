@@ -1,77 +1,94 @@
-#standardSQL
+# standardSQL
 # Prevalence of X-robots-tag header values and robots meta values.
-WITH meta_tags AS (
-  SELECT
-    client,
-    url AS page,
-    LOWER(JSON_VALUE(meta_node, '$.content')) AS robots_content
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url,
-      JSON_VALUE(payload, '$._almanac') AS metrics
-    FROM
-      `httparchive.pages.2021_07_01_*`
+with
+    meta_tags as (
+        select
+            client,
+            url as page,
+            lower(json_value(meta_node, '$.content')) as robots_content
+        from
+            (
+                select
+                    _table_suffix as client,
+                    url,
+                    json_value(payload, '$._almanac') as metrics
+                from `httparchive.pages.2021_07_01_*`
+            ),
+            unnest(json_query_array(metrics, '$.meta-nodes.nodes')) meta_node
+        where lower(json_value(meta_node, '$.name')) = 'robots'
     ),
-    UNNEST(JSON_QUERY_ARRAY(metrics, '$.meta-nodes.nodes')) meta_node
-  WHERE LOWER(JSON_VALUE(meta_node, '$.name')) = 'robots'
-),
 
-robot_headers AS (
-  SELECT
-    client,
-    url AS page,
-    LOWER(JSON_VALUE(response_header, '$.value')) AS robot_header_value
-  FROM (
-    SELECT
-      client,
-      url,
-      response_headers
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      firstHtml = TRUE AND
-      date = '2021-07-01'
+    robot_headers as (
+        select
+            client,
+            url as page,
+            lower(json_value(response_header, '$.value')) as robot_header_value
+        from
+            (
+                select client, url, response_headers
+                from `httparchive.almanac.requests`
+                where firsthtml = true and date = '2021-07-01'
+            ),
+            unnest(json_query_array(response_headers)) as response_header
+        where lower(json_value(response_header, '$.name')) = 'x-robots-tag'
     ),
-    UNNEST(JSON_QUERY_ARRAY(response_headers)) AS response_header
-  WHERE
-    LOWER(JSON_VALUE(response_header, '$.name')) = 'x-robots-tag'
-),
 
-total_nb_pages AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(DISTINCT url) AS total_nb_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    client
-)
+    total_nb_pages as (
+        select _table_suffix as client, count(distinct url) as total_nb_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by client
+    )
 
-SELECT
-  client,
-  total_nb_pages AS total,
-  COUNTIF(robots_content IS NOT NULL OR robot_header_value IS NOT NULL) AS count_robots,
-  COUNTIF(robots_content IS NOT NULL OR robot_header_value IS NOT NULL) / MIN(total_nb_pages.total_nb_pages) AS pct_robots,
-  COUNT(robots_content) AS count_robots_content,
-  COUNT(robots_content) / total_nb_pages AS pct_robots_content,
-  COUNT(robot_header_value) AS count_robot_header_value,
-  COUNT(robot_header_value) / total_nb_pages AS pct_robot_header_value,
-  COUNTIF(REGEXP_CONTAINS(robots_content, r'.*noindex.*') OR REGEXP_CONTAINS(robot_header_value, r'.*noindex.*')) AS count_noindex,
-  COUNTIF(REGEXP_CONTAINS(robots_content, r'.*noindex.*') OR REGEXP_CONTAINS(robot_header_value, r'.*noindex.*')) / COUNTIF(robots_content IS NOT NULL OR robot_header_value IS NOT NULL) AS pct_noindex,
-  COUNTIF(REGEXP_CONTAINS(robots_content, r'.*nofollow.*') OR REGEXP_CONTAINS(robot_header_value, r'.*nofollow.*')) AS count_nofollow,
-  COUNTIF(REGEXP_CONTAINS(robots_content, r'.*nofollow.*') OR REGEXP_CONTAINS(robot_header_value, r'.*nofollow.*')) / COUNTIF(robots_content IS NOT NULL OR robot_header_value IS NOT NULL) AS pct_nofollow,
-  COUNTIF(REGEXP_CONTAINS(robots_content, r'.*nosnippet.*') OR REGEXP_CONTAINS(robot_header_value, r'.*nosnippet.*')) AS count_nosnippet,
-  COUNTIF(REGEXP_CONTAINS(robots_content, r'.*nosnippet.*') OR REGEXP_CONTAINS(robot_header_value, r'.*nosnippet.*')) / COUNTIF(robots_content IS NOT NULL OR robot_header_value IS NOT NULL) AS pct_nosnippet,
-  COUNTIF(REGEXP_CONTAINS(robots_content, r'.*noarchive.*') OR REGEXP_CONTAINS(robot_header_value, r'.*noarchive.*')) AS count_noarchive,
-  COUNTIF(REGEXP_CONTAINS(robots_content, r'.*noarchive.*') OR REGEXP_CONTAINS(robot_header_value, r'.*noarchive.*')) / COUNTIF(robots_content IS NOT NULL OR robot_header_value IS NOT NULL) AS pct_noarchive
-FROM
-  meta_tags FULL OUTER JOIN robot_headers USING (client, page)
-JOIN
-  total_nb_pages
-USING (client)
-GROUP BY
-  client,
-  total_nb_pages
-ORDER BY
-  client
+select
+    client,
+    total_nb_pages as total,
+    countif(
+        robots_content is not null or robot_header_value is not null
+    ) as count_robots,
+    countif(robots_content is not null or robot_header_value is not null)
+    / min(total_nb_pages.total_nb_pages) as pct_robots,
+    count(robots_content) as count_robots_content,
+    count(robots_content) / total_nb_pages as pct_robots_content,
+    count(robot_header_value) as count_robot_header_value,
+    count(robot_header_value) / total_nb_pages as pct_robot_header_value,
+    countif(
+        regexp_contains(robots_content, r'.*noindex.*')
+        or regexp_contains(robot_header_value, r'.*noindex.*')
+    ) as count_noindex,
+    countif(
+        regexp_contains(robots_content, r'.*noindex.*')
+        or regexp_contains(robot_header_value, r'.*noindex.*')
+    ) / countif(robots_content is not null or robot_header_value is not null
+    ) as pct_noindex,
+    countif(
+        regexp_contains(robots_content, r'.*nofollow.*')
+        or regexp_contains(robot_header_value, r'.*nofollow.*')
+    ) as count_nofollow,
+    countif(
+        regexp_contains(robots_content, r'.*nofollow.*')
+        or regexp_contains(robot_header_value, r'.*nofollow.*')
+    ) / countif(robots_content is not null or robot_header_value is not null
+    ) as pct_nofollow,
+    countif(
+        regexp_contains(robots_content, r'.*nosnippet.*')
+        or regexp_contains(robot_header_value, r'.*nosnippet.*')
+    ) as count_nosnippet,
+    countif(
+        regexp_contains(robots_content, r'.*nosnippet.*')
+        or regexp_contains(robot_header_value, r'.*nosnippet.*')
+    ) / countif(robots_content is not null or robot_header_value is not null
+    ) as pct_nosnippet,
+    countif(
+        regexp_contains(robots_content, r'.*noarchive.*')
+        or regexp_contains(robot_header_value, r'.*noarchive.*')
+    ) as count_noarchive,
+    countif(
+        regexp_contains(robots_content, r'.*noarchive.*')
+        or regexp_contains(robot_header_value, r'.*noarchive.*')
+    ) / countif(robots_content is not null or robot_header_value is not null
+    ) as pct_noarchive
+from meta_tags
+full outer join robot_headers using (client, page)
+join total_nb_pages using (client)
+group by client, total_nb_pages
+order by client

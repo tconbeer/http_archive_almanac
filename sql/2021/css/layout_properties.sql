@@ -1,10 +1,9 @@
-#standardSQL
+# standardSQL
 # Float styles
-CREATE TEMPORARY FUNCTION getLayoutUsage(css STRING)
-RETURNS ARRAY<STRUCT<name STRING, value INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getlayoutusage(css string)
+returns array < struct < name string,
+value int64 >> language js
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   const ast = JSON.parse(css);
   let ret = {};
@@ -40,44 +39,34 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  *,
-  pages / total_pages AS pct_pages
-FROM (
-  SELECT
-    client,
-    layout,
-    SUM(value) AS freq,
-    SUM(SUM(value)) OVER (PARTITION BY client) AS total,
-    SUM(value) / SUM(SUM(value)) OVER (PARTITION BY client) AS pct,
-    COUNT(DISTINCT page) AS pages
-  FROM (
-    SELECT
-      client,
-      page,
-      layout.name AS layout,
-      layout.value
-    FROM
-      `httparchive.almanac.parsed_css`,
-      UNNEST(getLayoutUsage(css)) AS layout
-    WHERE
-      date = '2021-07-01')
-  GROUP BY
-    client,
-    layout)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-WHERE
-  pages >= 100
-ORDER BY
-  pct DESC
+select *, pages / total_pages as pct_pages
+from
+    (
+        select
+            client,
+            layout,
+            sum(value) as freq,
+            sum(sum(value)) over (partition by client) as total,
+            sum(value) / sum(sum(value)) over (partition by client) as pct,
+            count(distinct page) as pages
+        from
+            (
+                select client, page, layout.name as layout, layout.value
+                from
+                    `httparchive.almanac.parsed_css`,
+                    unnest(getlayoutusage(css)) as layout
+                where date = '2021-07-01'
+            )
+        group by client, layout
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ) using (client)
+where pages >= 100
+order by pct desc

@@ -1,11 +1,10 @@
 # standardSQL
 # Analyze the below the fold (i.e. not in the viewport) images that are preloaded
-
-CREATE TEMPORARY FUNCTION
-preloadedNonViewportImages(almanacJsonStr STRING,
-  imagesJsonStr STRING)
-RETURNS INT64
-LANGUAGE js AS '''
+create temporary function
+preloadednonviewportimages(almanacjsonstr string, imagesjsonstr string)
+returns int64
+language js
+as '''
 try {
     var almanac = JSON.parse(almanacJsonStr)
     if (Array.isArray(almanac) || typeof almanac != 'object' || almanac == null) return null;
@@ -31,27 +30,24 @@ try {
 catch {
     return null
 }
-''';
-WITH
-image_stats_tb AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    preloadedNonViewportImages(JSON_EXTRACT_SCALAR(payload,
-        '$._almanac'),
-      JSON_EXTRACT_SCALAR(payload,
-        '$._Images')) AS num_non_viewport_preload_images
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
+'''
+;
+with
+    image_stats_tb as (
+        select
+            _table_suffix as client,
+            preloadednonviewportimages(
+                json_extract_scalar(payload, '$._almanac'),
+                json_extract_scalar(payload, '$._Images')
+            ) as num_non_viewport_preload_images
+        from `httparchive.pages.2021_07_01_*`
+    )
 
-SELECT
-  client,
-  num_non_viewport_preload_images,
-  COUNT(0) AS pages,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  image_stats_tb
-GROUP BY
-  client,
-  num_non_viewport_preload_images
+select
+    client,
+    num_non_viewport_preload_images,
+    count(0) as pages,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from image_stats_tb
+group by client, num_non_viewport_preload_images

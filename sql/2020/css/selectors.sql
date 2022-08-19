@@ -1,13 +1,13 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSpecificityInfo(css STRING)
-RETURNS STRUCT<
-  ruleCount NUMERIC,
-  selectorCount NUMERIC,
-  distribution ARRAY<STRUCT<specificity STRING, specificity_cmp STRING, freq INT64>>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getspecificityinfo(css string)
+returns struct < rulecount numeric,
+selectorcount numeric,
+distribution array < struct < specificity string,
+specificity_cmp string,
+freq int64 >> >
+language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function extractSpecificity(ast) {
     let ret = {
@@ -77,37 +77,37 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(rule_count, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS rule_count,
-  APPROX_QUANTILES(selector_count, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS selector_count,
-  APPROX_QUANTILES(SAFE_DIVIDE(selector_count, rule_count), 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS selectors_per_rule
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    SUM(info.ruleCount) AS rule_count,
-    SUM(info.selectorCount) AS selector_count
-  FROM (
-    SELECT
-      client,
-      page,
-      getSpecificityInfo(css) AS info
-    FROM
-      `httparchive.almanac.parsed_css`
-    WHERE
-      date = '2020-08-01' AND
-      # Limit the size of the CSS to avoid OOM crashes. This loses ~20% of stylesheets.
-      LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(rule_count, 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as rule_count,
+    approx_quantiles(selector_count, 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as selector_count,
+    approx_quantiles(safe_divide(selector_count, rule_count), 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as selectors_per_rule
+from
+    (
+        select
+            client,
+            sum(info.rulecount) as rule_count,
+            sum(info.selectorcount) as selector_count
+        from
+            (
+                select client, page, getspecificityinfo(css) as info
+                from `httparchive.almanac.parsed_css`
+                # Limit the size of the CSS to avoid OOM crashes. This loses ~20% of
+                # stylesheets.
+                where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

@@ -1,12 +1,11 @@
-#standardSQL
+# standardSQL
 # element count distribution per device
-
 # returns all the data we need from _element_count
-CREATE TEMPORARY FUNCTION get_element_count_info(element_count_string STRING)
-RETURNS STRUCT<
-  elements_count INT64,
-  types_count INT64
-> LANGUAGE js AS '''
+create temporary function get_element_count_info(element_count_string string)
+returns struct < elements_count int64,
+types_count int64
+> language js
+as '''
 var result = {};
 try {
     if (!element_count_string) return result;
@@ -21,32 +20,35 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  percentile,
-  COUNT(DISTINCT url) AS total,
-
-  # total number of elements on a page
-  APPROX_QUANTILES(element_count_info.elements_count, 1000)[OFFSET(percentile * 10)] AS elements_count,
-
-  # number of types of elements on a page
-  APPROX_QUANTILES(element_count_info.types_count, 1000)[OFFSET(percentile * 10)] AS types_count
-
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
+    client,
     percentile,
-    url,
-    get_element_count_info(JSON_EXTRACT_SCALAR(payload, '$._element_count')) AS element_count_info
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST([10, 25, 50, 75, 90]) AS percentile
-)
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    count(distinct url) as total,
+
+    # total number of elements on a page
+    approx_quantiles(element_count_info.elements_count, 1000)[
+        offset(percentile * 10)
+    ] as elements_count,
+
+    # number of types of elements on a page
+    approx_quantiles(element_count_info.types_count, 1000)[
+        offset(percentile * 10)
+    ] as types_count
+
+from
+    (
+        select
+            _table_suffix as client,
+            percentile,
+            url,
+            get_element_count_info(
+                json_extract_scalar(payload, '$._element_count')
+            ) as element_count_info
+        from
+            `httparchive.pages.2021_07_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
+    )
+group by percentile, client
+order by percentile, client

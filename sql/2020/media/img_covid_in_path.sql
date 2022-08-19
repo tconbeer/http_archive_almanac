@@ -1,22 +1,22 @@
-#standardSQL
+# standardSQL
 # images with covid in path - average size
-SELECT
-  client,
-  LOWER(ext) AS ext,
-  COUNT(0) AS ext_count,
-  COUNTIF(REGEXP_CONTAINS(LOWER(url), r'[^/]*?[:]//[^/]*?/.*?covid')) AS ext_count_covid,
-  SAFE_DIVIDE(SUM(respSize), COUNT(0)) AS avg_size,
-  SAFE_DIVIDE(SUM(IF(REGEXP_CONTAINS(LOWER(url), r'[^/]*?[:]//[^/]*?/.*?covid'), respSize, 0)), COUNTIF(REGEXP_CONTAINS(LOWER(url), r'[^/]*?[:]//[^/]*?/.*?covid'))) AS avg_size_covid
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2020-08-01' AND
-  type = 'image'
-GROUP BY
-  client,
-  ext
-HAVING
-  ext_count_covid > 100
-ORDER BY
-  client,
-  ext_count_covid DESC;
+select
+    client,
+    lower(ext) as ext,
+    count(0) as ext_count,
+    countif(
+        regexp_contains(lower(url), r'[^/]*?[:]//[^/]*?/.*?covid')
+    ) as ext_count_covid,
+    safe_divide(sum(respsize), count(0)) as avg_size,
+    safe_divide(
+        sum(
+            if(regexp_contains(lower(url), r'[^/]*?[:]//[^/]*?/.*?covid'), respsize, 0)
+        ),
+        countif(regexp_contains(lower(url), r'[^/]*?[:]//[^/]*?/.*?covid'))
+    ) as avg_size_covid
+from `httparchive.almanac.requests`
+where date = '2020-08-01' and type = 'image'
+group by client, ext
+having ext_count_covid > 100
+order by client, ext_count_covid desc
+;

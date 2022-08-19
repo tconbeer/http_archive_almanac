@@ -1,8 +1,10 @@
-#standardSQL
+# standardSQL
 # 09_03: % of pages having elements (see also 03_02a)
 # For 09_12 we can invert the pct to get the % of pages with no h1
-CREATE TEMPORARY FUNCTION getElements(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getelements(payload string)
+returns array
+< string
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -11,25 +13,23 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  element,
-  COUNT(DISTINCT url) AS pages,
-  total,
-  ROUND(COUNT(DISTINCT url) * 100 / total, 2) AS pct
-FROM
-  `httparchive.pages.2019_07_01_*`
-JOIN
-  (SELECT _TABLE_SUFFIX, COUNT(0) AS total FROM `httparchive.pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (_TABLE_SUFFIX),
-  UNNEST(getElements(payload)) AS element
-GROUP BY
-  client,
-  total,
-  element
-ORDER BY
-  pages / total DESC,
-  client
-LIMIT 10000
+select
+    _table_suffix as client,
+    element,
+    count(distinct url) as pages,
+    total,
+    round(count(distinct url) * 100 / total, 2) as pct
+from `httparchive.pages.2019_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (_table_suffix),
+    unnest(getelements(payload)) as element
+group by client, total, element
+order by pages / total desc, client
+limit 10000

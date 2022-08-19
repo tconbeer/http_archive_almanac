@@ -1,7 +1,7 @@
-#standardSQL
+# standardSQL
 # 06_47: % of pages linking to a Google Fonts stylesheet as first item in <head>
-CREATE TEMP FUNCTION preloadsGoogleFontFirst(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temp function preloadsgooglefontfirst(payload string)
+returns boolean language js as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -10,14 +10,13 @@ RETURNS BOOLEAN LANGUAGE js AS '''
     return false;
   }
 
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(preloadsGoogleFontFirst(payload)) AS freq,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(preloadsGoogleFontFirst(payload)) * 100 / COUNT(0), 2) AS pct
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(preloadsgooglefontfirst(payload)) as freq,
+    count(0) as total,
+    round(countif(preloadsgooglefontfirst(payload)) * 100 / count(0), 2) as pct
+from `httparchive.pages.2019_07_01_*`
+group by client
