@@ -24,8 +24,9 @@ select
         and uses_if_modified
         and no_change
         and status = 304
-    ) / countif(not uses_etag and uses_last_modified and uses_if_modified and no_change)
-    as pct_actual_304
+    ) / countif(
+        not uses_etag and uses_last_modified and uses_if_modified and no_change
+    ) as pct_actual_304
 from
     (
         select

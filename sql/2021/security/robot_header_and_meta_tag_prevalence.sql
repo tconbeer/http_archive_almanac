@@ -58,8 +58,9 @@ select
     countif(
         regexp_contains(robots_content, r'.*noindex.*')
         or regexp_contains(robot_header_value, r'.*noindex.*')
-    ) / countif(robots_content is not null or robot_header_value is not null)
-    as pct_noindex,
+    ) / countif(
+        robots_content is not null or robot_header_value is not null
+    ) as pct_noindex,
     countif(
         regexp_contains(robots_content, r'.*nofollow.*')
         or regexp_contains(robot_header_value, r'.*nofollow.*')
@@ -67,8 +68,9 @@ select
     countif(
         regexp_contains(robots_content, r'.*nofollow.*')
         or regexp_contains(robot_header_value, r'.*nofollow.*')
-    ) / countif(robots_content is not null or robot_header_value is not null)
-    as pct_nofollow,
+    ) / countif(
+        robots_content is not null or robot_header_value is not null
+    ) as pct_nofollow,
     countif(
         regexp_contains(robots_content, r'.*nosnippet.*')
         or regexp_contains(robot_header_value, r'.*nosnippet.*')
@@ -76,8 +78,9 @@ select
     countif(
         regexp_contains(robots_content, r'.*nosnippet.*')
         or regexp_contains(robot_header_value, r'.*nosnippet.*')
-    ) / countif(robots_content is not null or robot_header_value is not null)
-    as pct_nosnippet,
+    ) / countif(
+        robots_content is not null or robot_header_value is not null
+    ) as pct_nosnippet,
     countif(
         regexp_contains(robots_content, r'.*noarchive.*')
         or regexp_contains(robot_header_value, r'.*noarchive.*')
@@ -85,8 +88,9 @@ select
     countif(
         regexp_contains(robots_content, r'.*noarchive.*')
         or regexp_contains(robot_header_value, r'.*noarchive.*')
-    ) / countif(robots_content is not null or robot_header_value is not null)
-    as pct_noarchive
+    ) / countif(
+        robots_content is not null or robot_header_value is not null
+    ) as pct_noarchive
 from meta_tags
 full outer join robot_headers using (client, page)
 join total_nb_pages using (client)

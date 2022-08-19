@@ -24,9 +24,10 @@ select
             countif(not firsthtml and not samehost and samedomain)
             * 100
             / (
-                0.001 + sum(
-                    countif(not firsthtml and not samehost and samedomain)
-                ) over (partition by client)
+                0.001
+                + sum(countif(not firsthtml and not samehost and samedomain)) over (
+                    partition by client
+                )
             )
         ),
         2
@@ -39,9 +40,10 @@ select
             countif(not firsthtml and not samehost and not samedomain)
             * 100
             / (
-                0.001 + sum(
-                    countif(not firsthtml and not samehost and not samedomain)
-                ) over (partition by client)
+                0.001
+                + sum(countif(not firsthtml and not samehost and not samedomain)) over (
+                    partition by client
+                )
             )
         ),
         2

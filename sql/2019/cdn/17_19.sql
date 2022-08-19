@@ -9,9 +9,8 @@ select
     countif(ifnull(a.protocol, b.protocol) = 'HTTP/1.1') as http11,
     countif(ifnull(a.protocol, b.protocol) = 'HTTP/2') as http2,
     countif(
-        ifnull(a.protocol, b.protocol) not in (
-            'HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2'
-        )
+        ifnull(a.protocol, b.protocol)
+        not in ('HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2')
     ) as http_other,
     countif(issecure or ifnull(a.protocol, b.protocol) = 'HTTP/2') as tls_total,
     round(
@@ -28,10 +27,10 @@ select
     ) as http2_pct,
     round(
         100 * countif(
-            ifnull(a.protocol, b.protocol) not in (
-                'HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2'
-            )
-        ) / count(0),
+            ifnull(a.protocol, b.protocol)
+            not in ('HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2')
+        )
+        / count(0),
         2
     ) as http_other_pct,
     round(

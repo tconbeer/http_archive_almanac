@@ -33,8 +33,9 @@ select
         distinct(
             case when regexp_contains(disallowed_endpoint, r'.*/admin/.*') then page end
         )
-    ) / count(distinct(case when has_robots_txt = 'true' then page end))
-    as pct_disallow_admin,
+    ) / count(
+        distinct(case when has_robots_txt = 'true' then page end)
+    ) as pct_disallow_admin,
     count(
         distinct(
             case
@@ -48,8 +49,9 @@ select
                 when regexp_contains(disallowed_endpoint, r'.*/log-*in/.*') then page
             end
         )
-    ) / count(distinct(case when has_robots_txt = 'true' then page end))
-    as pct_disallow_login,
+    ) / count(
+        distinct(case when has_robots_txt = 'true' then page end)
+    ) as pct_disallow_login,
     count(
         distinct(
             case
@@ -63,8 +65,9 @@ select
                 when regexp_contains(disallowed_endpoint, r'.*/sign-*in/.*') then page
             end
         )
-    ) / count(distinct(case when has_robots_txt = 'true' then page end))
-    as pct_disallow_signin,
+    ) / count(
+        distinct(case when has_robots_txt = 'true' then page end)
+    ) as pct_disallow_signin,
     count(
         distinct(
             case when regexp_contains(disallowed_endpoint, r'.*/auth./*') then page end
@@ -74,8 +77,9 @@ select
         distinct(
             case when regexp_contains(disallowed_endpoint, r'.*/auth/.*') then page end
         )
-    ) / count(distinct(case when has_robots_txt = 'true' then page end))
-    as pct_disallow_auth,
+    ) / count(
+        distinct(case when has_robots_txt = 'true' then page end)
+    ) as pct_disallow_auth,
     count(
         distinct(
             case when regexp_contains(disallowed_endpoint, r'.*/sso/.*') then page end
@@ -85,8 +89,9 @@ select
         distinct(
             case when regexp_contains(disallowed_endpoint, r'.*/sso/.*') then page end
         )
-    ) / count(distinct(case when has_robots_txt = 'true' then page end))
-    as pct_disallow_sso,
+    ) / count(
+        distinct(case when has_robots_txt = 'true' then page end)
+    ) as pct_disallow_sso,
     count(
         distinct(
             case
@@ -100,8 +105,9 @@ select
                 when regexp_contains(disallowed_endpoint, r'.*/account/.*') then page
             end
         )
-    ) / count(distinct(case when has_robots_txt = 'true' then page end))
-    as pct_disallow_account
+    ) / count(
+        distinct(case when has_robots_txt = 'true' then page end)
+    ) as pct_disallow_account
 from
     (
         select

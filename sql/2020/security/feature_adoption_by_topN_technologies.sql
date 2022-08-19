@@ -73,9 +73,8 @@ select
     count(
         distinct if(
             regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
-            and concat(category, '_', app) in unnest(
-                array_slice(top_apps, 0, topn - 1)
-            ),
+            and concat(category, '_', app)
+            in unnest(array_slice(top_apps, 0, topn - 1)),
             url,
             null
         )
@@ -84,9 +83,8 @@ select
         count(
             distinct if(
                 regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
-                and concat(category, '_', app) in unnest(
-                    array_slice(top_apps, 0, topn - 1)
-                ),
+                and concat(category, '_', app)
+                in unnest(array_slice(top_apps, 0, topn - 1)),
                 url,
                 null
             )

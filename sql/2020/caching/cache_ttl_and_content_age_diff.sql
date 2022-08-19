@@ -22,9 +22,8 @@ from
         select
             _table_suffix as client,
             round(
-                (expage - (starteddatetime - totimestamp(resp_last_modified))) / (
-                    60 * 60 * 24
-                ),
+                (expage - (starteddatetime - totimestamp(resp_last_modified)))
+                / (60 * 60 * 24),
                 2
             ) as diff_in_days
         from `httparchive.summary_requests.2020_08_01_*`

@@ -162,7 +162,8 @@ try {
 # https://www.stevenmoseley.com/blog/tech/high-performance-sql-correlated-scalar-aggregate-reduction-queries
 create temporary function getgradient(value string) returns string as (substr(value, 4))
 ;
-create temporary function getstops(value string
+create temporary function getstops(
+    value string
 ) returns int64 as (cast(substr(value, 0, 3) as int64))
 ;
 

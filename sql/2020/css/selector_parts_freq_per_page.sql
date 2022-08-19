@@ -65,8 +65,7 @@ create temporary function encode(comparator string, data string) returns string 
     concat(lpad(comparator, 11, '0'), data)
 )
 ;
-create temporary function decode(value string
-) returns string as (substr(value, 12))
+create temporary function decode(value string) returns string as (substr(value, 12))
 ;
 
 with

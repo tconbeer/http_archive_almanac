@@ -57,14 +57,16 @@ select
         (stats.checkboxes > 0 or stats.radios > 0)
         and stats.checkboxes_in_fieldset_with_legend = 0
         and stats.radios_in_fieldset_with_legend = 0
-    ) / countif(stats.checkboxes > 0 or stats.radios > 0)
-    as perc_sites_with_none_in_legend,
+    ) / countif(
+        stats.checkboxes > 0 or stats.radios > 0
+    ) as perc_sites_with_none_in_legend,
     countif(
         (stats.checkboxes > 0 or stats.radios > 0)
         and stats.checkboxes_in_fieldset_with_legend = stats.checkboxes
         and stats.radios_in_fieldset_with_legend = stats.radios
-    ) / countif(stats.checkboxes > 0 or stats.radios > 0)
-    as perc_sites_with_all_in_legend,
+    ) / countif(
+        stats.checkboxes > 0 or stats.radios > 0
+    ) as perc_sites_with_all_in_legend,
 
     sum(stats.checkboxes_in_fieldset_with_legend)
     / sum(stats.checkboxes) as perc_checkboxes_in_legend,

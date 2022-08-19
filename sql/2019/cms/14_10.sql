@@ -6,9 +6,8 @@ select
     if(form_factor.name = 'desktop', 'desktop', 'mobile') as form_factor,
     round(sum(if(bin.start < 1000, bin.density, 0)) / sum(bin.density), 4) as fast,
     round(
-        sum(if(bin.start >= 1000 and bin.start < 2500, bin.density, 0)) / sum(
-            bin.density
-        ),
+        sum(if(bin.start >= 1000 and bin.start < 2500, bin.density, 0))
+        / sum(bin.density),
         4
     ) as avg,
     round(sum(if(bin.start >= 2500, bin.density, 0)) / sum(bin.density), 4) as slow

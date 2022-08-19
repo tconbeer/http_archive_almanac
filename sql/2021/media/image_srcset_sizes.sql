@@ -28,9 +28,8 @@ select
     ) as pages_with_srcset_sizes_pct,
     safe_divide(
         (
-            countif(media_info.num_srcset_all > 0) - countif(
-                media_info.num_srcset_sizes > 0
-            )
+            countif(media_info.num_srcset_all > 0)
+            - countif(media_info.num_srcset_sizes > 0)
         ),
         count(0)
     ) as pages_with_srcset_wo_sizes_pct,

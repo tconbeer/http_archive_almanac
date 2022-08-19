@@ -13,9 +13,8 @@ select
         or ifnull(a.protocol, b.protocol) = 'H3-Q050'
     ) as http3,
     countif(
-        ifnull(a.protocol, b.protocol) not in (
-            'HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2', 'H3-29', 'H3-Q050'
-        )
+        ifnull(a.protocol, b.protocol)
+        not in ('HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2', 'H3-29', 'H3-Q050')
     ) as http_other,
     countif(issecure or ifnull(a.protocol, b.protocol) = 'HTTP/2') as tls_total,
     countif(ifnull(a.protocol, b.protocol) = 'HTTP/0.9') / count(0) as http09_pct,
@@ -28,9 +27,8 @@ select
     )
     / count(0) as http3_pct,
     countif(
-        ifnull(a.protocol, b.protocol) not in (
-            'HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2', 'H3-29', 'H3-Q050'
-        )
+        ifnull(a.protocol, b.protocol)
+        not in ('HTTP/0.9', 'HTTP/1.0', 'HTTP/1.1', 'HTTP/2', 'H3-29', 'H3-Q050')
     )
     / count(0) as http_other_pct,
     countif(issecure or ifnull(a.protocol, b.protocol) = 'HTTP/2')

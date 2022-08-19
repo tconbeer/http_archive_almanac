@@ -5,9 +5,8 @@ select
     countif(regexp_contains(body, '(?i)<(?:link|script)[^>]*integrity=')) as freq,
     count(0) as total,
     round(
-        countif(regexp_contains(body, '(?i)<(?:link|script)[^>]*integrity=')) / count(
-            0
-        ),
+        countif(regexp_contains(body, '(?i)<(?:link|script)[^>]*integrity='))
+        / count(0),
         2
     ) as pct
 from `httparchive.almanac.summary_response_bodies`

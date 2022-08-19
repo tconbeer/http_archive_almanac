@@ -24,9 +24,8 @@ where
         or resp_content_type like '%ttf%'
         or resp_content_type like '%xml%'
         or resp_content_type like '%otf%'
-        or resp_content_type in (
-            'application/javascript', 'application/x-javascript', 'application/json'
-        )
+        or resp_content_type
+        in ('application/javascript', 'application/x-javascript', 'application/json')
     )
 group by client, compression_type
 order by num_requests desc

@@ -17,9 +17,8 @@ select
     round((countif(cdn != 'ORIGIN') * 100) / count(0), 2) as hitspct,
     sum(case when cdn != 'ORIGIN' then respbodysize else 0 end) as cdnbytes,
     round(
-        (sum(case when _cdn_provider != '' then respbodysize else 0 end) * 100) / sum(
-            respbodysize
-        ),
+        (sum(case when _cdn_provider != '' then respbodysize else 0 end) * 100)
+        / sum(respbodysize),
         2
     ) as bytespct
 from

@@ -4,16 +4,14 @@
 -- TODO: Investigate fetching from Green Web Foundation
 create temp function green(url string) as (false)
 ;
-create temp function adjustdatatransfer(val int64
-) as (val * 0.75 + 0.02 * val * 0.25)
+create temp function adjustdatatransfer(val int64) as (val * 0.75 + 0.02 * val * 0.25)
 ;
-create temp function energyconsumption(bytes float64
-) as (bytes * 1.805 / 1073741824)
+create temp function energyconsumption(bytes float64) as (bytes * 1.805 / 1073741824)
 ;
-create temp function getco2grid(energy float64
-) as (energy * 475)
+create temp function getco2grid(energy float64) as (energy * 475)
 ;
-create temp function getco2renewable(energy float64
+create temp function getco2renewable(
+    energy float64
 ) as (energy * 0.1008 * 33.4 + energy * 0.8992 * 475)
 ;
 create temp function co2(

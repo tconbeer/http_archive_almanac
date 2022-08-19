@@ -7,8 +7,7 @@
 create temporary function extractkeyvaluepairs(input string) returns array
 < struct
 < key string,
-value string
-> > as (
+value string > > as (
     (
         select
             array(

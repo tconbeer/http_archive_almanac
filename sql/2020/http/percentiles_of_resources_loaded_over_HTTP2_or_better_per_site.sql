@@ -12,9 +12,8 @@ from
             client,
             page,
             countif(
-                json_extract_scalar(payload, '$._protocol') in (
-                    'HTTP/2', 'QUIC', 'http/2+quic/46'
-                )
+                json_extract_scalar(payload, '$._protocol')
+                in ('HTTP/2', 'QUIC', 'http/2+quic/46')
             )
             / count(0) as http2_pct
         from `httparchive.almanac.requests`

@@ -4,33 +4,28 @@ select
     device,
     percentile,
     approx_quantiles(
-        _4gdensity / (
-            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
-        ),
+        _4gdensity
+        / (_4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity),
         1000
     )[offset(percentile * 10)] as _4gdensity,
     approx_quantiles(
-        _3gdensity / (
-            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
-        ),
+        _3gdensity
+        / (_4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity),
         1000
     )[offset(percentile * 10)] as _3gdensity,
     approx_quantiles(
-        _2gdensity / (
-            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
-        ),
+        _2gdensity
+        / (_4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity),
         1000
     )[offset(percentile * 10)] as _2gdensity,
     approx_quantiles(
-        slow2gdensity / (
-            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
-        ),
+        slow2gdensity
+        / (_4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity),
         1000
     )[offset(percentile * 10)] as slow2gdensity,
     approx_quantiles(
-        offlinedensity / (
-            _4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity
-        ),
+        offlinedensity
+        / (_4gdensity + _3gdensity + _2gdensity + slow2gdensity + offlinedensity),
         1000
     )[offset(percentile * 10)] as offlinedensity
 from

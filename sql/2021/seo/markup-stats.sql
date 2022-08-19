@@ -72,9 +72,8 @@ select
         sum(markup_info.images_alt_blank_total), sum(markup_info.images_img_total)
     ) as pct_images_with_img_alt_blank,
     safe_divide(
-        sum(markup_info.images_alt_blank_total) + sum(
-            markup_info.images_alt_present_total
-        ),
+        sum(markup_info.images_alt_blank_total)
+        + sum(markup_info.images_alt_present_total),
         sum(markup_info.images_img_total)
     ) as pct_images_with_img_alt_blank_or_present,
 
