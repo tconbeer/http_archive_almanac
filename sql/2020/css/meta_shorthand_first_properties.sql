@@ -1,10 +1,10 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getShorthandFirstProperties(css STRING)
-RETURNS
-ARRAY<STRUCT<property STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getshorthandfirstproperties(css string)
+returns
+array < struct < property string,
+freq int64 >> language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -443,29 +443,24 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  property,
-  COUNT(DISTINCT page) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    property.property,
-    property.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getShorthandFirstProperties(css)) AS property
-  WHERE
-    date = '2020-08-01')
-GROUP BY
-  client,
-  property
-ORDER BY
-  pct DESC
-LIMIT 500
+    property,
+    count(distinct page) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, page, property.property, property.freq
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getshorthandfirstproperties(css)) as property
+        where date = '2020-08-01'
+    )
+group by client, property
+order by pct desc
+limit 500

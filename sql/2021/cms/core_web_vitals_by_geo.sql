@@ -1,67 +1,73 @@
 # cms passing core web vitals
-CREATE TEMP FUNCTION IS_GOOD (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
-  good / (good + needs_improvement + poor) >= 0.75
-);
+create temp function is_good(
+    good float64, needs_improvement float64, poor float64
+) returns bool as (good / (good + needs_improvement + poor) >= 0.75)
+;
 
-CREATE TEMP FUNCTION IS_NON_ZERO (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
-  good + needs_improvement + poor > 0
-);
+create temp function is_non_zero(
+    good float64, needs_improvement float64, poor float64
+) returns bool as (good + needs_improvement + poor > 0)
+;
 
-SELECT
-  client,
-  `chrome-ux-report`.experimental.GET_COUNTRY(country_code) AS geo,
-  cms,
-  COUNT(DISTINCT origin) AS origins,
-  # Origins with good LCP divided by origins with any LCP.
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(IS_GOOD(fast_lcp, avg_lcp, slow_lcp), origin, NULL)),
-    COUNT(DISTINCT IF(IS_NON_ZERO(fast_lcp, avg_lcp, slow_lcp), origin, NULL))) AS pct_good_lcp,
+select
+    client,
+    `chrome-ux-report`.experimental.get_country(country_code) as geo,
+    cms,
+    count(distinct origin) as origins,
+    # Origins with good LCP divided by origins with any LCP.
+    safe_divide(
+        count(distinct if(is_good(fast_lcp, avg_lcp, slow_lcp), origin, null)),
+        count(distinct if(is_non_zero(fast_lcp, avg_lcp, slow_lcp), origin, null))
+    ) as pct_good_lcp,
 
-  # Origins with good FID divided by origins with any FID.
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(IS_GOOD(fast_fid, avg_fid, slow_fid), origin, NULL)),
-    COUNT(DISTINCT IF(IS_NON_ZERO(fast_fid, avg_fid, slow_fid), origin, NULL))) AS pct_good_fid,
+    # Origins with good FID divided by origins with any FID.
+    safe_divide(
+        count(distinct if(is_good(fast_fid, avg_fid, slow_fid), origin, null)),
+        count(distinct if(is_non_zero(fast_fid, avg_fid, slow_fid), origin, null))
+    ) as pct_good_fid,
 
-  # Origins with good CLS divided by origins with any CLS.
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(IS_GOOD(small_cls, medium_cls, large_cls), origin, NULL)),
-    COUNT(DISTINCT IF(IS_NON_ZERO(small_cls, medium_cls, large_cls), origin, NULL))) AS pct_good_cls,
+    # Origins with good CLS divided by origins with any CLS.
+    safe_divide(
+        count(distinct if(is_good(small_cls, medium_cls, large_cls), origin, null)),
+        count(distinct if(is_non_zero(small_cls, medium_cls, large_cls), origin, null))
+    ) as pct_good_cls,
 
-  # Origins with good LCP, FID (optional), and CLS divided by origins with any LCP and CLS. FID is optional!
-  SAFE_DIVIDE(
-    COUNT(DISTINCT IF(
-      IS_GOOD(fast_lcp, avg_lcp, slow_lcp) AND
-      IS_GOOD(fast_fid, avg_fid, slow_fid) IS NOT FALSE AND
-      IS_GOOD(small_cls, medium_cls, large_cls), origin, NULL)),
-    COUNT(DISTINCT IF(
-      IS_NON_ZERO(fast_lcp, avg_lcp, slow_lcp) AND
-      IS_NON_ZERO(small_cls, medium_cls, large_cls), origin, NULL))) AS pct_good_cwv
-FROM (
-  SELECT
-    *,
-    CONCAT(origin, '/') AS url,
-    IF(device = 'desktop', 'desktop', 'mobile') AS client
-  FROM
-    `chrome-ux-report.materialized.country_summary`
-  WHERE
-    yyyymm = 202107 AND
-    device IN ('desktop', 'phone'))
-JOIN (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    url,
-    app AS cms
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'CMS')
-USING
-  (client, url)
-GROUP BY
-  client,
-  geo,
-  cms
-HAVING
-  origins > 1000
-ORDER BY
-  origins DESC
+    # Origins with good LCP, FID (optional), and CLS divided by origins with any LCP
+    # and CLS. FID is optional!
+    safe_divide(
+        count(
+            distinct if(
+                is_good(fast_lcp, avg_lcp, slow_lcp)
+                and is_good(fast_fid, avg_fid, slow_fid) is not false
+                and is_good(small_cls, medium_cls, large_cls),
+                origin,
+                null
+            )
+        ),
+        count(
+            distinct if(
+                is_non_zero(fast_lcp, avg_lcp, slow_lcp)
+                and is_non_zero(small_cls, medium_cls, large_cls),
+                origin,
+                null
+            )
+        )
+    ) as pct_good_cwv
+from
+    (
+        select
+            *,
+            concat(origin, '/') as url,
+            if(device = 'desktop', 'desktop', 'mobile') as client
+        from `chrome-ux-report.materialized.country_summary`
+        where yyyymm = 202107 and device in ('desktop', 'phone')
+    )
+join
+    (
+        select distinct _table_suffix as client, url, app as cms
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'CMS'
+    ) using (client, url)
+group by client, geo, cms
+having origins > 1000
+order by origins desc

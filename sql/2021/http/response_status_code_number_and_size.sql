@@ -1,40 +1,29 @@
 # standardSQL
 # Number and size of status codes by percentile
-
-SELECT
-  client,
-  status_group,
-  status,
-  percentile,
-  APPROX_QUANTILES(number, 1000)[OFFSET(percentile * 10)] AS number,
-  APPROX_QUANTILES(respHeaderSizeKiB, 1000)[OFFSET(percentile * 10)] AS respHeaderSizeKiB,
-  APPROX_QUANTILES(respBodySizeKiB, 1000)[OFFSET(percentile * 10)] AS respBodySizeKiB
-FROM
-  (
-    SELECT
-      client,
-      LEFT(CAST(status AS STRING), 1) AS status_group,
-      status,
-      page,
-      COUNT(0) AS number,
-      SUM(respHeadersSize) / 1024 AS respHeaderSizeKiB,
-      SUM(respBodySize) / 1024 AS respBodySizeKiB
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2021-07-01'
-    GROUP BY
-      client,
-      status,
-      page
-  ),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  client,
-  status_group,
-  status,
-  percentile
-ORDER BY
-  client,
-  status,
-  percentile
+select
+    client,
+    status_group,
+    status,
+    percentile,
+    approx_quantiles(number, 1000)[offset(percentile * 10)] as number,
+    approx_quantiles(respheadersizekib, 1000)[
+        offset(percentile * 10)
+    ] as respheadersizekib,
+    approx_quantiles(respbodysizekib, 1000)[offset(percentile * 10)] as respbodysizekib
+from
+    (
+        select
+            client,
+            left(cast(status as string), 1) as status_group,
+            status,
+            page,
+            count(0) as number,
+            sum(respheaderssize) / 1024 as respheadersizekib,
+            sum(respbodysize) / 1024 as respbodysizekib
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+        group by client, status, page
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by client, status_group, status, percentile
+order by client, status, percentile

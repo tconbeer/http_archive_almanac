@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 19_08: Top tags that use priority hints
-CREATE TEMPORARY FUNCTION getPriorityHints(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getpriorityhints(payload string)
+returns array
+< string
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -9,21 +11,16 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  tag,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX), 2) AS pct
-FROM
-  `httparchive.pages.2019_07_01_*`,
-  UNNEST(getPriorityHints(payload)) AS tag
-WHERE
-  tag IS NOT NULL
-GROUP BY
-  client,
-  tag
-ORDER BY
-  freq DESC
+select
+    _table_suffix as client,
+    tag,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by _table_suffix), 2) as pct
+from `httparchive.pages.2019_07_01_*`, unnest(getpriorityhints(payload)) as tag
+where tag is not null
+group by client, tag
+order by freq desc

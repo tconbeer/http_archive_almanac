@@ -1,88 +1,63 @@
-#standardSQL
+# standardSQL
 # Pages that opt out of FLoC
-
-WITH response_headers AS (
-  SELECT
-    client,
-    page,
-    rank,
-    LOWER(JSON_VALUE(response_header, '$.name')) AS header_name,
-    LOWER(JSON_VALUE(response_header, '$.value')) AS header_value
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(JSON_QUERY_ARRAY(response_headers)) response_header
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml = TRUE
-),
-
-meta_tags AS (
-  SELECT
-    client,
-    url AS page,
-    LOWER(JSON_VALUE(meta_node, '$.http-equiv')) AS tag_name,
-    LOWER(JSON_VALUE(meta_node, '$.content')) AS tag_value
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url,
-      JSON_VALUE(payload, '$._almanac') AS metrics
-    FROM
-      `httparchive.pages.2021_07_01_*`
+with
+    response_headers as (
+        select
+            client,
+            page,
+            rank,
+            lower(json_value(response_header, '$.name')) as header_name,
+            lower(json_value(response_header, '$.value')) as header_value
+        from
+            `httparchive.almanac.requests`,
+            unnest(json_query_array(response_headers)) response_header
+        where date = '2021-07-01' and firsthtml = true
     ),
-    UNNEST(JSON_QUERY_ARRAY(metrics, '$.meta-nodes.nodes')) meta_node
-  WHERE
-    JSON_VALUE(meta_node, '$.http-equiv') IS NOT NULL
-),
 
-totals AS (
-  SELECT
+    meta_tags as (
+        select
+            client,
+            url as page,
+            lower(json_value(meta_node, '$.http-equiv')) as tag_name,
+            lower(json_value(meta_node, '$.content')) as tag_value
+        from
+            (
+                select
+                    _table_suffix as client,
+                    url,
+                    json_value(payload, '$._almanac') as metrics
+                from `httparchive.pages.2021_07_01_*`
+            ),
+            unnest(json_query_array(metrics, '$.meta-nodes.nodes')) meta_node
+        where json_value(meta_node, '$.http-equiv') is not null
+    ),
+
+    totals as (
+        select client, rank_grouping, count(distinct page) as total_websites
+        from
+            `httparchive.almanac.requests`,
+            unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+        where date = '2021-07-01' and firsthtml = true and rank <= rank_grouping
+        group by client, rank_grouping
+    )
+
+select
     client,
     rank_grouping,
-    COUNT(DISTINCT page) AS total_websites
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml = TRUE AND
-    rank <= rank_grouping
-  GROUP BY
-    client,
-    rank_grouping
-)
-
-SELECT
-  client,
-  rank_grouping,
-  COUNT(DISTINCT page) AS number_of_websites,
-  total_websites,
-  COUNT(DISTINCT page) / total_websites AS pct_websites
-FROM
-  response_headers
-FULL OUTER JOIN
-  meta_tags
-USING (client, page),
-  UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-JOIN
-  totals
-USING (client, rank_grouping)
-WHERE
-  (
+    count(distinct page) as number_of_websites,
+    total_websites,
+    count(distinct page) / total_websites as pct_websites
+from response_headers
+full outer join
+    meta_tags using (client, page),
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+join totals using (client, rank_grouping)
+where
     (
-      header_name = 'permissions-policy' AND
-      header_value LIKE 'interest-cohort=()'  # value could contain other policies
-    ) OR
-    (
-      tag_name = 'permissions-policy' AND
-      tag_value LIKE 'interest-cohort=()'
+        # value could contain other policies
+        (header_name = 'permissions-policy' and header_value like 'interest-cohort=()')
+        or (tag_name = 'permissions-policy' and tag_value like 'interest-cohort=()')
     )
-  ) AND
-  rank <= rank_grouping
-GROUP BY
-  client,
-  rank_grouping,
-  total_websites
-ORDER BY
-  rank_grouping,
-  client
+    and rank <= rank_grouping
+group by client, rank_grouping, total_websites
+order by rank_grouping, client
