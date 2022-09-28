@@ -1,9 +1,14 @@
-#standardSQL
+# standardSQL
 # returns the number of unused preloaded resources
-
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload BOOLEAN, prefetch BOOLEAN, preconnect BOOLEAN, prerender BOOLEAN, `dns-prefetch` BOOLEAN, `modulepreload` BOOLEAN>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns struct < preload boolean,
+prefetch boolean,
+preconnect boolean,
+prerender boolean,
+`dns-prefetch` boolean,
+`modulepreload` boolean
+> language js
+as '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 try {
   var $ = JSON.parse(payload);
@@ -18,31 +23,32 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  ARRAY_LENGTH(value) AS num_unused_preload,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    REGEXP_EXTRACT_ALL(consoleLog, r'The resource (.*?) was preloaded using link preload but not used within a few seconds from the window\'s load event') AS value
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      JSON_EXTRACT(payload, '$._consoleLog') AS consoleLog,
-      getResourceHints(payload) AS hints
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-  WHERE hints.preload
-)
-GROUP BY
-  client,
-  num_unused_preload
-ORDER BY
-  client,
-  num_unused_preload
+    array_length(value) as num_unused_preload,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select
+            client,
+            regexp_extract_all(
+                consolelog,
+                r'The resource (.*?) was preloaded using link preload but not used within a few seconds from the window\'s load event'
+            ) as value
+        from
+            (
+                select
+                    _table_suffix as client,
+                    json_extract(payload, '$._consoleLog') as consolelog,
+                    getresourcehints(payload) as hints
+                from `httparchive.pages.2021_07_01_*`
+            )
+        where hints.preload
+    )
+group by client, num_unused_preload
+order by client, num_unused_preload

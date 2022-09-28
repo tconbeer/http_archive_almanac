@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getMaxColorStops(css STRING)
-RETURNS STRING
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getmaxcolorstops(css string)
+returns string
+language js
+options(library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -156,39 +156,34 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 # https://www.stevenmoseley.com/blog/tech/high-performance-sql-correlated-scalar-aggregate-reduction-queries
-CREATE TEMPORARY FUNCTION getGradient(value STRING) RETURNS STRING AS (
-  SUBSTR(value, 4)
-);
-CREATE TEMPORARY FUNCTION getStops(value STRING) RETURNS INT64 AS (
-  CAST(SUBSTR(value, 0, 3) AS INT64)
-);
+create temporary function getgradient(value string) returns string as (substr(value, 4))
+;
+create temporary function getstops(
+    value string
+) returns int64 as (cast(substr(value, 0, 3) as int64))
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(getStops(max_color_stops), 1000)[OFFSET(percentile * 10)] AS max_color_stops,
-  getGradient(APPROX_QUANTILES(max_color_stops, 1000)[OFFSET(percentile * 10)]) AS gradient
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
-    MAX(getMaxColorStops(css)) AS max_color_stops
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-WHERE
-  getStops(max_color_stops) > 0
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(getstops(max_color_stops), 1000)[
+        offset(percentile * 10)
+    ] as max_color_stops,
+    getgradient(
+        approx_quantiles(max_color_stops, 1000)[offset(percentile * 10)]
+    ) as gradient
+from
+    (
+        select client, page, max(getmaxcolorstops(css)) as max_color_stops
+        from `httparchive.almanac.parsed_css`
+        where date = '2020-08-01'
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+where getstops(max_color_stops) > 0
+group by percentile, client
+order by percentile, client

@@ -1,43 +1,34 @@
 # standardSQL
 # CDN Detail by CDN
-SELECT
-  percentile,
-  client,
-  firstHTML,
-  CDN,
-  ROUND(APPROX_QUANTILES(http2_pct, 1000)[OFFSET(percentile * 10)], 2) AS http2_pct
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
-    firstHTML,
-    CDN,
-    COUNTIF(http_version IN ('HTTP/2', 'QUIC', 'http/2+quic/46')) / COUNT(0) AS http2_pct
-  FROM (
-    SELECT
-      client,
-      page,
-      firstHTML,
-      IFNULL(REGEXP_EXTRACT(_cdn_provider, r'^([^,]*).*'), '') AS CDN,
-      url,
-      JSON_EXTRACT_SCALAR(payload, '$._protocol') AS http_version
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2020-08-01')
-  GROUP BY
-    client,
-    page,
-    firstHTML,
-    CDN),
-  UNNEST([0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  firstHTML,
-  CDN
-ORDER BY
-  percentile,
-  client,
-  firstHTML,
-  CDN
+    firsthtml,
+    cdn,
+    round(approx_quantiles(http2_pct, 1000)[offset(percentile * 10)], 2) as http2_pct
+from
+    (
+        select
+            client,
+            page,
+            firsthtml,
+            cdn,
+            countif(http_version in ('HTTP/2', 'QUIC', 'http/2+quic/46'))
+            / count(0) as http2_pct
+        from
+            (
+                select
+                    client,
+                    page,
+                    firsthtml,
+                    ifnull(regexp_extract(_cdn_provider, r'^([^,]*).*'), '') as cdn,
+                    url,
+                    json_extract_scalar(payload, '$._protocol') as http_version
+                from `httparchive.almanac.requests`
+                where date = '2020-08-01'
+            )
+        group by client, page, firsthtml, cdn
+    ),
+    unnest([0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 100]) as percentile
+group by percentile, client, firsthtml, cdn
+order by percentile, client, firsthtml, cdn

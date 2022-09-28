@@ -1,18 +1,27 @@
-#standardSQL
+# standardSQL
 # Usage of native lazy loading
-SELECT
-  client,
-  COUNTIF(total_img > 0) AS sites_with_images,
+select
+    client,
+    countif(total_img > 0) as sites_with_images,
 
-  COUNTIF(total_loading_attribute > 0) AS sites_using_loading_attribute,
-  COUNTIF(total_loading_attribute > 0) / COUNTIF(total_img > 0) AS pct_sites_using_loading_attribute
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.images.imgs.total') AS INT64) AS total_img,
-    SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.images.imgs.attribute_usage_count.loading') AS INT64) AS total_loading_attribute
-  FROM
-    `httparchive.pages.2020_08_01_*`
-)
-GROUP BY
-  client
+    countif(total_loading_attribute > 0) as sites_using_loading_attribute,
+    countif(total_loading_attribute > 0)
+    / countif(total_img > 0) as pct_sites_using_loading_attribute
+from
+    (
+        select
+            _table_suffix as client,
+            safe_cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'), '$.images.imgs.total'
+                ) as int64
+            ) as total_img,
+            safe_cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'),
+                    '$.images.imgs.attribute_usage_count.loading'
+                ) as int64
+            ) as total_loading_attribute
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

@@ -1,7 +1,10 @@
-#standardSQL
-#VF_axis_value
-CREATE TEMPORARY FUNCTION getFontVariationSettings(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+# standardSQL
+# VF_axis_value
+create temporary function getfontvariationsettings(css string)
+returns array
+< string
+> language js
+as '''
 try {
     var reduceValues = (values, rule) => {
         if ('rules' in rule) {
@@ -17,25 +20,21 @@ try {
 } catch (e) {
     return [];
 }
-''';
-SELECT
-  client,
-  REGEXP_EXTRACT(LOWER(values), '[\'"]([\\w]{4})[\'"]') AS axis,
-  CAST(REGEXP_EXTRACT(value, '\\d+') AS NUMERIC) AS num_axis,
-  COUNT(DISTINCT page) AS pages,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total,
-  COUNT(DISTINCT page) / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontVariationSettings(css)) AS value,
-  UNNEST(SPLIT(value, ',')) AS values
-WHERE
-  date = '2021-07-01'
-GROUP BY
-  client,
-  axis,
-  num_axis
-HAVING
-  axis IS NOT NULL
-ORDER BY
-  pages DESC
+'''
+;
+select
+    client,
+    regexp_extract(lower(values), '[\'"]([\\w]{4})[\'"]') as axis,
+    cast(regexp_extract(value, '\\d+') as numeric) as num_axis,
+    count(distinct page) as pages,
+    sum(count(distinct page)) over (partition by client) as total,
+    count(distinct page) / sum(count(distinct page)) over (partition by client) as pct
+from
+    `httparchive.almanac.parsed_css`,
+    unnest(getfontvariationsettings(css)) as value,
+    unnest(split(value, ',')) as
+values
+where date = '2021-07-01'
+group by client, axis, num_axis
+having axis is not null
+order by pages desc

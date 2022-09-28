@@ -1,6 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCustomPropertiesWithComputedStyle(payload STRING) RETURNS
-ARRAY<STRING> LANGUAGE js AS '''
+# standardSQL
+create temporary function getcustompropertieswithcomputedstyle(payload string) returns
+array
+< string
+> language js as '''
 try {
   var $ = JSON.parse(payload);
   var vars = JSON.parse($['_css-variables']);
@@ -38,16 +40,17 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT DISTINCT
-  _TABLE_SUFFIX AS client,
-  prop,
-  COUNT(DISTINCT url) OVER (PARTITION BY _TABLE_SUFFIX, prop) AS pages,
-  COUNT(DISTINCT url) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  COUNT(DISTINCT url) OVER (PARTITION BY _TABLE_SUFFIX, prop) / COUNT(DISTINCT url) OVER (PARTITION BY _TABLE_SUFFIX) AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getCustomPropertiesWithComputedStyle(payload)) AS prop
-ORDER BY
-  pct DESC
+select distinct
+    _table_suffix as client,
+    prop,
+    count(distinct url) over (partition by _table_suffix, prop) as pages,
+    count(distinct url) over (partition by _table_suffix) as total,
+    count(distinct url) over (partition by _table_suffix, prop)
+    / count(distinct url) over (partition by _table_suffix) as pct
+from
+    `httparchive.pages.2021_07_01_*`,
+    unnest(getcustompropertieswithcomputedstyle(payload)) as prop
+order by pct desc

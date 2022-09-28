@@ -1,8 +1,10 @@
-#standardSQL
+# standardSQL
 # percentage/count of pages that contain each element
-
-CREATE TEMPORARY FUNCTION get_element_types(element_count_string STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function get_element_types(element_count_string string)
+returns array
+< string
+> language js
+as '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 
@@ -15,30 +17,25 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  element_type,
-  COUNT(DISTINCT url) AS pages,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`
-JOIN (
-  SELECT _TABLE_SUFFIX, COUNT(0) AS total
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY _TABLE_SUFFIX
-)
-USING (_TABLE_SUFFIX),
-  UNNEST(get_element_types(JSON_EXTRACT_SCALAR(payload, '$._element_count'))) AS element_type
-GROUP BY
-  client,
-  total,
-  element_type
-ORDER BY
-  pct DESC,
-  client,
-  pages DESC
-LIMIT 1000
+select
+    _table_suffix as client,
+    element_type,
+    count(distinct url) as pages,
+    total,
+    count(distinct url) / total as pct
+from `httparchive.pages.2021_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    ) using (_table_suffix),
+    unnest(
+        get_element_types(json_extract_scalar(payload, '$._element_count'))
+    ) as element_type
+group by client, total, element_type
+order by pct desc, client, pages desc
+limit 1000

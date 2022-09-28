@@ -1,22 +1,18 @@
-#standardSQL
+# standardSQL
 # Percent of websites with CMP
+with
+    base as (
+        select
+            _table_suffix as client,
+            url,
+            logical_or(category = 'Cookie compliance') as with_cmp
+        from `httparchive.technologies.2020_08_01_*`
+        group by client, url
+    )
 
-WITH base AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    LOGICAL_OR(category = 'Cookie compliance') AS with_cmp
-  FROM `httparchive.technologies.2020_08_01_*`
-  GROUP BY
+select
     client,
-    url
-)
-
-SELECT
-  client,
-  COUNT(url) AS total_pages,
-  COUNTIF(with_cmp) / COUNT(url) AS pct_websites_with_cmp
-FROM
-  base
-GROUP BY
-  client
+    count(url) as total_pages,
+    countif(with_cmp) / count(url) as pct_websites_with_cmp
+from base
+group by client

@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getGlobalKeywords(css STRING)
-RETURNS ARRAY<STRUCT<property STRING, keyword STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getglobalkeywords(css string)
+returns array < struct < property string,
+keyword string,
+freq int64 >> language js
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {};
@@ -35,42 +35,33 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  *,
-  pages / total_pages AS pct_pages
-FROM (
-  SELECT
-    client,
-    kw.keyword,
-    kw.property,
-    SUM(kw.freq) AS freq,
-    SUM(SUM(IF(kw.property = 'total', 0, kw.freq))) OVER (PARTITION BY client, kw.keyword) AS total,
-    SUM(kw.freq) / SUM(SUM(IF(kw.property = 'total', 0, kw.freq))) OVER (PARTITION BY client, kw.keyword) AS pct,
-    COUNT(DISTINCT page) AS pages
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getGlobalKeywords(css)) AS kw
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    keyword,
-    property)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-WHERE
-  pct >= 0.01
-ORDER BY
-  client,
-  keyword,
-  pct DESC
+select *, pages / total_pages as pct_pages
+from
+    (
+        select
+            client,
+            kw.keyword,
+            kw.property,
+            sum(kw.freq) as freq,
+            sum(sum(if(kw.property = 'total', 0, kw.freq))) over (
+                partition by client, kw.keyword
+            ) as total,
+            sum(kw.freq) / sum(sum(if(kw.property = 'total', 0, kw.freq))) over (
+                partition by client, kw.keyword
+            ) as pct,
+            count(distinct page) as pages
+        from `httparchive.almanac.parsed_css`, unnest(getglobalkeywords(css)) as kw
+        where date = '2020-08-01'
+        group by client, keyword, property
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    ) using (client)
+where pct >= 0.01
+order by client, keyword, pct desc

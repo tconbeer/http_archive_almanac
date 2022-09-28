@@ -1,9 +1,9 @@
-#standardSQL
+# standardSQL
 # frequency of the number of element used on a page
-
 # returns all the data we need from _element_count
-CREATE TEMPORARY FUNCTION get_element_COUNT(element_count_string STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function get_element_count(element_count_string string)
+returns int64 language js
+as '''
 try {
     if (!element_count_string) return null;
 
@@ -15,19 +15,14 @@ try {
 
 } catch (e) {}
 return null;
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  get_element_COUNT(JSON_EXTRACT_SCALAR(payload, '$._element_count')) AS elements,
-  COUNT(0) AS freq
-FROM
-  `httparchive.pages.2020_08_01_*`
-GROUP BY
-  elements,
-  client
-HAVING
-  elements <= 2000
-ORDER BY
-  elements,
-  client
+select
+    _table_suffix as client,
+    get_element_count(json_extract_scalar(payload, '$._element_count')) as elements,
+    count(0) as freq
+from `httparchive.pages.2020_08_01_*`
+group by elements, client
+having elements <= 2000
+order by elements, client

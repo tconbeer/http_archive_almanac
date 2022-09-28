@@ -1,10 +1,8 @@
-#standardSQL
+# standardSQL
 # page almanac metrics grouped by device and html lang
-
-
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_html_lang(almanac_string STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function get_almanac_html_lang(almanac_string string)
+returns string language js as '''
 try {
     var almanac = JSON.parse(almanac_string);
 
@@ -16,31 +14,44 @@ try {
 
 } catch (e) {}
 return '';
-''';
+'''
+;
 
-SELECT
-  client,
-  IF(IFNULL(TRIM(almanac_html_lang), '') = '', '(not set)', almanac_html_lang) AS html_lang_country,
-  IF(
-    IFNULL(TRIM(SUBSTR(almanac_html_lang, 0, LENGTH(almanac_html_lang) - STRPOS(almanac_html_lang, '-'))), '') = '',
-    '(not set)',
-    SUBSTR(almanac_html_lang, 0, LENGTH(almanac_html_lang) - STRPOS(almanac_html_lang, '-'))
-  ) AS html_lang,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_almanac_html_lang(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_html_lang
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-GROUP BY
-  client,
-  almanac_html_lang
-ORDER BY
-  pct DESC,
-  client,
-  freq DESC
+select
+    client,
+    if(
+        ifnull(trim(almanac_html_lang), '') = '', '(not set)', almanac_html_lang
+    ) as html_lang_country,
+    if(
+        ifnull(
+            trim(
+                substr(
+                    almanac_html_lang,
+                    0,
+                    length(almanac_html_lang) - strpos(almanac_html_lang, '-')
+                )
+            ),
+            ''
+        )
+        = '',
+        '(not set)',
+        substr(
+            almanac_html_lang,
+            0,
+            length(almanac_html_lang) - strpos(almanac_html_lang, '-')
+        )
+    ) as html_lang,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            get_almanac_html_lang(
+                json_extract_scalar(payload, '$._almanac')
+            ) as almanac_html_lang
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client, almanac_html_lang
+order by pct desc, client, freq desc

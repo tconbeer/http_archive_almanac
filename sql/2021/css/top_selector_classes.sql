@@ -1,15 +1,12 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
-RETURNS STRUCT<
-  class ARRAY<STRING>,
-  id ARRAY<STRING>,
-  attribute ARRAY<STRING>,
-  pseudo_class ARRAY<STRING>,
-  pseudo_element ARRAY<STRING>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getselectorparts(css string)
+returns struct < class array < string >,
+id array < string >,
+attribute array < string >,
+pseudo_class array < string >,
+pseudo_element array < string > >
+language js
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   function compute(ast) {
     let ret = {
@@ -55,36 +52,27 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  pages,
-  class.value AS class,
-  class.count AS freq,
-  class.count / pages AS pct
-FROM (
-  SELECT
-    client,
-    COUNT(DISTINCT page) AS pages,
-    APPROX_TOP_COUNT(class, 100) AS classes
-  FROM (
-      SELECT DISTINCT
-        client,
-        page,
-        class
-      FROM
-        `httparchive.almanac.parsed_css`
-      LEFT JOIN
-        UNNEST(getSelectorParts(css).class) AS class
-      WHERE
-        date = '2021-07-01' AND
-        # Limit the size of the CSS to avoid OOM crashes.
-        LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client),
-  UNNEST(classes) AS class
-WHERE
-  class.value IS NOT NULL
-ORDER BY
-  pct DESC
+select
+    client, pages, class.value as class, class.count as freq, class.count / pages as pct
+from
+    (
+        select
+            client,
+            count(distinct page) as pages,
+            approx_top_count(class, 100) as classes
+        from
+            (
+                select distinct client, page, class
+                from `httparchive.almanac.parsed_css`
+                left join unnest(getselectorparts(css).class) as class
+                # Limit the size of the CSS to avoid OOM crashes.
+                where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client
+    ),
+    unnest(classes) as class
+where class.value is not null
+order by pct desc
