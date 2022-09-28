@@ -32,7 +32,8 @@ select
 from
     `httparchive.almanac.parsed_css`,
     unnest(getfontvariationsettings(css)) as value,
-    unnest(split(value, ',')) as values
+    unnest(split(value, ',')) as
+values
 where date = '2021-07-01'
 group by client, axis, num_axis
 having axis is not null

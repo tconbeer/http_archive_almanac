@@ -29,10 +29,8 @@ select
     count(0) as freq,
     sum(count(0)) over (partition by client) as total,
     round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
-from
-    `httparchive.almanac.parsed_css`,
-    unnest(getfontvariationsettings(css)) as values,
-    unnest(split(values, ',')) as value
+from `httparchive.almanac.parsed_css`, unnest(getfontvariationsettings(css)) as
+values, unnest(split(values, ',')) as value
 where date = '2019-07-01'
 group by client, axis
 having axis is not null

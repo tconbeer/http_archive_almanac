@@ -50,10 +50,8 @@ select
         / sum(count(0)) over (partition by client),
         2
     ) as pct_over_20
-from
-    `httparchive.almanac.parsed_css`,
-    unnest(getfontvariationsettings(css)) as values,
-    unnest(split(values, ',')) as value
+from `httparchive.almanac.parsed_css`, unnest(getfontvariationsettings(css)) as
+values, unnest(split(values, ',')) as value
 where date = '2019-07-01'
 group by client, axis
 having axis is not null

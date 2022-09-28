@@ -1,10 +1,11 @@
 # standardSQL
 create temporary function getshorthandvaluecounts(css string)
 returns array < struct < property string,
-values array < int64 >> >
-language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+values
+    array < int64 >> >
+    language js
+    options(library = "gs://httparchive/lib/css-utils.js")
+    as '''
 try {
   function compute(ast) {
     let ret = {
@@ -457,7 +458,7 @@ from
         from
             `httparchive.almanac.parsed_css`,
             unnest(getshorthandvaluecounts(css)) as shorthand,
-            unnest(shorthand.values) as value
+            unnest(shorthand. values) as value
         where date = '2021-07-01'
     ),
     unnest([10, 25, 50, 75, 90]) as percentile

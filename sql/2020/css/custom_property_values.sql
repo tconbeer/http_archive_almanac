@@ -21,11 +21,8 @@ select
     count(distinct url) / total as pct
 from
     (
-        select
-            _table_suffix as client,
-            url,
-            getcustompropertyvalues(payload) as values,
-            total
+        select _table_suffix as client, url, getcustompropertyvalues(payload) as
+        values, total
         from `httparchive.pages.2020_08_01_*`
         join
             (

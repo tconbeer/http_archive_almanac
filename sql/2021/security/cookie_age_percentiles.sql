@@ -38,7 +38,8 @@ as '''
 
 with
     age_values as (
-        select client, getcookieagevalues(response_headers, starteddatetime) as values
+        select client, getcookieagevalues(response_headers, starteddatetime) as
+        values
         from `httparchive.almanac.requests`
         where date = '2021-07-01'
     ),

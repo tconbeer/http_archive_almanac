@@ -23,10 +23,8 @@ from
         select
             _table_suffix as client,
             url,
-            getcustompropertyvalues(
-                json_value(payload, '$."_css-variables"')
-            ) as values,
-            total
+            getcustompropertyvalues(json_value(payload, '$."_css-variables"')) as
+        values, total
         from `httparchive.pages.2021_07_01_*`
         join
             (
