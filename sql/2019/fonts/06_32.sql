@@ -1,22 +1,17 @@
-#standardSQL
+# standardSQL
 # 06_32: Top font hosts
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    NET.HOST(url) AS host,
-    COUNT(0) AS freq,
-    SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-    ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01' AND
-    type = 'font'
-  GROUP BY
-    client,
-    host
-  ORDER BY
-    freq / total DESC)
-LIMIT 100
+select *
+from
+    (
+        select
+            client,
+            net.host(url) as host,
+            count(0) as freq,
+            sum(count(0)) over (partition by client) as total,
+            round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01' and type = 'font'
+        group by client, host
+        order by freq / total desc
+    )
+limit 100

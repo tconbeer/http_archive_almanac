@@ -1,8 +1,10 @@
-#standardSQL
+# standardSQL
 # Cross domain image requests
-CREATE TEMPORARY FUNCTION get_images(images_string STRING)
-RETURNS ARRAY<STRUCT<url STRING>>
-LANGUAGE js AS '''
+create temporary function get_images(images_string string)
+returns array
+< struct
+< url string
+>> language js as '''
 var result = [];
 try {
   var images = JSON.parse(images_string);
@@ -13,21 +15,23 @@ try {
   }
 } catch (e) {}
 return result;
-''';
-SELECT
-  client,
-  COUNT(DISTINCT pageUrl) AS pages,
-  count(0) AS images,
-  SAFE_DIVIDE(COUNTIF(pageDomain = imageDomain), COUNT(0)) AS img_xdomain_pct,
-  SAFE_DIVIDE(COUNTIF(pageDomain != imageDomain), COUNT(0)) AS img_samedomain_pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    a.url AS pageUrl,
-    FORMAT('%T', NET.REG_DOMAIN(a.url)) AS pageDomain,
-    FORMAT('%T', NET.REG_DOMAIN(imageurl.url)) AS imageDomain
-  FROM
-    `httparchive.pages.2021_07_01_*` a,
-    UNNEST(get_images(JSON_EXTRACT_SCALAR(payload, '$._Images'))) AS imageurl)
-GROUP BY
-  client
+'''
+;
+select
+    client,
+    count(distinct pageurl) as pages,
+    count(0) as images,
+    safe_divide(countif(pagedomain = imagedomain), count(0)) as img_xdomain_pct,
+    safe_divide(countif(pagedomain != imagedomain), count(0)) as img_samedomain_pct
+from
+    (
+        select
+            _table_suffix as client,
+            a.url as pageurl,
+            format('%T', net.reg_domain(a.url)) as pagedomain,
+            format('%T', net.reg_domain(imageurl.url)) as imagedomain
+        from
+            `httparchive.pages.2021_07_01_*` a,
+            unnest(get_images(json_extract_scalar(payload, '$._Images'))) as imageurl
+    )
+group by client

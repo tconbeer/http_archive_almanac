@@ -1,17 +1,22 @@
-#standardSQL
+# standardSQL
 # Sites containing elements with role='tab', aria-selected and aria-controls attributes
-SELECT
-  client,
-  COUNT(0) AS total_sites,
+select
+    client,
+    count(0) as total_sites,
 
-  COUNTIF(total_tab_selected_controls > 0) AS total_with_tab_selected_controls,
-  COUNTIF(total_tab_selected_controls > 0) / COUNT(0) AS pct_with_tab_selected_controls
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._a11y'), '$.total_role_tab_with_selected_and_controls') AS INT64) AS total_tab_selected_controls
-  FROM
-    `httparchive.pages.2020_08_01_*`
-)
-GROUP BY
-  client
+    countif(total_tab_selected_controls > 0) as total_with_tab_selected_controls,
+    countif(total_tab_selected_controls > 0)
+    / count(0) as pct_with_tab_selected_controls
+from
+    (
+        select
+            _table_suffix as client,
+            cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._a11y'),
+                    '$.total_role_tab_with_selected_and_controls'
+                ) as int64
+            ) as total_tab_selected_controls
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

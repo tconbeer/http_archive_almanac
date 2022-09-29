@@ -1,35 +1,22 @@
-#standardSQL
+# standardSQL
 # Sum of JS request bytes per page by framework (2020)
-SELECT
-  percentile,
-  client,
-  app AS js_framework,
-  COUNT(DISTINCT page) AS pages,
-  APPROX_QUANTILES(bytesJs / 1024, 1000)[OFFSET(percentile * 10)] AS js_kilobytes
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    bytesJs
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`)
-JOIN (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    app
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'JavaScript frameworks')
-USING
-  (client, page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  js_framework
-ORDER BY
-  percentile,
-  client,
-  pages DESC
+select
+    percentile,
+    client,
+    app as js_framework,
+    count(distinct page) as pages,
+    approx_quantiles(bytesjs / 1024, 1000)[offset(percentile * 10)] as js_kilobytes
+from
+    (
+        select _table_suffix as client, url as page, bytesjs
+        from `httparchive.summary_pages.2021_07_01_*`
+    )
+join
+    (
+        select distinct _table_suffix as client, url as page, app
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'JavaScript frameworks'
+    ) using (client, page),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client, js_framework
+order by percentile, client, pages desc

@@ -1,27 +1,27 @@
-#standardSQL
+# standardSQL
 # pages almanac metrics grouped by device
-
 # real run estimated at $4.08 and took 48 seconds
-
-# to speed things up there is only one js function per custom metric property. It returns a STRUCT with all the data needed
+# to speed things up there is only one js function per custom metric property. It
+# returns a STRUCT with all the data needed
 # current test gathers 3 bits of incormation from the custom petric properties
-# I tried to do a single js function processing the whole payload but it was very slow (50 sec) because of parsing the full payload in js
-# this uses JSON_EXTRACT_SCALAR to first get the custom metrics json string, and only passes those into the js functions
-# Estimate about twice the speed of the original code. But should scale up far better as the custom metrics are only parsed once.
-
-
+# I tried to do a single js function processing the whole payload but it was very slow
+# (50 sec) because of parsing the full payload in js
+# this uses JSON_EXTRACT_SCALAR to first get the custom metrics json string, and only
+# passes those into the js functions
+# Estimate about twice the speed of the original code. But should scale up far better
+# as the custom metrics are only parsed once.
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_info(almanac_string STRING)
-RETURNS STRUCT<
-  scripts_total INT64,
-  none_jsonld_scripts_total INT64,
-  src_scripts_total INT64,
-  inline_scripts_total INT64,
-  good_heading_sequence BOOL,
-  contains_videos_with_autoplay BOOL,
-  contains_videos_without_autoplay BOOL,
-  html_node_lang STRING
-> LANGUAGE js AS '''
+create temporary function get_almanac_info(almanac_string string)
+returns struct < scripts_total int64,
+none_jsonld_scripts_total int64,
+src_scripts_total int64,
+inline_scripts_total int64,
+good_heading_sequence bool,
+contains_videos_with_autoplay bool,
+contains_videos_without_autoplay bool,
+html_node_lang string
+> language js
+as '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -63,43 +63,49 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # has scripts that are not jsonld ones. i.e. has a none jsonld script.
-  COUNTIF(almanac_info.none_jsonld_scripts_total > 0) / COUNT(0) AS pct_contains_none_jsonld_scripts,
+    # has scripts that are not jsonld ones. i.e. has a none jsonld script.
+    countif(almanac_info.none_jsonld_scripts_total > 0)
+    / count(0) as pct_contains_none_jsonld_scripts,
 
-  # has inline scripts
-  COUNTIF(almanac_info.inline_scripts_total > 0) / COUNT(0) AS pct_contains_inline_scripts,
+    # has inline scripts
+    countif(almanac_info.inline_scripts_total > 0)
+    / count(0) as pct_contains_inline_scripts,
 
-  # has src scripts
-  COUNTIF(almanac_info.src_scripts_total > 0) / COUNT(0) AS pct_contains_src_scripts,
+    # has src scripts
+    countif(almanac_info.src_scripts_total > 0) / count(0) as pct_contains_src_scripts,
 
-  # has no scripts
-  COUNTIF(almanac_info.scripts_total = 0) / COUNT(0) AS pct_contains_no_scripts,
+    # has no scripts
+    countif(almanac_info.scripts_total = 0) / count(0) as pct_contains_no_scripts,
 
-  # Does the heading logical sequence make any sense
-  COUNTIF(almanac_info.good_heading_sequence) / COUNT(0) AS pct_good_heading_sequence,
+    # Does the heading logical sequence make any sense
+    countif(almanac_info.good_heading_sequence) / count(0) as pct_good_heading_sequence,
 
-  # pages with autoplaying video elements
-  COUNTIF(almanac_info.contains_videos_with_autoplay) / COUNT(0) AS pct_contains_videos_with_autoplay,
+    # pages with autoplaying video elements
+    countif(almanac_info.contains_videos_with_autoplay)
+    / count(0) as pct_contains_videos_with_autoplay,
 
-  # pages without autoplaying video elements
-  COUNTIF(almanac_info.contains_videos_without_autoplay) / COUNT(0) AS pct_contains_videos_without_autoplay,
+    # pages without autoplaying video elements
+    countif(almanac_info.contains_videos_without_autoplay)
+    / count(0) as pct_contains_videos_without_autoplay,
 
-  # pages with no html lang attribute
-  COUNTIF(almanac_info.html_node_lang IS NULL OR LENGTH(almanac_info.html_node_lang) = 0) / COUNT(0) AS pct_no_html_lang
+    # pages with no html lang attribute
+    countif(
+        almanac_info.html_node_lang is null or length(almanac_info.html_node_lang) = 0
+    )
+    / count(0) as pct_no_html_lang
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_almanac_info(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-GROUP BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            get_almanac_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

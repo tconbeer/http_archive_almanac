@@ -1,9 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getPaintWorklets(css STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getpaintworklets(css string)
+returns array < struct < name string,
+freq int64 >> language js
+options(library = "gs://httparchive/lib/css-utils.js") as '''
 try {
   var ast = JSON.parse(css);
   var ret = {};
@@ -24,28 +23,21 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  worklet,
-  COUNT(DISTINCT url) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    url,
-    paint.name AS worklet,
-    paint.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getPaintWorklets(css)) AS paint
-  WHERE
-    date = '2021-07-01')
-GROUP BY
-  client,
-  worklet
-ORDER BY
-  pct DESC
+    worklet,
+    count(distinct url) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, url, paint.name as worklet, paint.freq
+        from `httparchive.almanac.parsed_css`, unnest(getpaintworklets(css)) as paint
+        where date = '2021-07-01'
+    )
+group by client, worklet
+order by pct desc

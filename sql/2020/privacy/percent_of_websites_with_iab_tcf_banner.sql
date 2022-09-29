@@ -1,20 +1,18 @@
-#standardSQL
+# standardSQL
 # Percent of pages with IAB Transparency & Consent Framework
+with
+    pages_privacy as (
+        select
+            _table_suffix as client,
+            json_extract_scalar(payload, '$._privacy') as metrics
+        from `httparchive.pages.2020_08_01_*`
+    )
 
-WITH pages_privacy AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    JSON_EXTRACT_SCALAR(payload, '$._privacy') AS metrics
-  FROM
-    `httparchive.pages.2020_08_01_*`
-)
-
-SELECT
-  client,
-  COUNT(0) AS total_websites,
-  COUNTIF(JSON_EXTRACT_SCALAR(metrics, '$.iab_tcf') = '1') AS websites_with_iab,
-  COUNTIF(JSON_EXTRACT_SCALAR(metrics, '$.iab_tcf') = '1') / COUNT(0) AS pct_iab_banner_pages
-FROM
-  pages_privacy
-GROUP BY
-  client
+select
+    client,
+    count(0) as total_websites,
+    countif(json_extract_scalar(metrics, '$.iab_tcf') = '1') as websites_with_iab,
+    countif(json_extract_scalar(metrics, '$.iab_tcf') = '1')
+    / count(0) as pct_iab_banner_pages
+from pages_privacy
+group by client

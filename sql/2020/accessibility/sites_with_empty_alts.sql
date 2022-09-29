@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # % of sites with empty alt tags
-CREATE TEMPORARY FUNCTION getAltStats(payload STRING)
-RETURNS STRUCT<has_alts BOOL, has_alt_of_zero_length BOOL> LANGUAGE js AS '''
+create temporary function getaltstats(payload string)
+returns struct < has_alts bool,
+has_alt_of_zero_length bool
+> language js as '''
 try {
   const almanac = JSON.parse(payload);
   const alt_lengths = almanac.images.alt_lengths;
@@ -16,20 +18,21 @@ try {
     has_alt_of_zero_length: false,
   };
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(alt_stats.has_alts) AS total_sites_with_alts,
-  COUNTIF(alt_stats.has_alt_of_zero_length) AS total_sites_with_zero_length_alt,
+select
+    client,
+    countif(alt_stats.has_alts) as total_sites_with_alts,
+    countif(alt_stats.has_alt_of_zero_length) as total_sites_with_zero_length_alt,
 
-  COUNTIF(alt_stats.has_alt_of_zero_length) / COUNTIF(alt_stats.has_alts) AS perc_sites_with_zero_length_alt
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getAltStats(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS alt_stats
-  FROM
-    `httparchive.pages.2020_08_01_*`
-)
-GROUP BY
-  client
+    countif(alt_stats.has_alt_of_zero_length)
+    / countif(alt_stats.has_alts) as perc_sites_with_zero_length_alt
+from
+    (
+        select
+            _table_suffix as client,
+            getaltstats(json_extract_scalar(payload, '$._almanac')) as alt_stats
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

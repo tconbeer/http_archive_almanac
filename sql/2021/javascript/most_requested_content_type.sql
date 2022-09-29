@@ -1,22 +1,22 @@
-SELECT
-  client,
-  CASE
-    WHEN resp_content_type LIKE '%image%' THEN 'images'
-    WHEN resp_content_type LIKE '%font%' THEN 'font'
-    WHEN resp_content_type LIKE '%css%' THEN 'css'
-    WHEN resp_content_type LIKE '%javascript%' THEN 'javascript'
-    WHEN resp_content_type LIKE '%json%' THEN 'json'
-    ELSE 'other'
-  END AS content_type,
-  COUNT(0) AS count,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2021-07-01'
-GROUP BY
-  client,
-  content_type
-ORDER BY
-  pct DESC
+select
+    client,
+    case
+        when resp_content_type like '%image%'
+        then 'images'
+        when resp_content_type like '%font%'
+        then 'font'
+        when resp_content_type like '%css%'
+        then 'css'
+        when resp_content_type like '%javascript%'
+        then 'javascript'
+        when resp_content_type like '%json%'
+        then 'json'
+        else 'other'
+    end as content_type,
+    count(0) as count,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from `httparchive.almanac.requests`
+where date = '2021-07-01'
+group by client, content_type
+order by pct desc

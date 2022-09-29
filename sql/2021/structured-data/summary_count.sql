@@ -1,33 +1,35 @@
-#standardSQL
+# standardSQL
 # A summary count of the pages run against
-SELECT
-  client,
-  COUNTIF(success IS NOT NULL) AS success,
-  COUNTIF(errors IS NOT NULL) AS errors,
-  COUNTIF(success IS NOT NULL AND errors IS NULL) AS success_no_errors,
-  COUNTIF(errors IS NOT NULL AND success IS NULL) AS errors_no_success,
-  COUNTIF(success IS NOT NULL AND errors IS NOT NULL) AS success_errors,
-  COUNTIF(success IS NULL AND errors IS NULL) AS no_success_no_errors,
-  COUNTIF(success IS NOT NULL) / COUNT(0) AS pct_success,
-  COUNTIF(errors IS NOT NULL) / COUNT(0) AS pct_errors,
-  COUNTIF(success IS NOT NULL AND errors IS NULL) / COUNT(0) AS pct_success_no_errors,
-  COUNTIF(errors IS NOT NULL AND success IS NULL) / COUNT(0) AS pct_errors_no_success,
-  COUNTIF(success IS NOT NULL AND errors IS NOT NULL) / COUNT(0) AS pct_success_errors,
-  COUNTIF(success IS NULL AND errors IS NULL) / COUNT(0) AS pct_no_success_no_errors
-FROM (
-  SELECT
+select
     client,
-    JSON_EXTRACT(structured_data, '$.structured_data') AS success,
-    JSON_EXTRACT(structured_data, '$.log') AS errors
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      JSON_VALUE(JSON_EXTRACT(payload, '$._structured-data')) AS structured_data
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-)
-GROUP BY
-  client
-ORDER BY
-  client
+    countif(success is not null) as success,
+    countif(errors is not null) as errors,
+    countif(success is not null and errors is null) as success_no_errors,
+    countif(errors is not null and success is null) as errors_no_success,
+    countif(success is not null and errors is not null) as success_errors,
+    countif(success is null and errors is null) as no_success_no_errors,
+    countif(success is not null) / count(0) as pct_success,
+    countif(errors is not null) / count(0) as pct_errors,
+    countif(success is not null and errors is null) / count(0) as pct_success_no_errors,
+    countif(errors is not null and success is null) / count(0) as pct_errors_no_success,
+    countif(success is not null and errors is not null)
+    / count(0) as pct_success_errors,
+    countif(success is null and errors is null) / count(0) as pct_no_success_no_errors
+from
+    (
+        select
+            client,
+            json_extract(structured_data, '$.structured_data') as success,
+            json_extract(structured_data, '$.log') as errors
+        from
+            (
+                select
+                    _table_suffix as client,
+                    json_value(
+                        json_extract(payload, '$._structured-data')
+                    ) as structured_data
+                from `httparchive.pages.2021_07_01_*`
+            )
+    )
+group by client
+order by client
