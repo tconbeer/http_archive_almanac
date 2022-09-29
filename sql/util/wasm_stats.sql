@@ -1,5 +1,6 @@
 create or replace table `httparchive.almanac.wasm_stats`  -- noqa: disable=L044
-partition by date cluster by client as
+partition by date
+cluster by client as
 select date('2021-09-01') as date, *
 from
     (
