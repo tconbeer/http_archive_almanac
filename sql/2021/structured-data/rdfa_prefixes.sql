@@ -15,54 +15,49 @@ LANGUAGE js AS r"""
   }
 """;
 
-WITH
-rendered_data AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    getRDFaPrefixes(JSON_EXTRACT(JSON_VALUE(JSON_EXTRACT(payload, '$._structured-data')), '$.structured_data.rendered')) AS rdfa_prefixes
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+with
+    rendered_data as (
+        select
+            _table_suffix as client,
+            url,
+            getrdfaprefixes(
+                json_extract(
+                    json_value(json_extract(payload, '$._structured-data')),
+                    '$.structured_data.rendered'
+                )
+            ) as rdfa_prefixes
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-page_totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-)
+    page_totals as (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
 
-SELECT
-  client,
-  rdfa_prefix,
-  COUNT(rdfa_prefix) AS freq_rdfa,
-  SUM(COUNT(rdfa_prefix)) OVER (PARTITION BY client) AS total_rdfa,
-  COUNT(rdfa_prefix) / SUM(COUNT(rdfa_prefix)) OVER (PARTITION BY client) AS pct_rdfa,
-  COUNT(DISTINCT url) AS freq_pages,
-  total_pages,
-  COUNT(DISTINCT url) / total_pages AS pct_pages
-FROM (
-  SELECT
+select
     client,
-    url,
-    -- Removes the protocol and any subdomains from the URL.
-    -- e.g. "https://my.example.com/pathname" becomes "example.com/pathname"
-    -- This is done to normalize the URL a bit before counting.
-    CONCAT(NET.REG_DOMAIN(rdfa_prefix), SPLIT(rdfa_prefix, NET.REG_DOMAIN(rdfa_prefix))[SAFE_OFFSET(1)]) AS rdfa_prefix
-  FROM
-    rendered_data,
-    UNNEST(rdfa_prefixes) AS rdfa_prefix
-)
-JOIN
-  page_totals
-USING (client)
-GROUP BY
-  client,
-  rdfa_prefix,
-  total_pages
-ORDER BY
-  pct_rdfa DESC,
-  client
+    rdfa_prefix,
+    count(rdfa_prefix) as freq_rdfa,
+    sum(count(rdfa_prefix)) over (partition by client) as total_rdfa,
+    count(rdfa_prefix) / sum(count(rdfa_prefix)) over (partition by client) as pct_rdfa,
+    count(distinct url) as freq_pages,
+    total_pages,
+    count(distinct url) / total_pages as pct_pages
+from
+    (
+        select
+            client,
+            url,
+            -- Removes the protocol and any subdomains from the URL.
+            -- e.g. "https://my.example.com/pathname" becomes "example.com/pathname"
+            -- This is done to normalize the URL a bit before counting.
+            concat(
+                net.reg_domain(rdfa_prefix),
+                split(rdfa_prefix, net.reg_domain(rdfa_prefix))[safe_offset(1)]
+            ) as rdfa_prefix
+        from rendered_data, unnest(rdfa_prefixes) as rdfa_prefix
+    )
+join page_totals using (client)
+group by client, rdfa_prefix, total_pages
+order by pct_rdfa desc, client

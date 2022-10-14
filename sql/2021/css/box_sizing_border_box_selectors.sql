@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Top selectors used with box-sizing: border-box
 CREATE TEMP FUNCTION
 getBorderBoxSelectors(css STRING)
@@ -25,41 +25,33 @@ try {
   return [];
 }
 ''';
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    selector,
-    COUNT(DISTINCT page) AS pages,
-    ANY_VALUE(total_pages) AS total_pages,
-    COUNT(DISTINCT page) / ANY_VALUE(total_pages) AS pct_pages,
-    COUNT(0) AS freq,
-    SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-    COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-  FROM (
-    SELECT
-      client,
-      page,
-      selector
-    FROM
-      `httparchive.almanac.parsed_css`,
-      UNNEST(getBorderBoxSelectors(css)) AS selector
-    WHERE
-      date = '2021-07-01')
-  JOIN (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      COUNT(0) AS total_pages
-    FROM
-      `httparchive.summary_pages.2021_07_01_*`
-    GROUP BY
-      client)
-  USING
-    (client)
-  GROUP BY
-    client,
-    selector)
-ORDER BY
-  pct DESC
-LIMIT 1000
+select *
+from
+    (
+        select
+            client,
+            selector,
+            count(distinct page) as pages,
+            any_value(total_pages) as total_pages,
+            count(distinct page) / any_value(total_pages) as pct_pages,
+            count(0) as freq,
+            sum(count(0)) over (partition by client) as total,
+            count(0) / sum(count(0)) over (partition by client) as pct
+        from
+            (
+                select client, page, selector
+                from
+                    `httparchive.almanac.parsed_css`,
+                    unnest(getborderboxselectors(css)) as selector
+                where date = '2021-07-01'
+            )
+        join
+            (
+                select _table_suffix as client, count(0) as total_pages
+                from `httparchive.summary_pages.2021_07_01_*`
+                group by client
+            ) using (client)
+        group by client, selector
+    )
+order by pct desc
+limit 1000

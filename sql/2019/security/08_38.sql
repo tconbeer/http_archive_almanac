@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 08_38: Cookie prefixes
 CREATE TEMPORARY FUNCTION extractHeader(payload STRING, name STRING)
 RETURNS STRING LANGUAGE js AS '''
@@ -14,26 +14,22 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  prefix,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  `httparchive.almanac.requests`,
-  UNNEST(SPLIT(extractHeader(payload, 'Set-Cookie'), ';')) AS directive,
-  UNNEST(REGEXP_EXTRACT_ALL(directive, '(__Host-|__Secure-)')) AS prefix
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (client)
-WHERE
-  date = '2019-07-01' AND
-  firstHtml AND
-  prefix IS NOT NULL
-GROUP BY
-  client,
-  total,
-  prefix
-ORDER BY
-  pages / total DESC
+select
+    client,
+    prefix,
+    count(distinct page) as pages,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from
+    `httparchive.almanac.requests`,
+    unnest(split(extractheader(payload, 'Set-Cookie'), ';')) as directive,
+    unnest(regexp_extract_all(directive, '(__Host-|__Secure-)')) as prefix
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+where date = '2019-07-01' and firsthtml and prefix is not null
+group by client, total, prefix
+order by pages / total desc

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 06_21: % of pages with VF using font-variation-settings
 CREATE TEMPORARY FUNCTION usesFontVariationSettings(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -19,35 +19,30 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNT(0) AS freq,
-  total,
-  ROUND(COUNT(0) * 100 / total, 2) AS pct
-FROM (
-  SELECT
-    client,
-    page
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    page
-  HAVING
-    SUM(ARRAY_LENGTH(usesFontVariationSettings(css))) > 0)
-JOIN
-  (SELECT client, page
-    FROM `httparchive.almanac.requests`
-    WHERE date = '2019-07-01' AND type = 'font' AND JSON_EXTRACT_SCALAR(payload, '$._font_details.table_sizes.gvar') IS NOT NULL
-    GROUP BY client, page)
-USING
-  (client, page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+select client, count(0) as freq, total, round(count(0) * 100 / total, 2) as pct
+from
+    (
+        select client, page
+        from `httparchive.almanac.parsed_css`
+        where date = '2019-07-01'
+        group by client, page
+        having sum(array_length(usesfontvariationsettings(css))) > 0
+    )
+join
+    (
+        select client, page
+        from `httparchive.almanac.requests`
+        where
+            date = '2019-07-01'
+            and type = 'font'
+            and json_extract_scalar(payload, '$._font_details.table_sizes.gvar')
+            is not null
+        group by client, page
+    ) using (client, page)
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    ) using (client)
+group by client, total

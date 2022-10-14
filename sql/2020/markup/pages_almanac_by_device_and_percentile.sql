@@ -1,8 +1,6 @@
-#standardSQL
+# standardSQL
 # percientile data from almanac per device
-
 # live run estimated $4.08 and took 2 min 28 sec
-
 # returns all the data we need from _almanac
 CREATE TEMPORARY FUNCTION get_almanac_info(almanac_string STRING)
 RETURNS STRUCT<
@@ -31,33 +29,35 @@ try {
 return result;
 ''';
 
-SELECT
-  percentile,
-  client,
-  COUNT(DISTINCT url) AS total,
-
-  # scripts per page
-  APPROX_QUANTILES(almanac_info.none_jsonld_scripts_total, 1000)[OFFSET(percentile * 10)] AS none_jsonld_scripts_count_m205,
-
-  # inline scripts ex jsonld
-  APPROX_QUANTILES(almanac_info.inline_scripts_total, 1000)[OFFSET(percentile * 10)] AS inline_scripts_count_m207,
-
-  # src scripts
-  APPROX_QUANTILES(almanac_info.src_scripts_total, 1000)[OFFSET(percentile * 10)] AS src_scripts_count_m209
-
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
     percentile,
-    url,
-    get_almanac_info(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-  FROM
-    `httparchive.pages.2020_08_01_*`,
-    UNNEST([10, 25, 50, 75, 90]) AS percentile
-)
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    client,
+    count(distinct url) as total,
+
+    # scripts per page
+    approx_quantiles(almanac_info.none_jsonld_scripts_total, 1000)[
+        offset(percentile * 10)
+    ] as none_jsonld_scripts_count_m205,
+
+    # inline scripts ex jsonld
+    approx_quantiles(almanac_info.inline_scripts_total, 1000)[
+        offset(percentile * 10)
+    ] as inline_scripts_count_m207,
+
+    # src scripts
+    approx_quantiles(almanac_info.src_scripts_total, 1000)[
+        offset(percentile * 10)
+    ] as src_scripts_count_m209
+
+from
+    (
+        select
+            _table_suffix as client,
+            percentile,
+            url,
+            get_almanac_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
+        from
+            `httparchive.pages.2020_08_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
+    )
+group by percentile, client
+order by percentile, client

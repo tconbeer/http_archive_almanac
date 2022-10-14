@@ -24,39 +24,31 @@ try {
 }
 """;
 
-SELECT
-  client,
-  total_pages,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total_pages_using_ch,
-
-  ch_directive,
-  COUNT(0) AS total_pages_using,
-  COUNT(0) / total_pages AS pct_pages,
-  COUNT(0) / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS pct_ch_pages_using
-FROM (
-  SELECT
-    page,
+select
     client,
-    ch_directive
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(getClientHints(JSON_EXTRACT(payload, '$.response.headers'))) AS ch_directive
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml
-)
-LEFT JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY _TABLE_SUFFIX
-)
-USING (client)
-GROUP BY
-  client,
-  ch_directive,
-  total_pages
-ORDER BY
-  pct_pages DESC
+    total_pages,
+    sum(count(distinct page)) over (partition by client) as total_pages_using_ch,
+
+    ch_directive,
+    count(0) as total_pages_using,
+    count(0) / total_pages as pct_pages,
+    count(0)
+    / sum(count(distinct page)) over (partition by client) as pct_ch_pages_using
+from
+    (
+        select page, client, ch_directive
+        from
+            `httparchive.almanac.requests`,
+            unnest(
+                getclienthints(json_extract(payload, '$.response.headers'))
+            ) as ch_directive
+        where date = '2021-07-01' and firsthtml
+    )
+left join
+    (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    ) using (client)
+group by client, ch_directive, total_pages
+order by pct_pages desc

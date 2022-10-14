@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 02_03: % of sites that use filter properties
 CREATE TEMPORARY FUNCTION usesFilterProp(css STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -20,27 +20,22 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(num_stylesheets > 0) AS freq,
-  total,
-  ROUND(COUNTIF(num_stylesheets > 0) * 100 / total, 2) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(usesFilterProp(css)) AS num_stylesheets
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(num_stylesheets > 0) as freq,
+    total,
+    round(countif(num_stylesheets > 0) * 100 / total, 2) as pct
+from
+    (
+        select client, page, countif(usesfilterprop(css)) as num_stylesheets
+        from `httparchive.almanac.parsed_css`
+        where date = '2019-07-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    ) using (client)
+group by client, total

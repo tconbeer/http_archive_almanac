@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 02_06b: Top named colors
 CREATE TEMPORARY FUNCTION getColors(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -22,20 +22,14 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  color,
-  COUNT(0) AS freq,
-  COUNT(DISTINCT page) AS pages,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getColors(css)) AS color
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  color
-ORDER BY
-  freq / total DESC
+select
+    client,
+    color,
+    count(0) as freq,
+    count(distinct page) as pages,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.parsed_css`, unnest(getcolors(css)) as color
+where date = '2019-07-01'
+group by client, color
+order by freq / total desc

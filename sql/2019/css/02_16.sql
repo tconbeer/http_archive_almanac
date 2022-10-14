@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 02_16: % of pages using min/max-width in media queries
 CREATE TEMPORARY FUNCTION getMediaType(css STRING)
 RETURNS STRUCT<max_width BOOLEAN, min_width BOOLEAN> LANGUAGE js AS '''
@@ -23,36 +23,33 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(max_width > 0) AS freq_max_width,
-  COUNTIF(min_width > 0) AS freq_min_width,
-  COUNTIF(max_width > 0 AND min_width > 0) AS freq_both,
-  total,
-  ROUND(COUNTIF(max_width > 0) * 100 / total, 2) AS pct_max_width,
-  ROUND(COUNTIF(min_width > 0) * 100 / total, 2) AS pct_min_width,
-  ROUND(COUNTIF(max_width > 0 AND min_width > 0) * 100 / total, 2) AS pct_both
-FROM (
-  SELECT
+select
     client,
-    COUNTIF(type.max_width) AS max_width,
-    COUNTIF(type.min_width) AS min_width
-  FROM (
-    SELECT
-      client,
-      page,
-      getMediaType(css) AS type
-    FROM
-      `httparchive.almanac.parsed_css`
-    WHERE
-      date = '2019-07-01')
-  GROUP BY
-    client,
-    page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(max_width > 0) as freq_max_width,
+    countif(min_width > 0) as freq_min_width,
+    countif(max_width > 0 and min_width > 0) as freq_both,
+    total,
+    round(countif(max_width > 0) * 100 / total, 2) as pct_max_width,
+    round(countif(min_width > 0) * 100 / total, 2) as pct_min_width,
+    round(countif(max_width > 0 and min_width > 0) * 100 / total, 2) as pct_both
+from
+    (
+        select
+            client,
+            countif(type.max_width) as max_width,
+            countif(type.min_width) as min_width
+        from
+            (
+                select client, page, getmediatype(css) as type
+                from `httparchive.almanac.parsed_css`
+                where date = '2019-07-01'
+            )
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    ) using (client)
+group by client, total

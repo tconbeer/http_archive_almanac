@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Popular PWA script
 CREATE TEMPORARY FUNCTION getSWLibraries(importScriptsInfo STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -20,81 +20,74 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(workbox > 0) / total AS workbox,
-  COUNTIF(sw_toolbox > 0) / total AS sw_toolbox,
-  COUNTIF(firebase > 0) / total AS firebase,
-  COUNTIF(OneSignalSDK > 0) / total AS OneSignalSDK,
-  COUNTIF(najva > 0) / total AS najva,
-  COUNTIF(upush > 0) / total AS upush,
-  COUNTIF(cache_polyfill > 0) / total AS cache_polyfill,
-  COUNTIF(analytics_helper > 0) / total AS analytics_helper,
-  COUNTIF(recaptcha > 0) / total AS recaptcha,
-  COUNTIF(pwabuilder > 0) / total AS pwabuilder,
-  COUNTIF(pushprofit > 0) / total AS pushprofit,
-  COUNTIF(sendpulse > 0) / total AS sendpulse,
-  COUNTIF(quora > 0) / total AS quora,
-  COUNTIF(none_of_the_above > 0) / total AS none_of_the_above,
-  COUNTIF(importscripts > 0) / total AS uses_importscript,
-  total
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url,
-      COUNT(0) AS importscripts,
-      COUNTIF(LOWER(script) LIKE '%workbox%') AS workbox,
-      COUNTIF(LOWER(script) LIKE '%sw-toolbox%') AS sw_toolbox,
-      COUNTIF(LOWER(script) LIKE '%firebase%') AS firebase,
-      COUNTIF(LOWER(script) LIKE '%onesignalsdk%') AS OneSignalSDK,
-      COUNTIF(LOWER(script) LIKE '%najva%') AS najva,
-      COUNTIF(LOWER(script) LIKE '%upush%') AS upush,
-      COUNTIF(LOWER(script) LIKE '%cache-polyfill%') AS cache_polyfill,
-      COUNTIF(LOWER(script) LIKE '%analytics-helper%') AS analytics_helper,
-      COUNTIF(LOWER(script) LIKE '%recaptcha%') AS recaptcha,
-      COUNTIF(LOWER(script) LIKE '%pwabuilder%') AS pwabuilder,
-      COUNTIF(LOWER(script) LIKE '%pushprofit%') AS pushprofit,
-      COUNTIF(LOWER(script) LIKE '%sendpulse%') AS sendpulse,
-      COUNTIF(LOWER(script) LIKE '%quore%') AS quora,
-      COUNTIF(LOWER(script) NOT LIKE '%workbox%' AND
-        LOWER(script) NOT LIKE '%sw-toolbox%' AND
-        LOWER(script) NOT LIKE '%firebase%' AND
-        LOWER(script) NOT LIKE '%onesignalsdk%' AND
-        LOWER(script) NOT LIKE '%najva%' AND
-        LOWER(script) NOT LIKE '%upush%' AND
-        LOWER(script) NOT LIKE '%cache-polyfill.js%' AND
-        LOWER(script) NOT LIKE '%analytics-helper.js%' AND
-        LOWER(script) NOT LIKE '%recaptcha%' AND
-        LOWER(script) NOT LIKE '%pwabuilder%' AND
-        LOWER(script) NOT LIKE '%pushprofit%' AND
-        LOWER(script) NOT LIKE '%sendpulse%' AND
-        LOWER(script) NOT LIKE '%quora%') AS none_of_the_above
-    FROM
-      `httparchive.pages.2021_07_01_*`,
-      UNNEST(getSWLibraries(JSON_EXTRACT(payload, '$._pwa.importScriptsInfo'))) AS script
-    WHERE
-      JSON_EXTRACT(payload, '$._pwa.importScriptsInfo') != '[]' AND
-      JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
-    GROUP BY
-      _TABLE_SUFFIX,
-      url
-  )
-JOIN
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    WHERE
-      JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
-    GROUP BY
-      client
-  )
-USING (client)
-GROUP BY
-  client,
-  total
-ORDER BY
-  client
+select
+    client,
+    countif(workbox > 0) / total as workbox,
+    countif(sw_toolbox > 0) / total as sw_toolbox,
+    countif(firebase > 0) / total as firebase,
+    countif(onesignalsdk > 0) / total as onesignalsdk,
+    countif(najva > 0) / total as najva,
+    countif(upush > 0) / total as upush,
+    countif(cache_polyfill > 0) / total as cache_polyfill,
+    countif(analytics_helper > 0) / total as analytics_helper,
+    countif(recaptcha > 0) / total as recaptcha,
+    countif(pwabuilder > 0) / total as pwabuilder,
+    countif(pushprofit > 0) / total as pushprofit,
+    countif(sendpulse > 0) / total as sendpulse,
+    countif(quora > 0) / total as quora,
+    countif(none_of_the_above > 0) / total as none_of_the_above,
+    countif(importscripts > 0) / total as uses_importscript,
+    total
+from
+    (
+        select
+            _table_suffix as client,
+            url,
+            count(0) as importscripts,
+            countif(lower(script) like '%workbox%') as workbox,
+            countif(lower(script) like '%sw-toolbox%') as sw_toolbox,
+            countif(lower(script) like '%firebase%') as firebase,
+            countif(lower(script) like '%onesignalsdk%') as onesignalsdk,
+            countif(lower(script) like '%najva%') as najva,
+            countif(lower(script) like '%upush%') as upush,
+            countif(lower(script) like '%cache-polyfill%') as cache_polyfill,
+            countif(lower(script) like '%analytics-helper%') as analytics_helper,
+            countif(lower(script) like '%recaptcha%') as recaptcha,
+            countif(lower(script) like '%pwabuilder%') as pwabuilder,
+            countif(lower(script) like '%pushprofit%') as pushprofit,
+            countif(lower(script) like '%sendpulse%') as sendpulse,
+            countif(lower(script) like '%quore%') as quora,
+            countif(
+                lower(script) not like '%workbox%'
+                and lower(script) not like '%sw-toolbox%'
+                and lower(script) not like '%firebase%'
+                and lower(script) not like '%onesignalsdk%'
+                and lower(script) not like '%najva%'
+                and lower(script) not like '%upush%'
+                and lower(script) not like '%cache-polyfill.js%'
+                and lower(script) not like '%analytics-helper.js%'
+                and lower(script) not like '%recaptcha%'
+                and lower(script) not like '%pwabuilder%'
+                and lower(script) not like '%pushprofit%'
+                and lower(script) not like '%sendpulse%'
+                and lower(script) not like '%quora%'
+            ) as none_of_the_above
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                getswlibraries(json_extract(payload, '$._pwa.importScriptsInfo'))
+            ) as script
+        where
+            json_extract(payload, '$._pwa.importScriptsInfo') != '[]'
+            and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+        group by _table_suffix, url
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.pages.2021_07_01_*`
+        where json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+        group by client
+    ) using (client)
+group by client, total
+order by client

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Popular mobile input types
 CREATE TEMPORARY FUNCTION getInputTypes(payload STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -12,29 +12,29 @@ RETURNS ARRAY<STRING> LANGUAGE js AS '''
   }
 ''';
 
-SELECT
-  total_pages_with_inputs,
-  SUM(COUNT(0)) OVER () AS total_inputs,
+select
+    total_pages_with_inputs,
+    sum(count(0)) over () as total_inputs,
 
-  input_type,
-  COUNT(input_type) AS occurences,
-  COUNT(DISTINCT url) AS total_pages_used_in,
+    input_type,
+    count(input_type) as occurences,
+    count(distinct url) as total_pages_used_in,
 
-  COUNT(input_type) / SUM(COUNT(0)) OVER () AS perc_of_all_inputs,
-  COUNT(DISTINCT url) / total_pages_with_inputs AS perc_used_in_pages
-FROM
-  `httparchive.pages.2020_08_01_mobile`,
-  (
-    SELECT
-      COUNT(0) AS total_pages_with_inputs
-    FROM
-      `httparchive.pages.2020_08_01_mobile`
-    WHERE
-      SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.input_elements.total') AS INT64) > 0
-  ),
-  UNNEST(getInputTypes(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS input_type
-GROUP BY
-  input_type,
-  total_pages_with_inputs
-ORDER BY
-  occurences DESC
+    count(input_type) / sum(count(0)) over () as perc_of_all_inputs,
+    count(distinct url) / total_pages_with_inputs as perc_used_in_pages
+from
+    `httparchive.pages.2020_08_01_mobile`,
+    (
+        select count(0) as total_pages_with_inputs
+        from `httparchive.pages.2020_08_01_mobile`
+        where
+            safe_cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'), '$.input_elements.total'
+                ) as int64
+            )
+            > 0
+    ),
+    unnest(getinputtypes(json_extract_scalar(payload, '$._almanac'))) as input_type
+group by input_type, total_pages_with_inputs
+order by occurences desc

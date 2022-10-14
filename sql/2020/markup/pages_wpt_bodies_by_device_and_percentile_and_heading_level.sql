@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # M221
-
 # returns all the data we need from _wpt_bodies
 CREATE TEMPORARY FUNCTION get_heading_info(wpt_bodies_string STRING)
 RETURNS ARRAY<STRUCT<
@@ -22,31 +21,28 @@ try {
 return result;
 ''';
 
-SELECT
-  heading,
-  percentile,
-  client,
-  COUNT(DISTINCT url) AS total,
-
-  APPROX_QUANTILES(total, 1000)[OFFSET(percentile * 10)] AS heading_count
-
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
+    heading,
     percentile,
-    heading_info.heading AS heading,
-    heading_info.total AS total,
-    url
-  FROM
-    `httparchive.pages.2020_08_01_*`,
-    UNNEST([10, 25, 50, 75, 90]) AS percentile,
-    UNNEST(get_heading_info(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies'))) AS heading_info
-)
-GROUP BY
-  heading,
-  percentile,
-  client
-ORDER BY
-  heading,
-  percentile,
-  client
+    client,
+    count(distinct url) as total,
+
+    approx_quantiles(total, 1000)[offset(percentile * 10)] as heading_count
+
+from
+    (
+        select
+            _table_suffix as client,
+            percentile,
+            heading_info.heading as heading,
+            heading_info.total as total,
+            url
+        from
+            `httparchive.pages.2020_08_01_*`,
+            unnest([10, 25, 50, 75, 90]) as percentile,
+            unnest(
+                get_heading_info(json_extract_scalar(payload, '$._wpt_bodies'))
+            ) as heading_info
+    )
+group by heading, percentile, client
+order by heading, percentile, client

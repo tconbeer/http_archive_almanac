@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 06_46: % of pages linking to a Google Fonts stylesheet
 CREATE TEMP FUNCTION preloadsGoogleFont(payload STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -12,12 +12,10 @@ RETURNS BOOLEAN LANGUAGE js AS '''
 
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(preloadsGoogleFont(payload)) AS freq,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(preloadsGoogleFont(payload)) * 100 / COUNT(0), 2) AS pct
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(preloadsgooglefont(payload)) as freq,
+    count(0) as total,
+    round(countif(preloadsgooglefont(payload)) * 100 / count(0), 2) as pct
+from `httparchive.pages.2019_07_01_*`
+group by client

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Count of pages using native image lazy loading
 CREATE TEMPORARY FUNCTION nativeLazyLoads(payload STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -11,15 +11,11 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(nativeLazyLoads(payload)) AS freq,
-  COUNT(0) AS total,
-  COUNTIF(nativeLazyLoads(payload)) / COUNT(0) AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`
-GROUP BY
-  client
-ORDER BY
-  client,
-  freq DESC
+select
+    _table_suffix as client,
+    countif(nativelazyloads(payload)) as freq,
+    count(0) as total,
+    countif(nativelazyloads(payload)) / count(0) as pct
+from `httparchive.pages.2021_07_01_*`
+group by client
+order by client, freq desc

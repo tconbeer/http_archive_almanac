@@ -15,23 +15,23 @@ try {
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(image.currentSrcDensity, 1000)[OFFSET(percentile * 10)] AS currentSrcDensity,
-  APPROX_QUANTILES(srcsetCandidateDensity, 1000)[OFFSET(percentile * 10)] AS srcsetCandidateDensity
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    image
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getSrcsetDensities(payload)) AS image),
-  UNNEST(image.srcsetCandidateDensities) AS srcsetCandidateDensity,
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    client,
+    approx_quantiles(image.currentsrcdensity, 1000)[
+        offset(percentile * 10)
+    ] as currentsrcdensity,
+    approx_quantiles(srcsetcandidatedensity, 1000)[
+        offset(percentile * 10)
+    ] as srcsetcandidatedensity
+from
+    (
+        select _table_suffix as client, image
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(getsrcsetdensities(payload)) as image
+    ),
+    unnest(image.srcsetcandidatedensities) as srcsetcandidatedensity,
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # Top manifest properties
-
 CREATE TEMP FUNCTION getManifestProps(manifest STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
@@ -14,79 +13,56 @@ try {
 }
 ''';
 
-WITH totals AS (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total,
-    COUNTIF(JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true') AS pwa_total
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  WHERE
-    JSON_EXTRACT(payload, '$._pwa.manifests') != '[]'
-  GROUP BY
-    _TABLE_SUFFIX
-),
+with
+    totals as (
+        select
+            _table_suffix,
+            count(0) as total,
+            countif(
+                json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+            ) as pwa_total
+        from `httparchive.pages.2021_07_01_*`
+        where json_extract(payload, '$._pwa.manifests') != '[]'
+        group by _table_suffix
+    ),
 
-manifests_properties AS (
-  SELECT
-    'All Sites' AS type,
-    _TABLE_SUFFIX AS client,
-    property,
-    COUNT(DISTINCT url) AS freq,
-    total,
-    COUNT(DISTINCT url) / total AS pct,
-    COUNTIF(JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true') AS pwa_freq,
-    pwa_total,
-    COUNTIF(JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true') / pwa_total AS pwa_pct
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getManifestProps(JSON_EXTRACT(payload, '$._pwa.manifests'))) AS property
-  JOIN
-    totals
-  USING (_TABLE_SUFFIX)
-  WHERE
-    JSON_EXTRACT(payload, '$._pwa.manifests') != '[]'
-  GROUP BY
+    manifests_properties as (
+        select
+            'All Sites' as type,
+            _table_suffix as client,
+            property,
+            count(distinct url) as freq,
+            total,
+            count(distinct url) / total as pct,
+            countif(
+                json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+            ) as pwa_freq,
+            pwa_total,
+            countif(json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true')
+            / pwa_total as pwa_pct
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                getmanifestprops(json_extract(payload, '$._pwa.manifests'))
+            ) as property
+        join totals using (_table_suffix)
+        where json_extract(payload, '$._pwa.manifests') != '[]'
+        group by client, property, total, pwa_total
+        having property is not null
+        order by type desc, freq / total desc, property, client
+    )
+
+select
+    'PWA Sites' as type,
     client,
     property,
-    total,
-    pwa_total
-  HAVING
-    property IS NOT NULL
-  ORDER BY
-    type DESC,
-    freq / total DESC,
-    property,
-    client
-)
-
-SELECT
-  'PWA Sites' AS type,
-  client,
-  property,
-  pwa_freq AS freq,
-  pwa_total AS total,
-  pwa_pct AS pct
-FROM
-  manifests_properties
-WHERE
-  property IS NOT NULL AND
-  freq > 100
-UNION ALL
-SELECT
-  'All Sites' AS type,
-  client,
-  property,
-  freq,
-  total,
-  pct
-FROM
-  manifests_properties
-WHERE
-  property IS NOT NULL AND
-  freq > 100
-ORDER BY
-  type DESC,
-  pct DESC,
-  property,
-  client
+    pwa_freq as freq,
+    pwa_total as total,
+    pwa_pct as pct
+from manifests_properties
+where property is not null and freq > 100
+union all
+select 'All Sites' as type, client, property, freq, total, pct
+from manifests_properties
+where property is not null and freq > 100
+order by type desc, pct desc, property, client

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getMediaQueryProperties(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -27,39 +27,25 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  property,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  COUNT(DISTINCT page) / total AS pct
-FROM (
-  SELECT DISTINCT
+select
     client,
-    page,
-    LOWER(property) AS property
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getMediaQueryProperties(css)) AS property
-  WHERE
-    date = '2021-07-01' AND
-    property IS NOT NULL)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total,
-  property
-HAVING
-  pct >= 0.01
-ORDER BY
-  pct DESC
+    property,
+    count(distinct page) as pages,
+    total,
+    count(distinct page) / total as pct
+from
+    (
+        select distinct client, page, lower(property) as property
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getmediaqueryproperties(css)) as property
+        where date = '2021-07-01' and property is not null
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, total, property
+having pct >= 0.01
+order by pct desc

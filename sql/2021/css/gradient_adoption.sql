@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getGradientAdoption(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -144,34 +144,20 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  COUNT(DISTINCT page) / total AS pct
-FROM (
-  SELECT DISTINCT
-    client,
-    page,
-    property
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getGradientAdoption(css)) AS property
-  WHERE
-    date = '2021-07-01' AND
-    property IS NOT NULL)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
-ORDER BY
-  pct DESC
+select client, count(distinct page) as pages, total, count(distinct page) / total as pct
+from
+    (
+        select distinct client, page, property
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getgradientadoption(css)) as property
+        where date = '2021-07-01' and property is not null
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, total
+order by pct desc

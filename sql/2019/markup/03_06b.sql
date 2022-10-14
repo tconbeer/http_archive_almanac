@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 03_06b: Element types per page
 CREATE TEMPORARY FUNCTION countElementTypes(payload STRING)
 RETURNS INT64 LANGUAGE js AS '''
@@ -12,17 +12,11 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  countElementTypes(payload) AS element_types,
-  COUNT(0) AS freq
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client,
-  element_types
-HAVING
-  element_types IS NOT NULL
-ORDER BY
-  element_types,
-  client
+select
+    _table_suffix as client,
+    countelementtypes(payload) as element_types,
+    count(0) as freq
+from `httparchive.pages.2019_07_01_*`
+group by client, element_types
+having element_types is not null
+order by element_types, client

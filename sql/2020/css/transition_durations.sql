@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getTransitionDurations(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -99,19 +99,14 @@ try {
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(duration, 1000)[OFFSET(percentile * 10)] AS duration
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getTransitionDurations(css)) AS duration,
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-WHERE
-  date = '2020-08-01'
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    client,
+    approx_quantiles(duration, 1000)[offset(percentile * 10)] as duration
+from
+    `httparchive.almanac.parsed_css`,
+    unnest(gettransitiondurations(css)) as duration,
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+where date = '2020-08-01'
+group by percentile, client
+order by percentile, client

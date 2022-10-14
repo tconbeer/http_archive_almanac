@@ -8,20 +8,22 @@ try {
 }
 ''';
 
-WITH numImgs AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    numberOfImages( JSON_QUERY( JSON_VALUE( payload, '$._responsive_images' ), '$.responsive-images' ) ) AS numberOfImages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
+with
+    numimgs as (
+        select
+            _table_suffix as client,
+            numberofimages(
+                json_query(
+                    json_value(payload, '$._responsive_images'), '$.responsive-images'
+                )
+            ) as numberofimages
+        from `httparchive.pages.2021_07_01_*`
+    )
 
-SELECT
-  client,
-  COUNTIF( numberOfImages > 0 ) AS atLeastOneCount,
-  COUNT(0) AS total,
-  SAFE_DIVIDE( COUNTIF( numberOfImages > 0 ), COUNT(0) ) AS atLeastOnePct
-FROM
-  numImgs
-GROUP BY
-  client
+select
+    client,
+    countif(numberofimages > 0) as atleastonecount,
+    count(0) as total,
+    safe_divide(countif(numberofimages > 0), count(0)) as atleastonepct
+from numimgs
+group by client

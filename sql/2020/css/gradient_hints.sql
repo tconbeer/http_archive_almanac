@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getGradientHints(css STRING)
 RETURNS INT64
 LANGUAGE js
@@ -158,33 +158,18 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(hints > 0) AS pages,
-  total,
-  COUNTIF(hints > 0) / total AS pct
-FROM (
-  SELECT
-    client,
-    page,
-    SUM(getGradientHints(css)) AS hints
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+select client, countif(hints > 0) as pages, total, countif(hints > 0) / total as pct
+from
+    (
+        select client, page, sum(getgradienthints(css)) as hints
+        from `httparchive.almanac.parsed_css`
+        where date = '2020-08-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    ) using (client)
+group by client, total

@@ -1,8 +1,9 @@
-#standardSQL
+# standardSQL
 # Distribution of page weight, requests, and co2 grams per SSG web page
 # https://gitlab.com/wholegrain/carbon-api-2-0/-/blob/b498ec3bb239536d3612c5f3d758f46e0d2431a6/includes/carbonapi.php
+-- TODO: Investigate fetching from Green Web Foundation
 CREATE TEMP FUNCTION
-GREEN(url STRING) AS (FALSE); -- TODO: Investigate fetching from Green Web Foundation
+GREEN(url STRING) AS (FALSE);
 CREATE TEMP FUNCTION
 adjustDataTransfer(val INT64) AS (val * 0.75 + 0.02 * val * 0.25);
 CREATE TEMP FUNCTION
@@ -20,37 +21,32 @@ CO2(url STRING, bytes INT64) AS (
   )
 );
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(requests, 1000)[OFFSET(percentile * 10)] AS requests,
-  ROUND(APPROX_QUANTILES(bytes, 1000)[OFFSET(percentile * 10)] / 1024 / 1024, 2) AS mbytes,
-  APPROX_QUANTILES(co2grams, 1000)[OFFSET(percentile * 10)] AS co2grams
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    reqTotal AS requests,
-    bytesTotal AS bytes,
-    CO2(url, bytesTotal) AS co2grams
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  JOIN (
-    SELECT DISTINCT
-      _TABLE_SUFFIX,
-      url
-    FROM
-      `httparchive.technologies.2021_07_01_*`
-    WHERE
-      LOWER(category) = 'static site generator' OR
-      app = 'Next.js' OR
-      app = 'Nuxt.js'
-  )
-  USING
-    (_TABLE_SUFFIX, url)),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    client,
+    approx_quantiles(requests, 1000)[offset(percentile * 10)] as requests,
+    round(
+        approx_quantiles(bytes, 1000)[offset(percentile * 10)] / 1024 / 1024, 2
+    ) as mbytes,
+    approx_quantiles(co2grams, 1000)[offset(percentile * 10)] as co2grams
+from
+    (
+        select
+            _table_suffix as client,
+            reqtotal as requests,
+            bytestotal as bytes,
+            co2(url, bytestotal) as co2grams
+        from `httparchive.summary_pages.2021_07_01_*`
+        join
+            (
+                select distinct _table_suffix, url
+                from `httparchive.technologies.2021_07_01_*`
+                where
+                    lower(category) = 'static site generator'
+                    or app = 'Next.js'
+                    or app = 'Nuxt.js'
+            ) using (_table_suffix, url)
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

@@ -1,5 +1,4 @@
-#standardSQL
-
+# standardSQL
 # returns the number of valid and invalid preload resource types
 CREATE TEMPORARY FUNCTION getInvalidTypes(almanac_string STRING)
 RETURNS ARRAY<STRUCT<type STRING, num_occurrences NUMERIC>>
@@ -64,26 +63,21 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  type,
-  SUM(num_occurrences) AS total_occurrences,
-  SUM(SUM(num_occurrences)) OVER (PARTITION BY client) AS total,
-  SUM(num_occurrences) / SUM(SUM(num_occurrences)) OVER (PARTITION BY client) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      invalid_type.type,
-      invalid_type.num_occurrences
-    FROM
-      `httparchive.pages.2021_07_01_*`,
-      UNNEST(getInvalidTypes(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS invalid_type
-    WHERE
-      payload IS NOT NULL
-  )
-GROUP BY
-  client,
-  type
-ORDER BY
-  total_occurrences DESC
+select
+    client,
+    type,
+    sum(num_occurrences) as total_occurrences,
+    sum(sum(num_occurrences)) over (partition by client) as total,
+    sum(num_occurrences) / sum(sum(num_occurrences)) over (partition by client) as pct
+from
+    (
+        select _table_suffix as client, invalid_type.type, invalid_type.num_occurrences
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                getinvalidtypes(json_extract_scalar(payload, '$._almanac'))
+            ) as invalid_type
+        where payload is not null
+    )
+group by client, type
+order by total_occurrences desc

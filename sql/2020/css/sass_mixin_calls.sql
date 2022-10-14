@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getMixinUsage(payload STRING) RETURNS
 ARRAY<STRUCT<mixin STRING, freq INT64>> LANGUAGE js AS '''
 try {
@@ -16,27 +16,23 @@ try {
 }
 ''';
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    mixin,
-    SUM(freq) AS freq,
-    SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-    SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      mixin.mixin,
-      mixin.freq
-    FROM
-      `httparchive.pages.2020_08_01_*`,
-      UNNEST(getMixinUsage(payload)) AS mixin)
-  GROUP BY
-    client,
-    mixin)
-WHERE
-  freq >= 1000
-ORDER BY
-  pct DESC
+select *
+from
+    (
+        select
+            client,
+            mixin,
+            sum(freq) as freq,
+            sum(sum(freq)) over (partition by client) as total,
+            sum(freq) / sum(sum(freq)) over (partition by client) as pct
+        from
+            (
+                select _table_suffix as client, mixin.mixin, mixin.freq
+                from
+                    `httparchive.pages.2020_08_01_*`,
+                    unnest(getmixinusage(payload)) as mixin
+            )
+        group by client, mixin
+    )
+where freq >= 1000
+order by pct desc

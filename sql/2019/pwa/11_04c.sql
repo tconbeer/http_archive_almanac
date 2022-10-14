@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 11_04c: Top manifest display values
 CREATE TEMPORARY FUNCTION getDisplay(manifest STRING)
 RETURNS STRING LANGUAGE js AS '''
@@ -13,20 +13,14 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  getDisplay(body) AS display,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.manifests`
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  display
-HAVING
-  display IS NOT NULL
-ORDER BY
-  freq / total DESC
+select
+    client,
+    getdisplay(body) as display,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.manifests`
+where date = '2019-07-01'
+group by client, display
+having display is not null
+order by freq / total desc

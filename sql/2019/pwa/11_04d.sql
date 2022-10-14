@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 11_04d: Top manifest categories
 CREATE TEMPORARY FUNCTION getCategories(manifest STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -14,21 +14,14 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  NORMALIZE_AND_CASEFOLD(category) AS category,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.manifests`,
-  UNNEST(getCategories(body)) AS category
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  category
-HAVING
-  category IS NOT NULL
-ORDER BY
-  freq / total DESC
+select
+    client,
+    normalize_and_casefold(category) as category,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.manifests`, unnest(getcategories(body)) as category
+where date = '2019-07-01'
+group by client, category
+having category is not null
+order by freq / total desc

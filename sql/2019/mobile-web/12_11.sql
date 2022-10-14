@@ -1,7 +1,5 @@
-#standardSQL
-
+# standardSQL
 # links or buttons only containing an icon
-
 CREATE TEMPORARY FUNCTION hasButtonIconSet(payload STRING)
 RETURNS BOOL LANGUAGE js AS '''
   try {
@@ -16,8 +14,7 @@ RETURNS BOOL LANGUAGE js AS '''
   }
 ''';
 
-SELECT
-  COUNT(url) AS total,
-  ROUND(COUNTIF(hasButtonIconSet(payload)) * 100 / COUNT(0), 2) AS pct_has_icon_button
-FROM
-  `httparchive.pages.2019_07_01_mobile`
+select
+    count(url) as total,
+    round(countif(hasbuttoniconset(payload)) * 100 / count(0), 2) as pct_has_icon_button
+from `httparchive.pages.2019_07_01_mobile`

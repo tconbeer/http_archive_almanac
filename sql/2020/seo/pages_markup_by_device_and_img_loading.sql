@@ -1,7 +1,7 @@
-#standardSQL
+# standardSQL
 # pages markup metrics grouped by device and image loading attributes
-# Note: this query only reports if an attribute was ever used on a page. It is not a per img report.
-
+# Note: this query only reports if an attribute was ever used on a page. It is not a
+# per img report.
 # helper to create percent fields
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
@@ -38,28 +38,26 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  loading,
-  total,
-  COUNT(0) AS count,
-  AS_PERCENT(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      get_markup_info(JSON_EXTRACT_SCALAR(payload, '$._markup')) AS markup_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-    JOIN
-      (
-        SELECT _TABLE_SUFFIX, COUNT(0) AS total
-        FROM
-          `httparchive.pages.2020_08_01_*`
-        GROUP BY _TABLE_SUFFIX
-      ) # to get an accurate total of pages per device. also seems fast
-    USING (_TABLE_SUFFIX)
-  ),
-  UNNEST(markup_info.loading) AS loading
-GROUP BY total, loading, client
+select
+    client,
+    loading,
+    total,
+    count(0) as count,
+    as_percent(count(0), sum(count(0)) over (partition by client)) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            get_markup_info(json_extract_scalar(payload, '$._markup')) as markup_info
+        from `httparchive.pages.2020_08_01_*`
+        join
+            (
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2020_08_01_*`
+                group by _table_suffix
+            # to get an accurate total of pages per device. also seems fast
+            ) using (_table_suffix)
+    ),
+    unnest(markup_info.loading) as loading
+group by total, loading, client

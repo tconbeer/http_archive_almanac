@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getNestedUsage(payload STRING)
 RETURNS ARRAY<STRUCT<nested STRING, freq INT64>>
 LANGUAGE js
@@ -21,28 +21,22 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  nested,
-  COUNT(DISTINCT IF(freq > 0, page, NULL)) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) / 2 AS total,
-  SUM(freq) / (SUM(SUM(freq)) OVER (PARTITION BY client) / 2) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    nested.nested,
-    SUM(nested.freq) AS freq
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getNestedUsage(payload)) AS nested
-  GROUP BY
+select
     client,
-    page,
-    nested)
-GROUP BY
-  client,
-  nested
-ORDER BY
-  pct DESC
+    nested,
+    count(distinct if(freq > 0, page, null)) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) / 2 as total,
+    sum(freq) / (sum(sum(freq)) over (partition by client) / 2) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            nested.nested,
+            sum(nested.freq) as freq
+        from `httparchive.pages.2021_07_01_*`, unnest(getnestedusage(payload)) as nested
+        group by client, page, nested
+    )
+group by client, nested
+order by pct desc

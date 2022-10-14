@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getImportantProperties(css STRING)
 RETURNS ARRAY<STRUCT<property STRING, freq INT64>>
 LANGUAGE js
@@ -31,27 +31,21 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  property,
-  COUNT(DISTINCT page) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    important.property,
-    important.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getImportantProperties(css)) AS important
-  WHERE
-    date = '2021-07-01')
-GROUP BY
-  client,
-  property
-ORDER BY
-  pct DESC
-LIMIT 500
+    property,
+    count(distinct page) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, page, important.property, important.freq
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getimportantproperties(css)) as important
+        where date = '2021-07-01'
+    )
+group by client, property
+order by pct desc
+limit 500

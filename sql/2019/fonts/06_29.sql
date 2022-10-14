@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 06_29: Variation axes used for +/- 20 pt
 CREATE TEMPORARY FUNCTION getFontVariationSettings(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -19,26 +19,36 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  REGEXP_EXTRACT(LOWER(value), '[\'"]([\\w]{4})[\'"]') AS axis,
-  COUNTIF(CAST(REGEXP_EXTRACT(value, '\\d+') AS NUMERIC) < 6) AS freq_under_6,
-  COUNTIF(CAST(REGEXP_EXTRACT(value, '\\d+') AS NUMERIC) BETWEEN 6 AND 19) AS freq_between_6_20,
-  COUNTIF(CAST(REGEXP_EXTRACT(value, '\\d+') AS NUMERIC) >= 20) AS freq_over_20,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNTIF(CAST(REGEXP_EXTRACT(value, '\\d+') AS NUMERIC) < 6) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct_under_6,
-  ROUND(COUNTIF(CAST(REGEXP_EXTRACT(value, '\\d+') AS NUMERIC) BETWEEN 6 AND 19) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct_between_6_20,
-  ROUND(COUNTIF(CAST(REGEXP_EXTRACT(value, '\\d+') AS NUMERIC) >= 20) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct_over_20
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontVariationSettings(css)) AS values,
-  UNNEST(SPLIT(values, ',')) AS value
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  axis
-HAVING
-  axis IS NOT NULL
-ORDER BY
-  freq_between_6_20 / total DESC
+select
+    client,
+    regexp_extract(lower(value), '[\'"]([\\w]{4})[\'"]') as axis,
+    countif(cast(regexp_extract(value, '\\d+') as numeric) < 6) as freq_under_6,
+    countif(
+        cast(regexp_extract(value, '\\d+') as numeric) between 6 and 19
+    ) as freq_between_6_20,
+    countif(cast(regexp_extract(value, '\\d+') as numeric) >= 20) as freq_over_20,
+    sum(count(0)) over (partition by client) as total,
+    round(
+        countif(cast(regexp_extract(value, '\\d+') as numeric) < 6)
+        * 100
+        / sum(count(0)) over (partition by client),
+        2
+    ) as pct_under_6,
+    round(
+        countif(cast(regexp_extract(value, '\\d+') as numeric) between 6 and 19)
+        * 100
+        / sum(count(0)) over (partition by client),
+        2
+    ) as pct_between_6_20,
+    round(
+        countif(cast(regexp_extract(value, '\\d+') as numeric) >= 20)
+        * 100
+        / sum(count(0)) over (partition by client),
+        2
+    ) as pct_over_20
+from `httparchive.almanac.parsed_css`, unnest(getfontvariationsettings(css)) as
+values, unnest(split(values, ',')) as value
+where date = '2019-07-01'
+group by client, axis
+having axis is not null
+order by freq_between_6_20 / total desc

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Transition and animation delays
 CREATE TEMPORARY FUNCTION getTransitionDelays(css STRING)
 RETURNS ARRAY<STRING>
@@ -113,19 +113,12 @@ try {
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(delay, 1000)[OFFSET(percentile * 10)] AS delay
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getTransitionDelays(css)) AS delay,
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-WHERE
-  date = '2021-07-01'
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile, client, approx_quantiles(delay, 1000)[offset(percentile * 10)] as delay
+from
+    `httparchive.almanac.parsed_css`,
+    unnest(gettransitiondelays(css)) as delay,
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+where date = '2021-07-01'
+group by percentile, client
+order by percentile, client

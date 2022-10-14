@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # pages markup metrics grouped by device
-
 # returns all the data we need from _markup
 CREATE TEMPORARY FUNCTION get_markup_info(markup_string STRING)
 RETURNS STRUCT<
@@ -99,77 +98,97 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # pages with a favicon
-  SAFE_DIVIDE(COUNTIF(markup_info.favicon), COUNT(0)) AS pct_favicon,
+    # pages with a favicon
+    safe_divide(countif(markup_info.favicon), count(0)) as pct_favicon,
 
-  # pages identified as an app
-  SAFE_DIVIDE(COUNTIF(markup_info.app_id_present), COUNT(0)) AS pct_app_id_present,
+    # pages identified as an app
+    safe_divide(countif(markup_info.app_id_present), count(0)) as pct_app_id_present,
 
-  # pages with a link rel="amphtml"
-  SAFE_DIVIDE(COUNTIF(markup_info.amp_rel_amphtml_present), COUNT(0)) AS pct_amp_rel_amphtml_present,
+    # pages with a link rel="amphtml"
+    safe_divide(
+        countif(markup_info.amp_rel_amphtml_present), count(0)
+    ) as pct_amp_rel_amphtml_present,
 
-  # pages with a noscript tag
-  SAFE_DIVIDE(COUNTIF(markup_info.noscripts_count > 0), COUNT(0)) AS pct_noscripts,
+    # pages with a noscript tag
+    safe_divide(countif(markup_info.noscripts_count > 0), count(0)) as pct_noscripts,
 
-  # pages with a noscript gtm tag
-  SAFE_DIVIDE(COUNTIF(markup_info.noscripts_iframe_googletagmanager_count > 0), COUNT(0)) AS pct_noscripts_gtm_tag,
+    # pages with a noscript gtm tag
+    safe_divide(
+        countif(markup_info.noscripts_iframe_googletagmanager_count > 0), count(0)
+    ) as pct_noscripts_gtm_tag,
 
-  # pages with an svg element
-  SAFE_DIVIDE(COUNTIF(markup_info.svg_element_total > 0), COUNT(0)) AS pct_svg_element,
+    # pages with an svg element
+    safe_divide(
+        countif(markup_info.svg_element_total > 0), count(0)
+    ) as pct_svg_element,
 
-  # pages with an svg img
-  SAFE_DIVIDE(COUNTIF(markup_info.svg_img_total > 0), COUNT(0)) AS pct_svg_svg_img,
+    # pages with an svg img
+    safe_divide(countif(markup_info.svg_img_total > 0), count(0)) as pct_svg_svg_img,
 
-  # pages with an svg object
-  SAFE_DIVIDE(COUNTIF(markup_info.svg_object_total > 0), COUNT(0)) AS pct_svg_object,
+    # pages with an svg object
+    safe_divide(countif(markup_info.svg_object_total > 0), count(0)) as pct_svg_object,
 
-  # pages with an svg embed
-  SAFE_DIVIDE(COUNTIF(markup_info.svg_embed_total > 0), COUNT(0)) AS pct_svg_embed,
+    # pages with an svg embed
+    safe_divide(countif(markup_info.svg_embed_total > 0), count(0)) as pct_svg_embed,
 
-  # pages with an svg iframe
-  SAFE_DIVIDE(COUNTIF(markup_info.svg_iframe_total > 0), COUNT(0)) AS pct_svg_iframe,
+    # pages with an svg iframe
+    safe_divide(countif(markup_info.svg_iframe_total > 0), count(0)) as pct_svg_iframe,
 
-  # pages with an svg
-  SAFE_DIVIDE(COUNTIF(markup_info.svg_total > 0), COUNT(0)) AS pct_svg_,
+    # pages with an svg
+    safe_divide(countif(markup_info.svg_total > 0), count(0)) as pct_svg_,
 
-  # pages with a button
-  SAFE_DIVIDE(COUNTIF(markup_info.buttons_total > 0), COUNT(0)) AS pct_buttons,
+    # pages with a button
+    safe_divide(countif(markup_info.buttons_total > 0), count(0)) as pct_buttons,
 
-  # pages with a button without a type
-  SAFE_DIVIDE(COUNTIF(markup_info.buttons_total > markup_info.buttons_with_type), COUNT(0)) AS pct_buttons_without_type,
+    # pages with a button without a type
+    safe_divide(
+        countif(markup_info.buttons_total > markup_info.buttons_with_type), count(0)
+    ) as pct_buttons_without_type,
 
-  # pages with autoplaying audio elements
-  SAFE_DIVIDE(COUNTIF(markup_info.contains_audios_with_autoplay), COUNT(0)) AS pct_contains_audios_with_autoplay,
+    # pages with autoplaying audio elements
+    safe_divide(
+        countif(markup_info.contains_audios_with_autoplay), count(0)
+    ) as pct_contains_audios_with_autoplay,
 
-  # pages with non autoplaying audio elements
-  SAFE_DIVIDE(COUNTIF(markup_info.contains_audios_without_autoplay), COUNT(0)) AS pct_contains_audios_without_autoplay,
+    # pages with non autoplaying audio elements
+    safe_divide(
+        countif(markup_info.contains_audios_without_autoplay), count(0)
+    ) as pct_contains_audios_without_autoplay,
 
-  # pages with html dir set
-  SAFE_DIVIDE(COUNTIF(LENGTH(markup_info.dirs_html_dir) > 0), COUNT(0)) AS pct_html_dir_set,
+    # pages with html dir set
+    safe_divide(
+        countif(length(markup_info.dirs_html_dir) > 0), count(0)
+    ) as pct_html_dir_set,
 
-  # pages with html dir set to ltr
-  SAFE_DIVIDE(COUNTIF(markup_info.dirs_html_dir = 'ltr'), COUNT(0)) AS pct_html_dir_ltr,
+    # pages with html dir set to ltr
+    safe_divide(
+        countif(markup_info.dirs_html_dir = 'ltr'), count(0)
+    ) as pct_html_dir_ltr,
 
-  # pages with html dir set to rtl
-  SAFE_DIVIDE(COUNTIF(markup_info.dirs_html_dir = 'rtl'), COUNT(0)) AS pct_html_dir_rtl,
+    # pages with html dir set to rtl
+    safe_divide(
+        countif(markup_info.dirs_html_dir = 'rtl'), count(0)
+    ) as pct_html_dir_rtl,
 
-  # pages with html dir set to auto
-  SAFE_DIVIDE(COUNTIF(markup_info.dirs_html_dir = 'auto'), COUNT(0)) AS pct_html_dir_auto,
+    # pages with html dir set to auto
+    safe_divide(
+        countif(markup_info.dirs_html_dir = 'auto'), count(0)
+    ) as pct_html_dir_auto,
 
-  # pages with dir on other elements
-  SAFE_DIVIDE(COUNTIF(markup_info.dirs_body_nodes_dir_total > 0), COUNT(0)) AS pct_body_nodes_dir_set
+    # pages with dir on other elements
+    safe_divide(
+        countif(markup_info.dirs_body_nodes_dir_total > 0), count(0)
+    ) as pct_body_nodes_dir_set
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_markup_info(JSON_EXTRACT_SCALAR(payload, '$._markup')) AS markup_info
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-GROUP BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            get_markup_info(json_extract_scalar(payload, '$._markup')) as markup_info
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

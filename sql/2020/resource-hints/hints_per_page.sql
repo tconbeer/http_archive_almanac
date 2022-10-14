@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 21_02: Distribution of number of times each hint is used per site.
 CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
 RETURNS STRUCT<preload INT64, prefetch INT64, preconnect INT64, prerender INT64, `dns-prefetch` INT64>
@@ -21,24 +21,21 @@ try {
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(hints.preload, 1000)[OFFSET(percentile * 10)] AS preload,
-  APPROX_QUANTILES(hints.prefetch, 1000)[OFFSET(percentile * 10)] AS prefetch,
-  APPROX_QUANTILES(hints.preconnect, 1000)[OFFSET(percentile * 10)] AS preconnect,
-  APPROX_QUANTILES(hints.prerender, 1000)[OFFSET(percentile * 10)] AS prerender,
-  APPROX_QUANTILES(hints.`dns-prefetch`, 1000)[OFFSET(percentile * 10)] AS dns_prefetch
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getResourceHints(payload) AS hints
-  FROM
-    `httparchive.pages.2020_08_01_*`),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    client,
+    approx_quantiles(hints.preload, 1000)[offset(percentile * 10)] as preload,
+    approx_quantiles(hints.prefetch, 1000)[offset(percentile * 10)] as prefetch,
+    approx_quantiles(hints.preconnect, 1000)[offset(percentile * 10)] as preconnect,
+    approx_quantiles(hints.prerender, 1000)[offset(percentile * 10)] as prerender,
+    approx_quantiles(hints.`dns-prefetch`, 1000)[
+        offset(percentile * 10)
+    ] as dns_prefetch
+from
+    (
+        select _table_suffix as client, getresourcehints(payload) as hints
+        from `httparchive.pages.2020_08_01_*`
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

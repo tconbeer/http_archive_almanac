@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getCustomFunctionNames(payload STRING) RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
@@ -13,34 +13,34 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  sass_custom_function,
-  COUNT(DISTINCT url) AS pages,
-  total_sass,
-  COUNT(DISTINCT url) / total_sass AS pct_pages
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    sass_custom_function
-  FROM
-    `httparchive.pages.2020_08_01_*`,
-    UNNEST(getCustomFunctionNames(payload)) AS sass_custom_function)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNTIF(SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._sass'), '$.scss.size') AS INT64) > 0) AS total_sass
-  FROM
-    `httparchive.pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  sass_custom_function,
-  total_sass
-ORDER BY
-  pct DESC
-LIMIT 1000
+select
+    client,
+    sass_custom_function,
+    count(distinct url) as pages,
+    total_sass,
+    count(distinct url) / total_sass as pct_pages
+from
+    (
+        select _table_suffix as client, url, sass_custom_function
+        from
+            `httparchive.pages.2020_08_01_*`,
+            unnest(getcustomfunctionnames(payload)) as sass_custom_function
+    )
+join
+    (
+        select
+            _table_suffix as client,
+            countif(
+                safe_cast(
+                    json_extract_scalar(
+                        json_extract_scalar(payload, '$._sass'), '$.scss.size'
+                    ) as int64
+                )
+                > 0
+            ) as total_sass
+        from `httparchive.pages.2020_08_01_*`
+        group by client
+    ) using (client)
+group by client, sass_custom_function, total_sass
+order by pct desc
+limit 1000

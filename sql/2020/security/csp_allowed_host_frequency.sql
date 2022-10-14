@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # CSP on home pages: most prevalent allowed hosts
 CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
 RETURNS STRING
@@ -12,29 +12,27 @@ LANGUAGE js AS '''
   return null;
 ''';
 
-SELECT
-  client,
-  csp_allowed_host,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total_pages,
-  COUNT(DISTINCT page) AS freq,
-  COUNT(DISTINCT page) / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    getHeader(JSON_EXTRACT(payload, '$.response.headers'), 'Content-Security-Policy') AS csp_header
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01' AND
-    firstHtml
-),
-UNNEST(REGEXP_EXTRACT_ALL(csp_header, r'(?i)(https*://[^\s;]+)[\s;]')) AS csp_allowed_host
-WHERE
-  csp_header IS NOT NULL
-GROUP BY
-  client,
-  csp_allowed_host
-ORDER BY
-  pct DESC
-LIMIT 100
+    csp_allowed_host,
+    sum(count(distinct page)) over (partition by client) as total_pages,
+    count(distinct page) as freq,
+    count(distinct page) / sum(count(distinct page)) over (partition by client) as pct
+from
+    (
+        select
+            client,
+            page,
+            getheader(
+                json_extract(payload, '$.response.headers'), 'Content-Security-Policy'
+            ) as csp_header
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01' and firsthtml
+    ),
+    unnest(
+        regexp_extract_all(csp_header, r'(?i)(https*://[^\s;]+)[\s;]')
+    ) as csp_allowed_host
+where csp_header is not null
+group by client, csp_allowed_host
+order by pct desc
+limit 100

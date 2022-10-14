@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # hreflang link tag usage
-
 # returns all the data we need from _wpt_bodies
 CREATE TEMPORARY FUNCTION getHreflangWptBodies(wpt_bodies_string STRING)
 RETURNS STRUCT<
@@ -23,35 +22,28 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  NORMALIZE_AND_CASEFOLD(hreflang) AS hreflang,
-  total,
-  COUNT(0) AS count,
-  SAFE_DIVIDE(COUNT(0), total) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
+    client,
+    normalize_and_casefold(hreflang) as hreflang,
     total,
-    getHreflangWptBodies(JSON_EXTRACT_SCALAR(payload,
-        '$._wpt_bodies')) AS hreflang_wpt_bodies_info
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  JOIN (
-    SELECT
-      _TABLE_SUFFIX,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    GROUP BY
-      _TABLE_SUFFIX)
-  USING
-    (_TABLE_SUFFIX)),
-  UNNEST(hreflang_wpt_bodies_info.hreflangs) AS hreflang
-GROUP BY
-  total,
-  hreflang,
-  client
-ORDER BY
-  count DESC,
-  client DESC
+    count(0) as count,
+    safe_divide(count(0), total) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            gethreflangwptbodies(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as hreflang_wpt_bodies_info
+        from `httparchive.pages.2021_07_01_*`
+        join
+            (
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2021_07_01_*`
+                group by _table_suffix
+            ) using (_table_suffix)
+    ),
+    unnest(hreflang_wpt_bodies_info.hreflangs) as hreflang
+group by total, hreflang, client
+order by count desc, client desc

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getVendorPrefixPseudoClasses(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -80,26 +80,22 @@ try {
 }
 ''';
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    pseudo_class,
-    COUNT(DISTINCT page) AS pages,
-    COUNT(0) AS freq,
-    SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-    COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getVendorPrefixPseudoClasses(css)) AS pseudo_class
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024
-  GROUP BY
-    client,
-    pseudo_class)
-ORDER BY
-  pct DESC
-LIMIT 500
+select *
+from
+    (
+        select
+            client,
+            pseudo_class,
+            count(distinct page) as pages,
+            count(0) as freq,
+            sum(count(0)) over (partition by client) as total,
+            count(0) / sum(count(0)) over (partition by client) as pct
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getvendorprefixpseudoclasses(css)) as pseudo_class
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+        group by client, pseudo_class
+    )
+order by pct desc
+limit 500

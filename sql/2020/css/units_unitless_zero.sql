@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION hasUnitlessZero(css STRING)
 RETURNS BOOLEAN
 LANGUAGE js
@@ -90,21 +90,16 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNT(DISTINCT IF(has_unitless_zero, page, NULL)) AS pages,
-  COUNT(DISTINCT page) AS total,
-  COUNT(DISTINCT IF(has_unitless_zero, page, NULL)) / COUNT(DISTINCT page) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    hasUnitlessZero(css) AS has_unitless_zero
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2020-08-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client
+    count(distinct if(has_unitless_zero, page, null)) as pages,
+    count(distinct page) as total,
+    count(distinct if(has_unitless_zero, page, null)) / count(distinct page) as pct
+from
+    (
+        select client, page, hasunitlesszero(css) as has_unitless_zero
+        from `httparchive.almanac.parsed_css`
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+    )
+group by client

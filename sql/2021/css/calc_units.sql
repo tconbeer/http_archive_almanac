@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getCalcUnits(css STRING)
 RETURNS ARRAY<STRUCT<name STRING, freq INT64>>
 LANGUAGE js
@@ -64,30 +64,20 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  unit,
-  COUNT(DISTINCT url) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    url,
-    unit.name AS unit,
-    unit.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getCalcUnits(css)) AS unit
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client,
-  unit
-HAVING
-  pages >= 100
-ORDER BY
-  pct DESC
+    unit,
+    count(distinct url) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, url, unit.name as unit, unit.freq
+        from `httparchive.almanac.parsed_css`, unnest(getcalcunits(css)) as unit
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+    )
+group by client, unit
+having pages >= 100
+order by pct desc

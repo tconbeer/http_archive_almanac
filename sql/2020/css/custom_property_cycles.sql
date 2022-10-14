@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getCustomPropertyCycles(payload STRING)
 RETURNS INT64
 LANGUAGE js
@@ -86,26 +86,21 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  cycles,
-  COUNT(DISTINCT url) AS pages,
-  SUM(COUNT(DISTINCT url)) OVER (PARTITION BY client) AS total,
-  COUNT(DISTINCT url) / SUM(COUNT(DISTINCT url)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    SUM(getCustomPropertyCycles(payload)) AS cycles
-  FROM
-    `httparchive.pages.2020_08_01_*`
-  GROUP BY
+select
     client,
-    url)
-WHERE
-  cycles IS NOT NULL
-GROUP BY
-  client,
-  cycles
-ORDER BY
-  pct DESC
+    cycles,
+    count(distinct url) as pages,
+    sum(count(distinct url)) over (partition by client) as total,
+    count(distinct url) / sum(count(distinct url)) over (partition by client) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            url,
+            sum(getcustompropertycycles(payload)) as cycles
+        from `httparchive.pages.2020_08_01_*`
+        group by client, url
+    )
+where cycles is not null
+group by client, cycles
+order by pct desc

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION get_decode_info(images_string STRING)
 RETURNS STRUCT<
   total INT64,
@@ -23,23 +23,26 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  COUNT(0) AS pages_total,
-  SAFE_DIVIDE(COUNTIF(images_info.total > 0), COUNT(0)) AS pages_with_img_pct,
-  COUNTIF(images_info.decode_async > 0) AS pages_with_decode_async,
-  SAFE_DIVIDE(COUNTIF(images_info.decode_async > 0), COUNT(0)) AS pages_with_decode_async_pct,
-  SUM(images_info.total) AS img_total,
-  SUM(images_info.decode_async) AS imgs_with_decode_async,
-  SAFE_DIVIDE(SUM(images_info.decode_async), SUM(images_info.total)) AS imgs_with_decode_async_pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    get_decode_info(JSON_EXTRACT_SCALAR(payload, '$._Images')) AS images_info
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-GROUP BY
-  client
-ORDER BY
-  client
+select
+    client,
+    count(0) as pages_total,
+    safe_divide(countif(images_info.total > 0), count(0)) as pages_with_img_pct,
+    countif(images_info.decode_async > 0) as pages_with_decode_async,
+    safe_divide(
+        countif(images_info.decode_async > 0), count(0)
+    ) as pages_with_decode_async_pct,
+    sum(images_info.total) as img_total,
+    sum(images_info.decode_async) as imgs_with_decode_async,
+    safe_divide(
+        sum(images_info.decode_async), sum(images_info.total)
+    ) as imgs_with_decode_async_pct
+from
+    (
+        select
+            _table_suffix as client,
+            url,
+            get_decode_info(json_extract_scalar(payload, '$._Images')) as images_info
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client
+order by client

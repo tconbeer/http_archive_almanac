@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getCustomPropertyRoots(payload STRING)
 RETURNS ARRAY<STRUCT<name STRING, freq INT64>>
 LANGUAGE js
@@ -59,37 +59,27 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  name AS root,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct,
-  COUNT(DISTINCT IF(freq > 0, page, NULL)) AS pages,
-  total_pages,
-  COUNT(DISTINCT IF(freq > 0, page, NULL)) / total_pages AS pct_pages
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    root.name,
-    root.freq
-  FROM
-    `httparchive.pages.2020_08_01_*`,
-    UNNEST(getCustomPropertyRoots(payload)) AS root)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  root,
-  total_pages
-ORDER BY
-  pct DESC
+select
+    client,
+    name as root,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct,
+    count(distinct if(freq > 0, page, null)) as pages,
+    total_pages,
+    count(distinct if(freq > 0, page, null)) / total_pages as pct_pages
+from
+    (
+        select _table_suffix as client, url as page, root.name, root.freq
+        from
+            `httparchive.pages.2020_08_01_*`,
+            unnest(getcustompropertyroots(payload)) as root
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    ) using (client)
+group by client, root, total_pages
+order by pct desc

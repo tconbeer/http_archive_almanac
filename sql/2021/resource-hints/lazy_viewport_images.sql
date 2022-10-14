@@ -1,6 +1,5 @@
 # standardSQL
 # Lazy-loaded images within the initial viewport
-
 CREATE TEMPORARY FUNCTION hasLazyLoadedImagesInViewport(payload STRING)
 RETURNS STRUCT<isLazy BOOL, inViewport BOOL>
 LANGUAGE js AS '''
@@ -30,20 +29,21 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(has_lazy_images_in_viewport.inViewport) AS in_viewport,
-  COUNTIF(has_lazy_images_in_viewport.isLazy) AS is_lazy,
-  COUNTIF(has_lazy_images_in_viewport.inViewport) / COUNTIF(has_lazy_images_in_viewport.isLazy) AS pct,
-  COUNT(0) AS total
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    hasLazyLoadedImagesInViewport(JSON_EXTRACT_SCALAR(payload, '$._Images')) AS has_lazy_images_in_viewport
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
-ORDER BY
-  client
+select
+    client,
+    countif(has_lazy_images_in_viewport.inviewport) as in_viewport,
+    countif(has_lazy_images_in_viewport.islazy) as is_lazy,
+    countif(has_lazy_images_in_viewport.inviewport)
+    / countif(has_lazy_images_in_viewport.islazy) as pct,
+    count(0) as total
+from
+    (
+        select
+            _table_suffix as client,
+            haslazyloadedimagesinviewport(
+                json_extract_scalar(payload, '$._Images')
+            ) as has_lazy_images_in_viewport
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client
+order by client

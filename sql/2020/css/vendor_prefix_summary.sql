@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getPrefixStats(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -96,25 +96,20 @@ catch (e) {
 }
 ''';
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    prop,
-    COUNT(DISTINCT page) AS pages,
-    COUNT(0) AS freq,
-    SUM(COUNT(IF(prop = 'total', NULL, 0))) OVER (PARTITION BY client) AS total,
-    COUNT(IF(prop = 'total', NULL, 0)) / SUM(COUNT(IF(prop = 'total', NULL, 0))) OVER (PARTITION BY client) AS pct
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getPrefixStats(css)) AS prop
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    prop)
-WHERE
-  pages >= 1000
-ORDER BY
-  pct DESC
+select *
+from
+    (
+        select
+            client,
+            prop,
+            count(distinct page) as pages,
+            count(0) as freq,
+            sum(count(if(prop = 'total', null, 0))) over (partition by client) as total,
+            count(if(prop = 'total', null, 0))
+            / sum(count(if(prop = 'total', null, 0))) over (partition by client) as pct
+        from `httparchive.almanac.parsed_css`, unnest(getprefixstats(css)) as prop
+        where date = '2020-08-01'
+        group by client, prop
+    )
+where pages >= 1000
+order by pct desc

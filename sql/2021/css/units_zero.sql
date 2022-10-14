@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getZeroUnits(css STRING)
 RETURNS ARRAY<STRUCT<unit STRING, freq INT64>>
 LANGUAGE js
@@ -92,27 +92,20 @@ try {
 }
 ''';
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    unit.unit,
-    COUNT(DISTINCT page) AS pages,
-    SUM(unit.freq) AS freq,
-    SUM(SUM(unit.freq)) OVER (PARTITION BY client) AS total,
-    SUM(unit.freq) / SUM(SUM(unit.freq)) OVER (PARTITION BY client) AS pct
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getZeroUnits(css)) AS unit
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024
-  GROUP BY
-    client,
-    unit)
-WHERE
-  freq >= 1000
-ORDER BY
-  pct DESC
+select *
+from
+    (
+        select
+            client,
+            unit.unit,
+            count(distinct page) as pages,
+            sum(unit.freq) as freq,
+            sum(sum(unit.freq)) over (partition by client) as total,
+            sum(unit.freq) / sum(sum(unit.freq)) over (partition by client) as pct
+        from `httparchive.almanac.parsed_css`, unnest(getzerounits(css)) as unit
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+        group by client, unit
+    )
+where freq >= 1000
+order by pct desc

@@ -1,18 +1,16 @@
-#standardSQL
+# standardSQL
 # 08_28: Groupings of "feature-policy" parsed values buckets
-SELECT
-  _TABLE_SUFFIX AS client,
-  value,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX), 2) AS pct
-FROM
-  `httparchive.summary_requests.2019_07_01_*`,
-  UNNEST(REGEXP_EXTRACT_ALL(LOWER(respOtherHeaders), 'feature-policy = ([^,]+)')) AS value
-WHERE
-  firstHtml
-GROUP BY
-  client,
-  value
-ORDER BY
-  freq / total DESC
+select
+    _table_suffix as client,
+    value,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by _table_suffix), 2) as pct
+from
+    `httparchive.summary_requests.2019_07_01_*`,
+    unnest(
+        regexp_extract_all(lower(respotherheaders), 'feature-policy = ([^,]+)')
+    ) as value
+where firsthtml
+group by client, value
+order by freq / total desc

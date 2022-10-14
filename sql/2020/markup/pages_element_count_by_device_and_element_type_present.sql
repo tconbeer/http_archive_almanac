@@ -1,7 +1,6 @@
-#standardSQL
+# standardSQL
 # how many pages contain an element by element and device M241
 # See related: sql/2019/03_Markup/03_02a.sql
-
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
 );
@@ -22,26 +21,23 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  element_type,
-  COUNT(DISTINCT url) AS pages,
-  total,
-  AS_PERCENT(COUNT(DISTINCT url), total) AS pct_m241
-FROM
-  `httparchive.pages.2020_08_01_*`
-JOIN
-  (SELECT _TABLE_SUFFIX, COUNT(0) AS total
-    FROM
-      `httparchive.pages.2020_08_01_*`
-    GROUP BY _TABLE_SUFFIX) # to get an accurate total of pages per device. also seems fast
-USING (_TABLE_SUFFIX),
-  UNNEST(get_element_types(JSON_EXTRACT_SCALAR(payload, '$._element_count'))) AS element_type
-GROUP BY
-  client,
-  total,
-  element_type
-ORDER BY
-  pages / total DESC,
-  client
-LIMIT 1000
+select
+    _table_suffix as client,
+    element_type,
+    count(distinct url) as pages,
+    total,
+    as_percent(count(distinct url), total) as pct_m241
+from `httparchive.pages.2020_08_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2020_08_01_*`
+        # to get an accurate total of pages per device. also seems fast
+        group by _table_suffix
+    ) using (_table_suffix),
+    unnest(
+        get_element_types(json_extract_scalar(payload, '$._element_count'))
+    ) as element_type
+group by client, total, element_type
+order by pages / total desc, client
+limit 1000

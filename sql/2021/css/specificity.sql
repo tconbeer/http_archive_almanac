@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getSpecificityInfo(css STRING)
 RETURNS STRUCT<
   ruleCount NUMERIC,
@@ -83,43 +83,43 @@ CREATE TEMPORARY FUNCTION extractSpecificity(specificity_cmp STRING) RETURNS STR
   SUBSTR(specificity_cmp, 16)
 );
 
-SELECT
-  percentile,
-  client,
-  extractSpecificity(APPROX_QUANTILES(max_specificity_cmp, 1000)[OFFSET(percentile * 10)]) AS max_specificity,
-  extractSpecificity(APPROX_QUANTILES(median_specificity_cmp, 1000)[OFFSET(percentile * 10)]) AS median_specificity
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    MAX(specificity_cmp) AS max_specificity_cmp,
-    MIN(IF(freq_cdf >= 0.5, specificity_cmp, NULL)) AS median_specificity_cmp
-  FROM (
-    SELECT
-      client,
-      page,
-      bin.specificity_cmp,
-      SUM(bin.freq) OVER (PARTITION BY client, page ORDER BY bin.specificity_cmp) / SUM(bin.freq) OVER (PARTITION BY client, page) AS freq_cdf
-    FROM (
-      SELECT
-        client,
-        page,
-        getSpecificityInfo(css) AS info
-      FROM
-        `httparchive.almanac.parsed_css`
-      WHERE
-        date = '2021-07-01' AND
-        # Limit the size of the CSS to avoid OOM crashes.
-        LENGTH(css) < 0.1 * 1024 * 1024),
-      UNNEST(info.distribution) AS bin
-    WHERE
-      bin.specificity_cmp IS NOT NULL)
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90, 95, 99, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    extractspecificity(
+        approx_quantiles(max_specificity_cmp, 1000)[offset(percentile * 10)]
+    ) as max_specificity,
+    extractspecificity(
+        approx_quantiles(median_specificity_cmp, 1000)[offset(percentile * 10)]
+    ) as median_specificity
+from
+    (
+        select
+            client,
+            max(specificity_cmp) as max_specificity_cmp,
+            min(if(freq_cdf >= 0.5, specificity_cmp, null)) as median_specificity_cmp
+        from
+            (
+                select
+                    client,
+                    page,
+                    bin.specificity_cmp,
+                    sum(bin.freq) over (
+                        partition by client, page order by bin.specificity_cmp
+                    )
+                    / sum(bin.freq) over (partition by client, page) as freq_cdf
+                from
+                    (
+                        select client, page, getspecificityinfo(css) as info
+                        from `httparchive.almanac.parsed_css`
+                        # Limit the size of the CSS to avoid OOM crashes.
+                        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+                    ),
+                    unnest(info.distribution) as bin
+                where bin.specificity_cmp is not null
+            )
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90, 95, 99, 100]) as percentile
+group by percentile, client
+order by percentile, client

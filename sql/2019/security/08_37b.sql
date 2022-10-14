@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 08_37b: SameSite cookie values
 CREATE TEMPORARY FUNCTION extractHeader(payload STRING, name STRING)
 RETURNS STRING LANGUAGE js AS '''
@@ -14,21 +14,15 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  NORMALIZE_AND_CASEFOLD(TRIM(SPLIT(directive, '=')[SAFE_OFFSET(1)])) AS value,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.requests`,
-  UNNEST(SPLIT(extractHeader(payload, 'Set-Cookie'), ';')) AS directive
-WHERE
-  date = '2019-07-01' AND
-  firstHtml AND
-  STARTS_WITH(TRIM(directive), 'SameSite')
-GROUP BY
-  client,
-  value
-ORDER BY
-  freq / total DESC
+select
+    client,
+    normalize_and_casefold(trim(split(directive, '=')[safe_offset(1)])) as value,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from
+    `httparchive.almanac.requests`,
+    unnest(split(extractheader(payload, 'Set-Cookie'), ';')) as directive
+where date = '2019-07-01' and firsthtml and starts_with(trim(directive), 'SameSite')
+group by client, value
+order by freq / total desc

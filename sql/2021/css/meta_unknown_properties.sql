@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getUnknownProperties(css STRING)
 RETURNS ARRAY<STRUCT<property STRING, freq INT64>>
 LANGUAGE js
@@ -35,31 +35,28 @@ try {
 }
 ''';
 
-SELECT
-  *
-FROM (
-  SELECT DISTINCT
-    client,
-    property,
-    COUNT(DISTINCT page) OVER (PARTITION BY client, property) AS pages,
-    COUNT(DISTINCT page) OVER (PARTITION BY client) AS total,
-    COUNT(DISTINCT page) OVER (PARTITION BY client, property) / COUNT(DISTINCT page) OVER (PARTITION BY client) AS pct_pages,
-    SUM(freq) OVER (PARTITION BY client, property) AS freq,
-    SUM(freq) OVER (PARTITION BY client) AS total,
-    SUM(freq) OVER (PARTITION BY client, property) / SUM(freq) OVER (PARTITION BY client) AS pct
-  FROM (
-    SELECT
-      client,
-      page,
-      property.property,
-      property.freq
-    FROM
-      `httparchive.almanac.parsed_css`,
-      UNNEST(getUnknownProperties(css)) AS property
-    WHERE
-      date = '2021-07-01' AND
-      LENGTH(property.property) > 1))
-WHERE
-  pct >= 0.01
-ORDER BY
-  pct DESC
+select *
+from
+    (
+        select distinct
+            client,
+            property,
+            count(distinct page) over (partition by client, property) as pages,
+            count(distinct page) over (partition by client) as total,
+            count(distinct page) over (partition by client, property)
+            / count(distinct page) over (partition by client) as pct_pages,
+            sum(freq) over (partition by client, property) as freq,
+            sum(freq) over (partition by client) as total,
+            sum(freq) over (partition by client, property)
+            / sum(freq) over (partition by client) as pct
+        from
+            (
+                select client, page, property.property, property.freq
+                from
+                    `httparchive.almanac.parsed_css`,
+                    unnest(getunknownproperties(css)) as property
+                where date = '2021-07-01' and length(property.property) > 1
+            )
+    )
+where pct >= 0.01
+order by pct desc

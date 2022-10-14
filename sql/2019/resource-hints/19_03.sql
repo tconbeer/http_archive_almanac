@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 19_03: Attribute popularity for each hint.
 CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
 RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
@@ -31,21 +31,16 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  hint.name,
-  hint.attribute,
-  IFNULL(NORMALIZE_AND_CASEFOLD(hint.value), 'not set') AS value,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, hint.name) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, hint.name), 2) AS pct
-FROM
-  `httparchive.pages.2019_07_01_*`,
-  UNNEST(getResourceHints(payload)) AS hint
-GROUP BY
-  client,
-  name,
-  attribute,
-  value
-ORDER BY
-  freq DESC
+select
+    _table_suffix as client,
+    hint.name,
+    hint.attribute,
+    ifnull(normalize_and_casefold(hint.value), 'not set') as value,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix, hint.name) as total,
+    round(
+        count(0) * 100 / sum(count(0)) over (partition by _table_suffix, hint.name), 2
+    ) as pct
+from `httparchive.pages.2019_07_01_*`, unnest(getresourcehints(payload)) as hint
+group by client, name, attribute, value
+order by freq desc

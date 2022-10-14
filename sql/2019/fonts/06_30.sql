@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 06_30: VF variation axes used in concert
 CREATE TEMPORARY FUNCTION getFontVariationSettings(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -23,22 +23,16 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  common_axes,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontVariationSettings(css)) AS common_axes
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  common_axes
-HAVING
-  common_axes IS NOT NULL AND
-  common_axes != ''
-ORDER BY
-  freq / total DESC
+select
+    client,
+    common_axes,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from
+    `httparchive.almanac.parsed_css`,
+    unnest(getfontvariationsettings(css)) as common_axes
+where date = '2019-07-01'
+group by client, common_axes
+having common_axes is not null and common_axes != ''
+order by freq / total desc

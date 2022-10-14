@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION hasMulticol(css STRING)
 RETURNS BOOLEAN
 LANGUAGE js
@@ -13,33 +13,22 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(multicol) AS pages_with_multicol,
-  total,
-  COUNTIF(multicol) / total AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(hasMulticol(css)) > 0 AS multicol
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(multicol) as pages_with_multicol,
+    total,
+    countif(multicol) / total as pct
+from
+    (
+        select client, page, countif(hasmulticol(css)) > 0 as multicol
+        from `httparchive.almanac.parsed_css`
+        where date = '2021-07-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, total

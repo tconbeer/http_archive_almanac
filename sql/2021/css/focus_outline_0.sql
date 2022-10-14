@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Adoption of :focus pseudoclass and outline: 0 style
 CREATE TEMPORARY FUNCTION getFocusStylesOutline0(css STRING) RETURNS ARRAY<BOOL> LANGUAGE js
 OPTIONS (library = "gs://httparchive/lib/css-utils.js") AS '''
@@ -41,35 +41,30 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(sets_focus_style) AS pages_focus,
-  COUNTIF(sets_focus_outline_0) AS pages_focus_outline_0,
-  ANY_VALUE(total_pages) AS total_pages,
-  COUNTIF(sets_focus_style) / ANY_VALUE(total_pages) AS pct_pages_focus,
-  COUNTIF(sets_focus_outline_0) / ANY_VALUE(total_pages) AS pct_pages_focus_outline_0
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNT(0) > 0 AS sets_focus_style,
-    COUNTIF(sets_outline_0) > 0 AS sets_focus_outline_0
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getFocusStylesOutline0(css)) AS sets_outline_0
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING (client)
-GROUP BY
-  client
+    countif(sets_focus_style) as pages_focus,
+    countif(sets_focus_outline_0) as pages_focus_outline_0,
+    any_value(total_pages) as total_pages,
+    countif(sets_focus_style) / any_value(total_pages) as pct_pages_focus,
+    countif(sets_focus_outline_0) / any_value(total_pages) as pct_pages_focus_outline_0
+from
+    (
+        select
+            client,
+            page,
+            count(0) > 0 as sets_focus_style,
+            countif(sets_outline_0) > 0 as sets_focus_outline_0
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getfocusstylesoutline0(css)) as sets_outline_0
+        where date = '2021-07-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    ) using (client)
+group by client

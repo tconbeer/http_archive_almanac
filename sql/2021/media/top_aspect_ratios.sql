@@ -14,54 +14,45 @@ LANGUAGE js AS '''
   }
 ''';
 
-WITH imgs AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS pageURL,
-    imgURL,
-    approximateResourceWidth,
-    approximateResourceHeight,
-    aspectRatio
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getSrcsetInfo(JSON_QUERY(JSON_VALUE(payload, '$._responsive_images'), '$.responsive-images')))
-  WHERE
-    approximateResourceWidth > 1 AND
-    approximateResourceHeight > 1
-),
+with
+    imgs as (
+        select
+            _table_suffix as client,
+            url as pageurl,
+            imgurl,
+            approximateresourcewidth,
+            approximateresourceheight,
+            aspectratio
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                getsrcsetinfo(
+                    json_query(
+                        json_value(payload, '$._responsive_images'),
+                        '$.responsive-images'
+                    )
+                )
+            )
+        where approximateresourcewidth > 1 and approximateresourceheight > 1
+    ),
 
-counts_per_client AS (
-  SELECT
-    client,
-    COUNT(0) AS numberOfImagesPerClient
-  FROM
-    imgs
-  GROUP BY
-    client
-),
+    counts_per_client as (
+        select client, count(0) as numberofimagesperclient from imgs group by client
+    ),
 
-counts_per_client_and_aspect_ratio AS (
-  SELECT
-    client,
-    aspectRatio,
-    COUNT(0) AS numberOfImagesPerClientAndAspectRatio
-  FROM
-    imgs
-  GROUP BY
-    client,
-    aspectRatio
-)
+    counts_per_client_and_aspect_ratio as (
+        select client, aspectratio, count(0) as numberofimagesperclientandaspectratio
+        from imgs
+        group by client, aspectratio
+    )
 
-SELECT
-  client,
-  aspectRatio,
-  numberOfImagesPerClientAndAspectRatio,
-  SAFE_DIVIDE(numberOfImagesPerClientAndAspectRatio, numberOfImagesPerClient) AS percentOfImages
-FROM
-  counts_per_client_and_aspect_ratio
-LEFT JOIN
-  counts_per_client
-USING
-  (client)
-ORDER BY
-  percentOfImages DESC
+select
+    client,
+    aspectratio,
+    numberofimagesperclientandaspectratio,
+    safe_divide(
+        numberofimagesperclientandaspectratio, numberofimagesperclient
+    ) as percentofimages
+from counts_per_client_and_aspect_ratio
+left join counts_per_client using (client)
+order by percentofimages desc

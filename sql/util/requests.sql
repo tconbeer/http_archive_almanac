@@ -191,17 +191,19 @@ LANGUAGE js AS """
   }
 """;
 
-SELECT
-  CAST('2021-07-01' AS DATE) AS date,
-  _TABLE_SUFFIX AS client,
-  page,
-  rank,
-  url,
-  getSummary(payload).*, -- noqa: L013
-  JSON_EXTRACT(payload, '$.request.headers') AS request_headers,
-  JSON_EXTRACT(payload, '$.response.headers') AS response_headers,
-  payload
-FROM
-  `httparchive.requests.2021_07_01_*`
-LEFT JOIN (SELECT _TABLE_SUFFIX, url AS page, rank FROM `httparchive.summary_pages.2021_07_01_*`)
-USING (_TABLE_SUFFIX, page)
+select
+    cast('2021-07-01' as date) as date,
+    _table_suffix as client,
+    page,
+    rank,
+    url,
+    getsummary(payload).*,  -- noqa: L013
+    json_extract(payload, '$.request.headers') as request_headers,
+    json_extract(payload, '$.response.headers') as response_headers,
+    payload
+from `httparchive.requests.2021_07_01_*`
+left join
+    (
+        select _table_suffix, url as page, rank
+        from `httparchive.summary_pages.2021_07_01_*`
+    ) using (_table_suffix, page)

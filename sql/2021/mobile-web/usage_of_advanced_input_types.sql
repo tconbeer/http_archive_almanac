@@ -1,6 +1,7 @@
-#standardSQL
+# standardSQL
 # Usage of advanced input types
-# color, date, datetime-local, email, month, number, range, reset, search, tel, time, url, week, datalist
+# color, date, datetime-local, email, month, number, range, reset, search, tel, time,
+# url, week, datalist
 CREATE TEMPORARY FUNCTION getInputStats(payload STRING)
 RETURNS STRUCT<found_advanced_types BOOLEAN, total_inputs INT64> LANGUAGE js AS '''
 try {
@@ -23,14 +24,14 @@ try {
 }
 ''';
 
-SELECT
-  COUNT(0) AS total_pages,
-  COUNTIF(input_stats.total_inputs > 0) AS total_applicable_pages,
-  COUNTIF(input_stats.found_advanced_types) AS total_pages_using,
-  COUNTIF(input_stats.found_advanced_types) / COUNTIF(input_stats.total_inputs > 0) AS occurence_pct
-FROM (
-  SELECT
-    getInputStats(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS input_stats
-  FROM
-    `httparchive.pages.2021_07_01_mobile`
-)
+select
+    count(0) as total_pages,
+    countif(input_stats.total_inputs > 0) as total_applicable_pages,
+    countif(input_stats.found_advanced_types) as total_pages_using,
+    countif(input_stats.found_advanced_types)
+    / countif(input_stats.total_inputs > 0) as occurence_pct
+from
+    (
+        select getinputstats(json_extract_scalar(payload, '$._almanac')) as input_stats
+        from `httparchive.pages.2021_07_01_mobile`
+    )

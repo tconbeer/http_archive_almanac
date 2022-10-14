@@ -14,33 +14,17 @@ try {
 }
 """;
 
-SELECT
-  client,
-  header,
-  COUNT(0) AS num_requests,
-  total,
-  COUNT(0) / total AS pct
-FROM
-  `httparchive.almanac.requests`,
-  UNNEST(extractHTTPHeaders(response_headers)) AS header
-JOIN
-  (
-    SELECT
-      client,
-      COUNT(0) AS total
-    FROM
-      `httparchive.almanac.requests`
-    GROUP BY
-      client
-  )
-USING (client)
-WHERE
-  date = '2021-07-01'
-GROUP BY
-  client,
-  header,
-  total
-ORDER BY
-  pct DESC,
-  client
-LIMIT 1000
+select client, header, count(0) as num_requests, total, count(0) / total as pct
+from
+    `httparchive.almanac.requests`,
+    unnest(extracthttpheaders(response_headers)) as header
+join
+    (
+        select client, count(0) as total
+        from `httparchive.almanac.requests`
+        group by client
+    ) using (client)
+where date = '2021-07-01'
+group by client, header, total
+order by pct desc, client
+limit 1000

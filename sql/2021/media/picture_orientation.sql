@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # picture using orientation
 CREATE TEMPORARY FUNCTION get_media_info(media_string STRING)
 RETURNS STRUCT<
@@ -18,21 +18,25 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  COUNTIF(media_info.num_picture_using_orientation > 0) AS picture_orientation_pages,
-  COUNTIF(media_info.num_picture_img > 0) AS total_picture_pages,
-  SAFE_DIVIDE(COUNTIF(media_info.num_picture_using_orientation > 0), COUNTIF(media_info.num_picture_img > 0)) AS pct_picture_orientation_pages,
-  SUM(media_info.num_picture_using_orientation) AS picture_orientation_images,
-  SUM(media_info.num_picture_img) AS total_picture_images,
-  SAFE_DIVIDE(SUM(media_info.num_picture_using_orientation), SUM(media_info.num_picture_img)) AS pct_picture_orientation_images
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    get_media_info(JSON_EXTRACT_SCALAR(payload, '$._media')) AS media_info
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-GROUP BY
-  client
-ORDER BY
-  client
+select
+    client,
+    countif(media_info.num_picture_using_orientation > 0) as picture_orientation_pages,
+    countif(media_info.num_picture_img > 0) as total_picture_pages,
+    safe_divide(
+        countif(media_info.num_picture_using_orientation > 0),
+        countif(media_info.num_picture_img > 0)
+    ) as pct_picture_orientation_pages,
+    sum(media_info.num_picture_using_orientation) as picture_orientation_images,
+    sum(media_info.num_picture_img) as total_picture_images,
+    safe_divide(
+        sum(media_info.num_picture_using_orientation), sum(media_info.num_picture_img)
+    ) as pct_picture_orientation_images
+from
+    (
+        select
+            _table_suffix as client,
+            get_media_info(json_extract_scalar(payload, '$._media')) as media_info
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client
+order by client

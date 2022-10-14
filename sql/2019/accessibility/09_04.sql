@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 09_04: % of pages having more than one "main" landmark
 CREATE TEMPORARY FUNCTION getMainCount(payload STRING)
 RETURNS INT64 LANGUAGE js AS '''
@@ -12,24 +12,32 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  main_elements + main_roles AS main_landmarks,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  (SELECT _TABLE_SUFFIX AS client, url AS page, getMainCount(payload) AS main_elements FROM `httparchive.pages.2019_07_01_*`)
-JOIN
-  (SELECT client, page, ARRAY_LENGTH(REGEXP_EXTRACT_ALL(body, '(?i)role=[\'"]?main')) AS main_roles FROM `httparchive.almanac.summary_response_bodies` WHERE date = '2019-07-01' AND firstHtml)
-USING
-  (client, page)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (client)
-GROUP BY
-  client,
-  total,
-  main_landmarks
-ORDER BY
-  pages / total DESC
+select
+    client,
+    main_elements + main_roles as main_landmarks,
+    count(distinct page) as pages,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from
+    (
+        select
+            _table_suffix as client, url as page, getmaincount(payload) as main_elements
+        from `httparchive.pages.2019_07_01_*`
+    )
+join
+    (
+        select
+            client,
+            page,
+            array_length(regexp_extract_all(body, '(?i)role=[\'"]?main')) as main_roles
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    ) using (client, page)
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+group by client, total, main_landmarks
+order by pages / total desc

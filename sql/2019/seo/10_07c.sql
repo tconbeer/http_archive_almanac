@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 10_07c: <meta description> length
 CREATE TEMP FUNCTION getMetaDescriptionLength(payload STRING)
 RETURNS INT64 LANGUAGE js AS '''
@@ -12,20 +12,17 @@ try {
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(description_length, 1000)[OFFSET(percentile * 10)] AS desc_length
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getMetaDescriptionLength(payload) AS description_length
-  FROM
-    `httparchive.pages.2019_07_01_*`),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    client,
+    approx_quantiles(description_length, 1000)[offset(percentile * 10)] as desc_length
+from
+    (
+        select
+            _table_suffix as client,
+            getmetadescriptionlength(payload) as description_length
+        from `httparchive.pages.2019_07_01_*`
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

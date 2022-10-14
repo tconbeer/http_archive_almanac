@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # frequency of the number of element types used on a page
-
 # returns all the data we need from _element_count
 CREATE TEMPORARY FUNCTION get_element_type_COUNT(element_count_string STRING)
 RETURNS INT64 LANGUAGE js AS '''
@@ -17,15 +16,12 @@ try {
 return null;
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  get_element_type_COUNT(JSON_EXTRACT_SCALAR(payload, '$._element_count')) AS element_types,
-  COUNT(0) AS freq
-FROM
-  `httparchive.pages.2020_08_01_*`
-GROUP BY
-  element_types,
-  client
-ORDER BY
-  element_types,
-  client
+select
+    _table_suffix as client,
+    get_element_type_count(
+        json_extract_scalar(payload, '$._element_count')
+    ) as element_types,
+    count(0) as freq
+from `httparchive.pages.2020_08_01_*`
+group by element_types, client
+order by element_types, client

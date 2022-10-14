@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
 RETURNS STRUCT<
   class ARRAY<STRING>,
@@ -57,34 +57,20 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  pages,
-  id.value AS id,
-  id.count AS freq,
-  id.count / pages AS pct
-FROM (
-  SELECT
-    client,
-    COUNT(DISTINCT page) AS pages,
-    APPROX_TOP_COUNT(id, 100) AS ids
-  FROM (
-      SELECT DISTINCT
-        client,
-        page,
-        id
-      FROM
-        `httparchive.almanac.parsed_css`
-      LEFT JOIN
-        UNNEST(getSelectorParts(css).id) AS id
-      WHERE
-        date = '2020-08-01' AND
-        # Limit the size of the CSS to avoid OOM crashes.
-        LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client),
-  UNNEST(ids) AS id
-WHERE
-  id.value IS NOT NULL
-ORDER BY
-  pct DESC
+select client, pages, id.value as id, id.count as freq, id.count / pages as pct
+from
+    (
+        select client, count(distinct page) as pages, approx_top_count(id, 100) as ids
+        from
+            (
+                select distinct client, page, id
+                from `httparchive.almanac.parsed_css`
+                left join unnest(getselectorparts(css).id) as id
+                # Limit the size of the CSS to avoid OOM crashes.
+                where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client
+    ),
+    unnest(ids) as id
+where id.value is not null
+order by pct desc
