@@ -1,11 +1,10 @@
 # standardSQL
 # Structured data schema types
 # returns all the data we need from _wpt_bodies
-create temporary function getstructuredschemawptbodies(wpt_bodies_string string)
-returns struct
-< jsonld_and_microdata_types array
-< string
-> > language js as '''
+CREATE TEMPORARY FUNCTION getStructuredSchemaWptBodies(wpt_bodies_string STRING)
+RETURNS STRUCT<
+  jsonld_and_microdata_types ARRAY<STRING>
+> LANGUAGE js AS '''
 var result = {};
 
 
@@ -21,8 +20,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select client, type, total, count(0) as count, safe_divide(count(0), total) as pct
 from

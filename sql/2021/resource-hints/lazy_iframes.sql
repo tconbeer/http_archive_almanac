@@ -1,8 +1,8 @@
 # standardSQL
 # Count the number of lazily loaded iframes
-create temporary function countlazyiframes(almanac_string string)
-returns int64
-language js as '''
+CREATE TEMPORARY FUNCTION countLazyIframes(almanac_string STRING)
+RETURNS INT64
+LANGUAGE js AS '''
 try {
     var almanac = JSON.parse(almanac_string)
     if (Array.isArray(almanac) || typeof almanac != 'object') return null;
@@ -13,8 +13,7 @@ try {
 catch {
     return null
 }
-'''
-;
+''';
 with
     iframe_stats_tb as (
         select

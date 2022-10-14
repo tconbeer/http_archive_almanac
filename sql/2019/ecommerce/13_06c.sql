@@ -1,9 +1,7 @@
 # standardSQL
 # 13_06c: Distribution of image dimensions
-create temporary function getimagedimensions(payload string)
-returns array < struct < height int64,
-width int64
->> language js as '''
+CREATE TEMPORARY FUNCTION getImageDimensions(payload STRING)
+RETURNS ARRAY<STRUCT<height INT64, width INT64>> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var images = JSON.parse($._Images);
@@ -11,8 +9,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     percentile,

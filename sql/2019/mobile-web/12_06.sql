@@ -1,8 +1,8 @@
 # standardSQL
 # % of pages that include a stylesheet with a breakpoint under 600px.
 # (!) 7.71 TB
-create temporary function hasbreakpoint(css string)
-returns boolean language js as '''
+CREATE TEMPORARY FUNCTION hasBreakpoint(css STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 function matchAll(re, str) {
   var results = [];
   while ((matches = re.exec(str)) !== null) {
@@ -21,8 +21,7 @@ try {
 } catch (e) {
   false;
 }
-'''
-;
+''';
 
 select
     count(distinct page) as pages,

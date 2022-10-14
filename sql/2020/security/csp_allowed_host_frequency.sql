@@ -1,18 +1,16 @@
 # standardSQL
 # CSP on home pages: most prevalent allowed hosts
-create temporary function getheader(headers string, headername string)
-returns string
-deterministic
-language js
-as '''
+CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
+RETURNS STRING
+DETERMINISTIC
+LANGUAGE js AS '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   if (matching_headers.length > 0) {
     return matching_headers[0].value;
   }
   return null;
-'''
-;
+''';
 
 select
     client,

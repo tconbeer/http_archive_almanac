@@ -1,29 +1,21 @@
 # standardSQL
 # WebVitals by effective connection type
-create temp function is_good(
-    good float64, needs_improvement float64, poor float64
-) returns bool as (safe_divide(good, (good + needs_improvement + poor)) >= 0.75)
-;
+CREATE TEMP FUNCTION IS_GOOD (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
+  SAFE_DIVIDE(good, (good + needs_improvement + poor)) >= 0.75
+);
 
-create temp function is_ni(
-    good float64,
-    needs_improvement float64,
-    poor float64
-) returns bool as (
-    safe_divide(good, (good + needs_improvement + poor)) < 0.75
-    and safe_divide(poor, (good + needs_improvement + poor)) < 0.25
-)
-;
+CREATE TEMP FUNCTION IS_NI (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
+  SAFE_DIVIDE(good, (good + needs_improvement + poor)) < 0.75 AND
+  SAFE_DIVIDE(poor, (good + needs_improvement + poor)) < 0.25
+);
 
-create temp function is_poor(
-    good float64, needs_improvement float64, poor float64
-) returns bool as (safe_divide(poor, (good + needs_improvement + poor)) >= 0.25)
-;
+CREATE TEMP FUNCTION IS_POOR (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
+  SAFE_DIVIDE(poor, (good + needs_improvement + poor)) >= 0.25
+);
 
-create temp function is_non_zero(
-    good float64, needs_improvement float64, poor float64
-) returns bool as (good + needs_improvement + poor > 0)
-;
+CREATE TEMP FUNCTION IS_NON_ZERO (good FLOAT64, needs_improvement FLOAT64, poor FLOAT64) RETURNS BOOL AS (
+  good + needs_improvement + poor > 0
+);
 
 with
     base as (

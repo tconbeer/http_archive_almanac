@@ -1,8 +1,6 @@
 # standardSQL
-create temporary function getstatements(payload string) returns
-array < struct < statement string,
-freq int64
->> language js as '''
+CREATE TEMPORARY FUNCTION getStatements(payload STRING) RETURNS
+ARRAY<STRUCT<statement STRING, freq INT64>> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -27,8 +25,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

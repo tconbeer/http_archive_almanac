@@ -1,9 +1,7 @@
 # standardSQL
 # Top manifest categories
-create temporary function getcategories(manifest string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getCategories(manifest STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = Object.values(JSON.parse(manifest))[0];
   var categories = $.categories;
@@ -14,8 +12,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 with
     totals as (

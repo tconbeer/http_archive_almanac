@@ -1,11 +1,7 @@
 # standardSQL
 # 02_18: % of pages using all/print/screen/speech in media queries
-create temporary function getmediatype(css string)
-returns struct < all_media boolean,
-print_media boolean,
-screen_media boolean,
-speech_media boolean
-> language js as '''
+CREATE TEMPORARY FUNCTION getMediaType(css STRING)
+RETURNS STRUCT<all_media BOOLEAN, print_media BOOLEAN, screen_media BOOLEAN, speech_media BOOLEAN> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {
@@ -27,8 +23,7 @@ try {
 } catch (e) {
   return {};
 }
-'''
-;
+''';
 
 select
     client,

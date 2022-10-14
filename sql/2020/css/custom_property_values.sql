@@ -1,8 +1,6 @@
 # standardSQL
 # Most popular custom property values as a percent of pages.
-create temporary function getcustompropertyvalues(payload string) returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getCustomPropertyValues(payload STRING) RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var vars = JSON.parse($['_css-variables']);
@@ -10,8 +8,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

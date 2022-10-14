@@ -1,7 +1,9 @@
 # standardSQL
-create temporary function getvendorprefixproperties(css string)
-returns array < string > language js
-options(library = "gs://httparchive/lib/css-utils.js") as '''
+CREATE TEMPORARY FUNCTION getVendorPrefixProperties(css STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(ast) {
     let ret = {
@@ -76,8 +78,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select *
 from

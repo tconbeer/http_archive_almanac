@@ -1,21 +1,14 @@
 # standardSQL
 # 04_11a: Bytes per pixel per image format
-create temporary function getimages(payload string)
-returns array < struct < url string,
-naturalwidth int64,
-naturalheight int64,
-width int64,
-height int64
->> language js
-as '''
+CREATE TEMPORARY FUNCTION getImages(payload STRING)
+RETURNS ARRAY<STRUCT<url STRING, naturalWidth INT64, naturalHeight INT64, width INT64, height INT64>> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var images = JSON.parse($._Images) || [];
   return images.map(({url, naturalHeight, naturalWidth, width, height}) => ({url, naturalHeight: Number.parseInt(naturalHeight) || 0, naturalWidth: Number.parseInt(naturalWidth) || 0, width: Number.parseInt(width) || 0, height: Number.parseInt(height) || 0}));
 } catch (e) {}
 return null;
-'''
-;
+''';
 
 select
     a.client,

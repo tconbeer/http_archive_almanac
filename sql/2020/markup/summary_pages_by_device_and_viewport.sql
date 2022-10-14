@@ -1,13 +1,11 @@
 # standardSQL
 # Viewport M219
-create temp function as_percent(freq float64, total float64) returns float64 as (
-    round(safe_divide(freq, total), 4)
-)
-;
+CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
+  ROUND(SAFE_DIVIDE(freq, total), 4)
+);
 
-create temporary function normalise(content string)
-returns string language js
-as '''
+CREATE TEMPORARY FUNCTION normalise(content STRING)
+RETURNS STRING LANGUAGE js AS '''
 try {
   // split by ,
   // trim
@@ -19,8 +17,7 @@ try {
 } catch (e) {
   return '';
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

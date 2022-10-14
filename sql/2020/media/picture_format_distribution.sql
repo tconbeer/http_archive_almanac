@@ -1,13 +1,12 @@
 # standardSQL
 # picture formats distribution
 # returns all the data we need from _media
-create temporary function get_media_info(media_string string)
-returns struct < num_picture_img int64,
-num_picture_formats int64,
-picture_formats array
-< string
-> > language js
-as '''
+CREATE TEMPORARY FUNCTION get_media_info(media_string STRING)
+RETURNS STRUCT<
+  num_picture_img INT64,
+  num_picture_formats INT64,
+  picture_formats ARRAY<STRING>
+> LANGUAGE js AS '''
 var result = {};
 try {
     var media = JSON.parse(media_string);
@@ -32,8 +31,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

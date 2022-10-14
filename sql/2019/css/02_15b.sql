@@ -1,9 +1,7 @@
 # standardSQL
 # 02_15b: % of pages using landscape/portrait orientation in media queries
-create temporary function getorientation(css string)
-returns struct < landscape boolean,
-portrait boolean
-> language js as '''
+CREATE TEMPORARY FUNCTION getOrientation(css STRING)
+RETURNS STRUCT<landscape BOOLEAN, portrait BOOLEAN> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {
@@ -23,8 +21,7 @@ try {
 } catch (e) {
   return {};
 }
-'''
-;
+''';
 
 select
     client,

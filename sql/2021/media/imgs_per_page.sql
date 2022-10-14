@@ -1,14 +1,12 @@
-create temporary function numberofimages(images_string string)
-returns int64
-language js
-as '''
+CREATE TEMPORARY FUNCTION numberOfImages(images_string STRING)
+RETURNS INT64
+LANGUAGE js AS '''
 try {
   return JSON.parse(images_string).filter( i => parseInt(i.approximateResourceWidth) > 1 && parseInt(i.approximateResourceWidth) > 1 ).length;
 } catch {
   return 0;
 }
-'''
-;
+''';
 
 with
     numimgs as (

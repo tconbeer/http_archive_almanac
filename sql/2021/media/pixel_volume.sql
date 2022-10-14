@@ -1,26 +1,24 @@
 # standardSQL
 # pixel volume
-create temporary function getcsspixels(payload string)
-returns int64 language js as '''
+CREATE TEMPORARY FUNCTION getCssPixels(payload STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   let data = JSON.parse(payload);
   return data.reduce((a, c) => a + (c.width||0)*(c.height||0), 0) || 0;
 }
 catch (e) {}
 return null;
-'''
-;
+''';
 
-create temporary function getnaturalpixels(payload string)
-returns int64 language js as '''
+CREATE TEMPORARY FUNCTION getNaturalPixels(payload STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   let data = JSON.parse(payload);
   return data.reduce((a, c) => a + (c.naturalWidth||0)*(c.naturalHeight||0), 0) || 0;
 }
 catch (e) {}
 return null;
-'''
-;
+''';
 
 select
     percentile,

@@ -1,11 +1,11 @@
 # standardSQL
 # percientile data from element_count per device
 # returns all the data we need from _element_count
-create temporary function get_element_count_info(element_count_string string)
-returns struct < elements_count int64,
-types_count int64
-> language js
-as '''
+CREATE TEMPORARY FUNCTION get_element_count_info(element_count_string STRING)
+RETURNS STRUCT<
+  elements_count INT64,
+  types_count INT64
+> LANGUAGE js AS '''
 var result = {};
 try {
     if (!element_count_string) return result;
@@ -20,8 +20,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     percentile,

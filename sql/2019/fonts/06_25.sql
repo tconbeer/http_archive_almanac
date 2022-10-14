@@ -1,10 +1,7 @@
 # standardSQL
 # 06_25: % of pages that use @supports font-variant-*
-create temporary function checkssupports(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION checksSupports(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type == 'supports' && rule.supports.toLowerCase().includes('font-variation-settings')) {
@@ -17,8 +14,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

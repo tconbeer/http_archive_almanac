@@ -1,9 +1,7 @@
 # standardSQL
 # 06_44: % of pages that use font-display
-create temporary function getfontdisplay(css string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getFontDisplay(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -28,8 +26,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

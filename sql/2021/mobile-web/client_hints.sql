@@ -1,10 +1,7 @@
 # standardSQL
 # Usage of client hint directives
-create temporary function getclienthints(headers string)
-returns array
-< string
-> language js
-as """
+CREATE TEMPORARY FUNCTION getClientHints(headers STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS """
 try {
   const header_name = 'Accept-CH';
   const parsed_headers = JSON.parse(headers);
@@ -25,8 +22,7 @@ try {
 } catch (e) {
   return [];
 }
-"""
-;
+""";
 
 select
     client,

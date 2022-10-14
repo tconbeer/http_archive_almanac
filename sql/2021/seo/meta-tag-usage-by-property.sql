@@ -1,11 +1,9 @@
 # standardSQL
 # Meta tag usage by property
 # returns all the data we need from _almanac
-create temporary function getmetatagalmanacinfo(almanac_string string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getMetaTagAlmanacInfo(almanac_string STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js AS '''
 var result = [];
 try {
     var almanac = JSON.parse(almanac_string);
@@ -21,8 +19,7 @@ try {
 
 } catch (e) {} // results show some issues with the validity of the payload
 return result;
-'''
-;
+''';
 
 select
     client,

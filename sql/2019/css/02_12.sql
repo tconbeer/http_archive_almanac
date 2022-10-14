@@ -1,9 +1,7 @@
 # standardSQL
 # 02_12: % of sites that use each dir value
-create temporary function getdirvalues(css string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getDirValues(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -31,8 +29,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select client, direction, freq, total, round(freq * 100 / total, 2) as pct
 from

@@ -1,9 +1,7 @@
 # standardSQL
 # 02_39: Distribution of media queries per page
-create temporary function getmediaqueries(css string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getMediaQueries(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.reduce((values, rule) => {
@@ -15,8 +13,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

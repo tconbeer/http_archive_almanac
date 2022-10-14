@@ -1,9 +1,7 @@
 # standardSQL
 # 21_08: Top tags that use priority hints
-create temporary function getpriorityhints(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getPriorityHints(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -11,8 +9,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

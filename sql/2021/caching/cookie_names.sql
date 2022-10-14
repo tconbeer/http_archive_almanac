@@ -1,9 +1,7 @@
 # standardSQL
 # Popularity of top Set-Cookie names
-create temporary function getcookies(headers string)
-returns array
-< string
-> deterministic language js as '''
+CREATE TEMPORARY FUNCTION getCookies(headers STRING)
+RETURNS ARRAY<STRING> DETERMINISTIC LANGUAGE js AS '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {
@@ -14,8 +12,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

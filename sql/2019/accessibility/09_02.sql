@@ -1,10 +1,8 @@
 # standardSQL
 # 09_02: % of pages having minimum set of accessible elements
 # Compliant pages have: header, footer, nav, and main (or [role=main]) elements
-create temporary function getcompliantelements(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getCompliantElements(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -14,8 +12,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

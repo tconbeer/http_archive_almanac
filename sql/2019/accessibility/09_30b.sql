@@ -1,9 +1,7 @@
 # standardSQL
 # 09_30b: Usage of aria-label or aria-labelledby
-create temporary function getarialabelusage(payload string)
-returns array
-< boolean
-> language js as '''
+CREATE TEMPORARY FUNCTION getAriaLabelUsage(payload STRING)
+RETURNS ARRAY<BOOLEAN> LANGUAGE js AS '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -17,8 +15,7 @@ returns array
   } catch (e) {
     return [];
   }
-'''
-;
+''';
 
 select
     _table_suffix as client,

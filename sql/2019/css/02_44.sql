@@ -1,12 +1,7 @@
 # standardSQL
 # 02_44: % of sites that use different class attr selectors
-create temporary function getattributeselectortype(css string)
-returns struct < `=` boolean,
-`*=` boolean,
-`^=` boolean,
-`$=` boolean,
-`~=` boolean
-> language js as '''
+CREATE TEMPORARY FUNCTION getAttributeSelectorType(css STRING)
+RETURNS STRUCT<`=` BOOLEAN, `*=` BOOLEAN, `^=` BOOLEAN, `$=` BOOLEAN, `~=` BOOLEAN> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -31,8 +26,7 @@ try {
 } catch (e) {
   return {};
 }
-'''
-;
+''';
 
 select
     client,

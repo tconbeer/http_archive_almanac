@@ -1,12 +1,13 @@
 # standardSQL
 # Image alt stats
 # returns all the data we need from _markup
-create temporary function get_markup_info(markup_string string)
-returns struct < images_img_total int64,
-images_with_alt_present int64,
-images_with_alt_blank int64,
-images_with_alt_missing int64
-> language js as '''
+CREATE TEMPORARY FUNCTION get_markup_info(markup_string STRING)
+RETURNS STRUCT<
+  images_img_total INT64,
+  images_with_alt_present INT64,
+  images_with_alt_blank INT64,
+  images_with_alt_missing INT64
+> LANGUAGE js AS '''
 var result = {
   images_img_total: 0,
   images_with_alt_present: 0,
@@ -33,8 +34,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     percentile,

@@ -1,17 +1,8 @@
 # standardSQL
 # Various stats for required form controls (form controls being: input, select,
 # textarea)
-create temporary function requiredcontrols(payload string)
-returns struct < total int64,
-asterisk int64,
-required_attribute int64,
-aria_required int64,
-all_three int64,
-asterisk_required int64,
-asterisk_aria int64,
-required_with_aria int64
-> language js
-as '''
+CREATE TEMPORARY FUNCTION requiredControls(payload STRING)
+RETURNS STRUCT<total INT64, asterisk INT64, required_attribute INT64, aria_required INT64, all_three INT64, asterisk_required INT64, asterisk_aria INT64, required_with_aria INT64> LANGUAGE js AS '''
   try {
     const a11y = JSON.parse(payload);
     const required_form_controls = a11y.required_form_controls
@@ -79,8 +70,7 @@ as '''
       required_with_aria: 0,
     };
   }
-'''
-;
+''';
 
 select
     client,

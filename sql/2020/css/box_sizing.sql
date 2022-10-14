@@ -1,19 +1,18 @@
 # standardSQL
 # 1. Distribution of the number of occurrences of box-sizing:border-box per page.
 # 2. Percent of pages with that style.
-create temporary function countborderboxdeclarations(css string)
-returns numeric
-language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+CREATE TEMPORARY FUNCTION countBorderBoxDeclarations(css STRING)
+RETURNS NUMERIC
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   const ast = JSON.parse(css);
   return countDeclarations(ast.stylesheet.rules, {properties: /^(-(o|moz|webkit|ms)-)?box-sizing$/, values: 'border-box'});
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     percentile,

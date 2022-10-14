@@ -1,8 +1,7 @@
 # standardSQL
 # meta viewport
-create temporary function normalise(content string)
-returns string language js
-as '''
+CREATE TEMPORARY FUNCTION normalise(content STRING)
+RETURNS STRING LANGUAGE js AS '''
 try {
   // split by ,
   // trim
@@ -14,8 +13,7 @@ try {
 } catch (e) {
   return '';
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

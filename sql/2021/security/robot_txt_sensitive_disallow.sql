@@ -2,10 +2,9 @@
 # Prevalence of pages with /robots.txt and prevalence of pages with disallowed
 # potentially sensitive endpoints (containing 'login', 'log-in', 'signin', 'sign-in',
 # 'admin', 'auth', 'sso' or 'account').
-create temporary function getalldisallowedendpoints(data string)
-returns array < string > deterministic
-language js
-as '''
+CREATE TEMPORARY FUNCTION getAllDisallowedEndpoints(data STRING)
+RETURNS ARRAY<STRING> DETERMINISTIC
+LANGUAGE js AS '''
   const parsed_data = JSON.parse(data);
   if (parsed_data == null || parsed_data["/robots.txt"] == undefined || !parsed_data["/robots.txt"]["found"]) {
       return [];
@@ -13,8 +12,7 @@ as '''
   const parsed_endpoints = parsed_data["/robots.txt"]["data"]["matched_disallows"];
   const endpoints_list = Object.keys(parsed_endpoints).map(key => parsed_endpoints[key]).flat();
   return Array.from(new Set(endpoints_list));
-'''
-;
+''';
 
 select
     client,

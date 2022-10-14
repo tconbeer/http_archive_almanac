@@ -1,9 +1,7 @@
 # standardSQL
 # Where input elements get their A11Y names from
-create temporary function a11yinputnamesources(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION a11yInputNameSources(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
   try {
     const a11y = JSON.parse(payload);
 
@@ -45,8 +43,7 @@ returns array
   } catch (e) {
     return [];
   }
-'''
-;
+''';
 
 select
     client,

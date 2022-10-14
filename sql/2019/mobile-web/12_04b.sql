@@ -1,10 +1,7 @@
 # standardSQL
 # 12_04b: Viewport directive usage
-create temporary function getviewportdirectivedata(payload string)
-returns array < struct < directive string,
-value string
->> language js
-as '''
+CREATE TEMPORARY FUNCTION getViewportDirectiveData(payload STRING)
+RETURNS ARRAY<STRUCT<directive STRING, value STRING>> LANGUAGE js AS '''
   var viewport_separator_regex = new RegExp('(,|;| )+', 'gm');
 
   try {
@@ -33,8 +30,7 @@ as '''
   } catch (e) {
     return [];
   }
-'''
-;
+''';
 
 select
     total_pages,

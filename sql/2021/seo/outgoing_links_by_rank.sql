@@ -1,10 +1,11 @@
 # standardSQL
 # Internal and external link metrics by quantile and rank
-create temporary function getoutgoinglinkmetrics(payload string)
-returns struct < same_site int64,
-same_property int64,
-other_property int64
-> language js as '''
+CREATE TEMPORARY FUNCTION getOutgoingLinkMetrics(payload STRING)
+RETURNS STRUCT<
+  same_site INT64,
+  same_property INT64,
+  other_property INT64
+> LANGUAGE js AS '''
 var result = {same_site: 0,
               same_property: 0,
               other_property: 0};
@@ -28,8 +29,7 @@ try {
 } catch (e) {}
 
 return result;
-'''
-;
+''';
 
 select
     client,

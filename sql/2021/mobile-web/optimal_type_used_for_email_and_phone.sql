@@ -1,9 +1,7 @@
 # standardSQL
 # Optimal type used for email and phone inputs
-create temporary function getinputinfo(payload string)
-returns array < struct < detected_type string,
-using_best_type boolean
->> language js as '''
+CREATE TEMPORARY FUNCTION getInputInfo(payload STRING)
+RETURNS ARRAY<STRUCT<detected_type STRING, using_best_type BOOLEAN>> LANGUAGE js AS '''
   const new_line_regex = new RegExp('(?:\\r\\n|\\r|\\n)', 'g');
   function isFuzzyMatch(value, options) {
     value = value.replace(new_line_regex, '').trim().toLowerCase();
@@ -66,8 +64,7 @@ using_best_type boolean
   } catch (e) {
     return [];
   }
-'''
-;
+''';
 
 select
     input_info.detected_type as detected_type,

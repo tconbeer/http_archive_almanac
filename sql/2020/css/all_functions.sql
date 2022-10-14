@@ -1,7 +1,9 @@
 # standardSQL
-create temporary function getproperties(css string)
-returns array < string > language js
-options(library = "gs://httparchive/lib/css-utils.js") as '''
+CREATE TEMPORARY FUNCTION getProperties(css STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute() {
     let ret = {};
@@ -29,8 +31,7 @@ try {
 catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select *
 from

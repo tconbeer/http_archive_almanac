@@ -1,9 +1,7 @@
 # standardSQL
 # SW objects
-create temporary function getswobjects(swobjectsinfo string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getSWObjects(swObjectsInfo STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var swObjects = Object.values(JSON.parse(swObjectsInfo));
   if (typeof swObjects != 'string') {
@@ -14,8 +12,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 select
     _table_suffix as client,
     sw_object,

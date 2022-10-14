@@ -1,16 +1,9 @@
 # standardSQL
 # Breakdown of scripts using Async, Defer, Module or NoModule attributes.  Also
 # breakdown of inline vs external scripts
-create temporary function getscripts(payload string)
-returns struct < total int64,
-inline int64,
-src int64,
-async int64,
-defer int64,
-async_and_defer int64,
-type_module int64,
-nomodule int64
-> language js as '''
+CREATE TEMPORARY FUNCTION getScripts(payload STRING)
+RETURNS STRUCT<total INT64, inline INT64, src INT64, async INT64, defer INT64, async_and_defer INT64, type_module INT64, nomodule INT64>
+LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var javascript = JSON.parse($._javascript);
@@ -18,8 +11,7 @@ try {
 } catch (e) {
   return {};
 }
-'''
-;
+''';
 
 select
     client,

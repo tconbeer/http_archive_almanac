@@ -1,10 +1,10 @@
 # standardSQL
 # Videos per page
 # returns all the data we need from _almanac
-create temporary function getvideosalmanacinfo(almanac_string string)
-returns struct
-< videos_total int64
-> language js as '''
+CREATE TEMPORARY FUNCTION getVideosAlmanacInfo(almanac_string STRING)
+RETURNS STRUCT<
+  videos_total INT64
+> LANGUAGE js AS '''
 var result = {
   videos_total: 0
 };
@@ -18,8 +18,7 @@ try {
     }
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     percentile,

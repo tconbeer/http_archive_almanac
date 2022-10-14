@@ -1,6 +1,6 @@
 # standardSQL
 # Top most used display values in manifest files
-create temp function getdisplay(manifest string) returns string language js as '''
+CREATE TEMP FUNCTION getDisplay(manifest STRING) RETURNS STRING LANGUAGE js AS '''
 try {
   var $ = Object.values(JSON.parse(manifest))[0];
   if (!('display' in $)) {
@@ -10,8 +10,7 @@ try {
 } catch {
   return '(not set)'
 }
-'''
-;
+''';
 
 select
     'PWA Sites' as type,

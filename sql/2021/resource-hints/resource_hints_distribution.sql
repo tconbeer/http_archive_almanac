@@ -1,12 +1,6 @@
-create temporary function getresourcehints(payload string)
-returns struct < preload int64,
-prefetch int64,
-preconnect int64,
-prerender int64,
-`dns-prefetch` int64,
-`modulepreload` int64
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
+RETURNS STRUCT<preload INT64, prefetch INT64, preconnect INT64, prerender INT64, `dns-prefetch` INT64, `modulepreload` INT64>
+LANGUAGE js AS '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 try {
   var $ = JSON.parse(payload);
@@ -23,8 +17,7 @@ try {
     return results;
   }, {});
 }
-'''
-;
+''';
 
 select
     percentile,

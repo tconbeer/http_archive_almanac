@@ -1,9 +1,8 @@
 # standardSQL
 # 03_05: % of pages with shadow roots
-create temporary function hasshadowroot(payload string) as (
-    json_extract_scalar(payload, '$._has_shadow_root') = 'true'
-)
-;
+CREATE TEMPORARY FUNCTION hasShadowRoot(payload STRING) AS (
+  JSON_EXTRACT_SCALAR(payload, '$._has_shadow_root') = 'true'
+);
 
 select
     _table_suffix as client,

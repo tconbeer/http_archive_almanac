@@ -1,11 +1,12 @@
 # standardSQL
 # images with srcset descriptor_x descriptor_w
 # returns all the data we need from _media
-create temporary function get_media_info(media_string string)
-returns struct < num_srcset_all int64,
-num_srcset_descriptor_x int64,
-num_srcset_descriptor_w int64
-> language js as '''
+CREATE TEMPORARY FUNCTION get_media_info(media_string STRING)
+RETURNS STRUCT<
+  num_srcset_all INT64,
+  num_srcset_descriptor_x INT64,
+  num_srcset_descriptor_w INT64
+> LANGUAGE js AS '''
 var result = {};
 try {
     var media = JSON.parse(media_string);
@@ -18,8 +19,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

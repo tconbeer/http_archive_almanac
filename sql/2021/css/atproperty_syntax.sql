@@ -1,8 +1,6 @@
 # standardSQL
 # Adoption of @property syntax values
-create temp function getatpropertyvalues(css string) returns array
-< string
-> language js as '''
+CREATE TEMP FUNCTION getAtPropertyValues(css STRING) RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {
@@ -27,8 +25,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

@@ -1,12 +1,10 @@
 # standardSQL
 # hreflang header usage
 # returns all the data we need from _wpt_bodies
-create temporary function gethreflangwptbodies(wpt_bodies_string string)
-returns struct
-< hreflangs array
-< string
-> > language js
-as '''
+CREATE TEMPORARY FUNCTION getHreflangWptBodies(wpt_bodies_string STRING)
+RETURNS STRUCT<
+  hreflangs ARRAY<STRING>
+> LANGUAGE js AS '''
 var result = {
   hreflangs: []
 };
@@ -22,8 +20,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

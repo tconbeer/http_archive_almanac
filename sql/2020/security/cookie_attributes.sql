@@ -1,15 +1,15 @@
 # standardSQL
 # Cookie attributes (HttpOnly, Secure, SameSite, __Secure- and __Host- prefixes) for
 # cookies set on first-party and third-party requests
-create temporary function getsetcookieheaders(headers string)
-returns array < string > deterministic
-language js as '''
+CREATE TEMPORARY FUNCTION getSetCookieHeaders(headers STRING)
+RETURNS ARRAY<STRING>
+DETERMINISTIC
+LANGUAGE js AS '''
   const parsed_headers = JSON.parse(headers);
   const cookies = parsed_headers.filter(h => h.name.match(/set-cookie/i));
   const cookieValues = cookies.map(h => h.value);
   return cookieValues;
-'''
-;
+''';
 
 select
     client,

@@ -1,17 +1,15 @@
 # standardSQL
 # Count Dublin Core types
-create temp function getdublincoretypes(rendered string)
-returns array
-< string
-> language js as """
+CREATE TEMP FUNCTION getDublinCoreTypes(rendered STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js AS """
   try {
     rendered = JSON.parse(rendered);
     return rendered.dublin_core.map(dublin_core => dublin_core.name.toLowerCase());
   } catch (e) {
     return [];
   }
-"""
-;
+""";
 
 with
     rendered_data as (

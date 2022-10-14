@@ -1,8 +1,9 @@
 # standardSQL
-create temporary function get_decode_info(images_string string)
-returns struct < total int64,
-decode_async int64
-> language js as '''
+CREATE TEMPORARY FUNCTION get_decode_info(images_string STRING)
+RETURNS STRUCT<
+  total INT64,
+  decode_async INT64
+> LANGUAGE js AS '''
 let result = {};
 try {
   let images = JSON.parse(images_string);
@@ -20,8 +21,7 @@ try {
   }
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

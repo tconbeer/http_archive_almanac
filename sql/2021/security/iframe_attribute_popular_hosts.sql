@@ -1,12 +1,11 @@
 # standardSQL
 # most common hostnames of iframes that have the allow or sandbox attribute
-create temp function haspolicy(attr string, policy_type string)
-returns bool deterministic
-language js as '''
+CREATE TEMP FUNCTION hasPolicy(attr STRING, policy_type STRING)
+RETURNS BOOL DETERMINISTIC
+LANGUAGE js AS '''
   const $ = JSON.parse(attr);
   return $[policy_type] !== null;
-'''
-;
+''';
 
 select
     client,

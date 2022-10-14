@@ -1,10 +1,7 @@
 # standardSQL
 # Workbox package and methods
-create temporary function getworkboxpackages(workboxinfo string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getWorkboxPackages(workboxInfo STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var workboxPackageMethods = Object.values(JSON.parse(workboxInfo));
   if (typeof workboxPackageMethods == 'string') {
@@ -27,8 +24,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

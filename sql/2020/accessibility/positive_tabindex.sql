@@ -1,9 +1,7 @@
 # standardSQL
 # Positive tabindex value occurrences
-create temporary function gettotalpositivetabindexes(payload string)
-returns struct < total int64,
-total_positive int64
-> language js as '''
+CREATE TEMPORARY FUNCTION getTotalPositiveTabIndexes(payload STRING)
+RETURNS STRUCT<total INT64, total_positive INT64> LANGUAGE js AS '''
 try {
   const almanac = JSON.parse(payload);
 
@@ -20,8 +18,7 @@ try {
 } catch (e) {
   return {total: 0, total_positive: 0};
 }
-'''
-;
+''';
 
 select
     client,

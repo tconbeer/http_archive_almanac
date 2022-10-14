@@ -2,11 +2,8 @@
 # Usage of advanced input types
 # color, date, datetime-local, email, month, number, range, reset, search, tel, time,
 # url, week, datalist
-create temporary function getinputstats(payload string)
-returns struct < found_advanced_types boolean,
-total_inputs int64
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getInputStats(payload STRING)
+RETURNS STRUCT<found_advanced_types BOOLEAN, total_inputs INT64> LANGUAGE js AS '''
 try {
   const almanac = JSON.parse(payload);
   const found_index = almanac.input_elements.nodes.findIndex(node => {
@@ -25,8 +22,7 @@ try {
     total_inputs: 0,
   };
 }
-'''
-;
+''';
 
 select
     count(0) as total_pages,

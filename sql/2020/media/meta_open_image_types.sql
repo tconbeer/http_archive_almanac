@@ -1,11 +1,10 @@
 # standardSQL
 # meta open graph image types
 # returns all the data we need from _almanac
-create temporary function get_meta_og_image_types(almanac_string string)
-returns struct
-< image_types array
-< string
-> > language js as '''
+CREATE TEMPORARY FUNCTION get_meta_og_image_types(almanac_string STRING)
+RETURNS STRUCT<
+  image_types ARRAY<STRING>
+> LANGUAGE js AS '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -28,8 +27,7 @@ try {
     }
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

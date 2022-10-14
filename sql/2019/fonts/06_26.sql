@@ -1,10 +1,7 @@
 # standardSQL
 # 06_26: % of pages using font-stretch
-create temporary function usesfontstretch(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION usesFontStretch(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -20,8 +17,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

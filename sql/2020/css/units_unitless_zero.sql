@@ -1,9 +1,9 @@
 # standardSQL
-create temporary function hasunitlesszero(css string)
-returns boolean
-language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+CREATE TEMPORARY FUNCTION hasUnitlessZero(css STRING)
+RETURNS BOOLEAN
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(ast) {
     let ret = {
@@ -88,8 +88,7 @@ try {
 } catch (e) {
   return false;
 }
-'''
-;
+''';
 
 select
     client,

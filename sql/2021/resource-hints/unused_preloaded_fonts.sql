@@ -6,8 +6,8 @@
 # <link rel="preload" href="./roboto.woff2" as="font" />
 # <link rel="preload" href="./roboto.woff" as="font" />
 # <link rel="preload" href="./montserrat.woff2" as="font" />
-create temporary function getunusedfontdownloadscount(almanac_string string)
-returns int64 language js as '''
+CREATE TEMPORARY FUNCTION getUnusedFontDownloadsCount(almanac_string STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   const almanac = JSON.parse(almanac_string);
   if (Array.isArray(almanac) || typeof almanac != "object") return null;
@@ -56,8 +56,7 @@ try {
 } catch {
   return null;
 }
-'''
-;
+''';
 
 select
     client,

@@ -1,9 +1,8 @@
 # standardSQL
 # Count JSON-LD types
-create temp function getjsonldtypes(rendered string)
-returns array
-< string
-> language js as """
+CREATE TEMP FUNCTION getJSONLDTypes(rendered STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js AS """
   try {
     const arrayify = (value) => Array.isArray(value) ? value : [value];
 
@@ -29,8 +28,7 @@ returns array
   } catch (e) {
     return [];
   }
-"""
-;
+""";
 
 with
     rendered_data as (

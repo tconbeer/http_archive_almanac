@@ -1,10 +1,8 @@
 # standardSQL
 # 09_27: Sites with elements that are in the tab order but have no interactive role,
 # e.g. a paragraph
-create temporary function gettagswithtabindex(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getTagsWithTabIndex(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -29,8 +27,7 @@ returns array
   } catch (e) {
     return [];
   }
-'''
-;
+''';
 
 select
     _table_suffix as client,

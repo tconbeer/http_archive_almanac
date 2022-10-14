@@ -3,17 +3,15 @@
 # Note: this query only reports if an attribute was ever used on a page. It is not a
 # per img report.
 # helper to create percent fields
-create temp function as_percent(freq float64, total float64) returns float64 as (
-    round(safe_divide(freq, total), 4)
-)
-;
+CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
+  ROUND(SAFE_DIVIDE(freq, total), 4)
+);
 
 # returns all the data we need from _markup
-create temporary function get_markup_info(markup_string string)
-returns struct
-< loading array
-< string
-> > language js as '''
+CREATE TEMPORARY FUNCTION get_markup_info(markup_string STRING)
+RETURNS STRUCT<
+  loading ARRAY<STRING>
+> LANGUAGE js AS '''
 var result = {};
 
 //Function to retrieve only keys if value is >0
@@ -38,8 +36,7 @@ try {
     }
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

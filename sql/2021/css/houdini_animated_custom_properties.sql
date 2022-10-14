@@ -1,7 +1,9 @@
 # standardSQL
-create temporary function getanimatedcustomproperties(css string)
-returns array < string > language js
-options(library = "gs://httparchive/lib/css-utils.js") as '''
+CREATE TEMPORARY FUNCTION getAnimatedCustomProperties(css STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   var ast = JSON.parse(css);
   let ret = new Set();
@@ -20,8 +22,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select distinct
     client,

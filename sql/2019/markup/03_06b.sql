@@ -1,7 +1,7 @@
 # standardSQL
 # 03_06b: Element types per page
-create temporary function countelementtypes(payload string)
-returns int64 language js as '''
+CREATE TEMPORARY FUNCTION countElementTypes(payload STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -10,8 +10,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

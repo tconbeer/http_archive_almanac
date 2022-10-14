@@ -1,18 +1,16 @@
 # standardSQL
 # Pages that use device sensors (based on event listeners)
 # https://stackoverflow.com/questions/65048929/bigquery-extract-keys-from-json-object-convert-json-from-object-to-key-value-a
-create temp function jsontokeyvaluearray(input string)
-returns array < struct < key string,
-value array < string >> >
-language js as """
+CREATE TEMP FUNCTION jsonToKeyValueArray(input STRING)
+RETURNS ARRAY<STRUCT<key STRING, value ARRAY<STRING>>>
+LANGUAGE js AS """
   try {
     let json = JSON.parse(input ? input: "{}");
     return Object.keys(json).map(e => ({"key": e, "value": json[e]}));
   } catch (error) {
     return []
   }
-"""
-;
+""";
 
 with
     pages_events as (

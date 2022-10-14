@@ -1,8 +1,7 @@
 # standardSQL
 # 04_01: Lighthouse media scores, savings, and item lengths
-create temporary function getvideobytes(payload string)
-returns int64 language js
-as '''
+CREATE TEMPORARY FUNCTION getVideoBytes(payload STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   let data = JSON.parse(payload);
   let videoReq = data.audits['network-requests'].details.items.filter(v => /^video/.test(v.mimeType));
@@ -12,12 +11,10 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
-create temporary function getvideocount(payload string)
-returns int64 language js
-as '''
+CREATE TEMPORARY FUNCTION getVideoCount(payload STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   let data = JSON.parse(payload);
   let videoReq = data.audits['network-requests'].details.items.filter(v => /^video/.test(v.mimeType));
@@ -25,8 +22,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     type,

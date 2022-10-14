@@ -1,7 +1,7 @@
 # standardSQL
 # 09_10: % of pages having skip links
-create temporary function getearlyhash(payload string)
-returns int64 language js as '''
+CREATE TEMPORARY FUNCTION getEarlyHash(payload STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -9,8 +9,7 @@ try {
 } catch (e) {
   return 0;
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

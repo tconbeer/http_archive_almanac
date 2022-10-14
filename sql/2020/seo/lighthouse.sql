@@ -2,18 +2,20 @@
 # Gather SEO data from lighthouse
 # live run is about $9
 # helper to create percent fields
-create temp function as_percent(freq float64, total float64) returns float64 as (
-    round(safe_divide(freq, total), 4)
-)
-;
+CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
+  ROUND(SAFE_DIVIDE(freq, total), 4)
+);
 
-create temporary function iscrawlabledetails(report string)
-returns struct < disallow bool,
-noindex bool,
-both bool,
-neither bool > deterministic
-language js
-as '''
+CREATE TEMPORARY FUNCTION isCrawlableDetails(report STRING)
+RETURNS STRUCT<
+  disallow BOOL,
+  noindex BOOL,
+  both BOOL,
+  neither BOOL
+>
+DETERMINISTIC
+LANGUAGE js
+AS '''
 var result = {disallow: false, noindex: false};
 try {
     var $ = JSON.parse(report);
@@ -23,8 +25,7 @@ try {
 } catch (e) {
 }
 return result;
-'''
-;
+''';
 
 select
     count(0) as total,

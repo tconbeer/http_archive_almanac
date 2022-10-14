@@ -1,7 +1,7 @@
 # standardSQL
 # Top manifest display values - based on 2019/14_04c.sql
-create temporary function getdisplay(manifest string)
-returns string language js as '''
+CREATE TEMPORARY FUNCTION getDisplay(manifest STRING)
+RETURNS STRING LANGUAGE js AS '''
 try {
   var $ = JSON.parse(manifest);
   if (!('display' in $)) {
@@ -11,8 +11,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     client,

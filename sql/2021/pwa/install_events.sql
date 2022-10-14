@@ -1,10 +1,7 @@
 # standardSQL
 # SW install events
-create temporary function getinstallevents(payload string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getInstallEvents(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var payloadJSON = JSON.parse(payload);
 
@@ -29,8 +26,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

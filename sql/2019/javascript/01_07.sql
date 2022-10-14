@@ -1,15 +1,14 @@
 # standardSQL
 # 01_07: Cumulative V8 main thread time
-create temporary function totalmainthreadtime(payload string)
-returns float64 language js as '''
+CREATE TEMPORARY FUNCTION totalMainThreadTime(payload STRING)
+RETURNS FLOAT64 LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   return Object.values($._v8Stats.main_thread).reduce((sum, i) => sum + i, 0);
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     client,

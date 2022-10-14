@@ -1,15 +1,14 @@
 # standardSQL
 # % manifests preferring native apps for service worker pages and all pages
-create temp function prefersnative(manifest string)
-returns boolean language js as '''
+CREATE TEMP FUNCTION prefersNative(manifest STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 try {
   var $ = Object.values(JSON.parse(manifest))[0];
   return $.prefer_related_applications == true && $.related_applications.length > 0;
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     'PWA Pages' as type,

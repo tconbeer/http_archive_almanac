@@ -1,10 +1,7 @@
 # standardSQL
 # Where button elements get their A11Y names from
-create temporary function a11ybuttonnamesources(payload string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION a11yButtonNameSources(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
   try {
     const a11y = JSON.parse(payload);
 
@@ -45,8 +42,7 @@ as '''
   } catch (e) {
     return [];
   }
-'''
-;
+''';
 
 select
     client,

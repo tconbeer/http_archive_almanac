@@ -1,13 +1,13 @@
 # standardSQL
 # pages element_count metrics grouped by device
 # returns all the data we need from _element_count
-create temporary function get_element_count_info(element_count_string string)
-returns struct < contains_custom_element bool,
-contains_obsolete_element bool,
-contains_details_element bool,
-contains_summary_element bool
-> language js
-as '''
+CREATE TEMPORARY FUNCTION get_element_count_info(element_count_string STRING)
+RETURNS STRUCT<
+  contains_custom_element BOOL,
+  contains_obsolete_element BOOL,
+  contains_details_element BOOL,
+  contains_summary_element BOOL
+> LANGUAGE js AS '''
 var result = {};
 try {
     if (!element_count_string) return result;
@@ -28,8 +28,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

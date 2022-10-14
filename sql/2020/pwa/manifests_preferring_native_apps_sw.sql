@@ -1,16 +1,15 @@
 # standardSQL
 # % manifests preferring native apps where service worker is used - based on
 # 2019/14_04e.sql
-create temporary function prefersnative(manifest string)
-returns boolean language js as '''
+CREATE TEMPORARY FUNCTION prefersNative(manifest STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 try {
   var $ = JSON.parse(manifest);
   return $.prefer_related_applications == true && $.related_applications.length > 0;
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     client,

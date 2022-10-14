@@ -1,13 +1,8 @@
 # standardSQL
 # 21_16: Usage of resource hints by service-worker controlled pages
-create temporary function getresourcehints(payload string)
-returns struct < preload boolean,
-prefetch boolean,
-preconnect boolean,
-prerender boolean,
-`dns-prefetch` boolean
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
+RETURNS STRUCT<preload BOOLEAN, prefetch BOOLEAN, preconnect BOOLEAN, prerender BOOLEAN, `dns-prefetch` BOOLEAN>
+LANGUAGE js AS '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch'];
 try {
   var $ = JSON.parse(payload);
@@ -22,8 +17,7 @@ try {
     return results;
   }, {});
 }
-'''
-;
+''';
 
 select
     client,

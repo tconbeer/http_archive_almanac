@@ -1,18 +1,14 @@
 # standardSQL
 # 08_40b: Most frequent vulnerable libraries
-create temporary function getvulnerabilities(report string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getVulnerabilities(report STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(report);
   return $.audits['no-vulnerable-libraries'].details.items.map(i => i.detectedLib.text.split('@')[0]);
 } catch(e) {
   return [];
 }
-'''
-;
+''';
 
 select
     lib,

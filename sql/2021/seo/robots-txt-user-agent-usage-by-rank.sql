@@ -1,12 +1,10 @@
 # standardSQL
 # Robots txt user agent usage BY rank
 # returns all the data we need from _robots_txt
-create temporary function getrobotstxtuseragents(robots_txt_string string)
-returns struct
-< user_agents array
-< string
-> > language js
-as '''
+CREATE TEMPORARY FUNCTION getRobotsTxtUserAgents(robots_txt_string STRING)
+RETURNS STRUCT<
+  user_agents ARRAY<STRING>
+> LANGUAGE js AS '''
 var result = {
   user_agents: []
 };
@@ -20,8 +18,7 @@ try {
     }
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 with
     totals as (

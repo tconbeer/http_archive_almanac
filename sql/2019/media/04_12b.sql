@@ -1,9 +1,7 @@
 # standardSQL
 # 04_12: Use of "Vary: User-Agent" or "Vary: Accept" on image responses
-create temporary function getvary(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getVary(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var header = $._headers.response.find(h => h.toLowerCase().startsWith('vary'));
@@ -15,8 +13,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     client,

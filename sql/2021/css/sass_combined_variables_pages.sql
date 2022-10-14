@@ -1,9 +1,6 @@
 # standardSQL
-create temporary function countcombinedvariables(payload string) returns
-array < struct < usage string,
-freq int64
->> language js
-as '''
+CREATE TEMPORARY FUNCTION countCombinedVariables(payload STRING) RETURNS
+ARRAY<STRUCT<usage STRING, freq INT64>> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -15,8 +12,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

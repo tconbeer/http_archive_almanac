@@ -1,10 +1,8 @@
 # standardSQL
 # Attribute popularity for imagesrcset and imagesizes on rel="preload"
-create temporary function getresourcehintattrs(payload string)
-returns array < struct < name string,
-attribute string,
-value string
->> language js as '''
+CREATE TEMPORARY FUNCTION getResourceHintAttrs(payload STRING)
+RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
+LANGUAGE js AS '''
 var hints = new Set(['preload']);
 var attributes = ['imagesrcset', 'imagesizes'];
 try {
@@ -29,8 +27,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

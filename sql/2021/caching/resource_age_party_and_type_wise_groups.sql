@@ -1,15 +1,14 @@
 # standardSQL
 # Age of resources party, type wise in groups.
-create temporary function totimestamp(date_string string)
-returns int64 language js as '''
+CREATE TEMPORARY FUNCTION toTimestamp(date_string STRING)
+RETURNS INT64 LANGUAGE js AS '''
   try {
     var timestamp = Math.round(new Date(date_string).getTime() / 1000);
     return isNaN(timestamp) || timestamp < 0 ? null : timestamp;
   } catch (e) {
     return null;
   }
-'''
-;
+''';
 
 select
     client,

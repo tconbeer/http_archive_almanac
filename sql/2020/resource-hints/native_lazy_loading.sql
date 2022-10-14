@@ -1,7 +1,7 @@
 # standardSQL
 # 21_12a: Count of pages using native lazy loading
-create temporary function nativelazyloads(payload string)
-returns boolean language js as '''
+CREATE TEMPORARY FUNCTION nativeLazyLoads(payload STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -9,8 +9,7 @@ try {
 } catch (e) {
   return false;
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

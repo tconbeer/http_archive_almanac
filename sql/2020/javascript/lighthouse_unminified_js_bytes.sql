@@ -1,17 +1,14 @@
 # standardSQL
 # Histogram of wasted bytes per page
-create temporary function getunminifiedjsbytes(audit string)
-returns array
-< int64
-> language js as '''
+CREATE TEMPORARY FUNCTION getUnminifiedJsBytes(audit STRING)
+RETURNS ARRAY<INT64> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(({wastedBytes}) => wastedBytes);
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     if(

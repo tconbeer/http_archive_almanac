@@ -1,31 +1,16 @@
 # standardSQL
 # Security feature adoption grouped by sites frequently visited from different
 # countries
-create temp function getnumsecurityheaders(headers string) as (
-    (
-        select countif(regexp_contains(headers, concat('(?i)', headername, ' ')))
-        from
-            unnest(
-                [
-                    'Content-Security-Policy',
-                    'Content-Security-Policy-Report-Only',
-                    'Cross-Origin-Embedder-Policy',
-                    'Cross-Origin-Opener-Policy',
-                    'Cross-Origin-Resource-Policy',
-                    'Expect-CT',
-                    'Feature-Policy',
-                    'Permissions-Policy',
-                    'Referrer-Policy',
-                    'Report-To',
-                    'Strict-Transport-Security',
-                    'X-Content-Type-Options',
-                    'X-Frame-Options',
-                    'X-XSS-Protection'
-                ]
-            ) as headername
-    )
-)
-;
+CREATE TEMP FUNCTION getNumSecurityHeaders(headers STRING) AS (
+  (
+    SELECT
+      COUNTIF(REGEXP_CONTAINS(headers, CONCAT('(?i)', headername, ' ')))
+    FROM
+      UNNEST(['Content-Security-Policy', 'Content-Security-Policy-Report-Only', 'Cross-Origin-Embedder-Policy', 'Cross-Origin-Opener-Policy',
+              'Cross-Origin-Resource-Policy', 'Expect-CT', 'Feature-Policy', 'Permissions-Policy', 'Referrer-Policy', 'Report-To',
+              'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'X-XSS-Protection']) AS headername
+  )
+);
 
 select
     client,

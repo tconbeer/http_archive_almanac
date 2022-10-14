@@ -1,8 +1,6 @@
 # standardSQL
 # Popularity of @keyframes positions
-create temporary function getkeyframepositions(css string) returns array
-< string
-> language js as r'''
+CREATE TEMPORARY FUNCTION getKeyframePositions(css STRING) RETURNS ARRAY<STRING> LANGUAGE js AS r'''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -23,8 +21,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select *
 from

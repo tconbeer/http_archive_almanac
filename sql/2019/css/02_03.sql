@@ -1,8 +1,7 @@
 # standardSQL
 # 02_03: % of sites that use filter properties
-create temporary function usesfilterprop(css string)
-returns boolean language js
-as '''
+CREATE TEMPORARY FUNCTION usesFilterProp(css STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -19,8 +18,7 @@ try {
 } catch (e) {
   return false;
 }
-'''
-;
+''';
 
 select
     client,

@@ -1,16 +1,15 @@
 # standardSQL
 # count the number of Content-Security-Policy and Content-Security-Policy-Report-Only
 # headers across Ecommerce
-create temporary function
-hasheader(headers string, headername string)
-returns bool deterministic
-language js
-as '''
+CREATE TEMPORARY FUNCTION
+hasHeader(headers STRING,
+  headername STRING)
+RETURNS BOOL DETERMINISTIC
+LANGUAGE js AS '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   return matching_headers.length > 0;
-'''
-;
+''';
 select
     client,
     headername,

@@ -1,10 +1,7 @@
 # standardSQL
 # Count of preload HTTP Headers with nopush attribute set. Once off stat for last crawl
-create temporary function extracthttpheaders(httpheaders string, header string)
-returns array
-< string
-> language js
-as """
+CREATE TEMPORARY FUNCTION extractHTTPHeaders(HTTPheaders STRING, header STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS """
 try {
   var headers = JSON.parse(HTTPheaders);
 
@@ -14,8 +11,7 @@ try {
 } catch (e) {
   return [];
 }
-"""
-;
+""";
 
 select
     client,

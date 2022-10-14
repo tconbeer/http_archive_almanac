@@ -1,18 +1,21 @@
 # standardSQL
 # Pages that participate in the FLoC origin trial
-create temp function retrieveorigintrials(tokenelem string)
-returns struct < validityelem string,
-versionelem integer,
-originelem string,
-subdomainelem boolean,
-thirdpartyelem boolean,
-usageelem string,
-featureelem string,
-expiryelem timestamp > language js
+CREATE TEMP FUNCTION retrieveOriginTrials(tokenElem STRING)
+RETURNS STRUCT<
+  validityElem STRING,
+  versionElem INTEGER,
+  originElem STRING,
+  subdomainElem BOOLEAN,
+  thirdpartyElem BOOLEAN,
+  usageElem STRING,
+  featureElem STRING,
+  expiryElem TIMESTAMP
+>
+LANGUAGE js
 -- https://stackoverflow.com/questions/60094731/can-i-use-textencoder-in-bigquery-js-udf
-options(library = "gs://fh-bigquery/js/inexorabletash.encoding.js")
+OPTIONS (library = "gs://fh-bigquery/js/inexorabletash.encoding.js")
 -- https://github.com/GoogleChrome/OriginTrials/blob/gh-pages/check-token.html
-as """
+AS """
   let validityElem,
     versionElem,
     originElem,
@@ -140,8 +143,7 @@ as """
   };
 
   return origin_trial_metadata;
-"""
-;
+""";
 
 with
     pages_origin_trials as (

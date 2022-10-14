@@ -1,10 +1,7 @@
 # standardSQL
 # 06_29: Variation axes used for +/- 20 pt
-create temporary function getfontvariationsettings(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getFontVariationSettings(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -20,8 +17,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

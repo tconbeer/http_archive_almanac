@@ -2,29 +2,18 @@
 # Distribution of page weight, requests, and co2 grams per CMS web page
 # https://gitlab.com/wholegrain/carbon-api-2-0/-/blob/b498ec3bb239536d3612c5f3d758f46e0d2431a6/includes/carbonapi.php
 -- TODO: Investigate fetching from Green Web Foundation
-create temp function green(url string) as (false)
-;
-create temp function adjustdatatransfer(val int64) as (val * 0.75 + 0.02 * val * 0.25)
-;
-create temp function energyconsumption(bytes float64) as (bytes * 1.805 / 1073741824)
-;
-create temp function getco2grid(energy float64) as (energy * 475)
-;
-create temp function getco2renewable(
-    energy float64
-) as (energy * 0.1008 * 33.4 + energy * 0.8992 * 475)
-;
-create temp function co2(
-    url string,
-    bytes int64
-) as (
-    if(
-        green(url),
-        getco2renewable(energyconsumption(adjustdatatransfer(bytes))),
-        getco2grid(energyconsumption(adjustdatatransfer(bytes)))
-    )
-)
-;
+CREATE TEMP FUNCTION GREEN(url STRING) AS (FALSE);
+CREATE TEMP FUNCTION adjustDataTransfer(val INT64) AS (val * 0.75 + 0.02 * val * 0.25);
+CREATE TEMP FUNCTION energyConsumption(bytes FLOAT64) AS (bytes * 1.805 / 1073741824);
+CREATE TEMP FUNCTION getCo2Grid(energy FLOAT64) AS (energy * 475);
+CREATE TEMP FUNCTION getCo2Renewable(energy FLOAT64) AS (energy * 0.1008 * 33.4 + energy * 0.8992 * 475);
+CREATE TEMP FUNCTION CO2(url STRING, bytes INT64) AS (
+  IF(
+    GREEN(url),
+    getCo2Renewable(energyConsumption(adjustDataTransfer(bytes))),
+    getCo2Grid(energyConsumption(adjustDataTransfer(bytes)))
+  )
+);
 
 select
     percentile,

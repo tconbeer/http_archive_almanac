@@ -1,8 +1,8 @@
 # standardSQL
 # Top100 domains that set cookies via response header
-create temporary function cookienames(headers string)
-returns array < string > deterministic
-language js as '''
+CREATE TEMPORARY FUNCTION cookieNames(headers STRING)
+RETURNS ARRAY<STRING> DETERMINISTIC
+LANGUAGE js AS '''
 try {
   var headers = JSON.parse(headers);
   let cookies = headers.filter(h => h.name.match(/^set-cookie$/i));
@@ -14,8 +14,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 with
     whotracksme as (

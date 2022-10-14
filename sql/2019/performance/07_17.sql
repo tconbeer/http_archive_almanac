@@ -1,11 +1,8 @@
 # standardSQL
 # 07_17: Percentiles of blocking CSS requests
 # This metric comes from Lighthouse only
-create temporary function renderblockingcss(report string)
-returns struct < requests numeric,
-bytes numeric,
-wasted_ms numeric
-> language js as '''
+CREATE TEMPORARY FUNCTION renderBlockingCSS(report STRING)
+RETURNS STRUCT<requests NUMERIC, bytes NUMERIC, wasted_ms NUMERIC> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(report);
   return $.audits['render-blocking-resources'].details.items.filter(item => {
@@ -19,8 +16,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     percentile,

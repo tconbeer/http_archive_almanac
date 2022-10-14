@@ -1,10 +1,7 @@
 # standardSQL
 # 06_31: Popular fonts (see also 02_23)
-create temporary function getfontfamilies(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getFontFamilies(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.filter(rule => rule.type == 'font-face').map(rule => {
@@ -14,8 +11,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

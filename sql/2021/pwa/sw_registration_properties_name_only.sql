@@ -1,12 +1,7 @@
 # standardSQL
 # SW registration properties
-create temporary function getswregistrationproperties(
-    swregistrationpropertiesinfo string
-)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getSWRegistrationProperties(swRegistrationPropertiesInfo STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var swRegistrationProperties = Object.values(JSON.parse(swRegistrationPropertiesInfo));
   if (typeof swRegistrationProperties != 'string') {
@@ -17,8 +12,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

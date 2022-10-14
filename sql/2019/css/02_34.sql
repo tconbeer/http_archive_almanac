@@ -1,15 +1,14 @@
 # standardSQL
 # 02_34: Distribution of fonts declared per page
-create temporary function countfonts(css string)
-returns int64 language js as '''
+CREATE TEMPORARY FUNCTION countFonts(css STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.filter(rule => rule.type == 'font-face').length;
 } catch (e) {
   return 0;
 }
-'''
-;
+''';
 
 select
     client,

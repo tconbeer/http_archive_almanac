@@ -1,11 +1,11 @@
 # standardSQL
 # pages markup metrics grouped by device and button type
 # returns button struct
-create temporary function get_markup_buttons_info(markup_string string)
-returns array < struct < name string,
-freq int64
->> language js
-as '''
+CREATE TEMPORARY FUNCTION get_markup_buttons_info(markup_string STRING)
+RETURNS ARRAY<STRUCT<
+  name STRING,
+  freq INT64
+  >> LANGUAGE js AS '''
 var result = [];
 try {
     var markup = JSON.parse(markup_string);
@@ -24,8 +24,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     _table_suffix as client,

@@ -1,8 +1,7 @@
 # standardSQL
 # 09_16b: % page with forms using invalid/required
-create temporary function gettotalinputsused(payload string)
-returns int64 language js
-as '''
+CREATE TEMPORARY FUNCTION getTotalInputsUsed(payload STRING)
+RETURNS INT64 LANGUAGE js AS '''
   try {
     var $ = JSON.parse(payload);
     if (!$._element_count) {
@@ -18,8 +17,7 @@ as '''
   } catch (e) {
     return 0;
   }
-'''
-;
+''';
 
 select
     client,

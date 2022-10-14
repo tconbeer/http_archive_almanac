@@ -1,10 +1,7 @@
 # standardSQL
 # Most popular `content` property values.
 # Combines hex values together to reduce duplication (used by icon fonts).
-create temp function getcontentstrings(css string) returns array
-< string
-> language js
-as '''
+CREATE TEMP FUNCTION getContentStrings(css STRING) RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -20,8 +17,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select *
 from

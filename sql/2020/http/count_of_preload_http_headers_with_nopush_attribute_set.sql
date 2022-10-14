@@ -1,9 +1,7 @@
 # standardSQL
 # Count of preload HTTP Headers with nopush attribute set. Once off stat for last crawl
-create temporary function getlinkheaders(payload string)
-returns array
-< string
-> language js as """
+CREATE TEMPORARY FUNCTION getLinkHeaders(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS """
 try {
   var $ = JSON.parse(payload);
   var headers = $.response.headers;
@@ -11,8 +9,7 @@ try {
 } catch (e) {
   return [];
 }
-"""
-;
+""";
 
 select
     client,

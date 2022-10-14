@@ -1,17 +1,14 @@
 # standardSQL
 # SW methods
-create temporary function getswmethods(swmethodsinfo string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getSWMethods(swMethodsInfo STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var swMethods = JSON.parse(swMethodsInfo);
   return Array.from(new Set(Object.values(swMethods).flat()));
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

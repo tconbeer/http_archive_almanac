@@ -1,10 +1,7 @@
 # standardSQL
 # Alt text ending in an image extension
-create temporary function getusedextensions(payload string)
-returns array < struct < extension string,
-total int64
->> language js
-as '''
+CREATE TEMPORARY FUNCTION getUsedExtensions(payload STRING)
+RETURNS ARRAY<STRUCT<extension STRING, total INT64>> LANGUAGE js AS '''
 try {
   const a11y = JSON.parse(payload);
 
@@ -14,8 +11,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 select
     client,
     sites_with_non_empty_alt,

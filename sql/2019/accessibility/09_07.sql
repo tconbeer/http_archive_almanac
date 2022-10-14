@@ -1,10 +1,8 @@
 # standardSQL
 # 09_07: % of pages having a captions track when necessary
 # Caveat: This does not necessarily enforce that the track is within the media element.
-create temporary function getmediaelements(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getMediaElements(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -14,8 +12,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

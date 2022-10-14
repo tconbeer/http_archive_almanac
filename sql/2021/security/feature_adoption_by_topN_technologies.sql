@@ -2,20 +2,13 @@
 # Determines to what extent the top-N technology drivers are responsible for the
 # global adoption of different security features
 -- from https://stackoverflow.com/a/54835472
-create temp function array_slice(arr array < string >, start int64, finish int64)
-returns array
-< string
-> as (
-    array(
-        select part
-        from unnest(arr) part
-        with
-        offset as index
-        where index between start and finish
-        order by index
-    )
-)
-;
+CREATE TEMP FUNCTION array_slice(arr ARRAY<STRING>, start INT64, finish INT64)
+RETURNS ARRAY<STRING> AS (
+  ARRAY(
+    SELECT part FROM UNNEST(arr) part WITH OFFSET AS index
+    WHERE index BETWEEN start AND finish ORDER BY index
+  )
+);
 
 with
     app_headers as (

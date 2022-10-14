@@ -2,9 +2,9 @@
 # Count the number of lazily loaded iframes
 # returns true/false if the page has an iframe with `loading="lazy"` or null if the
 # page has no iframes
-create temporary function haslazyloadediframe(almanac_string string)
-returns bool
-language js as '''
+CREATE TEMPORARY FUNCTION hasLazyLoadedIframe(almanac_string STRING)
+RETURNS BOOL
+LANGUAGE js AS '''
 try {
     var almanac = JSON.parse(almanac_string)
     if (Array.isArray(almanac) || typeof almanac != 'object') return null;
@@ -20,8 +20,7 @@ try {
 catch {
     return null
 }
-'''
-;
+''';
 
 select
     client,

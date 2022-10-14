@@ -1,9 +1,9 @@
 # standardSQL
-create temporary function hasgridnamedlines(css string)
-returns boolean
-language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+CREATE TEMPORARY FUNCTION hasGridNamedLines(css STRING)
+RETURNS BOOLEAN
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   const ast = JSON.parse(css);
   let props = countDeclarationsByProperty(ast.stylesheet.rules, {properties: /^grid($|\\-)/, values: /\\[([\\w-]+)\\]/});
@@ -11,8 +11,7 @@ try {
 } catch (e) {
   return false;
 }
-'''
-;
+''';
 
 select
     client,

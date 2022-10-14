@@ -1,18 +1,15 @@
 # standardSQL
 # pages robots_txt metrics grouped by device and status code
 # helper to create percent fields
-create temp function as_percent(freq float64, total float64) returns float64 as (
-    round(safe_divide(freq, total), 4)
-)
-;
+CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
+  ROUND(SAFE_DIVIDE(freq, total), 4)
+);
 
 # returns all the data we need from _robots_txt
-create temporary function get_robots_txt_info(robots_txt_string string)
-returns struct
-< user_agents array
-< string
-> > language js
-as '''
+CREATE TEMPORARY FUNCTION get_robots_txt_info(robots_txt_string STRING)
+RETURNS STRUCT<
+  user_agents ARRAY<STRING>
+> LANGUAGE js AS '''
 var result = {
   user_agents: []
 };
@@ -29,8 +26,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select client, user_agent, total, count(0) as count, as_percent(count(0), total) as pct
 from

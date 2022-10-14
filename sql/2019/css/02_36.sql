@@ -1,10 +1,7 @@
 # standardSQL
 # 02_36: Distribution of unqiue font-size values per page
-create temporary function getfontsizes(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getFontSizes(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -21,8 +18,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

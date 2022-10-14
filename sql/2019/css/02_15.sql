@@ -1,9 +1,7 @@
 # standardSQL
 # 02_15: Top snap points in media queries
-create temporary function getsnappoints(css string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getSnapPoints(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {
@@ -21,8 +19,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

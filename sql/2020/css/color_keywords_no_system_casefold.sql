@@ -1,9 +1,9 @@
 # standardSQL
-create temporary function getcolorkeywords(css string)
-returns array < struct < name string,
-value int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+CREATE TEMPORARY FUNCTION getColorKeywords(css STRING)
+RETURNS ARRAY<STRUCT<name STRING, value INT64>>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(ast) {
     let usage = {
@@ -160,8 +160,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

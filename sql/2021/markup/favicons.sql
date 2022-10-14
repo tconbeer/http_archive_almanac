@@ -1,11 +1,10 @@
 # standardSQL
 # page almanac favicon image types grouped by device and type
 # returns all the data we need from _almanac
-create temporary function getfaviconimage(almanac_string string)
-returns struct
-< image_type_extension string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getFaviconImage(almanac_string STRING)
+RETURNS STRUCT<
+  image_type_extension STRING
+> LANGUAGE js AS '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -45,8 +44,7 @@ try {
 
 } catch (e) {result.image_type_extension = "NO_DATA";}
 return result;
-'''
-;
+''';
 
 select
     client,

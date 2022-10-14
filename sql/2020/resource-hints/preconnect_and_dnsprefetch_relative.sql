@@ -1,10 +1,8 @@
 # standardSQL
 # Pages that combine preconnect and dns-prefetch hints divided by pages with either
 # hint.
-create temporary function preconnectsandprefetchesdns(payload string)
-returns struct < both boolean,
-either boolean
-> language js as '''
+CREATE TEMPORARY FUNCTION preconnectsAndPrefetchesDns(payload STRING)
+RETURNS STRUCT<both BOOLEAN, either BOOLEAN> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -21,8 +19,7 @@ try {
 } catch (e) {
   return {};
 }
-'''
-;
+''';
 
 select
     client,

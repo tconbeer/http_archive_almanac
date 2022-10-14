@@ -1,17 +1,15 @@
 # standardSQL
 # Count Facebook types
-create temp function getfacebooktypes(rendered string)
-returns array
-< string
-> language js as """
+CREATE TEMP FUNCTION getFacebookTypes(rendered STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js AS """
   try {
     rendered = JSON.parse(rendered);
     return rendered.facebook.map(facebook => facebook.property.toLowerCase());
   } catch (e) {
     return [];
   }
-"""
-;
+""";
 
 with
     rendered_data as (

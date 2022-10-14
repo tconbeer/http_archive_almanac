@@ -1,10 +1,7 @@
 # standardSQL
 # 02_40: Distribution of distinct margin values per page
-create temporary function getmarginvalues(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getMarginValues(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -21,8 +18,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

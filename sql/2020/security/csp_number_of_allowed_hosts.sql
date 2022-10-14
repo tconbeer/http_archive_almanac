@@ -1,28 +1,20 @@
 # standardSQL
 # CSP on home pages: number of unique headers, header length and number of allowed
 # hosts in all directives
-create temporary function getheader(headers string, headername string)
-returns string
-deterministic
-language js
-as '''
+CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
+RETURNS STRING
+DETERMINISTIC
+LANGUAGE js AS '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   if (matching_headers.length > 0) {
     return matching_headers[0].value;
   }
   return null;
-'''
-;
-create temp function getnumuniquehosts(
-    str string
-) as (
-    (
-        select count(distinct x)
-        from unnest(regexp_extract_all(str, r'(?i)(https*://[^\s;]+)[\s;]')) as x
-    )
-)
-;
+''';
+CREATE TEMP FUNCTION getNumUniqueHosts(str STRING) AS (
+  (SELECT COUNT(DISTINCT x) FROM UNNEST(REGEXP_EXTRACT_ALL(str, r'(?i)(https*://[^\s;]+)[\s;]')) AS x)
+);
 
 select
     client,

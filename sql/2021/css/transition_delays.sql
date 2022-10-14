@@ -1,9 +1,10 @@
 # standardSQL
 # Transition and animation delays
-create temporary function gettransitiondelays(css string)
-returns array < string > language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as r'''
+CREATE TEMPORARY FUNCTION getTransitionDelays(css STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS r'''
 try {
   function compute(ast) {
     let ret = {
@@ -110,8 +111,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     percentile, client, approx_quantiles(delay, 1000)[offset(percentile * 10)] as delay

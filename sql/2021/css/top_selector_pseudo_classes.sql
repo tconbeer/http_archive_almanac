@@ -1,12 +1,15 @@
 # standardSQL
-create temporary function getselectorparts(css string)
-returns struct < class array < string >,
-id array < string >,
-attribute array < string >,
-pseudo_class array < string >,
-pseudo_element array < string > >
-language js
-options(library = "gs://httparchive/lib/css-utils.js") as '''
+CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
+RETURNS STRUCT<
+  class ARRAY<STRING>,
+  id ARRAY<STRING>,
+  attribute ARRAY<STRING>,
+  pseudo_class ARRAY<STRING>,
+  pseudo_element ARRAY<STRING>
+>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(ast) {
     let ret = {
@@ -52,8 +55,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     client,

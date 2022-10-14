@@ -1,8 +1,6 @@
 # standardSQL
-create temporary function getcustompropertieswithcomputedstyle(payload string) returns
-array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getCustomPropertiesWithComputedStyle(payload STRING) RETURNS
+ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var vars = JSON.parse($['_css-variables']);
@@ -40,8 +38,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select distinct
     _table_suffix as client,

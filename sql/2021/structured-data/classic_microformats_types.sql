@@ -1,18 +1,15 @@
 # standardSQL
 # Count Classic Microformats types
-create temp function getclassicmicroformatstypes(rendered string)
-returns array < struct < name string,
-count numeric
->> language js
-as """
+CREATE TEMP FUNCTION getClassicMicroformatsTypes(rendered STRING)
+RETURNS ARRAY<STRUCT<name STRING, count NUMERIC>>
+LANGUAGE js AS """
   try {
     rendered = JSON.parse(rendered);
     return rendered.microformats_classic_types.map(microformats_classic_type => ({name: microformats_classic_type.name, count: microformats_classic_type.count}));
   } catch (e) {
     return [];
   }
-"""
-;
+""";
 
 with
     rendered_data as (

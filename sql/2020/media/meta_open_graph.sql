@@ -1,10 +1,11 @@
 # standardSQL
 # usage meta open graph
 # returns all the data we need from _almanac
-create temporary function get_meta_og_info(almanac_string string)
-returns struct < meta_og_image boolean,
-meta_og_video boolean
-> language js as '''
+CREATE TEMPORARY FUNCTION get_meta_og_info(almanac_string STRING)
+RETURNS STRUCT<
+  meta_og_image BOOLEAN,
+  meta_og_video BOOLEAN
+> LANGUAGE js AS '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -21,8 +22,7 @@ try {
     }
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

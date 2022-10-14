@@ -1,9 +1,7 @@
 # standardSQL
 # 10_05: structured data by @type
-create temporary function getschematypes(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getSchemaTypes(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -15,8 +13,7 @@ returns array
   } catch (e) {
     return [];
   }
-'''
-;
+''';
 
 select
     _table_suffix as client,

@@ -2,14 +2,8 @@
 # Get summary of all lighthouse PWA audits, for both PWA pages and all pages
 # Note scores, weightings, groups and descriptions may be off in mixed months when new
 # versions of Lighthouse roles out
-create temporary function getaudits(auditrefs string, audits string)
-returns array < struct < id string,
-weight int64,
-audit_group string,
-title string,
-description string,
-score int64
->> language js as '''
+CREATE TEMPORARY FUNCTION getAudits(auditRefs STRING, audits STRING)
+RETURNS ARRAY<STRUCT<id STRING, weight INT64, audit_group STRING, title STRING, description STRING, score INT64>> LANGUAGE js AS '''
 var auditrefs = JSON.parse(auditRefs);
 var audits = JSON.parse(audits);
 var results = [];
@@ -23,8 +17,7 @@ for (auditref of auditrefs) {
   });
 }
 return results;
-'''
-;
+''';
 
 select
     'PWA Sites' as type,

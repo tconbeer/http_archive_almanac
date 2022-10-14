@@ -1,12 +1,10 @@
 # standardSQL
 # Structured data formats
 # returns all the data we need from _wpt_bodies
-create temporary function getstructureddatawptbodies(wpt_bodies_string string)
-returns struct
-< items_by_format array
-< string
-> > language js
-as '''
+CREATE TEMPORARY FUNCTION getStructuredDataWptBodies(wpt_bodies_string STRING)
+RETURNS STRUCT<
+  items_by_format ARRAY<STRING>
+> LANGUAGE js AS '''
 var result = {
 items_by_format: []
 };
@@ -34,8 +32,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

@@ -1,8 +1,8 @@
 # standardSQL
 # Number of HTTP (not HTTPS) requests which return upgrade HTTP header containing h2.
-create temporary function getupgradeheader(payload string)
-returns string
-language js as """
+CREATE TEMPORARY FUNCTION getUpgradeHeader(payload STRING)
+RETURNS STRING
+LANGUAGE js AS """
   try {
     var $ = JSON.parse(payload);
     var headers = $.response.headers;
@@ -13,8 +13,7 @@ language js as """
   } catch (e) {
     return '';
   }
-"""
-;
+""";
 select
     client,
     firsthtml,

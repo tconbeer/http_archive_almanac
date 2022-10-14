@@ -1,17 +1,14 @@
 # standardSQL
 # Audio elements attribute usage
-create temporary function getusedattributes(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getUsedAttributes(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.audios.attribute_usage_count);
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 select
     client,
     total_sites,

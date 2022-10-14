@@ -1,8 +1,9 @@
 # standardSQL
-create temporary function getcustompropertyroots(payload string)
-returns array < struct < name string,
-freq int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js") as '''
+CREATE TEMPORARY FUNCTION getCustomPropertyRoots(payload STRING)
+RETURNS ARRAY<STRUCT<name STRING, freq INT64>>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(vars) {
     function walkElements(node, callback) {
@@ -56,8 +57,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     client,

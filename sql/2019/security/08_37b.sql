@@ -1,8 +1,7 @@
 # standardSQL
 # 08_37b: SameSite cookie values
-create temporary function extractheader(payload string, name string)
-returns string language js
-as '''
+CREATE TEMPORARY FUNCTION extractHeader(payload STRING, name STRING)
+RETURNS STRING LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var header = $._headers.response.find(h => h.toLowerCase().startsWith(name.toLowerCase()));
@@ -13,8 +12,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     client,

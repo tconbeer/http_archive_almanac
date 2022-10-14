@@ -1,9 +1,10 @@
 # standardSQL
 # Stats for pages whose properties all have !important
-create temporary function getimportantproperties(css string)
-returns struct < total int64,
-important int64 > language js
-options(library = "gs://httparchive/lib/css-utils.js") as '''
+CREATE TEMPORARY FUNCTION getImportantProperties(css STRING)
+RETURNS STRUCT<total INT64, important INT64>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   var ast = JSON.parse(css);
   let ret = {
@@ -27,8 +28,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select client, total as num_properties_per_page, count(0) as freq
 from

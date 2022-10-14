@@ -2,17 +2,13 @@
 # page wpt_bodies metrics grouped by device
 # M235
 # helper to create percent fields
-create temp function as_percent(freq float64, total float64) returns float64 as (
-    round(safe_divide(freq, total), 4)
-)
-;
+CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
+  ROUND(SAFE_DIVIDE(freq, total), 4)
+);
 
 # returns all the data we need from _wpt_bodies
-create temporary function get_wpt_bodies_protocols(wpt_bodies_string string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION get_wpt_bodies_protocols(wpt_bodies_string STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 var result = [];
 try {
     var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -25,8 +21,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     _table_suffix as client,

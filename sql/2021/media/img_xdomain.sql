@@ -1,10 +1,8 @@
 # standardSQL
 # Cross domain image requests
-create temporary function get_images(images_string string)
-returns array
-< struct
-< url string
->> language js as '''
+CREATE TEMPORARY FUNCTION get_images(images_string STRING)
+RETURNS ARRAY<STRUCT<url STRING>>
+LANGUAGE js AS '''
 var result = [];
 try {
   var images = JSON.parse(images_string);
@@ -15,8 +13,7 @@ try {
   }
 } catch (e) {}
 return result;
-'''
-;
+''';
 select
     client,
     count(distinct pageurl) as pages,

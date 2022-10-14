@@ -1,8 +1,7 @@
 # standardSQL
 # 01_14: Percent of pages that include link[rel=preload][as=script]
-create temp function hasscriptpreload(payload string)
-returns boolean language js
-as '''
+CREATE TEMP FUNCTION hasScriptPreload(payload STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -11,8 +10,7 @@ as '''
     return false;
   }
 
-'''
-;
+''';
 
 select
     _table_suffix as client,

@@ -1,9 +1,7 @@
 # standardSQL
 # Top manifest properties
-create temp function getmanifestprops(manifest string)
-returns array
-< string
-> language js as '''
+CREATE TEMP FUNCTION getManifestProps(manifest STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var manifestJSON = Object.values(JSON.parse(manifest))[0];
   if (typeof manifestJSON === 'string') {
@@ -13,8 +11,7 @@ try {
 } catch {
   return null
 }
-'''
-;
+''';
 
 with
     totals as (

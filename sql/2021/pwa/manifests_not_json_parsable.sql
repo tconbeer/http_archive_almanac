@@ -1,7 +1,7 @@
 # standardSQL
 # Manifests that are not JSON parsable for service worker pages and all pages
-create temp function canparsemanifest(manifest string)
-returns boolean language js as '''
+CREATE TEMP FUNCTION canParseManifest(manifest STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 try {
   var manifestJSON = Object.values(JSON.parse(manifest))[0];
   if (typeof manifestJSON === 'string' && manifestJSON.trim() != '') {
@@ -14,8 +14,7 @@ try {
 } catch {
   return false;
 }
-'''
-;
+''';
 
 select
     'PWA Pages' as type,

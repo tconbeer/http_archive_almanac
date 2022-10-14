@@ -1,8 +1,8 @@
 # standardSQL
 # 20.08 - Count of HTTP/2 Sites Grouped By Server
-create temporary function getserverheader(payload string)
-returns string
-language js as """
+CREATE TEMPORARY FUNCTION getServerHeader(payload STRING)
+RETURNS STRING
+LANGUAGE js AS """
   try {
     var $ = JSON.parse(payload);
     var headers = $.response.headers;
@@ -15,8 +15,7 @@ language js as """
   } catch (e) {
     return '';
   }
-"""
-;
+""";
 
 select
     client,

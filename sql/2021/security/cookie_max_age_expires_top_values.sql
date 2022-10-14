@@ -1,8 +1,8 @@
 # standardSQL
 # Top 10 values of Max-Age and Expires cookie attributes.
-create temporary function getcookieagevalues(headers string, epochofrequest numeric)
-returns string deterministic
-language js as '''
+CREATE TEMPORARY FUNCTION getCookieAgeValues(headers STRING, epochOfRequest NUMERIC)
+RETURNS STRING DETERMINISTIC
+LANGUAGE js AS '''
   const regexMaxAge = new RegExp(/max-age\\s*=\\s*(?<value>-*[0-9]+)/i);
   const regexExpires = new RegExp(/expires\\s*=\\s*(?<value>.*?)(;|$)/i);
   const parsed_headers = JSON.parse(headers);
@@ -25,8 +25,7 @@ language js as '''
       }
   });
   return JSON.stringify(result);
-'''
-;
+''';
 
 with
     max_age_values as (

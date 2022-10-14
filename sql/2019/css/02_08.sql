@@ -1,9 +1,7 @@
 # standardSQL
 # 02_08: % of sites that use classes or IDs in selectors
-create temporary function getselectortype(css string)
-returns struct < class boolean,
-id boolean
-> language js as '''
+CREATE TEMPORARY FUNCTION getSelectorType(css STRING)
+RETURNS STRUCT<class BOOLEAN, id BOOLEAN> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -29,8 +27,7 @@ try {
 } catch (e) {
   return {};
 }
-'''
-;
+''';
 
 select
     client,

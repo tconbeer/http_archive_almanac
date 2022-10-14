@@ -3,89 +3,88 @@
 # Note: Canonical metrics moved to pages-canonical-stats.sql.  Should be removed from
 # here in 2022.
 # returns all the data we need from _wpt_bodies
-create temporary function getseostatswptbodies(wpt_bodies_string string)
-returns struct <
+CREATE TEMPORARY FUNCTION getSeoStatsWptBodies(wpt_bodies_string STRING)
+RETURNS STRUCT<
 
-# tags
-n_titles int64,
-title_words int64,
-n_meta_descriptions int64,
-n_h1 int64,
-n_h2 int64,
-n_h3 int64,
-n_h4 int64,
-n_non_empty_h1 int64,
-n_non_empty_h2 int64,
-n_non_empty_h3 int64,
-n_non_empty_h4 int64,
-has_same_h1_title bool,
+  # tags
+  n_titles INT64,
+  title_words INT64,
+  n_meta_descriptions INT64,
+  n_h1 INT64,
+  n_h2 INT64,
+  n_h3 INT64,
+  n_h4 INT64,
+  n_non_empty_h1 INT64,
+  n_non_empty_h2 INT64,
+  n_non_empty_h3 INT64,
+  n_non_empty_h4 INT64,
+  has_same_h1_title BOOL,
 
-# robots
-robots_has_robots_meta_tag bool,
-robots_has_x_robots_tag bool,
-rendering_changed_robots_meta_tag bool,
+  # robots
+  robots_has_robots_meta_tag BOOL,
+  robots_has_x_robots_tag BOOL,
+  rendering_changed_robots_meta_tag BOOL,
 
-# canonical
-has_canonicals bool,
-has_self_canonical bool,
-is_canonicalized bool,
-has_http_canonical bool,
-has_rendered_canonical bool,
-has_raw_canonical bool,
-has_canonical_mismatch bool,
-rendering_changed_canonical bool,
-http_header_changed_canonical bool,
+  # canonical
+  has_canonicals BOOL,
+  has_self_canonical BOOL,
+  is_canonicalized BOOL,
+  has_http_canonical BOOL,
+  has_rendered_canonical BOOL,
+  has_raw_canonical BOOL,
+  has_canonical_mismatch BOOL,
+  rendering_changed_canonical BOOL,
+  http_header_changed_canonical BOOL,
 
-# hreflang
-rendering_changed_hreflang bool,
-has_hreflang bool,
-has_http_hreflang bool,
-has_rendered_hreflang bool,
-has_raw_hreflang bool,
+  # hreflang
+  rendering_changed_hreflang BOOL,
+  has_hreflang BOOL,
+  has_http_hreflang BOOL,
+  has_rendered_hreflang BOOL,
+  has_raw_hreflang BOOL,
 
-# structured data
-has_raw_jsonld_or_microdata bool,
-has_rendered_jsonld_or_microdata bool,
-rendering_changes_structured_data bool,
+  # structured data
+  has_raw_jsonld_or_microdata BOOL,
+  has_rendered_jsonld_or_microdata BOOL,
+  rendering_changes_structured_data BOOL,
 
-# meta robots
-rendered_otherbot_status_index bool,
-rendered_otherbot_status_follow bool,
-rendered_otherbot_noarchive bool,
-rendered_otherbot_nosnippet bool,
-rendered_otherbot_unavailable_after bool,
-rendered_otherbot_max_snippet bool,
-rendered_otherbot_max_image_preview bool,
-rendered_otherbot_max_video_preview bool,
-rendered_otherbot_notranslate bool,
-rendered_otherbot_noimageindex bool,
-rendered_otherbot_nocache bool,
+  # meta robots
+  rendered_otherbot_status_index BOOL,
+  rendered_otherbot_status_follow BOOL,
+  rendered_otherbot_noarchive BOOL,
+  rendered_otherbot_nosnippet BOOL,
+  rendered_otherbot_unavailable_after BOOL,
+  rendered_otherbot_max_snippet BOOL,
+  rendered_otherbot_max_image_preview BOOL,
+  rendered_otherbot_max_video_preview BOOL,
+  rendered_otherbot_notranslate BOOL,
+  rendered_otherbot_noimageindex BOOL,
+  rendered_otherbot_nocache BOOL,
 
-rendered_googlebot_status_index bool,
-rendered_googlebot_status_follow bool,
-rendered_googlebot_noarchive bool,
-rendered_googlebot_nosnippet bool,
-rendered_googlebot_unavailable_after bool,
-rendered_googlebot_max_snippet bool,
-rendered_googlebot_max_image_preview bool,
-rendered_googlebot_max_video_preview bool,
-rendered_googlebot_notranslate bool,
-rendered_googlebot_noimageindex bool,
-rendered_googlebot_nocache bool,
+  rendered_googlebot_status_index BOOL,
+  rendered_googlebot_status_follow BOOL,
+  rendered_googlebot_noarchive BOOL,
+  rendered_googlebot_nosnippet BOOL,
+  rendered_googlebot_unavailable_after BOOL,
+  rendered_googlebot_max_snippet BOOL,
+  rendered_googlebot_max_image_preview BOOL,
+  rendered_googlebot_max_video_preview BOOL,
+  rendered_googlebot_notranslate BOOL,
+  rendered_googlebot_noimageindex BOOL,
+  rendered_googlebot_nocache BOOL,
 
-rendered_googlebot_news_status_index bool,
-rendered_googlebot_news_status_follow bool,
-rendered_googlebot_news_noarchive bool,
-rendered_googlebot_news_nosnippet bool,
-rendered_googlebot_news_unavailable_after bool,
-rendered_googlebot_news_max_snippet bool,
-rendered_googlebot_news_max_image_preview bool,
-rendered_googlebot_news_max_video_preview bool,
-rendered_googlebot_news_notranslate bool,
-rendered_googlebot_news_noimageindex bool,
-rendered_googlebot_news_nocache bool
-> language js
-as '''
+  rendered_googlebot_news_status_index BOOL,
+  rendered_googlebot_news_status_follow BOOL,
+  rendered_googlebot_news_noarchive BOOL,
+  rendered_googlebot_news_nosnippet BOOL,
+  rendered_googlebot_news_unavailable_after BOOL,
+  rendered_googlebot_news_max_snippet BOOL,
+  rendered_googlebot_news_max_image_preview BOOL,
+  rendered_googlebot_news_max_video_preview BOOL,
+  rendered_googlebot_news_notranslate BOOL,
+  rendered_googlebot_news_noimageindex BOOL,
+  rendered_googlebot_news_nocache BOOL
+> LANGUAGE js AS '''
 var result = {};
 try {
   var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -322,8 +321,7 @@ try {
   }
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

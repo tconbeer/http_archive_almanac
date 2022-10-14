@@ -1,7 +1,7 @@
 # standardSQL
 # 10_03: <link rel="amphtml"> (AMP)
-create temp function hasamplink(payload string)
-returns boolean language js as '''
+CREATE TEMP FUNCTION hasAmpLink(payload STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -9,8 +9,7 @@ try {
 } catch (e) {
   return false;
 }
-'''
-;
+''';
 
 select
     client,

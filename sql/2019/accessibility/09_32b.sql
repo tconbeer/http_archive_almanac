@@ -1,7 +1,7 @@
 # standardSQL
 # 09_32b: % of pages using alt tags
-create temporary function hasimages(payload string)
-returns boolean language js as '''
+CREATE TEMPORARY FUNCTION hasImages(payload STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -9,8 +9,7 @@ try {
 } catch (e) {
   return false;
 }
-'''
-;
+''';
 
 select
     client,

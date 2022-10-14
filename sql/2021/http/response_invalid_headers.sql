@@ -1,9 +1,7 @@
 # standardSQL
 # List of invalid header names containing either a space or non-ASCII characters
-create temporary function extracthttpheaders(httpheaders string)
-returns array
-< string
-> language js as """
+CREATE TEMPORARY FUNCTION extractHTTPHeaders(HTTPheaders STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS """
 try {
   var headers = JSON.parse(HTTPheaders);
 
@@ -14,8 +12,7 @@ try {
 } catch (e) {
   return "";
 }
-"""
-;
+""";
 
 select
     client,

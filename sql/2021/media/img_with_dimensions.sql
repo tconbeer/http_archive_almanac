@@ -2,12 +2,9 @@
 # usage meta open graph
 # extracts the data about width, height and alt from the new customer metric
 # using this, counts and reports on the usage for each attribute
-create temporary function get_image_info(responsivestring string)
-returns array < struct < haswidth int64,
-hasheight int64,
-hasalt int64,
-hasreservedlayoutdimension int64
->> language js as '''
+CREATE TEMPORARY FUNCTION get_image_info(responsiveString STRING)
+RETURNS ARRAY<STRUCT<hasWidth INT64, hasHeight INT64, hasAlt INT64, hasReservedLayoutDimension INT64>>
+LANGUAGE js AS '''
 try {
   let result = Array()
   const responsiveImages = JSON.parse(responsiveString)
@@ -24,8 +21,7 @@ try {
 } catch(e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

@@ -1,7 +1,7 @@
 # standardSQL
 # 06_16: % of pages that declare a font with local()
-create temporary function countlocalsrc(css string)
-returns int64 language js as '''
+CREATE TEMPORARY FUNCTION countLocalSrc(css STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -26,8 +26,7 @@ try {
 } catch (e) {
   return 0;
 }
-'''
-;
+''';
 
 select
     client,

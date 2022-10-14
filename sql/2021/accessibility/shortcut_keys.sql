@@ -1,9 +1,7 @@
 # standardSQL
 # Most popular accesskey or aria-keyshortcuts keys
-create temporary function getshortcuts(payload string)
-returns array < struct < type string,
-shortcut string
->> language js as '''
+CREATE TEMPORARY FUNCTION getShortcuts(payload STRING)
+RETURNS ARRAY<STRUCT<type STRING, shortcut STRING>> LANGUAGE js AS '''
 try {
   const almanac = JSON.parse(payload);
 
@@ -25,8 +23,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

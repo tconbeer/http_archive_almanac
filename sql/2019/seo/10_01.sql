@@ -4,9 +4,8 @@
 # https://developers.google.com/search/docs/guides/search-gallery
 # note: homepage only data
 # note: also see 10.05
-create temporary function haseligibletype(payload string)
-returns boolean language js
-as '''
+CREATE TEMPORARY FUNCTION hasEligibleType(payload STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -19,8 +18,7 @@ as '''
   } catch (e) {
     return false;
   }
-'''
-;
+''';
 
 select
     client,

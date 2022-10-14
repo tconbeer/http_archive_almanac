@@ -1,7 +1,9 @@
 # standardSQL
-create temporary function getanimatedcustomproperties(css string)
-returns array < string > language js
-options(library = "gs://httparchive/lib/css-utils.js") as '''
+CREATE TEMPORARY FUNCTION getAnimatedCustomProperties(css STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   const ast = JSON.parse(css);
   let ret = new Set();
@@ -20,13 +22,10 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
-create temporary function getcustompropertieswithcomputedstyle(payload string) returns
-array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getCustomPropertiesWithComputedStyle(payload STRING) RETURNS
+ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var vars = JSON.parse($['_css-variables']);
@@ -64,8 +63,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select client, count(distinct page) as pages
 from

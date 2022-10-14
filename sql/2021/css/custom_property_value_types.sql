@@ -1,9 +1,9 @@
 # standardSQL
-create temporary function getcustompropertyvaluetypes(payload string)
-returns array < struct < type string,
-freq int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+CREATE TEMPORARY FUNCTION getCustomPropertyValueTypes(payload STRING)
+RETURNS ARRAY<STRUCT<type STRING, freq INT64>>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(vars) {
     function walkElements(node, callback) {
@@ -136,8 +136,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select distinct
     client,

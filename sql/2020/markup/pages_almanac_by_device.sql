@@ -11,23 +11,22 @@
 # Estimate about twice the speed of the original code. But should scale up far better
 # as the custom metrics are only parsed once.
 # helper to create percent fields
-create temp function as_percent(freq float64, total float64) returns float64 as (
-    round(safe_divide(freq, total), 4)
-)
-;
+CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
+  ROUND(SAFE_DIVIDE(freq, total), 4)
+);
 
 # returns all the data we need from _almanac
-create temporary function get_almanac_info(almanac_string string)
-returns struct < scripts_total int64,
-none_jsonld_scripts_total int64,
-src_scripts_total int64,
-inline_scripts_total int64,
-good_heading_sequence bool,
-contains_videos_with_autoplay bool,
-contains_videos_without_autoplay bool,
-html_node_lang string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION get_almanac_info(almanac_string STRING)
+RETURNS STRUCT<
+  scripts_total INT64,
+  none_jsonld_scripts_total INT64,
+  src_scripts_total INT64,
+  inline_scripts_total INT64,
+  good_heading_sequence BOOL,
+  contains_videos_with_autoplay BOOL,
+  contains_videos_without_autoplay BOOL,
+  html_node_lang STRING
+> LANGUAGE js AS '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -69,8 +68,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     client,

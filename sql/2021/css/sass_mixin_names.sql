@@ -1,7 +1,5 @@
 # standardSQL
-create temporary function getmixinnames(payload string) returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getMixinNames(payload STRING) RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -13,8 +11,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

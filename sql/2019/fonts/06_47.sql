@@ -1,7 +1,7 @@
 # standardSQL
 # 06_47: % of pages linking to a Google Fonts stylesheet as first item in <head>
-create temp function preloadsgooglefontfirst(payload string)
-returns boolean language js as '''
+CREATE TEMP FUNCTION preloadsGoogleFontFirst(payload STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -10,8 +10,7 @@ returns boolean language js as '''
     return false;
   }
 
-'''
-;
+''';
 
 select
     _table_suffix as client,

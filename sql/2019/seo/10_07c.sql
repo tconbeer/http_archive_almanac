@@ -1,8 +1,7 @@
 # standardSQL
 # 10_07c: <meta description> length
-create temp function getmetadescriptionlength(payload string)
-returns int64 language js
-as '''
+CREATE TEMP FUNCTION getMetaDescriptionLength(payload STRING)
+RETURNS INT64 LANGUAGE js AS '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -11,8 +10,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     percentile,

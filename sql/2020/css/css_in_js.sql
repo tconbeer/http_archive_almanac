@@ -1,9 +1,7 @@
 # standardSQL
 # CSS in JS. Show number of sites that using each framework or not using any.
-create temporary function getcssinjs(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getCssInJS(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
   try {
     var $ = JSON.parse(payload);
     var css = JSON.parse($._css);
@@ -32,8 +30,7 @@ returns array
   } catch (e) {
     return [];
   }
-'''
-;
+''';
 
 select
     client,

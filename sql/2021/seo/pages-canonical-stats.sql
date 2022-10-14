@@ -3,22 +3,22 @@
 # Note: Contains redundant stats to seo-stats.sql in order to start better segmenting
 # metrics away from monolithic queries.
 # JS parsing of payload
-create temporary function getcanonicalmetrics(payload string)
-returns struct < has_wpt_bodies bool,
-has_canonicals bool,
-has_self_canonical bool,
-is_canonicalized bool,
-has_http_canonical bool,
-has_rendered_canonical bool,
-has_raw_canonical bool,
-has_canonical_mismatch bool,
-rendering_changed_canonical bool,
-http_header_changed_canonical bool,
-has_relative_canonical bool,
-has_absolute_canonical bool,
-js_error bool
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getCanonicalMetrics(payload STRING)
+RETURNS STRUCT<
+  has_wpt_bodies BOOL,
+  has_canonicals BOOL,
+  has_self_canonical BOOL,
+  is_canonicalized BOOL,
+  has_http_canonical BOOL,
+  has_rendered_canonical BOOL,
+  has_raw_canonical BOOL,
+  has_canonical_mismatch BOOL,
+  rendering_changed_canonical BOOL,
+  http_header_changed_canonical BOOL,
+  has_relative_canonical BOOL,
+  has_absolute_canonical BOOL,
+  js_error BOOL
+> LANGUAGE js AS '''
 
 var result = {has_wpt_bodies: true,
               has_canonicals: false,
@@ -109,8 +109,7 @@ try {
   result.js_error = true;
   return result;
 }
-'''
-;
+''';
 select
     client,
     count(0) as total,

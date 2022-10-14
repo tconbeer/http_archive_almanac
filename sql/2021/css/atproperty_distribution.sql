@@ -1,8 +1,6 @@
 # standardSQL
 # Distribution of @property rules per page
-create temp function countatproperties(css string) returns array
-< int64
-> language js as '''
+CREATE TEMP FUNCTION countAtProperties(css STRING) RETURNS ARRAY<INT64> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {
@@ -16,8 +14,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     percentile,

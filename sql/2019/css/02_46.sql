@@ -1,9 +1,7 @@
 # standardSQL
 # 02_46: Distribution of selector class length
-create temporary function getclasschainlengths(css string)
-returns array
-< int64
-> language js as '''
+CREATE TEMPORARY FUNCTION getClassChainLengths(css STRING)
+RETURNS ARRAY<INT64> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -29,8 +27,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

@@ -1,9 +1,7 @@
 # standardSQL
 # Ecommerce pages using type=search inputs
-create temporary function getsearchinputstats(payload string)
-returns struct < has_inputs boolean,
-has_search_inputs boolean
-> language js as '''
+CREATE TEMPORARY FUNCTION getSearchInputStats(payload STRING)
+RETURNS STRUCT<has_inputs BOOLEAN, has_search_inputs BOOLEAN> LANGUAGE js AS '''
   try {
     const almanac = JSON.parse(payload);
     const search_node_index = almanac.input_elements.nodes.findIndex((node) => {
@@ -20,8 +18,7 @@ has_search_inputs boolean
       has_search_inputs: false,
     };
   }
-'''
-;
+''';
 
 select
     client,

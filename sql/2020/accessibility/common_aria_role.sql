@@ -1,17 +1,14 @@
 # standardSQL
 # % of sites using each type of aria role
-create temporary function getusedroles(payload string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getUsedRoles(payload STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.nodes_using_role.usage_and_count);
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 select
     _table_suffix as client,
     total_sites,

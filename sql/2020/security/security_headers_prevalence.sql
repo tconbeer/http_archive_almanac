@@ -1,16 +1,15 @@
 # standardSQL
 # Prevalence of security headers set in a first-party context; count by number of
 # hosts.
-create temporary function hasheader(headers string, headername string)
-returns bool
-deterministic
-language js
-as '''
+CREATE TEMPORARY FUNCTION hasHeader(headers STRING, headername STRING)
+RETURNS BOOL
+DETERMINISTIC
+LANGUAGE js
+AS '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   return matching_headers.length > 0;
-'''
-;
+''';
 
 select
     date,

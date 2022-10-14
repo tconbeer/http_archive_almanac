@@ -1,10 +1,7 @@
 # standardSQL
 # Top used elements
-create temporary function get_element_types_info(element_count_string string)
-returns array < struct < name string,
-freq int64
->> language js
-as '''
+CREATE TEMPORARY FUNCTION get_element_types_info(element_count_string STRING)
+RETURNS ARRAY<STRUCT<name STRING, freq INT64>> LANGUAGE js AS '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 
@@ -17,8 +14,7 @@ try {
 } catch (e) {
     return [];
 }
-'''
-;
+''';
 
 select
     _table_suffix as client,

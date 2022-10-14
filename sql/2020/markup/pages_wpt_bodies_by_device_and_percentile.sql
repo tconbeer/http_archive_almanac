@@ -1,15 +1,15 @@
 # standardSQL
 # percientile data from wpt_bodies per device
 # returns all the data we need from _wpt_bodies
-create temporary function get_wpt_bodies_info(wpt_bodies_string string)
-returns struct < comment_count int64,
-conditional_comment_count int64,
-head_size int64,
-no_h1 bool,
-target_blank_total int64,
-target_blank_noopener_noreferrer_total int64
-> language js
-as '''
+CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
+RETURNS STRUCT<
+  comment_count INT64,
+  conditional_comment_count INT64,
+  head_size INT64,
+  no_h1 BOOL,
+  target_blank_total INT64,
+  target_blank_noopener_noreferrer_total INT64
+> LANGUAGE js AS '''
 var result = {};
 try {
     var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -31,8 +31,7 @@ try {
 
 } catch (e) {}
 return result;
-'''
-;
+''';
 
 select
     percentile,

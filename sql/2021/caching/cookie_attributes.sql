@@ -1,9 +1,7 @@
 # standardSQL
 # Popularity of top Set-Cookie attributes/directives
-create temporary function getcookieattributes(headers string)
-returns array
-< string
-> deterministic language js as '''
+CREATE TEMPORARY FUNCTION getCookieAttributes(headers STRING)
+RETURNS ARRAY<STRING> DETERMINISTIC LANGUAGE js AS '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {
@@ -16,11 +14,10 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
-create temporary function countcookies(headers string)
-returns int64 deterministic language js as '''
+CREATE TEMPORARY FUNCTION countCookies(headers STRING)
+RETURNS INT64 DETERMINISTIC LANGUAGE js AS '''
 try {
   var $ = JSON.parse(headers);
   return $.filter(header => {
@@ -29,8 +26,7 @@ try {
 } catch (e) {
   return 0;
 }
-'''
-;
+''';
 
 select client, attr.value as attr, attr.count as freq, total, attr.count / total as pct
 from

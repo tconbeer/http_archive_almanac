@@ -1,9 +1,7 @@
 # standardSQL
 # % of sites with empty alt tags
-create temporary function getaltstats(payload string)
-returns struct < has_alts bool,
-has_alt_of_zero_length bool
-> language js as '''
+CREATE TEMPORARY FUNCTION getAltStats(payload STRING)
+RETURNS STRUCT<has_alts BOOL, has_alt_of_zero_length BOOL> LANGUAGE js AS '''
 try {
   const almanac = JSON.parse(payload);
   const alt_lengths = almanac.images.alt_lengths;
@@ -18,8 +16,7 @@ try {
     has_alt_of_zero_length: false,
   };
 }
-'''
-;
+''';
 
 select
     client,

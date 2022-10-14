@@ -1,9 +1,9 @@
 # standardSQL
-create temporary function getcalcunitcomplexity(css string)
-returns array < struct < num int64,
-freq int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+CREATE TEMPORARY FUNCTION getCalcUnitComplexity(css STRING)
+RETURNS ARRAY<STRUCT<num INT64, freq INT64>>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(ast) {
     let ret = {
@@ -62,8 +62,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

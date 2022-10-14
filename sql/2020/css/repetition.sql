@@ -1,8 +1,12 @@
 # standardSQL
-create temporary function getdeclarationcounts(css string)
-returns struct < total numeric,
-unique numeric > language js
-options(library = "gs://httparchive/lib/css-utils.js") as '''
+CREATE TEMPORARY FUNCTION getDeclarationCounts(css STRING)
+RETURNS STRUCT<
+  total NUMERIC,
+  unique NUMERIC
+>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
     function compute() {
         let ret = {total: 0};
@@ -27,8 +31,7 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 select
     percentile,

@@ -1,14 +1,14 @@
 # standardSQL
 # Pages that deploy a certain tracker (as defined by WhoTracks.me, i.e., one tracker
 # can run on multiple domains)
-create temp function istrackercategory(category string)
-returns bool as (
-    category = 'advertising'
-    or category = 'pornvertising'
-    or category = 'site_analytics'
-    or category = 'social_media'
-)
-;
+CREATE TEMP FUNCTION isTrackerCategory(category STRING)
+RETURNS BOOL
+AS (
+  category = 'advertising' OR
+  category = 'pornvertising' OR
+  category = 'site_analytics' OR
+  category = 'social_media'
+);
 
 with
     whotracksme as (

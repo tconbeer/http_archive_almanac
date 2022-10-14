@@ -1,9 +1,9 @@
 # standardSQL
-create temporary function getmaxcolorstops(css string)
-returns string
-language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+CREATE TEMPORARY FUNCTION getMaxColorStops(css STRING)
+RETURNS STRING
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(ast) {
     let ret = {
@@ -156,16 +156,15 @@ try {
 } catch (e) {
   return null;
 }
-'''
-;
+''';
 
 # https://www.stevenmoseley.com/blog/tech/high-performance-sql-correlated-scalar-aggregate-reduction-queries
-create temporary function getgradient(value string) returns string as (substr(value, 4))
-;
-create temporary function getstops(
-    value string
-) returns int64 as (cast(substr(value, 0, 3) as int64))
-;
+CREATE TEMPORARY FUNCTION getGradient(value STRING) RETURNS STRING AS (
+  SUBSTR(value, 4)
+);
+CREATE TEMPORARY FUNCTION getStops(value STRING) RETURNS INT64 AS (
+  CAST(SUBSTR(value, 0, 3) AS INT64)
+);
 
 select
     percentile,

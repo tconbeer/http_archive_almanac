@@ -1,10 +1,7 @@
 # standardSQL
 # popular_typeface
-create temporary function getfontfamilies(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getFontFamilies(css STRING)
+RETURNS ARRAY <STRING> LANGUAGE js AS '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.filter(rule => rule.type == 'font-face').map(rule => {
@@ -14,8 +11,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select client, font_family, pages, total, pages / total as pct
 from

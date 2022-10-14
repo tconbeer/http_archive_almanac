@@ -1,8 +1,7 @@
 # standardSQL
 # Number of HTTPS requests using HTTP/2 which return upgrade HTTP header containing h2
-create temporary function extracthttpheader(httpheaders string, header string)
-returns string language js
-as """
+CREATE TEMPORARY FUNCTION extractHTTPHeader(HTTPheaders STRING, header STRING)
+RETURNS STRING LANGUAGE js AS """
 try {
   var headers = JSON.parse(HTTPheaders);
 
@@ -13,8 +12,7 @@ try {
 } catch (e) {
   return "";
 }
-"""
-;
+""";
 
 select
     client,

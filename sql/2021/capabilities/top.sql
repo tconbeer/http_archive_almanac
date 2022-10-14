@@ -1,12 +1,10 @@
 # standardSQL
-create temp function getfuguapis(data string)
-returns array
-< string
-> language js as '''
+CREATE TEMP FUNCTION getFuguAPIs(data STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js AS '''
 const $ = JSON.parse(data);
 return Object.keys($);
-'''
-;
+''';
 
 select _table_suffix as client, url, count(distinct fuguapi) as fuguapis
 from

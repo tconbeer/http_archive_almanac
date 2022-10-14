@@ -1,10 +1,10 @@
 # standardSQL
-create temporary function getshorthandfirstproperties(css string)
-returns
-array < struct < property string,
-freq int64 >> language js
-options(library = "gs://httparchive/lib/css-utils.js")
-as '''
+CREATE TEMPORARY FUNCTION getShorthandFirstProperties(css STRING)
+RETURNS
+ARRAY<STRUCT<property STRING, freq INT64>>
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/css-utils.js")
+AS '''
 try {
   function compute(ast) {
     let ret = {
@@ -443,8 +443,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

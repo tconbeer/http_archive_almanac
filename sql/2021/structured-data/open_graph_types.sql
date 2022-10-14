@@ -1,17 +1,15 @@
 # standardSQL
 # Count Open Graph types
-create temp function getopengraphtypes(rendered string)
-returns array
-< string
-> language js as """
+CREATE TEMP FUNCTION getOpenGraphTypes(rendered STRING)
+RETURNS ARRAY<STRING>
+LANGUAGE js AS """
   try {
     rendered = JSON.parse(rendered);
     return rendered.opengraph.map(opengraph => opengraph.property.toLowerCase());
   } catch (e) {
     return [];
   }
-"""
-;
+""";
 
 with
     rendered_data as (

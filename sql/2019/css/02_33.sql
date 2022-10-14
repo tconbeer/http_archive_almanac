@@ -1,10 +1,7 @@
 # standardSQL
 # 02_33: Distribution of duplicate color values per page
-create temporary function getcolors(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getColors(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -21,8 +18,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,

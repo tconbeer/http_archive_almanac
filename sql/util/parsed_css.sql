@@ -1,15 +1,15 @@
-create temp function parsecss(stylesheet string)
-returns string
-language js
-options(library = "gs://httparchive/lib/parse-css.js") as '''
+CREATE TEMP FUNCTION parseCSS(stylesheet STRING)
+RETURNS STRING
+LANGUAGE js
+OPTIONS (library = "gs://httparchive/lib/parse-css.js")
+AS '''
   try {
     var css = parse(stylesheet)
     return JSON.stringify(css);
   } catch (e) {
     '';
   }
-'''
-;
+''';
 
 select date, client, page, url, parsecss(body) as css
 from `httparchive.almanac.summary_response_bodies`

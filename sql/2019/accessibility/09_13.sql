@@ -1,7 +1,7 @@
 # standardSQL
 # 09_13: % pages with headings out of order
-create temporary function includesunorderedheading(headings array < string >)
-returns boolean language js as '''
+CREATE TEMPORARY FUNCTION includesUnorderedHeading(headings ARRAY<STRING>)
+RETURNS BOOLEAN LANGUAGE js AS '''
 var previous = null;
 var seen = new Set();
 for (h of headings) {
@@ -13,8 +13,7 @@ for (h of headings) {
   seen.add(h);
 }
 return false;
-'''
-;
+''';
 
 select
     client,

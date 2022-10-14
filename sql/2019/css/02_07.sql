@@ -1,9 +1,7 @@
 # standardSQL
 # 02_07: % of sites that use each length unit
-create temporary function getlengthunit(css string)
-returns array
-< string
-> language js as '''
+CREATE TEMPORARY FUNCTION getLengthUnit(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   // https://developer.mozilla.org/en-US/docs/Web/CSS/length
   var units = ['cap', 'ch', 'em', 'ex', 'ic', 'lh', 'rem',
@@ -43,8 +41,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select client, unit, freq, total, round(freq * 100 / total, 2) as pct
 from

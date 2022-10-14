@@ -1,8 +1,7 @@
 # standardSQL
 # 02_04: % of sites that use blend modes
-create temporary function usesblendmodes(css string)
-returns boolean language js
-as '''
+CREATE TEMPORARY FUNCTION usesBlendModes(css STRING)
+RETURNS BOOLEAN LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -19,8 +18,7 @@ try {
 } catch (e) {
   return false;
 }
-'''
-;
+''';
 
 select
     client,

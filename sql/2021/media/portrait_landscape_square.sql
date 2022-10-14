@@ -1,13 +1,6 @@
-create temporary function getsrcsetinfo(responsiveimagesjsonstring string)
-returns array < struct < imgurl string,
-approximateresourcewidth int64,
-approximateresourceheight int64,
-aspectratio numeric,
-isportrait bool,
-islandscape bool,
-issquare bool
->> language js
-as '''
+CREATE TEMPORARY FUNCTION getSrcsetInfo(responsiveImagesJsonString STRING)
+RETURNS ARRAY<STRUCT<imgURL STRING, approximateResourceWidth INT64, approximateResourceHeight INT64, aspectRatio NUMERIC, isPortrait BOOL, isLandscape BOOL, isSquare BOOL>>
+LANGUAGE js AS '''
   const parsed = JSON.parse( responsiveImagesJsonString );
   if ( parsed && parsed.map ) {
     return parsed.map( d => {
@@ -24,8 +17,7 @@ as '''
       }
     });
   }
-'''
-;
+''';
 
 with
     imgs as (

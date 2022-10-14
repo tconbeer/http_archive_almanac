@@ -1,10 +1,7 @@
 # standardSQL
 # 02_04b: Top blend modes
-create temporary function getblendmodes(css string)
-returns array
-< string
-> language js
-as '''
+CREATE TEMPORARY FUNCTION getBlendModes(css STRING)
+RETURNS ARRAY<STRING> LANGUAGE js AS '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -21,8 +18,7 @@ try {
 } catch (e) {
   return [];
 }
-'''
-;
+''';
 
 select
     client,
