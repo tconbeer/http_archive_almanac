@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 08_40b: Most frequent vulnerable libraries
 CREATE TEMPORARY FUNCTION getVulnerabilities(report STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -10,15 +10,13 @@ try {
 }
 ''';
 
-SELECT
-  lib,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER () AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (), 2) AS pct
-FROM
-  `httparchive.lighthouse.2019_07_01_mobile`,
-  UNNEST(getVulnerabilities(report)) AS lib
-GROUP BY
-  lib
-ORDER BY
-  freq DESC
+select
+    lib,
+    count(0) as freq,
+    sum(count(0)) over () as total,
+    round(count(0) * 100 / sum(count(0)) over (), 2) as pct
+from
+    `httparchive.lighthouse.2019_07_01_mobile`,
+    unnest(getvulnerabilities(report)) as lib
+group by lib
+order by freq desc

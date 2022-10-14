@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 21_07: % of sites that use priority hints.
 CREATE TEMPORARY FUNCTION hasPriorityHints(payload STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -11,16 +11,14 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(has_hint) AS freq,
-  COUNT(0) AS total,
-  COUNTIF(has_hint) / COUNT(0) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    hasPriorityHints(payload) AS has_hint
-  FROM
-    `httparchive.pages.2020_08_01_*`)
-GROUP BY
-  client
+select
+    client,
+    countif(has_hint) as freq,
+    count(0) as total,
+    countif(has_hint) / count(0) as pct
+from
+    (
+        select _table_suffix as client, haspriorityhints(payload) as has_hint
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

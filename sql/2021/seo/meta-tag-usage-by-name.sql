@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # Meta tag usage by name
-
 # returns all the data we need from _almanac
 CREATE TEMPORARY FUNCTION getMetaTagAlmanacInfo(almanac_string STRING)
 RETURNS ARRAY<STRING>
@@ -22,35 +21,26 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  meta_tag_name,
-  total,
-  COUNT(0) AS count,
-  SAFE_DIVIDE(COUNT(0), total) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      getMetaTagAlmanacInfo(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS meta_tag_almanac_info
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    JOIN
-      (
+select
+    client, meta_tag_name, total, count(0) as count, safe_divide(count(0), total) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            getmetatagalmanacinfo(
+                json_extract_scalar(payload, '$._almanac')
+            ) as meta_tag_almanac_info
+        from `httparchive.pages.2021_07_01_*`
+        join
+            (
 
-        SELECT _TABLE_SUFFIX, COUNT(0) AS total
-        FROM
-          `httparchive.pages.2021_07_01_*`
-        GROUP BY _TABLE_SUFFIX
-      )
-    USING (_TABLE_SUFFIX)
-  ),
-  UNNEST(meta_tag_almanac_info) AS meta_tag_name
-GROUP BY
-  total,
-  meta_tag_name,
-  client
-ORDER BY
-  count DESC
-LIMIT 1000
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2021_07_01_*`
+                group by _table_suffix
+            ) using (_table_suffix)
+    ),
+    unnest(meta_tag_almanac_info) as meta_tag_name
+group by total, meta_tag_name, client
+order by count desc
+limit 1000

@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # percientile data from wpt_bodies per device
-
 # returns all the data we need from _wpt_bodies
 CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
 RETURNS STRUCT<
@@ -69,54 +68,98 @@ try {
 return result;
 ''';
 
-SELECT
-  percentile,
-  client,
-  COUNT(DISTINCT url) AS total,
-
-  # title
-  APPROX_QUANTILES(wpt_bodies_info.title_words, 1000)[OFFSET(percentile * 10)] AS title_words,
-  APPROX_QUANTILES(wpt_bodies_info.title_characters, 1000)[OFFSET(percentile * 10)] AS title_characters,
-
-  # meta description
-  APPROX_QUANTILES(wpt_bodies_info.meta_description_words, 1000)[OFFSET(percentile * 10)] AS meta_description_words,
-  APPROX_QUANTILES(wpt_bodies_info.meta_description_characters, 1000)[OFFSET(percentile * 10)] AS meta_description_characters,
-
-  # links
-  APPROX_QUANTILES(wpt_bodies_info.links_other_property, 1000)[OFFSET(percentile * 10)] AS outgoing_links_external,
-  APPROX_QUANTILES(wpt_bodies_info.links_same_property + wpt_bodies_info.links_same_site + wpt_bodies_info.links_other_property, 1000)[OFFSET(percentile * 10)] AS outgoing_links,
-  APPROX_QUANTILES(wpt_bodies_info.links_same_property + wpt_bodies_info.links_same_site, 1000)[OFFSET(percentile * 10)] AS outgoing_links_internal,
-
-  APPROX_QUANTILES(wpt_bodies_info.image_links, 1000)[OFFSET(percentile * 10)] AS image_links,
-  APPROX_QUANTILES(wpt_bodies_info.text_links, 1000)[OFFSET(percentile * 10)] AS text_links,
-
-  APPROX_QUANTILES(wpt_bodies_info.hash_link, 1000)[OFFSET(percentile * 10)] AS hash_links,
-  APPROX_QUANTILES(wpt_bodies_info.hash_only_link, 1000)[OFFSET(percentile * 10)] AS hash_only_links,
-  APPROX_QUANTILES(wpt_bodies_info.javascript_void_links, 1000)[OFFSET(percentile * 10)] AS javascript_void_links,
-  APPROX_QUANTILES(wpt_bodies_info.same_page_jumpto_total, 1000)[OFFSET(percentile * 10)] AS same_page_jumpto_links,
-  APPROX_QUANTILES(wpt_bodies_info.same_page_dynamic_total, 1000)[OFFSET(percentile * 10)] AS same_page_dynamic_links,
-  APPROX_QUANTILES(wpt_bodies_info.same_page_other_total, 1000)[OFFSET(percentile * 10)] AS same_page_other_links,
-
-  # percent of links are image links
-  ROUND(APPROX_QUANTILES(SAFE_DIVIDE(wpt_bodies_info.image_links, wpt_bodies_info.image_links + wpt_bodies_info.text_links), 1000)[OFFSET(percentile * 10)], 4) AS image_links_percent,
-
-  # words
-  APPROX_QUANTILES(wpt_bodies_info.visible_words_rendered_count, 1000)[OFFSET(percentile * 10)] AS visible_words_rendered,
-  APPROX_QUANTILES(wpt_bodies_info.visible_words_raw_count, 1000)[OFFSET(percentile * 10)] AS visible_words_raw
-
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
     percentile,
-    url,
-    get_wpt_bodies_info(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies')) AS wpt_bodies_info
-  FROM
-    `httparchive.pages.2020_08_01_*`,
-    UNNEST([10, 25, 50, 75, 90]) AS percentile
-)
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    client,
+    count(distinct url) as total,
+
+    # title
+    approx_quantiles(wpt_bodies_info.title_words, 1000)[
+        offset(percentile * 10)
+    ] as title_words,
+    approx_quantiles(wpt_bodies_info.title_characters, 1000)[
+        offset(percentile * 10)
+    ] as title_characters,
+
+    # meta description
+    approx_quantiles(wpt_bodies_info.meta_description_words, 1000)[
+        offset(percentile * 10)
+    ] as meta_description_words,
+    approx_quantiles(wpt_bodies_info.meta_description_characters, 1000)[
+        offset(percentile * 10)
+    ] as meta_description_characters,
+
+    # links
+    approx_quantiles(wpt_bodies_info.links_other_property, 1000)[
+        offset(percentile * 10)
+    ] as outgoing_links_external,
+    approx_quantiles(
+        wpt_bodies_info.links_same_property
+        + wpt_bodies_info.links_same_site
+        + wpt_bodies_info.links_other_property,
+        1000
+    )[offset(percentile * 10)] as outgoing_links,
+    approx_quantiles(
+        wpt_bodies_info.links_same_property + wpt_bodies_info.links_same_site, 1000
+    )[offset(percentile * 10)] as outgoing_links_internal,
+
+    approx_quantiles(wpt_bodies_info.image_links, 1000)[
+        offset(percentile * 10)
+    ] as image_links,
+    approx_quantiles(wpt_bodies_info.text_links, 1000)[
+        offset(percentile * 10)
+    ] as text_links,
+
+    approx_quantiles(wpt_bodies_info.hash_link, 1000)[
+        offset(percentile * 10)
+    ] as hash_links,
+    approx_quantiles(wpt_bodies_info.hash_only_link, 1000)[
+        offset(percentile * 10)
+    ] as hash_only_links,
+    approx_quantiles(wpt_bodies_info.javascript_void_links, 1000)[
+        offset(percentile * 10)
+    ] as javascript_void_links,
+    approx_quantiles(wpt_bodies_info.same_page_jumpto_total, 1000)[
+        offset(percentile * 10)
+    ] as same_page_jumpto_links,
+    approx_quantiles(wpt_bodies_info.same_page_dynamic_total, 1000)[
+        offset(percentile * 10)
+    ] as same_page_dynamic_links,
+    approx_quantiles(wpt_bodies_info.same_page_other_total, 1000)[
+        offset(percentile * 10)
+    ] as same_page_other_links,
+
+    # percent of links are image links
+    round(
+        approx_quantiles(
+            safe_divide(
+                wpt_bodies_info.image_links,
+                wpt_bodies_info.image_links + wpt_bodies_info.text_links
+            ),
+            1000
+        )[offset(percentile * 10)],
+        4
+    ) as image_links_percent,
+
+    # words
+    approx_quantiles(wpt_bodies_info.visible_words_rendered_count, 1000)[
+        offset(percentile * 10)
+    ] as visible_words_rendered,
+    approx_quantiles(wpt_bodies_info.visible_words_raw_count, 1000)[
+        offset(percentile * 10)
+    ] as visible_words_raw
+
+from
+    (
+        select
+            _table_suffix as client,
+            percentile,
+            url,
+            get_wpt_bodies_info(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as wpt_bodies_info
+        from
+            `httparchive.pages.2020_08_01_*`, unnest([10, 25, 50, 75, 90]) as percentile
+    )
+group by percentile, client
+order by percentile, client

@@ -1,82 +1,50 @@
-#standardSQL
+# standardSQL
 # SSG adoption over time
-SELECT
-  _TABLE_SUFFIX AS client,
-  2021 AS year,
-  COUNT(DISTINCT url) AS freq,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.technologies.2021_07_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (_TABLE_SUFFIX)
-WHERE
-  LOWER(category) = 'static site generator' OR
-  app = 'Next.js' OR
-  app = 'Nuxt.js'
-GROUP BY
-  client,
-  total
-UNION ALL
-SELECT
-  _TABLE_SUFFIX AS client,
-  2020 AS year,
-  COUNT(DISTINCT url) AS freq,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.technologies.2020_08_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (_TABLE_SUFFIX)
-WHERE
-  LOWER(category) = 'static site generator' OR
-  app = 'Next.js' OR
-  app = 'Nuxt.js'
-GROUP BY
-  client,
-  total
-UNION ALL
-SELECT
-  _TABLE_SUFFIX AS client,
-  2019 AS year,
-  COUNT(DISTINCT url) AS freq,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.technologies.2019_07_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2019_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (_TABLE_SUFFIX)
-WHERE
-  LOWER(category) = 'static site generator' OR
-  app = 'Next.js' OR
-  app = 'Nuxt.js'
-GROUP BY
-  client,
-  total
-ORDER BY
-  year DESC,
-  pct DESC
+select
+    _table_suffix as client,
+    2021 as year,
+    count(distinct url) as freq,
+    total,
+    count(distinct url) / total as pct
+from `httparchive.technologies.2021_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    ) using (_table_suffix)
+where lower(category) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+group by client, total
+union all
+select
+    _table_suffix as client,
+    2020 as year,
+    count(distinct url) as freq,
+    total,
+    count(distinct url) / total as pct
+from `httparchive.technologies.2020_08_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by _table_suffix
+    ) using (_table_suffix)
+where lower(category) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+group by client, total
+union all
+select
+    _table_suffix as client,
+    2019 as year,
+    count(distinct url) as freq,
+    total,
+    count(distinct url) / total as pct
+from `httparchive.technologies.2019_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (_table_suffix)
+where lower(category) = 'static site generator' or app = 'Next.js' or app = 'Nuxt.js'
+group by client, total
+order by year desc, pct desc

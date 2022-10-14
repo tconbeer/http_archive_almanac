@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # % of pages having skip links
 CREATE TEMPORARY FUNCTION getEarlyHash(payload STRING)
 RETURNS INT64 LANGUAGE js AS '''
@@ -10,12 +10,11 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(getEarlyHash(JSON_EXTRACT_SCALAR(payload, '$._almanac')) > 0) AS pages,
-  COUNT(0) AS total,
-  COUNTIF(getEarlyHash(JSON_EXTRACT_SCALAR(payload, '$._almanac')) > 0) / COUNT(0) AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(getearlyhash(json_extract_scalar(payload, '$._almanac')) > 0) as pages,
+    count(0) as total,
+    countif(getearlyhash(json_extract_scalar(payload, '$._almanac')) > 0)
+    / count(0) as pct
+from `httparchive.pages.2021_07_01_*`
+group by client

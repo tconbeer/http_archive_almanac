@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 02_23: Popular fonts
 CREATE TEMPORARY FUNCTION getFontFamilies(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -13,19 +13,13 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  font_family,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontFamilies(css)) AS font_family
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  font_family
-ORDER BY
-  freq / total DESC
+select
+    client,
+    font_family,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.parsed_css`, unnest(getfontfamilies(css)) as font_family
+where date = '2019-07-01'
+group by client, font_family
+order by freq / total desc

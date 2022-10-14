@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getGradientHardStops(css STRING)
 RETURNS INT64
 LANGUAGE js
@@ -158,33 +158,22 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(hard_stops > 0) AS pages,
-  total,
-  COUNTIF(hard_stops > 0) / total AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    SUM(getGradientHardStops(css)) AS hard_stops
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    countif(hard_stops > 0) as pages,
+    total,
+    countif(hard_stops > 0) / total as pct
+from
+    (
+        select client, page, sum(getgradienthardstops(css)) as hard_stops
+        from `httparchive.almanac.parsed_css`
+        where date = '2021-07-01'
+        group by client, page
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, total

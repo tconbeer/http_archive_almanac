@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 06_09b: Distribution of duplicate font-family values per page (see 02_35)
 CREATE TEMPORARY FUNCTION getFonts(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -22,28 +22,18 @@ try {
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(fonts, 1000)[OFFSET(percentile * 10)] AS font_families_per_page
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
-    COUNT(DISTINCT value) AS fonts
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getFonts(css)) AS value
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(fonts, 1000)[offset(percentile * 10)] as font_families_per_page
+from
+    (
+        select client, page, count(distinct value) as fonts
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getfonts(css)) as value
+        where date = '2019-07-01'
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Ecommerce sites using type=search inputs
 CREATE TEMPORARY FUNCTION getSearchInputStats(payload STRING)
 RETURNS STRUCT<has_inputs BOOLEAN, has_search_inputs BOOLEAN> LANGUAGE js AS '''
@@ -20,29 +20,27 @@ RETURNS STRUCT<has_inputs BOOLEAN, has_search_inputs BOOLEAN> LANGUAGE js AS '''
   }
 ''';
 
-SELECT
-  client,
-  COUNTIF(search_input_stats.has_inputs) AS sites_with_inputs,
+select
+    client,
+    countif(search_input_stats.has_inputs) as sites_with_inputs,
 
-  COUNTIF(search_input_stats.has_search_inputs) AS sites_with_search_inputs,
-  COUNTIF(search_input_stats.has_search_inputs) / COUNTIF(search_input_stats.has_inputs) AS perc_sites_with_search_inputs
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getSearchInputStats(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS search_input_stats,
-    url
-  FROM
-    `httparchive.pages.2020_08_01_*`
-)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url
-  FROM
-    `httparchive.technologies.2020_08_01_*`
-  WHERE
-    category = 'Ecommerce'
-)
-USING (client, url)
-GROUP BY
-  client
+    countif(search_input_stats.has_search_inputs) as sites_with_search_inputs,
+    countif(search_input_stats.has_search_inputs)
+    / countif(search_input_stats.has_inputs) as perc_sites_with_search_inputs
+from
+    (
+        select
+            _table_suffix as client,
+            getsearchinputstats(
+                json_extract_scalar(payload, '$._almanac')
+            ) as search_input_stats,
+            url
+        from `httparchive.pages.2020_08_01_*`
+    )
+join
+    (
+        select _table_suffix as client, url
+        from `httparchive.technologies.2020_08_01_*`
+        where category = 'Ecommerce'
+    ) using (client, url)
+group by client

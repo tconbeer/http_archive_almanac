@@ -1,5 +1,6 @@
-#standardSQL
-# Prevalence of security headers set in a first-party context; count by number of hosts.
+# standardSQL
+# Prevalence of security headers set in a first-party context; count by number of
+# hosts.
 CREATE TEMPORARY FUNCTION hasHeader(headers STRING, headername STRING)
 RETURNS BOOL DETERMINISTIC
 LANGUAGE js AS '''
@@ -8,33 +9,41 @@ LANGUAGE js AS '''
   return matching_headers.length > 0;
 ''';
 
-SELECT
-  date,
-  client,
-  headername,
-  COUNT(DISTINCT host) AS total_hosts,
-  COUNT(DISTINCT IF(hasHeader(response_headers, headername), host, NULL)) AS num_with_header,
-  COUNT(DISTINCT IF(hasHeader(response_headers, headername), host, NULL)) / COUNT(DISTINCT host) AS pct_with_header
-FROM (
-  SELECT
+select
     date,
     client,
-    NET.HOST(urlShort) AS host,
-    response_headers
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    (date = '2020-08-01' OR date = '2021-07-01') AND
-    NET.HOST(urlShort) = NET.HOST(page)
-),
-UNNEST(['Content-Security-Policy', 'Content-Security-Policy-Report-Only', 'Cross-Origin-Embedder-Policy', 'Cross-Origin-Opener-Policy',
-        'Cross-Origin-Resource-Policy', 'Expect-CT', 'Feature-Policy', 'Permissions-Policy', 'Referrer-Policy', 'Report-To',
-        'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'X-XSS-Protection']) AS headername
-GROUP BY
-  date,
-  client,
-  headername
-ORDER BY
-  date,
-  client,
-  headername
+    headername,
+    count(distinct host) as total_hosts,
+    count(
+        distinct if(hasheader(response_headers, headername), host, null)
+    ) as num_with_header,
+    count(distinct if(hasheader(response_headers, headername), host, null))
+    / count(distinct host) as pct_with_header
+from
+    (
+        select date, client, net.host(urlshort) as host, response_headers
+        from `httparchive.almanac.requests`
+        where
+            (date = '2020-08-01' or date = '2021-07-01')
+            and net.host(urlshort) = net.host(page)
+    ),
+    unnest(
+        [
+            'Content-Security-Policy',
+            'Content-Security-Policy-Report-Only',
+            'Cross-Origin-Embedder-Policy',
+            'Cross-Origin-Opener-Policy',
+            'Cross-Origin-Resource-Policy',
+            'Expect-CT',
+            'Feature-Policy',
+            'Permissions-Policy',
+            'Referrer-Policy',
+            'Report-To',
+            'Strict-Transport-Security',
+            'X-Content-Type-Options',
+            'X-Frame-Options',
+            'X-XSS-Protection'
+        ]
+    ) as headername
+group by date, client, headername
+order by date, client, headername

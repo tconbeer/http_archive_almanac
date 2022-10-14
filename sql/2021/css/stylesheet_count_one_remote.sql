@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getStylesheets(payload STRING)
 RETURNS STRUCT<remote INT64, inline INT64> LANGUAGE js AS '''
 try {
@@ -10,19 +10,15 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(stylesheets.remote = 1) AS one_remote,
-  COUNT(0) AS total,
-  COUNTIF(stylesheets.remote = 1) / COUNT(0) AS pct_one_remote
-FROM (
-  SELECT
-    _TABLE_SUFFIX,
-    url,
-    getStylesheets(payload) AS stylesheets
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-GROUP BY
-  client
-ORDER BY
-  client
+select
+    _table_suffix as client,
+    countif(stylesheets.remote = 1) as one_remote,
+    count(0) as total,
+    countif(stylesheets.remote = 1) / count(0) as pct_one_remote
+from
+    (
+        select _table_suffix, url, getstylesheets(payload) as stylesheets
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client
+order by client

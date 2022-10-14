@@ -1,7 +1,6 @@
-#standardSQL
+# standardSQL
 # page wpt_bodies metrics grouped by device and number of same_site links
 # this query aims to highlight sites with few same site links, like SPAs
-
 # helper to create percent fields
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
@@ -36,44 +35,45 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
+select
+    client,
 
-  wpt_bodies_info.links_same_site AS links_same_site,
+    wpt_bodies_info.links_same_site as links_same_site,
 
-  COUNT(0) AS pages,
+    count(0) as pages,
 
-  AS_PERCENT(COUNT(0), total) AS pct_links_same_site,
+    as_percent(count(0), total) as pct_links_same_site,
 
-  AVG(wpt_bodies_info.links_window_location) AS avg_links_window_location,
-  AVG(wpt_bodies_info.links_window_open) AS avg_links_window_open,
-  AVG(wpt_bodies_info.links_href_javascript) AS avg_links_href_javascript,
-  AVG(wpt_bodies_info.links_window_location + wpt_bodies_info.links_window_open + wpt_bodies_info.links_href_javascript) AS avg_links_any,
-  MAX(wpt_bodies_info.links_window_location + wpt_bodies_info.links_window_open + wpt_bodies_info.links_href_javascript) AS max_links_any
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    total,
-    get_wpt_bodies_info(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies')) AS wpt_bodies_info
-  FROM
-    `httparchive.pages.2020_08_01_*`
-  JOIN (
-    # to get an accurate total of pages per device. also seems fast
-    SELECT
-      _TABLE_SUFFIX,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2020_08_01_*`
-    GROUP BY
-      _TABLE_SUFFIX
-  )
-  USING
-    (_TABLE_SUFFIX)
-  )
-GROUP BY
-  client,
-  links_same_site,
-  total
-ORDER BY
-  links_same_site ASC
-LIMIT 100
+    avg(wpt_bodies_info.links_window_location) as avg_links_window_location,
+    avg(wpt_bodies_info.links_window_open) as avg_links_window_open,
+    avg(wpt_bodies_info.links_href_javascript) as avg_links_href_javascript,
+    avg(
+        wpt_bodies_info.links_window_location
+        + wpt_bodies_info.links_window_open
+        + wpt_bodies_info.links_href_javascript
+    ) as avg_links_any,
+    max(
+        wpt_bodies_info.links_window_location
+        + wpt_bodies_info.links_window_open
+        + wpt_bodies_info.links_href_javascript
+    ) as max_links_any
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            get_wpt_bodies_info(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as wpt_bodies_info
+        from `httparchive.pages.2020_08_01_*`
+        join
+            (
+                # to get an accurate total of pages per device. also seems fast
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2020_08_01_*`
+                group by _table_suffix
+            ) using (_table_suffix)
+    )
+group by client, links_same_site, total
+order by links_same_site asc
+limit 100

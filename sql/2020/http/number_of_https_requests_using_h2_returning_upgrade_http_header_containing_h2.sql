@@ -15,19 +15,15 @@ LANGUAGE js AS """
   }
 """;
 
-SELECT
-  client,
-  firstHtml,
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') AS http_version,
-  COUNTIF(getUpgradeHeader(payload) LIKE '%h2%') AS num_requests,
-  COUNT(0) AS total
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2020-08-01' AND
-  url LIKE 'https://%' AND
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') = 'HTTP/2'
-GROUP BY
-  client,
-  firstHtml,
-  http_version
+select
+    client,
+    firsthtml,
+    json_extract_scalar(payload, '$._protocol') as http_version,
+    countif(getupgradeheader(payload) like '%h2%') as num_requests,
+    count(0) as total
+from `httparchive.almanac.requests`
+where
+    date = '2020-08-01'
+    and url like 'https://%'
+    and json_extract_scalar(payload, '$._protocol') = 'HTTP/2'
+group by client, firsthtml, http_version

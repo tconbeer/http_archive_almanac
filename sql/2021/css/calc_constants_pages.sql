@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getCalcConstants(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -64,23 +64,17 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNT(DISTINCT IF(const IS NOT NULL, page, NULL)) AS pages,
-  COUNT(DISTINCT page) AS total,
-  COUNT(DISTINCT IF(const IS NOT NULL, page, NULL)) / COUNT(DISTINCT page) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    const
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getCalcConstants(css)) AS const
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client
+    count(distinct if(const is not null, page, null)) as pages,
+    count(distinct page) as total,
+    count(distinct if(const is not null, page, null)) / count(distinct page) as pct
+from
+    (
+        select client, page, const
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getcalcconstants(css)) as const
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+    )
+group by client

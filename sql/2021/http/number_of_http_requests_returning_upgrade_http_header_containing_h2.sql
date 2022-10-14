@@ -14,18 +14,12 @@ try {
 }
 """;
 
-SELECT
-  client,
-  firstHtml,
-  protocol AS http_version,
-  COUNTIF(extractHTTPHeader(response_headers, 'upgrade') LIKE '%h2%') AS num_requests,
-  COUNT(0) AS total
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2021-07-01' AND
-  url LIKE 'http://%'
-GROUP BY
-  client,
-  firstHtml,
-  http_version
+select
+    client,
+    firsthtml,
+    protocol as http_version,
+    countif(extracthttpheader(response_headers, 'upgrade') like '%h2%') as num_requests,
+    count(0) as total
+from `httparchive.almanac.requests`
+where date = '2021-07-01' and url like 'http://%'
+group by client, firsthtml, http_version

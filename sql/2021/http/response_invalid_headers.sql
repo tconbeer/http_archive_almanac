@@ -14,43 +14,32 @@ try {
 }
 """;
 
-SELECT
-  client,
-  header,
-  COUNT(0) AS num_requests,
-  total,
-  COUNT(0) / total AS pct,
-  ARRAY_TO_STRING(ARRAY_AGG(DISTINCT url LIMIT 5), ' ') AS sample_urls
-FROM
-  `httparchive.almanac.requests`,
-  UNNEST(extractHTTPHeaders(response_headers)) AS header
-JOIN
-  (
-    SELECT
-      client,
-      COUNT(0) AS total
-    FROM
-      `httparchive.almanac.requests`
-    GROUP BY
-      client
-  )
-USING (client)
-WHERE
-  date = '2021-07-01' AND
-  (
+select
+    client,
+    header,
+    count(0) as num_requests,
+    total,
+    count(0) / total as pct,
+    array_to_string(array_agg(distinct url limit 5), ' ') as sample_urls
+from
+    `httparchive.almanac.requests`,
+    unnest(extracthttpheaders(response_headers)) as header
+join
     (
-      header LIKE '% %' AND
-      header NOT LIKE 'http/1.1 %' AND
-      header NOT LIKE 'http/1.0 %'
-    ) OR (
-      REGEXP_REPLACE(header, r'([^\p{ASCII}]+)', '') != header
+        select client, count(0) as total
+        from `httparchive.almanac.requests`
+        group by client
+    ) using (client)
+where
+    date = '2021-07-01'
+    and (
+        (
+            header like '% %'
+            and header not like 'http/1.1 %'
+            and header not like 'http/1.0 %'
+        )
+        or (regexp_replace(header, r'([^\p{ASCII}]+)', '') != header)
     )
-  )
-GROUP BY
-  client,
-  header,
-  total
-ORDER BY
-  pct DESC,
-  client
-LIMIT 1000
+group by client, header, total
+order by pct desc, client
+limit 1000

@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # page almanac favicon image types grouped by device and type M217
-
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
 );
@@ -26,31 +25,28 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  content_language,
-  total,
-  COUNT(0) AS count,
-  AS_PERCENT(COUNT(0), total) AS pct
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      total,
-      get_almanac_info(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-    JOIN
-      (
-        # to get an accurate total of pages per device. also seems fast
-        SELECT _TABLE_SUFFIX, COUNT(0) AS total
-        FROM
-          `httparchive.pages.2020_08_01_*`
+select
+    client,
+    content_language,
+    total,
+    count(0) as count,
+    as_percent(count(0), total) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            get_almanac_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
+        from `httparchive.pages.2020_08_01_*`
+        join
+            (
+                # to get an accurate total of pages per device. also seems fast
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2020_08_01_*`
 
-        GROUP BY _TABLE_SUFFIX
-      )
-    USING (_TABLE_SUFFIX)
-  )
-GROUP BY total, content_language, client
-ORDER BY count DESC
-LIMIT 1000
+                group by _table_suffix
+            ) using (_table_suffix)
+    )
+group by total, content_language, client
+order by count desc
+limit 1000

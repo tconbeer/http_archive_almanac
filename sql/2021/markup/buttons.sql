@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # pages markup metrics grouped by device and button type
-
 # returns button struct
 CREATE TEMPORARY FUNCTION get_markup_buttons_info(markup_string STRING)
 RETURNS ARRAY<STRUCT<
@@ -27,20 +26,18 @@ try {
 return result;
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  button_type_info.name AS button_type,
-  COUNTIF(button_type_info.freq > 0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  COUNTIF(button_type_info.freq > 0) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS pct_page_with_button_type
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(get_markup_buttons_info(JSON_EXTRACT_SCALAR(payload, '$._markup'))) AS button_type_info
-GROUP BY
-  client,
-  button_type
-ORDER BY
-  pct_page_with_button_type DESC,
-  client,
-  freq DESC
-LIMIT 1000
+select
+    _table_suffix as client,
+    button_type_info.name as button_type,
+    countif(button_type_info.freq > 0) as freq,
+    sum(count(0)) over (partition by _table_suffix) as total,
+    countif(button_type_info.freq > 0)
+    / sum(count(0)) over (partition by _table_suffix) as pct_page_with_button_type
+from
+    `httparchive.pages.2021_07_01_*`,
+    unnest(
+        get_markup_buttons_info(json_extract_scalar(payload, '$._markup'))
+    ) as button_type_info
+group by client, button_type
+order by pct_page_with_button_type desc, client, freq desc
+limit 1000

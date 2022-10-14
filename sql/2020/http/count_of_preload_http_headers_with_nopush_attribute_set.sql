@@ -11,22 +11,17 @@ try {
 }
 """;
 
-SELECT
-  client,
-  COUNTIF(link_header LIKE '%nopush%') AS num_nopush,
-  COUNT(0) AS total_preload,
-  ROUND(COUNTIF(link_header LIKE '%nopush%') / COUNT(0), 4) AS pct_nopush
-FROM (
-  SELECT
+select
     client,
-    getLinkHeaders(payload) AS link_headers
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01' AND
-    firstHtml),
-  UNNEST(link_headers) AS link_header
-WHERE
-  link_header LIKE '%preload%'
-GROUP BY
-  client
+    countif(link_header like '%nopush%') as num_nopush,
+    count(0) as total_preload,
+    round(countif(link_header like '%nopush%') / count(0), 4) as pct_nopush
+from
+    (
+        select client, getlinkheaders(payload) as link_headers
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01' and firsthtml
+    ),
+    unnest(link_headers) as link_header
+where link_header like '%preload%'
+group by client

@@ -15,19 +15,13 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  image.property,
-  image.value,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, image.property) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, image.property) AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getImageSizing(payload)) AS image
-GROUP BY
-  client,
-  property,
-  value
-ORDER BY
-  pct DESC
+select
+    _table_suffix as client,
+    image.property,
+    image.value,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix, image.property) as total,
+    count(0) / sum(count(0)) over (partition by _table_suffix, image.property) as pct
+from `httparchive.pages.2021_07_01_*`, unnest(getimagesizing(payload)) as image
+group by client, property, value
+order by pct desc

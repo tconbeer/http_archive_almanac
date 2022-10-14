@@ -18,22 +18,25 @@ if (images_ && images_["responsive-images"]) {
 } catch (e) {}
 return result;
 ''';
-SELECT
-  client,
-  COUNT(0) AS images_with_sizes,
-  SAFE_DIVIDE(COUNTIF(respimg.sizesWasImplicit = TRUE), COUNT(0)) AS implicit_pct,
-  SAFE_DIVIDE(COUNTIF(respimg.sizesWasImplicit = FALSE), COUNT(0)) AS explicit_pct,
-  SAFE_DIVIDE(COUNTIF(respimg.sizesParseError = TRUE), COUNT(0)) AS parseError_pct,
-  SAFE_DIVIDE(COUNTIF(respimg.srcsetHasWDescriptors = TRUE), COUNT(0)) AS wDescriptor_pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    a.url AS pageUrl,
-    respimg
-  FROM
-    `httparchive.pages.2021_07_01_*` AS a,
-    UNNEST(get_responsive_settings(JSON_EXTRACT_SCALAR(payload, '$._responsive_images'))) AS respimg
-  WHERE
-    respimg.srcsetHasWDescriptors)
-GROUP BY
-  client
+select
+    client,
+    count(0) as images_with_sizes,
+    safe_divide(countif(respimg.sizeswasimplicit = true), count(0)) as implicit_pct,
+    safe_divide(countif(respimg.sizeswasimplicit = false), count(0)) as explicit_pct,
+    safe_divide(countif(respimg.sizesparseerror = true), count(0)) as parseerror_pct,
+    safe_divide(
+        countif(respimg.srcsethaswdescriptors = true), count(0)
+    ) as wdescriptor_pct
+from
+    (
+        select _table_suffix as client, a.url as pageurl, respimg
+        from
+            `httparchive.pages.2021_07_01_*` as a,
+            unnest(
+                get_responsive_settings(
+                    json_extract_scalar(payload, '$._responsive_images')
+                )
+            ) as respimg
+        where respimg.srcsethaswdescriptors
+    )
+group by client

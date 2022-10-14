@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getLonghandFirstProperties(css STRING)
 RETURNS ARRAY<STRUCT<property STRING, freq INT64>>
 LANGUAGE js
@@ -444,24 +444,20 @@ try {
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(freq_longhand_first, 1000)[OFFSET(percentile * 10)] AS longhand_first_per_page
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    property.freq AS freq_longhand_first
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getLonghandFirstProperties(css)) AS property
-  WHERE
-    date = '2020-08-01' AND
-    property.freq > 0),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(freq_longhand_first, 1000)[
+        offset(percentile * 10)
+    ] as longhand_first_per_page
+from
+    (
+        select client, property.freq as freq_longhand_first
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getlonghandfirstproperties(css)) as property
+        where date = '2020-08-01' and property.freq > 0
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

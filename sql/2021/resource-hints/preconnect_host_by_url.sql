@@ -1,7 +1,7 @@
-#standardSQL
+# standardSQL
 # Most popular hosts users preconnect to
-# capped to one hit per url to avoid having the results skewed by websites which preconnect many resources from the same host
-
+# capped to one hit per url to avoid having the results skewed by websites which
+# preconnect many resources from the same host
 CREATE TEMPORARY FUNCTION getResourceHintsHrefs(payload STRING, hint STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js AS '''
@@ -14,44 +14,29 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  host,
-  freq,
-  total,
-  pct
-FROM (
-    SELECT
-      client,
-      host,
-      COUNT(0) AS freq,
-      SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-      COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct,
-      ROW_NUMBER() OVER (PARTITION BY client ORDER BY COUNT(0) DESC) AS pos
-    FROM (
-      SELECT
-        client,
-        url,
-        host
-      FROM (
-          SELECT
-            _TABLE_SUFFIX AS client,
-            url,
-            NET.HOST(href) AS host
-          FROM
-            `httparchive.pages.2021_07_01_*`,
-            UNNEST(getResourceHintsHrefs(payload, 'preconnect')) AS href
-        )
-      GROUP BY
-        client,
-        url,
-        host
+select client, host, freq, total, pct
+from
+    (
+        select
+            client,
+            host,
+            count(0) as freq,
+            sum(count(0)) over (partition by client) as total,
+            count(0) / sum(count(0)) over (partition by client) as pct,
+            row_number() over (partition by client order by count(0) desc) as pos
+        from
+            (
+                select client, url, host
+                from
+                    (
+                        select _table_suffix as client, url, net.host(href) as host
+                        from
+                            `httparchive.pages.2021_07_01_*`,
+                            unnest(getresourcehintshrefs(payload, 'preconnect')) as href
+                    )
+                group by client, url, host
+            )
+        group by client, host
+        order by client, freq desc
     )
-    GROUP BY
-      client,
-      host
-    ORDER BY
-      client,
-      freq DESC
-)
-WHERE pos <= 100
+where pos <= 100

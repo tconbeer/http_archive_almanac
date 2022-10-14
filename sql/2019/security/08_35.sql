@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 08_35: HttpOnly cookies
 CREATE TEMPORARY FUNCTION extractHeader(payload STRING, name STRING)
 RETURNS STRING LANGUAGE js AS '''
@@ -14,23 +14,20 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNT(DISTINCT page) AS http_only,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  `httparchive.almanac.requests`,
-  UNNEST(SPLIT(extractHeader(payload, 'Set-Cookie'), ';')) AS directive
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (client)
-WHERE
-  date = '2019-07-01' AND
-  firstHtml AND
-  TRIM(directive) = 'HttpOnly'
-GROUP BY
-  client,
-  total
-ORDER BY
-  http_only / total DESC
+select
+    client,
+    count(distinct page) as http_only,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from
+    `httparchive.almanac.requests`,
+    unnest(split(extractheader(payload, 'Set-Cookie'), ';')) as directive
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+where date = '2019-07-01' and firsthtml and trim(directive) = 'HttpOnly'
+group by client, total
+order by http_only / total desc

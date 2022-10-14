@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 06_28b: Popularity of font-variation-settings values
 CREATE TEMPORARY FUNCTION getFontVariationSettings(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -19,20 +19,16 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  REPLACE(TRIM(LOWER(setting)), "'", '"') AS setting,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontVariationSettings(css)) AS value,
-  UNNEST(SPLIT(value, ',')) AS setting
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  setting
-ORDER BY
-  freq / total DESC
+select
+    client,
+    replace(trim(lower(setting)), "'", '"') as setting,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from
+    `httparchive.almanac.parsed_css`,
+    unnest(getfontvariationsettings(css)) as value,
+    unnest(split(value, ',')) as setting
+where date = '2019-07-01'
+group by client, setting
+order by freq / total desc

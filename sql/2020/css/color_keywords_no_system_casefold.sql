@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getColorKeywords(css STRING)
 RETURNS ARRAY<STRUCT<name STRING, value INT64>>
 LANGUAGE js
@@ -162,24 +162,17 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  name AS keyword,
-  SUM(value) AS freq,
-  SUM(SUM(value)) OVER (PARTITION BY client) AS total,
-  SUM(value) / SUM(SUM(value)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    keyword.name,
-    keyword.value
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getColorKeywords(css)) AS keyword
-  WHERE
-    date = '2020-08-01')
-GROUP BY
-  client,
-  keyword
-ORDER BY
-  pct DESC
+    name as keyword,
+    sum(value) as freq,
+    sum(sum(value)) over (partition by client) as total,
+    sum(value) / sum(sum(value)) over (partition by client) as pct
+from
+    (
+        select client, keyword.name, keyword.value
+        from `httparchive.almanac.parsed_css`, unnest(getcolorkeywords(css)) as keyword
+        where date = '2020-08-01'
+    )
+group by client, keyword
+order by pct desc

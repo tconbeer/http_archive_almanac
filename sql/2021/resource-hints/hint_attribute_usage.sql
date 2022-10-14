@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # Attribute popularity for each hint.
-
 CREATE TEMPORARY FUNCTION getResourceHintAttrs(payload STRING)
 RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
 LANGUAGE js AS '''
@@ -30,32 +29,24 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  name,
-  attribute,
-  value,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client, name, attribute) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client, name, attribute) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    hint.name AS name,
-    hint.attribute AS attribute,
-    IFNULL(TRIM(NORMALIZE_AND_CASEFOLD(hint.value)), 'not set') AS value
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getResourceHintAttrs(payload)) AS hint
-)
-GROUP BY
-  client,
-  name,
-  attribute,
-  value
-ORDER BY
-  client,
-  name,
-  attribute,
-  value,
-  pct DESC
+select
+    client,
+    name,
+    attribute,
+    value,
+    count(0) as freq,
+    sum(count(0)) over (partition by client, name, attribute) as total,
+    count(0) / sum(count(0)) over (partition by client, name, attribute) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            hint.name as name,
+            hint.attribute as attribute,
+            ifnull(trim(normalize_and_casefold(hint.value)), 'not set') as value
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(getresourcehintattrs(payload)) as hint
+    )
+group by client, name, attribute, value
+order by client, name, attribute, value, pct desc

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # CSS in JS. Show number of sites that using each framework or not using any.
 CREATE TEMPORARY FUNCTION getCssInJS(payload STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -12,18 +12,17 @@ RETURNS ARRAY<STRING> LANGUAGE js AS '''
   }
 ''';
 
-SELECT
-  cssInJs,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER () AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER () AS pct
-FROM (
-  SELECT
-    url,
-    cssInJs
-  FROM `httparchive.sample_data.pages_mobile_10k`
-  CROSS JOIN UNNEST(getCssInJS(payload)) AS cssInJs
-)
-WHERE cssInJs != 'NONE'
-GROUP BY cssInJs
-ORDER BY freq
+select
+    cssinjs,
+    count(0) as freq,
+    sum(count(0)) over () as total,
+    count(0) / sum(count(0)) over () as pct
+from
+    (
+        select url, cssinjs
+        from `httparchive.sample_data.pages_mobile_10k`
+        cross join unnest(getcssinjs(payload)) as cssinjs
+    )
+where cssinjs != 'NONE'
+group by cssinjs
+order by freq

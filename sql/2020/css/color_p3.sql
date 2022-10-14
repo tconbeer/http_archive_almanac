@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getP3Usage(css STRING)
 RETURNS ARRAY<STRUCT<name STRING, value INT64>>
 LANGUAGE js
@@ -159,26 +159,18 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  name AS p3,
-  COUNT(DISTINCT page) AS pages,
-  SUM(value) AS freq,
-  SUM(SUM(value)) OVER (PARTITION BY client) AS total,
-  SAFE_DIVIDE(SUM(value), SUM(SUM(value)) OVER (PARTITION BY client)) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    p3.name,
-    p3.value
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getP3Usage(css)) AS p3
-  WHERE
-    date = '2020-08-01')
-GROUP BY
-  client,
-  p3
-ORDER BY
-  pct DESC
+    name as p3,
+    count(distinct page) as pages,
+    sum(value) as freq,
+    sum(sum(value)) over (partition by client) as total,
+    safe_divide(sum(value), sum(sum(value)) over (partition by client)) as pct
+from
+    (
+        select client, page, p3.name, p3.value
+        from `httparchive.almanac.parsed_css`, unnest(getp3usage(css)) as p3
+        where date = '2020-08-01'
+    )
+group by client, p3
+order by pct desc

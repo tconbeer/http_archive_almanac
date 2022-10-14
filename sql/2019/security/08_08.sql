@@ -1,13 +1,13 @@
-#standardSQL
+# standardSQL
 # 08_08 Modern cipher suites
-#
+# 
 # TLS 1.3 ciphers:
 # 0x1301 TLS_AES_128_GCM_SHA256
 # 0x1302 TLS_AES_256_GCM_SHA384
 # 0x1303 TLS_CHACHA20_POLY1305_SHA256
 # 0x1304 TLS_AES_128_CCM_SHA256
 # 0x1305 TLS_AES_128_CCM_8_SHA256
-#
+# 
 # TLS 1.2 ciphers:
 # 0xC02B TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
 # 0xC02C TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
@@ -25,19 +25,25 @@ CREATE TEMPORARY FUNCTION isModern(cipher STRING) RETURNS BOOLEAN AS (
     'CCAC', 'D001', 'D002', 'D005')
 );
 
-SELECT
-  client,
-  modern_cipher_count,
-  total,
-  ROUND(modern_cipher_count * 100 / total, 2) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total,
-    COUNTIF(isModern(FORMAT("%'x", CAST(JSON_EXTRACT(payload, '$._tls_cipher_suite') AS INT64)))) AS modern_cipher_count
-  FROM
-    `httparchive.requests.2019_07_01_*`
-  WHERE
-    JSON_EXTRACT(payload, '$._securityDetails') IS NOT NULL
-  GROUP BY
-    client)
+select
+    client,
+    modern_cipher_count,
+    total,
+    round(modern_cipher_count * 100 / total, 2) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            count(0) as total,
+            countif(
+                ismodern(
+                    format(
+                        "%'x",
+                        cast(json_extract(payload, '$._tls_cipher_suite') as int64)
+                    )
+                )
+            ) as modern_cipher_count
+        from `httparchive.requests.2019_07_01_*`
+        where json_extract(payload, '$._securityDetails') is not null
+        group by client
+    )

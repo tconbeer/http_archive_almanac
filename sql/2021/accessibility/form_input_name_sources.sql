@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Where input elements get their A11Y names from
 CREATE TEMPORARY FUNCTION a11yInputNameSources(payload STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -45,23 +45,20 @@ RETURNS ARRAY<STRING> LANGUAGE js AS '''
   }
 ''';
 
-SELECT
-  client,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_inputs,
+select
+    client,
+    sum(count(0)) over (partition by client) as total_inputs,
 
-  input_name_source,
-  COUNT(0) AS total_with_this_source,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS perc_of_all_inputs
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    input_name_source
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(
-      a11yInputNameSources(JSON_EXTRACT_SCALAR(payload, '$._a11y'))
-    ) AS input_name_source
-)
-GROUP BY
-  client,
-  input_name_source
+    input_name_source,
+    count(0) as total_with_this_source,
+    count(0) / sum(count(0)) over (partition by client) as perc_of_all_inputs
+from
+    (
+        select _table_suffix as client, input_name_source
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                a11yinputnamesources(json_extract_scalar(payload, '$._a11y'))
+            ) as input_name_source
+    )
+group by client, input_name_source

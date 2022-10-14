@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getColorArgComma(css STRING)
 RETURNS STRUCT<commas INT64, nocommas INT64>
 LANGUAGE js
@@ -152,20 +152,17 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  SUM(args.commas) AS freq_commas,
-  SUM(args.nocommas) AS freq_no_commas,
-  SUM(args.commas + args.nocommas) AS total,
-  SUM(args.commas) / SUM(args.commas + args.nocommas) AS pct_commas,
-  SUM(args.nocommas) / SUM(args.commas + args.nocommas) AS pct_no_commas
-FROM (
-  SELECT
+select
     client,
-    getColorArgComma(css) AS args
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2020-08-01')
-GROUP BY
-  client
+    sum(args.commas) as freq_commas,
+    sum(args.nocommas) as freq_no_commas,
+    sum(args.commas + args.nocommas) as total,
+    sum(args.commas) / sum(args.commas + args.nocommas) as pct_commas,
+    sum(args.nocommas) / sum(args.commas + args.nocommas) as pct_no_commas
+from
+    (
+        select client, getcolorargcomma(css) as args
+        from `httparchive.almanac.parsed_css`
+        where date = '2020-08-01'
+    )
+group by client

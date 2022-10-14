@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getColorFormats(css STRING)
 RETURNS ARRAY<STRUCT<name STRING, value INT64>>
 LANGUAGE js
@@ -172,24 +172,17 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  name AS format,
-  SUM(value) AS freq,
-  SUM(SUM(value)) OVER (PARTITION BY client) AS total,
-  SUM(value) / SUM(SUM(value)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    format.name,
-    format.value
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getColorFormats(css)) AS format
-  WHERE
-    date = '2021-07-01')
-GROUP BY
-  client,
-  format
-ORDER BY
-  pct DESC
+    name as format,
+    sum(value) as freq,
+    sum(sum(value)) over (partition by client) as total,
+    sum(value) / sum(sum(value)) over (partition by client) as pct
+from
+    (
+        select client, format.name, format.value
+        from `httparchive.almanac.parsed_css`, unnest(getcolorformats(css)) as format
+        where date = '2021-07-01'
+    )
+group by client, format
+order by pct desc

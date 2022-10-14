@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
 RETURNS STRUCT<
   class ARRAY<STRING>,
@@ -57,34 +57,35 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  pages,
-  class_prefix.value AS class,
-  class_prefix.count AS freq,
-  class_prefix.count / pages AS pct
-FROM (
-  SELECT
+select
     client,
-    COUNT(DISTINCT page) AS pages,
-    APPROX_TOP_COUNT(class_prefix, 200) AS class_prefixes
-  FROM (
-      SELECT DISTINCT
-        client,
-        page,
-        IF(LENGTH(class) > LENGTH(REGEXP_EXTRACT(class, r'^([^-]+)')), REGEXP_REPLACE(class, r'^([^-]+).*', r'\1-*'), class) AS class_prefix
-      FROM
-        `httparchive.almanac.parsed_css`
-      LEFT JOIN
-        UNNEST(getSelectorParts(css).class) AS class
-      WHERE
-        date = '2021-07-01' AND
-        # Limit the size of the CSS to avoid OOM crashes.
-        LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client),
-  UNNEST(class_prefixes) AS class_prefix
-WHERE
-  class_prefix.value IS NOT NULL
-ORDER BY
-  pct DESC
+    pages,
+    class_prefix.value as class,
+    class_prefix.count as freq,
+    class_prefix.count / pages as pct
+from
+    (
+        select
+            client,
+            count(distinct page) as pages,
+            approx_top_count(class_prefix, 200) as class_prefixes
+        from
+            (
+                select distinct
+                    client,
+                    page,
+                    if(
+                        length(class) > length(regexp_extract(class, r'^([^-]+)')),
+                        regexp_replace(class, r'^([^-]+).*', r'\1-*'),
+                        class
+                    ) as class_prefix
+                from `httparchive.almanac.parsed_css`
+                left join unnest(getselectorparts(css).class) as class
+                # Limit the size of the CSS to avoid OOM crashes.
+                where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client
+    ),
+    unnest(class_prefixes) as class_prefix
+where class_prefix.value is not null
+order by pct desc

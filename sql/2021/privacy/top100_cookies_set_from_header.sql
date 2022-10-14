@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # Top100 popular cookies and their origins
-
 CREATE TEMPORARY FUNCTION cookieNames(headers STRING)
 RETURNS ARRAY<STRING>
 DETERMINISTIC
@@ -18,69 +17,47 @@ try {
 }
 ''';
 
-WITH whotracksme AS (
-  SELECT
-    domain,
-    category,
-    tracker
-  FROM
-    `httparchive.almanac.whotracksme`
-  WHERE
-    date = '2021-07-01'
-),
+with
+    whotracksme as (
+        select domain, category, tracker
+        from `httparchive.almanac.whotracksme`
+        where date = '2021-07-01'
+    ),
 
-request_headers AS (
-  SELECT
-    client,
-    page,
-    NET.REG_DOMAIN(url) AS request,
-    cookieNames(response_headers) AS cookie_names,
-    COUNT(DISTINCT page) OVER (PARTITION BY client) AS websites_per_client
-  FROM
-    `httparchive.almanac.requests`
-  GROUP BY
-    client,
-    page,
-    url,
-    response_headers
-),
+    request_headers as (
+        select
+            client,
+            page,
+            net.reg_domain(url) as request,
+            cookienames(response_headers) as cookie_names,
+            count(distinct page) over (partition by client) as websites_per_client
+        from `httparchive.almanac.requests`
+        group by client, page, url, response_headers
+    ),
 
-cookies AS (
-  SELECT
+    cookies as (
+        select
+            client,
+            request,
+            cookie,
+            count(distinct page) as websites_count,
+            websites_per_client,
+            count(distinct page) / websites_per_client as pct_websites
+        from request_headers, unnest(cookie_names) as cookie
+        where cookie is not null and cookie != ''
+        group by client, request, cookie, websites_per_client
+    )
+
+select
     client,
+    whotracksme.category,
     request,
     cookie,
-    COUNT(DISTINCT page) AS websites_count,
+    cookie || ' - ' || request as cookie_and_request,
+    websites_count,
     websites_per_client,
-    COUNT(DISTINCT page) / websites_per_client AS pct_websites
-  FROM
-    request_headers,
-    UNNEST(cookie_names) AS cookie
-  WHERE
-    cookie IS NOT NULL AND
-    cookie != ''
-  GROUP BY
-    client,
-    request,
-    cookie,
-    websites_per_client
-)
-
-SELECT
-  client,
-  whotracksme.category,
-  request,
-  cookie,
-  cookie || ' - ' || request AS cookie_and_request,
-  websites_count,
-  websites_per_client,
-  pct_websites
-FROM
-  cookies
-LEFT JOIN
-  whotracksme
-ON NET.HOST(request) = domain
-ORDER BY
-  pct_websites DESC,
-  client
-LIMIT 1000
+    pct_websites
+from cookies
+left join whotracksme on net.host(request) = domain
+order by pct_websites desc, client
+limit 1000

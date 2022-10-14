@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # CSP on home pages: most commonly used header values
 CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
 RETURNS STRING DETERMINISTIC
@@ -11,27 +11,20 @@ LANGUAGE js AS '''
   return null;
 ''';
 
-SELECT
-  client,
-  csp_header,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_csp_headers,
-  COUNT(0) AS freq,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    getHeader(response_headers, 'Content-Security-Policy') AS csp_header
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml
-)
-WHERE
-  csp_header IS NOT NULL
-GROUP BY
-  client,
-  csp_header
-ORDER BY
-  pct DESC
-LIMIT 100
+    csp_header,
+    sum(count(0)) over (partition by client) as total_csp_headers,
+    count(0) as freq,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select
+            client, getheader(response_headers, 'Content-Security-Policy') as csp_header
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and firsthtml
+    )
+where csp_header is not null
+group by client, csp_header
+order by pct desc
+limit 100

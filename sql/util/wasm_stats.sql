@@ -8,3 +8,4 @@ SELECT DATE('2021-09-01') AS date, * FROM (
   JOIN `httparchive.summary_requests.2021_09_01_*` USING (url)
   JOIN (SELECT url AS page, pageid, _TABLE_SUFFIX FROM `httparchive.summary_pages.2021_09_01_*`) USING (_TABLE_SUFFIX, pageid)
 )
+

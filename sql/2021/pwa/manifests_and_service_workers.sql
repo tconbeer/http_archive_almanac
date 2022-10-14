@@ -1,21 +1,29 @@
-#standardSQL
+# standardSQL
 # Counting Manifests and Service Workers
-SELECT
-  client,
-  SAFE_DIVIDE(SUM(ServiceWorker), SUM(COUNT(0)) OVER (PARTITION BY client)) AS ServiceWorkers,
-  SAFE_DIVIDE(SUM(manifests), SUM(COUNT(0)) OVER (PARTITION BY client)) AS Manifests,
-  SAFE_DIVIDE(COUNTIF(ServiceWorker > 0 OR manifests > 0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS Either,
-  SAFE_DIVIDE(COUNTIF(ServiceWorker > 0 AND manifests > 0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS Both,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    IF(JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true', 1, 0) AS ServiceWorker,
-    IF(JSON_EXTRACT(payload, '$._pwa.manifests') != '[]', 1, 0) AS manifests
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  )
-GROUP BY
-  client
-ORDER BY
-  client
+select
+    client,
+    safe_divide(
+        sum(serviceworker), sum(count(0)) over (partition by client)
+    ) as serviceworkers,
+    safe_divide(sum(manifests), sum(count(0)) over (partition by client)) as manifests,
+    safe_divide(
+        countif(serviceworker > 0 or manifests > 0),
+        sum(count(0)) over (partition by client)
+    ) as either,
+    safe_divide(
+        countif(serviceworker > 0 and manifests > 0),
+        sum(count(0)) over (partition by client)
+    ) as both,
+    sum(count(0)) over (partition by client) as total
+from
+    (
+        select
+            _table_suffix as client,
+            if(
+                json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true', 1, 0
+            ) as serviceworker,
+            if(json_extract(payload, '$._pwa.manifests') != '[]', 1, 0) as manifests
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client
+order by client

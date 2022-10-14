@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getCustomPropertyFunctions(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -87,39 +87,25 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  function,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  COUNT(DISTINCT page) / total AS pct
-FROM (
-  SELECT DISTINCT
+select
     client,
-    page,
-    LOWER(function) AS function
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getCustomPropertyFunctions(css)) AS function
-  WHERE
-    date = '2021-07-01' AND
-    function IS NOT NULL)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total,
-  function
-HAVING
-  pages >= 100
-ORDER BY
-  pct DESC
+    function,
+    count(distinct page) as pages,
+    total,
+    count(distinct page) / total as pct
+from
+    (
+        select distinct client, page, lower(function) as function
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getcustompropertyfunctions(css)) as function
+        where date = '2021-07-01' and function is not null
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, total, function
+having pages >= 100
+order by pct desc

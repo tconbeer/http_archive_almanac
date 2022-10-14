@@ -15,15 +15,12 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(image.pictureMediaSwitching) AS picture_media_switching,
-  COUNTIF(image.pictureTypeSwitching) AS picture_type_switching,
-  COUNT(0) AS total_picture,
-  COUNTIF(image.pictureMediaSwitching) / COUNT(0) AS pct_picture_media_switching,
-  COUNTIF(image.pictureTypeSwitching) / COUNT(0) AS pct_picture_type_switching
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getPictureSwitching(payload)) AS image
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(image.picturemediaswitching) as picture_media_switching,
+    countif(image.picturetypeswitching) as picture_type_switching,
+    count(0) as total_picture,
+    countif(image.picturemediaswitching) / count(0) as pct_picture_media_switching,
+    countif(image.picturetypeswitching) / count(0) as pct_picture_type_switching
+from `httparchive.pages.2021_07_01_*`, unnest(getpictureswitching(payload)) as image
+group by client

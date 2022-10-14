@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 10_03: <link rel="amphtml"> (AMP)
 CREATE TEMP FUNCTION hasAmpLink(payload STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -11,16 +11,14 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(has_amp_link) AS freq,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(has_amp_link) * 100 / COUNT(0), 2) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    hasAmpLink(payload) AS has_amp_link
-  FROM
-    `httparchive.pages.2019_07_01_*`)
-GROUP BY
-  client
+select
+    client,
+    countif(has_amp_link) as freq,
+    count(0) as total,
+    round(countif(has_amp_link) * 100 / count(0), 2) as pct
+from
+    (
+        select _table_suffix as client, hasamplink(payload) as has_amp_link
+        from `httparchive.pages.2019_07_01_*`
+    )
+group by client

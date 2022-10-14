@@ -1,5 +1,6 @@
-#standardSQL
-# Breakdown of scripts using Async, Defer, Module or NoModule attributes.  Also breakdown of inline vs external scripts
+# standardSQL
+# Breakdown of scripts using Async, Defer, Module or NoModule attributes.  Also
+# breakdown of inline vs external scripts
 CREATE TEMPORARY FUNCTION getScripts(payload STRING)
 RETURNS STRUCT<total INT64, inline INT64, src INT64, async INT64, defer INT64, async_and_defer INT64, type_module INT64, nomodule INT64>
 LANGUAGE js AS '''
@@ -12,28 +13,26 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  SUM(script.total) AS total_scripts,
-  SUM(script.inline) AS inline_script,
-  SUM(script.src) AS external_script,
-  SUM(script.src) / SUM(script.total) AS pct_external_script,
-  SUM(script.inline) / SUM(script.total) AS pct_inline_script,
-  SUM(script.async) AS async,
-  SUM(script.defer) AS defer,
-  SUM(script.async_and_defer) AS async_and_defer,
-  SUM(script.type_module) AS module,
-  SUM(script.nomodule) AS nomodule,
-  SUM(script.async) / SUM(script.src) AS pct_external_async,
-  SUM(script.defer) / SUM(script.src) AS pct_external_defer,
-  SUM(script.async_and_defer) / SUM(script.src) AS pct_external_async_defer,
-  SUM(script.type_module) / SUM(script.src) AS pct_external_module,
-  SUM(script.nomodule) / SUM(script.src) AS pct_external_nomodule
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getScripts(payload) AS script
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-GROUP BY
-  client
+select
+    client,
+    sum(script.total) as total_scripts,
+    sum(script.inline) as inline_script,
+    sum(script.src) as external_script,
+    sum(script.src) / sum(script.total) as pct_external_script,
+    sum(script.inline) / sum(script.total) as pct_inline_script,
+    sum(script.async) as async,
+    sum(script.defer) as defer,
+    sum(script.async_and_defer) as async_and_defer,
+    sum(script.type_module) as module,
+    sum(script.nomodule) as nomodule,
+    sum(script.async) / sum(script.src) as pct_external_async,
+    sum(script.defer) / sum(script.src) as pct_external_defer,
+    sum(script.async_and_defer) / sum(script.src) as pct_external_async_defer,
+    sum(script.type_module) / sum(script.src) as pct_external_module,
+    sum(script.nomodule) / sum(script.src) as pct_external_nomodule
+from
+    (
+        select _table_suffix as client, getscripts(payload) as script
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

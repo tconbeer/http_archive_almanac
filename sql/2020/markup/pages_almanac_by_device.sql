@@ -1,14 +1,15 @@
-#standardSQL
+# standardSQL
 # pages almanac metrics grouped by device
-
 # real run estimated at $4.08 and took 48 seconds
-
-# to speed things up there is only one js function per custom metric property. It returns a STRUCT with all the data needed
+# to speed things up there is only one js function per custom metric property. It
+# returns a STRUCT with all the data needed
 # current test gathers 3 bits of incormation from the custom petric properties
-# I tried to do a single js function processing the whole payload but it was very slow (50 sec) because of parsing the full payload in js
-# this uses JSON_EXTRACT_SCALAR to first get the custom metrics json string, and only passes those into the js functions
-# Estimate about twice the speed of the original code. But should scale up far better as the custom metrics are only parsed once.
-
+# I tried to do a single js function processing the whole payload but it was very slow
+# (50 sec) because of parsing the full payload in js
+# this uses JSON_EXTRACT_SCALAR to first get the custom metrics json string, and only
+# passes those into the js functions
+# Estimate about twice the speed of the original code. But should scale up far better
+# as the custom metrics are only parsed once.
 # helper to create percent fields
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
@@ -69,41 +70,59 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # has scripts that are not jsonld ones. i.e. has a none jsonld script.
-  AS_PERCENT(COUNTIF(almanac_info.none_jsonld_scripts_total > 0), COUNT(0)) AS pct_contains_none_jsonld_scripts_m204,
+    # has scripts that are not jsonld ones. i.e. has a none jsonld script.
+    as_percent(
+        countif(almanac_info.none_jsonld_scripts_total > 0), count(0)
+    ) as pct_contains_none_jsonld_scripts_m204,
 
-  # has inline scripts
-  AS_PERCENT(COUNTIF(almanac_info.inline_scripts_total > 0), COUNT(0)) AS pct_contains_inline_scripts_m206,
+    # has inline scripts
+    as_percent(
+        countif(almanac_info.inline_scripts_total > 0), count(0)
+    ) as pct_contains_inline_scripts_m206,
 
-  # has src scripts
-  AS_PERCENT(COUNTIF(almanac_info.src_scripts_total > 0), COUNT(0)) AS pct_contains_src_scripts_m208,
+    # has src scripts
+    as_percent(
+        countif(almanac_info.src_scripts_total > 0), count(0)
+    ) as pct_contains_src_scripts_m208,
 
-  # has no scripts
-  AS_PERCENT(COUNTIF(almanac_info.scripts_total = 0), COUNT(0)) AS pct_contains_no_scripts_m210,
+    # has no scripts
+    as_percent(
+        countif(almanac_info.scripts_total = 0), count(0)
+    ) as pct_contains_no_scripts_m210,
 
-  # Does the heading logical sequence make any sense
-  AS_PERCENT(COUNTIF(almanac_info.good_heading_sequence), COUNT(0)) AS pct_good_heading_sequence_m222,
+    # Does the heading logical sequence make any sense
+    as_percent(
+        countif(almanac_info.good_heading_sequence), count(0)
+    ) as pct_good_heading_sequence_m222,
 
-  # pages with autoplaying video elements M310
-  AS_PERCENT(COUNTIF(almanac_info.contains_videos_with_autoplay), COUNT(0)) AS pct_contains_videos_with_autoplay_m310,
+    # pages with autoplaying video elements M310
+    as_percent(
+        countif(almanac_info.contains_videos_with_autoplay), count(0)
+    ) as pct_contains_videos_with_autoplay_m310,
 
-  # pages without autoplaying video elements M311
-  AS_PERCENT(COUNTIF(almanac_info.contains_videos_without_autoplay), COUNT(0)) AS pct_contains_videos_without_autoplay_m311,
+    # pages without autoplaying video elements M311
+    as_percent(
+        countif(almanac_info.contains_videos_without_autoplay), count(0)
+    ) as pct_contains_videos_without_autoplay_m311,
 
-  # pages with no html lang attribute M404
-  AS_PERCENT(COUNTIF(almanac_info.html_node_lang IS NULL OR LENGTH(almanac_info.html_node_lang) = 0), COUNT(0)) AS pct_no_html_lang_m404
+    # pages with no html lang attribute M404
+    as_percent(
+        countif(
+            almanac_info.html_node_lang is null
+            or length(almanac_info.html_node_lang) = 0
+        ),
+        count(0)
+    ) as pct_no_html_lang_m404
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_almanac_info(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-  )
-GROUP BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            get_almanac_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

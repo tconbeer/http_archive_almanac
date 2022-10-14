@@ -1,7 +1,6 @@
-#standardSQL
+# standardSQL
 # page wpt_bodies metrics grouped by device
 # M235
-
 # helper to create percent fields
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
@@ -24,26 +23,25 @@ try {
 return result;
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNT(DISTINCT url) AS pages,
-  total,
-  protocol,
+select
+    _table_suffix as client,
+    count(distinct url) as pages,
+    total,
+    protocol,
 
-  AS_PERCENT(COUNT(DISTINCT url), total) AS pct
+    as_percent(count(distinct url), total) as pct
 
-FROM
-  `httparchive.pages.2020_08_01_*`
-JOIN
-  (SELECT _TABLE_SUFFIX, COUNT(0) AS total FROM
-      `httparchive.pages.2020_08_01_*`
-    GROUP BY _TABLE_SUFFIX) # to get an accurate total of pages per device. also seems fast
-USING (_TABLE_SUFFIX),
-  UNNEST(get_wpt_bodies_protocols(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies'))) AS protocol
-GROUP BY
-  client,
-  total,
-  protocol
-ORDER BY
-  pages DESC
-LIMIT 1000
+from `httparchive.pages.2020_08_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2020_08_01_*`
+        # to get an accurate total of pages per device. also seems fast
+        group by _table_suffix
+    ) using (_table_suffix),
+    unnest(
+        get_wpt_bodies_protocols(json_extract_scalar(payload, '$._wpt_bodies'))
+    ) as protocol
+group by client, total, protocol
+order by pages desc
+limit 1000

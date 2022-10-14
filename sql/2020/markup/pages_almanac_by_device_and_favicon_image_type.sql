@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # page almanac favicon image types grouped by device and type M217
-
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
 );
@@ -51,25 +50,21 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  almanac_info.image_type_extension AS image_type_extension,
+select
+    client,
+    almanac_info.image_type_extension as image_type_extension,
 
-  COUNT(0) AS freq,
+    count(0) as freq,
 
-  AS_PERCENT(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS pct
+    as_percent(count(0), sum(count(0)) over (partition by client)) as pct
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_almanac_info(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS almanac_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-  )
-GROUP BY
-  client,
-  image_type_extension
-ORDER BY
-  freq DESC
-LIMIT 1000
+from
+    (
+        select
+            _table_suffix as client,
+            get_almanac_info(json_extract_scalar(payload, '$._almanac')) as almanac_info
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client, image_type_extension
+order by freq desc
+limit 1000

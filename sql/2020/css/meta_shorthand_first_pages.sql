@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getShorthandFirstProperties(css STRING)
 RETURNS ARRAY<STRUCT<property STRING, freq INT64>>
 LANGUAGE js
@@ -444,24 +444,17 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(freq_shorthand_first > 0) AS pages,
-  COUNT(0) AS total,
-  COUNTIF(freq_shorthand_first > 0) / COUNT(0) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    SUM(property.freq) AS freq_shorthand_first
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getShorthandFirstProperties(css)) AS property
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    page)
-GROUP BY
-  client
+    countif(freq_shorthand_first > 0) as pages,
+    count(0) as total,
+    countif(freq_shorthand_first > 0) / count(0) as pct
+from
+    (
+        select client, page, sum(property.freq) as freq_shorthand_first
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getshorthandfirstproperties(css)) as property
+        where date = '2020-08-01'
+        group by client, page
+    )
+group by client

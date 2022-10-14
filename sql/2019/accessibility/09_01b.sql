@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 09_01b: % of pages having any heading
 CREATE TEMPORARY FUNCTION hasHeading(payload STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -15,17 +15,14 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNT(0) AS total_pages,
-  COUNTIF(has_heading) AS total_with_heading,
-  ROUND(COUNTIF(has_heading) * 100 / COUNT(0), 2) AS pct_with_heading
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    hasHeading(payload) AS has_heading
-  FROM
-    `httparchive.pages.2019_07_01_*`
-)
-GROUP BY
-  client
+select
+    client,
+    count(0) as total_pages,
+    countif(has_heading) as total_with_heading,
+    round(countif(has_heading) * 100 / count(0), 2) as pct_with_heading
+from
+    (
+        select _table_suffix as client, hasheading(payload) as has_heading
+        from `httparchive.pages.2019_07_01_*`
+    )
+group by client

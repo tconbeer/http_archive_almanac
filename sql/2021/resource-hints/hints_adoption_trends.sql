@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # trends of sites that use each type of resource hint.
-
 CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
 RETURNS STRUCT<preload BOOLEAN, prefetch BOOLEAN, preconnect BOOLEAN, prerender BOOLEAN, `dns-prefetch` BOOLEAN, `modulepreload` BOOLEAN>
 LANGUAGE js AS '''
@@ -25,55 +24,34 @@ try {
 }
 ''';
 
-WITH pages AS (
-  SELECT
-    '2019' AS year,
-    _TABLE_SUFFIX AS client,
-    *
-  FROM
-    `httparchive.pages.2019_07_01_*`
-  UNION ALL
-  SELECT
-    '2020' AS year,
-    _TABLE_SUFFIX AS client,
-    *
-  FROM
-    `httparchive.pages.2020_08_01_*`
-  UNION ALL
-  SELECT
-    '2021' AS year,
-    _TABLE_SUFFIX AS client,
-    *
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
+with
+    pages as (
+        select '2019' as year, _table_suffix as client, *
+        from `httparchive.pages.2019_07_01_*`
+        union all
+        select '2020' as year, _table_suffix as client, *
+        from `httparchive.pages.2020_08_01_*`
+        union all
+        select '2021' as year, _table_suffix as client, *
+        from `httparchive.pages.2021_07_01_*`
+    )
 
-SELECT
-  year,
-  client,
-  COUNT(0) AS total,
-  COUNTIF(hints.preload) AS preload,
-  COUNTIF(hints.preload) / COUNT(0) AS pct_preload,
-  COUNTIF(hints.prefetch) AS prefetch,
-  COUNTIF(hints.prefetch) / COUNT(0) AS pct_prefetch,
-  COUNTIF(hints.preconnect) AS preconnect,
-  COUNTIF(hints.preconnect) / COUNT(0) AS pct_preconnect,
-  COUNTIF(hints.prerender) AS prerender,
-  COUNTIF(hints.prerender) / COUNT(0) AS pct_prerender,
-  COUNTIF(hints.`dns-prefetch`) AS dns_prefetch,
-  COUNTIF(hints.`dns-prefetch`) / COUNT(0) AS pct_dns_prefetch,
-  COUNTIF(hints.modulepreload) AS modulepreload,
-  COUNTIF(hints.modulepreload) / COUNT(0) AS pct_modulepreload
-FROM (
-  SELECT
-    client,
+select
     year,
-    getResourceHints(payload) AS hints
-  FROM
-    pages)
-GROUP BY
-  year,
-  client
-ORDER BY
-  year,
-  client
+    client,
+    count(0) as total,
+    countif(hints.preload) as preload,
+    countif(hints.preload) / count(0) as pct_preload,
+    countif(hints.prefetch) as prefetch,
+    countif(hints.prefetch) / count(0) as pct_prefetch,
+    countif(hints.preconnect) as preconnect,
+    countif(hints.preconnect) / count(0) as pct_preconnect,
+    countif(hints.prerender) as prerender,
+    countif(hints.prerender) / count(0) as pct_prerender,
+    countif(hints.`dns-prefetch`) as dns_prefetch,
+    countif(hints.`dns-prefetch`) / count(0) as pct_dns_prefetch,
+    countif(hints.modulepreload) as modulepreload,
+    countif(hints.modulepreload) / count(0) as pct_modulepreload
+from (select client, year, getresourcehints(payload) as hints from pages)
+group by year, client
+order by year, client

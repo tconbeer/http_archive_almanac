@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 02_08b: % of selectors that use classes or IDs
 CREATE TEMPORARY FUNCTION getSelectorType(css STRING)
 RETURNS STRUCT<class INT64, id INT64, total INT64> LANGUAGE js AS '''
@@ -35,20 +35,17 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  SUM(type.class) AS class,
-  SUM(type.id) AS id,
-  SUM(type.total) AS selectors,
-  ROUND(SUM(type.class) * 100 / SUM(type.total), 2) AS pct_class,
-  ROUND(SUM(type.id) * 100 / SUM(type.total), 2) AS pct_id
-FROM (
-  SELECT
+select
     client,
-    getSelectorType(css) AS type
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2019-07-01')
-GROUP BY
-  client
+    sum(type.class) as class,
+    sum(type.id) as id,
+    sum(type.total) as selectors,
+    round(sum(type.class) * 100 / sum(type.total), 2) as pct_class,
+    round(sum(type.id) * 100 / sum(type.total), 2) as pct_id
+from
+    (
+        select client, getselectortype(css) as type
+        from `httparchive.almanac.parsed_css`
+        where date = '2019-07-01'
+    )
+group by client

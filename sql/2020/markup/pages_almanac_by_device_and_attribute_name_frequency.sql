@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # pages almanac metrics grouped by device and element attribute use (frequency)
-
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
 );
@@ -22,18 +21,19 @@ try {
 return [];
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  almanac_attribute_info.name,
-  SUM(almanac_attribute_info.freq) AS freq, # total count from all pages
-  AS_PERCENT(SUM(almanac_attribute_info.freq), SUM(SUM(almanac_attribute_info.freq)) OVER (PARTITION BY _TABLE_SUFFIX)) AS pct_m400
-FROM
-  `httparchive.pages.2020_08_01_*`,
-  UNNEST(get_almanac_attribute_info(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS almanac_attribute_info
-GROUP BY
-  client,
-  almanac_attribute_info.name
-ORDER BY
-  freq DESC,
-  client
-LIMIT 1000
+select
+    _table_suffix as client,
+    almanac_attribute_info.name,
+    sum(almanac_attribute_info.freq) as freq,  # total count from all pages
+    as_percent(
+        sum(almanac_attribute_info.freq),
+        sum(sum(almanac_attribute_info.freq)) over (partition by _table_suffix)
+    ) as pct_m400
+from
+    `httparchive.pages.2020_08_01_*`,
+    unnest(
+        get_almanac_attribute_info(json_extract_scalar(payload, '$._almanac'))
+    ) as almanac_attribute_info
+group by client, almanac_attribute_info.name
+order by freq desc, client
+limit 1000

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getSpecificityHacks(css STRING)
 RETURNS STRUCT<
   bem NUMERIC,
@@ -87,55 +87,57 @@ return ret;
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  COUNT(0) AS total,
-  COUNTIF(bem > 0) AS bem_pages,
-  COUNTIF(bem > 0) / COUNT(0) AS bem_pages_pct,
-  APPROX_QUANTILES(bem, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS bem_per_page,
-  COUNTIF(attribute_id > 0) AS attribute_id_pages,
-  COUNTIF(attribute_id > 0) / COUNT(0) AS attribute_id_pages_pct,
-  APPROX_QUANTILES(attribute_id, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS attribute_id_per_page,
-  COUNTIF(duplicate_classes > 0) AS duplicate_classes_pages,
-  COUNTIF(duplicate_classes > 0) / COUNT(0) AS duplicate_classes_pages_pct,
-  APPROX_QUANTILES(duplicate_classes, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS duplicate_classes_per_page,
-  COUNTIF(root_descendant > 0) AS root_descendant_pages,
-  COUNTIF(root_descendant > 0) / COUNT(0) AS root_descendant_pages_pct,
-  APPROX_QUANTILES(root_descendant, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS root_descendantem_per_page,
-  COUNTIF(html_descendant > 0) AS html_descendant_pages,
-  COUNTIF(html_descendant > 0) / COUNT(0) AS html_descendant_pages_pct,
-  APPROX_QUANTILES(html_descendant, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS html_descendant_per_page,
-  COUNTIF(not_id_descendant > 0) AS not_id_descendant_pages,
-  COUNTIF(not_id_descendant > 0) / COUNT(0) AS not_id_descendant_pages_pct,
-  APPROX_QUANTILES(not_id_descendant, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS not_id_descendant_per_page
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    SUM(hack.bem) AS bem,
-    SUM(hack.attribute_id) AS attribute_id,
-    SUM(hack.duplicate_classes) AS duplicate_classes,
-    SUM(hack.root_descendant) AS root_descendant,
-    SUM(hack.html_descendant) AS html_descendant,
-    SUM(hack.not_id_descendant) AS not_id_descendant
-  FROM (
-    SELECT
-      client,
-      page,
-      getSpecificityHacks(css) AS hack
-    FROM
-      `httparchive.almanac.parsed_css`
-    WHERE
-      date = '2020-08-01' AND
-      # Limit the size of the CSS to avoid OOM crashes.
-      LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    count(0) as total,
+    countif(bem > 0) as bem_pages,
+    countif(bem > 0) / count(0) as bem_pages_pct,
+    approx_quantiles(bem, 1000 ignore nulls)[offset(percentile * 10)] as bem_per_page,
+    countif(attribute_id > 0) as attribute_id_pages,
+    countif(attribute_id > 0) / count(0) as attribute_id_pages_pct,
+    approx_quantiles(attribute_id, 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as attribute_id_per_page,
+    countif(duplicate_classes > 0) as duplicate_classes_pages,
+    countif(duplicate_classes > 0) / count(0) as duplicate_classes_pages_pct,
+    approx_quantiles(duplicate_classes, 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as duplicate_classes_per_page,
+    countif(root_descendant > 0) as root_descendant_pages,
+    countif(root_descendant > 0) / count(0) as root_descendant_pages_pct,
+    approx_quantiles(root_descendant, 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as root_descendantem_per_page,
+    countif(html_descendant > 0) as html_descendant_pages,
+    countif(html_descendant > 0) / count(0) as html_descendant_pages_pct,
+    approx_quantiles(html_descendant, 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as html_descendant_per_page,
+    countif(not_id_descendant > 0) as not_id_descendant_pages,
+    countif(not_id_descendant > 0) / count(0) as not_id_descendant_pages_pct,
+    approx_quantiles(not_id_descendant, 1000 ignore nulls)[
+        offset(percentile * 10)
+    ] as not_id_descendant_per_page
+from
+    (
+        select
+            client,
+            sum(hack.bem) as bem,
+            sum(hack.attribute_id) as attribute_id,
+            sum(hack.duplicate_classes) as duplicate_classes,
+            sum(hack.root_descendant) as root_descendant,
+            sum(hack.html_descendant) as html_descendant,
+            sum(hack.not_id_descendant) as not_id_descendant
+        from
+            (
+                select client, page, getspecificityhacks(css) as hack
+                from `httparchive.almanac.parsed_css`
+                # Limit the size of the CSS to avoid OOM crashes.
+                where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

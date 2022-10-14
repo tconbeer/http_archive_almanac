@@ -1,5 +1,6 @@
-#standardSQL
-# Various stats for required form controls (form controls being: input, select, textarea)
+# standardSQL
+# Various stats for required form controls (form controls being: input, select,
+# textarea)
 CREATE TEMPORARY FUNCTION requiredControls(payload STRING)
 RETURNS STRUCT<total INT64, asterisk INT64, required_attribute INT64, aria_required INT64, all_three INT64, asterisk_required INT64, asterisk_aria INT64, required_with_aria INT64> LANGUAGE js AS '''
   try {
@@ -71,38 +72,37 @@ RETURNS STRUCT<total INT64, asterisk INT64, required_attribute INT64, aria_requi
   }
 ''';
 
-SELECT
-  client,
-  COUNT(0) AS total_sites,
-  COUNTIF(stats.total > 0) AS total_sites_with_required_controls,
-  SUM(stats.total) AS total_required_controls,
+select
+    client,
+    count(0) as total_sites,
+    countif(stats.total > 0) as total_sites_with_required_controls,
+    sum(stats.total) as total_required_controls,
 
-  SUM(stats.asterisk) AS total_asterisk,
-  SUM(stats.asterisk) / SUM(stats.total) AS perc_asterisk,
+    sum(stats.asterisk) as total_asterisk,
+    sum(stats.asterisk) / sum(stats.total) as perc_asterisk,
 
-  SUM(stats.required_attribute) AS total_required_attribute,
-  SUM(stats.required_attribute) / SUM(stats.total) AS perc_required_attribute,
+    sum(stats.required_attribute) as total_required_attribute,
+    sum(stats.required_attribute) / sum(stats.total) as perc_required_attribute,
 
-  SUM(stats.aria_required) AS total_aria_required,
-  SUM(stats.aria_required) / SUM(stats.total) AS perc_aria_required,
+    sum(stats.aria_required) as total_aria_required,
+    sum(stats.aria_required) / sum(stats.total) as perc_aria_required,
 
-  SUM(stats.all_three) AS total_all_three,
-  SUM(stats.all_three) / SUM(stats.total) AS perc_all_three,
+    sum(stats.all_three) as total_all_three,
+    sum(stats.all_three) / sum(stats.total) as perc_all_three,
 
-  SUM(stats.asterisk_required) AS total_asterisk_required,
-  SUM(stats.asterisk_required) / SUM(stats.total) AS perc_asterisk_required,
+    sum(stats.asterisk_required) as total_asterisk_required,
+    sum(stats.asterisk_required) / sum(stats.total) as perc_asterisk_required,
 
-  SUM(stats.asterisk_aria) AS total_asterisk_aria,
-  SUM(stats.asterisk_aria) / SUM(stats.total) AS perc_asterisk_aria,
+    sum(stats.asterisk_aria) as total_asterisk_aria,
+    sum(stats.asterisk_aria) / sum(stats.total) as perc_asterisk_aria,
 
-  SUM(stats.required_with_aria) AS total_required_with_aria,
-  SUM(stats.required_with_aria) / SUM(stats.total) AS perc_required_with_aria
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    requiredControls(JSON_EXTRACT_SCALAR(payload, '$._a11y')) AS stats
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
+    sum(stats.required_with_aria) as total_required_with_aria,
+    sum(stats.required_with_aria) / sum(stats.total) as perc_required_with_aria
+from
+    (
+        select
+            _table_suffix as client,
+            requiredcontrols(json_extract_scalar(payload, '$._a11y')) as stats
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

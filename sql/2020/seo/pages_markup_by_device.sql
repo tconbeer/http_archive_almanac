@@ -1,6 +1,5 @@
-#standardSQL
+# standardSQL
 # pages markup metrics grouped by device
-
 # helper to create percent fields
 CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
   ROUND(SAFE_DIVIDE(freq, total), 4)
@@ -55,40 +54,60 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # Pages with img
-  AS_PERCENT(COUNTIF(markup_info.images_img_total > 0), COUNT(0)) AS pct_has_img,
+    # Pages with img
+    as_percent(countif(markup_info.images_img_total > 0), count(0)) as pct_has_img,
 
-  #  percent pages with an img alt
-  SUM(markup_info.images_img_total) AS total_img,
-  SUM(markup_info.images_alt_present_total) AS total_img_alt_present,
-  SUM(markup_info.images_alt_blank_total) AS total_img_alt_blank,
-  SUM(markup_info.images_alt_missing_total) AS total_img_alt_missing,
-  AS_PERCENT(SUM(markup_info.images_alt_missing_total), SUM(markup_info.images_img_total)) AS pct_images_with_img_alt_missing,
-  AS_PERCENT(SUM(markup_info.images_alt_present_total), SUM(markup_info.images_img_total)) AS pct_images_with_img_alt_present, # present does not include blank
-  AS_PERCENT(SUM(markup_info.images_alt_blank_total), SUM(markup_info.images_img_total)) AS pct_images_with_img_alt_blank,
-  AS_PERCENT(SUM(markup_info.images_alt_blank_total) + SUM(markup_info.images_alt_present_total), SUM(markup_info.images_img_total)) AS pct_images_with_img_alt_blank_or_present,
+    # percent pages with an img alt
+    sum(markup_info.images_img_total) as total_img,
+    sum(markup_info.images_alt_present_total) as total_img_alt_present,
+    sum(markup_info.images_alt_blank_total) as total_img_alt_blank,
+    sum(markup_info.images_alt_missing_total) as total_img_alt_missing,
+    as_percent(
+        sum(markup_info.images_alt_missing_total), sum(markup_info.images_img_total)
+    ) as pct_images_with_img_alt_missing,
+    as_percent(  # present does not include blank
+        sum(markup_info.images_alt_present_total), sum(markup_info.images_img_total)
+    ) as pct_images_with_img_alt_present,
+    as_percent(
+        sum(markup_info.images_alt_blank_total), sum(markup_info.images_img_total)
+    ) as pct_images_with_img_alt_blank,
+    as_percent(
+        sum(markup_info.images_alt_blank_total)
+        + sum(markup_info.images_alt_present_total),
+        sum(markup_info.images_img_total)
+    ) as pct_images_with_img_alt_blank_or_present,
 
-  # Pages with <html amp> tag
-  COUNTIF(markup_info.has_html_amp_attribute) AS has_html_amp_attribute,
-  COUNTIF(markup_info.has_html_amp_emoji_attribute) AS has_html_amp_emoji_attribute,
-  AS_PERCENT(COUNTIF(markup_info.has_html_amp_attribute), COUNT(0)) AS pct_has_html_amp_attribute,
-  AS_PERCENT(COUNTIF(markup_info.has_html_amp_emoji_attribute), COUNT(0)) AS pct_has_html_amp_emoji_attribute,
-  AS_PERCENT(COUNTIF(markup_info.has_html_amp_emoji_attribute OR markup_info.has_html_amp_attribute), COUNT(0)) AS pct_has_html_amp_or_emoji_attribute,
+    # Pages with <html amp> tag
+    countif(markup_info.has_html_amp_attribute) as has_html_amp_attribute,
+    countif(markup_info.has_html_amp_emoji_attribute) as has_html_amp_emoji_attribute,
+    as_percent(
+        countif(markup_info.has_html_amp_attribute), count(0)
+    ) as pct_has_html_amp_attribute,
+    as_percent(
+        countif(markup_info.has_html_amp_emoji_attribute), count(0)
+    ) as pct_has_html_amp_emoji_attribute,
+    as_percent(
+        countif(
+            markup_info.has_html_amp_emoji_attribute
+            or markup_info.has_html_amp_attribute
+        ),
+        count(0)
+    ) as pct_has_html_amp_or_emoji_attribute,
 
-  # Pages with rel=amphtml
-  AS_PERCENT(COUNTIF(markup_info.has_rel_amphtml_tag), COUNT(0)) AS pct_has_rel_amphtml_tag
+    # Pages with rel=amphtml
+    as_percent(
+        countif(markup_info.has_rel_amphtml_tag), count(0)
+    ) as pct_has_rel_amphtml_tag
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_markup_info(JSON_EXTRACT_SCALAR(payload, '$._markup')) AS markup_info
-    FROM
-      `httparchive.pages.2020_08_01_*`
-  )
-GROUP BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            get_markup_info(json_extract_scalar(payload, '$._markup')) as markup_info
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

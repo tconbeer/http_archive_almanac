@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getColorSpaces(css STRING)
 RETURNS ARRAY<STRUCT<name STRING, value INT64>>
 LANGUAGE js
@@ -158,26 +158,19 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  color_space,
-  COUNT(DISTINCT page) AS pages,
-  SUM(value) AS freq,
-  SUM(SUM(value)) OVER (PARTITION BY client) AS total,
-  SAFE_DIVIDE(SUM(value), SUM(SUM(value)) OVER (PARTITION BY client)) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    color_space.name AS color_space,
-    color_space.value
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getColorSpaces(css)) AS color_space
-  WHERE
-    date = '2020-08-01')
-GROUP BY
-  client,
-  color_space
-ORDER BY
-  pct DESC
+    color_space,
+    count(distinct page) as pages,
+    sum(value) as freq,
+    sum(sum(value)) over (partition by client) as total,
+    safe_divide(sum(value), sum(sum(value)) over (partition by client)) as pct
+from
+    (
+        select client, page, color_space.name as color_space, color_space.value
+        from
+            `httparchive.almanac.parsed_css`, unnest(getcolorspaces(css)) as color_space
+        where date = '2020-08-01'
+    )
+group by client, color_space
+order by pct desc

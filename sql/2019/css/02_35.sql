@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 02_35: Distribution of duplicate font-family values per page
 CREATE TEMPORARY FUNCTION getFonts(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -20,36 +20,24 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  APPROX_QUANTILES(duplicate_fonts, 1000)[OFFSET(100)] AS p10,
-  APPROX_QUANTILES(duplicate_fonts, 1000)[OFFSET(250)] AS p25,
-  APPROX_QUANTILES(duplicate_fonts, 1000)[OFFSET(500)] AS p50,
-  APPROX_QUANTILES(duplicate_fonts, 1000)[OFFSET(750)] AS p75,
-  APPROX_QUANTILES(duplicate_fonts, 1000)[OFFSET(900)] AS p90
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(freq > 1) AS duplicate_fonts
-  FROM (
-    SELECT
-      client,
-      page,
-      value,
-      COUNT(0) AS freq
-    FROM
-      `httparchive.almanac.parsed_css`
-    LEFT JOIN
-      UNNEST(getFonts(css)) AS value
-    WHERE
-      date = '2019-07-01'
-    GROUP BY
-      client,
-      page,
-      value)
-  GROUP BY
-    client,
-    page)
-GROUP BY
-  client
+    approx_quantiles(duplicate_fonts, 1000)[offset(100)] as p10,
+    approx_quantiles(duplicate_fonts, 1000)[offset(250)] as p25,
+    approx_quantiles(duplicate_fonts, 1000)[offset(500)] as p50,
+    approx_quantiles(duplicate_fonts, 1000)[offset(750)] as p75,
+    approx_quantiles(duplicate_fonts, 1000)[offset(900)] as p90
+from
+    (
+        select client, page, countif(freq > 1) as duplicate_fonts
+        from
+            (
+                select client, page, value, count(0) as freq
+                from `httparchive.almanac.parsed_css`
+                left join unnest(getfonts(css)) as value
+                where date = '2019-07-01'
+                group by client, page, value
+            )
+        group by client, page
+    )
+group by client

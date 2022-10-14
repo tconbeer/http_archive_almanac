@@ -1,5 +1,6 @@
-#standardSQL
-# Pages that combine preconnect and dns-prefetch hints divided by pages with either hint.
+# standardSQL
+# Pages that combine preconnect and dns-prefetch hints divided by pages with either
+# hint.
 CREATE TEMPORARY FUNCTION preconnectsAndPrefetchesDns(payload STRING)
 RETURNS STRUCT<both BOOLEAN, either BOOLEAN> LANGUAGE js AS '''
 try {
@@ -20,16 +21,14 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  COUNTIF(hint.both) AS freq_both,
-  COUNTIF(hint.either) AS total_either,
-  COUNTIF(hint.both) / COUNTIF(hint.either) AS pct_both
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    preconnectsAndPrefetchesDns(payload) AS hint
-  FROM
-    `httparchive.pages.2020_08_01_*`)
-GROUP BY
-  client
+select
+    client,
+    countif(hint.both) as freq_both,
+    countif(hint.either) as total_either,
+    countif(hint.both) / countif(hint.either) as pct_both
+from
+    (
+        select _table_suffix as client, preconnectsandprefetchesdns(payload) as hint
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

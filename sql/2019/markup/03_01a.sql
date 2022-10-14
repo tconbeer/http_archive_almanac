@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 03_01a: % of pages with deprecated elements
 CREATE TEMPORARY FUNCTION containsDeprecatedElement(payload STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -14,11 +14,9 @@ try {
 }
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(containsDeprecatedElement(payload)) AS pages,
-  ROUND(COUNTIF(containsDeprecatedElement(payload)) * 100 / COUNT(0), 2) AS pct_pages
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(containsdeprecatedelement(payload)) as pages,
+    round(countif(containsdeprecatedelement(payload)) * 100 / count(0), 2) as pct_pages
+from `httparchive.pages.2019_07_01_*`
+group by client

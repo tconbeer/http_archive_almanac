@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Usage of native lazy loading
 CREATE TEMPORARY FUNCTION usesLoadingLazy(payload STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -18,19 +18,25 @@ try {
   return false;
 }
 ''';
-SELECT
-  client,
-  COUNTIF(total_img > 0) AS pages_with_images,
+select
+    client,
+    countif(total_img > 0) as pages_with_images,
 
-  COUNTIF(uses_loading_lazy) AS pages_using_loading_attribute,
-  COUNTIF(uses_loading_lazy) / COUNTIF(total_img > 0) AS pct_pages_using_loading_attribute
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.images.imgs.total') AS INT64) AS total_img,
-    usesLoadingLazy(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS uses_loading_lazy
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
+    countif(uses_loading_lazy) as pages_using_loading_attribute,
+    countif(uses_loading_lazy)
+    / countif(total_img > 0) as pct_pages_using_loading_attribute
+from
+    (
+        select
+            _table_suffix as client,
+            safe_cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'), '$.images.imgs.total'
+                ) as int64
+            ) as total_img,
+            usesloadinglazy(
+                json_extract_scalar(payload, '$._almanac')
+            ) as uses_loading_lazy
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

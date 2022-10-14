@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 20.04a_5a_6a - Detailed upgrade headers for 20.04, 20.05 and 20.06
 CREATE TEMPORARY FUNCTION getUpgradeHeader(payload STRING)
 RETURNS STRING
@@ -15,20 +15,13 @@ LANGUAGE js AS """
   }
 """;
 
-SELECT
-  client,
-  firstHtml,
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') AS protocol,
-  IF(url LIKE 'https://%', 'https', 'http') AS http_or_https,
-  getUpgradeHeader(payload) AS upgrade,
-  COUNT(0) AS num_requests
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  firstHtml,
-  protocol,
-  http_or_https,
-  upgrade
+select
+    client,
+    firsthtml,
+    json_extract_scalar(payload, '$._protocol') as protocol,
+    if(url like 'https://%', 'https', 'http') as http_or_https,
+    getupgradeheader(payload) as upgrade,
+    count(0) as num_requests
+from `httparchive.almanac.requests`
+where date = '2019-07-01'
+group by client, firsthtml, protocol, http_or_https, upgrade

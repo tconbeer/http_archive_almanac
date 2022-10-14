@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getCalcOperatorComplexity(css STRING)
 RETURNS ARRAY<STRUCT<num INT64, freq INT64>>
 LANGUAGE js
@@ -64,27 +64,20 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  num,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    url,
-    operators.num,
-    operators.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getCalcOperatorComplexity(css)) AS operators
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client,
-  num
-ORDER BY
-  pct DESC
+    num,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, url, operators.num, operators.freq
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getcalcoperatorcomplexity(css)) as operators
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+    )
+group by client, num
+order by pct desc

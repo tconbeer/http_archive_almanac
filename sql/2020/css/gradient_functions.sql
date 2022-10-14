@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getGradientFunctions(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -144,36 +144,25 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  function,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  COUNT(DISTINCT page) / total AS pct
-FROM (
-  SELECT DISTINCT
+select
     client,
-    page,
-    function
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getGradientFunctions(css)) AS function
-  WHERE
-    date = '2020-08-01' AND
-    function IS NOT NULL)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  function,
-  total
-ORDER BY
-  pct DESC
+    function,
+    count(distinct page) as pages,
+    total,
+    count(distinct page) / total as pct
+from
+    (
+        select distinct client, page, function
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getgradientfunctions(css)) as function
+        where date = '2020-08-01' and function is not null
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    ) using (client)
+group by client, function, total
+order by pct desc

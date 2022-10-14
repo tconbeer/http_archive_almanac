@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 06_14b: Popular unicode-range values
 CREATE TEMPORARY FUNCTION getFonts(css STRING)
 RETURNS ARRAY<STRING> LANGUAGE js AS '''
@@ -28,19 +28,13 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  UPPER(unicode_range) AS unicode_range,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFonts(css)) AS unicode_range
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  unicode_range
-ORDER BY
-  freq / total DESC
+select
+    client,
+    upper(unicode_range) as unicode_range,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.parsed_css`, unnest(getfonts(css)) as unicode_range
+where date = '2019-07-01'
+group by client, unicode_range
+order by freq / total desc

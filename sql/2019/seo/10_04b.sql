@@ -1,19 +1,17 @@
-#standardSQL
+# standardSQL
 # 10_04b: hreflang implementation values
-SELECT
-  client,
-  NORMALIZE_AND_CASEFOLD(TRIM(hreflang)) AS hreflang,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.summary_response_bodies`,
-  UNNEST(REGEXP_EXTRACT_ALL(body, '(?i)<link[^>]*hreflang=[\'"]?([^\'"\\s>]+)')) AS hreflang
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  hreflang
-ORDER BY
-  freq / total DESC
-LIMIT 10000
+select
+    client,
+    normalize_and_casefold(trim(hreflang)) as hreflang,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from
+    `httparchive.almanac.summary_response_bodies`,
+    unnest(
+        regexp_extract_all(body, '(?i)<link[^>]*hreflang=[\'"]?([^\'"\\s>]+)')
+    ) as hreflang
+where date = '2019-07-01'
+group by client, hreflang
+order by freq / total desc
+limit 10000

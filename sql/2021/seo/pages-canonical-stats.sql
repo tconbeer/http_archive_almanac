@@ -1,9 +1,7 @@
-#standardSQL
+# standardSQL
 # page canonical metrics by device
-
-# Note: Contains redundant stats to seo-stats.sql in order to start better segmenting metrics away from monolithic queries.
-
-
+# Note: Contains redundant stats to seo-stats.sql in order to start better segmenting
+# metrics away from monolithic queries.
 # JS parsing of payload
 CREATE TEMPORARY FUNCTION getCanonicalMetrics(payload STRING)
 RETURNS STRUCT<
@@ -112,63 +110,94 @@ try {
   return result;
 }
 ''';
+select
+    client,
+    count(0) as total,
+    canonical_metrics.js_error as js_error,
 
+    # Pages with canonical
+    safe_divide(
+        countif(canonical_metrics.has_canonicals), count(0)
+    ) as pct_has_canonical,
 
+    # Pages with self-canonical
+    safe_divide(
+        countif(canonical_metrics.has_self_canonical), count(0)
+    ) as pct_has_self_canonical,
 
-SELECT
-  client,
-  COUNT(0) AS total,
-  canonical_metrics.js_error AS js_error,
+    # Pages canonicalized
+    safe_divide(
+        countif(canonical_metrics.is_canonicalized), count(0)
+    ) as pct_is_canonicalized,
 
-  # Pages with canonical
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_canonicals), COUNT(0)) AS pct_has_canonical,
+    # Pages with canonical in HTTP header
+    safe_divide(
+        countif(canonical_metrics.has_http_canonical), count(0)
+    ) as pct_http_canonical,
 
-  # Pages with self-canonical
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_self_canonical), COUNT(0)) AS pct_has_self_canonical,
+    # Pages with canonical in raw html
+    safe_divide(
+        countif(canonical_metrics.has_raw_canonical), count(0)
+    ) as pct_has_raw_canonical,
 
-  # Pages canonicalized
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.is_canonicalized), COUNT(0)) AS pct_is_canonicalized,
+    # Pages with canonical in rendered html
+    safe_divide(
+        countif(canonical_metrics.has_rendered_canonical), count(0)
+    ) as pct_has_rendered_canonical,
 
-  # Pages with canonical in HTTP header
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_http_canonical), COUNT(0)) AS pct_http_canonical,
+    # Pages with canonical in rendered but not raw html
+    safe_divide(
+        countif(
+            canonical_metrics.has_rendered_canonical
+            and not canonical_metrics.has_raw_canonical
+        ),
+        count(0)
+    ) as pct_has_rendered_but_not_raw_canonical,
 
-  # Pages with canonical in raw html
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_raw_canonical), COUNT(0)) AS pct_has_raw_canonical,
+    # Pages with canonical mismatch
+    safe_divide(
+        countif(canonical_metrics.has_canonical_mismatch), count(0)
+    ) as pct_has_canonical_mismatch,
 
-  # Pages with canonical in rendered html
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_rendered_canonical), COUNT(0)) AS pct_has_rendered_canonical,
+    # Pages with canonical conflict between raw and rendered
+    safe_divide(
+        countif(canonical_metrics.rendering_changed_canonical), count(0)
+    ) as pct_has_conflict_rendering_changed_canonical,
 
-  # Pages with canonical in rendered but not raw html
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_rendered_canonical AND NOT canonical_metrics.has_raw_canonical), COUNT(0)) AS pct_has_rendered_but_not_raw_canonical,
+    # Pages with canonical conflict between raw and http header
+    safe_divide(
+        countif(canonical_metrics.http_header_changed_canonical), count(0)
+    ) as pct_has_conflict_http_header_changed_canonical,
 
-  # Pages with canonical mismatch
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_canonical_mismatch), COUNT(0)) AS pct_has_canonical_mismatch,
+    # Pages with canonical conflict between raw and http header
+    safe_divide(
+        countif(
+            canonical_metrics.http_header_changed_canonical
+            or canonical_metrics.rendering_changed_canonical
+        ),
+        count(0)
+    ) as pct_has_conflict_http_header_or_rendering_changed_canonical,
 
-  # Pages with canonical conflict between raw and rendered
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.rendering_changed_canonical), COUNT(0)) AS pct_has_conflict_rendering_changed_canonical,
+    # Pages with canonicals that are absolute
+    safe_divide(
+        countif(canonical_metrics.has_absolute_canonical),
+        countif(canonical_metrics.has_canonicals)
+    ) as pct_canonicals_absolute,
 
-  # Pages with canonical conflict between raw and http header
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.http_header_changed_canonical), COUNT(0)) AS pct_has_conflict_http_header_changed_canonical,
+    # Pages with canonicals that are relative
+    safe_divide(
+        countif(canonical_metrics.has_relative_canonical),
+        countif(canonical_metrics.has_canonicals)
+    ) as pct_canonicals_relative
 
-  # Pages with canonical conflict between raw and http header
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.http_header_changed_canonical OR canonical_metrics.rendering_changed_canonical), COUNT(0)) AS pct_has_conflict_http_header_or_rendering_changed_canonical,
+from
+    (
+        select
+            _table_suffix as client, getcanonicalmetrics(payload) as canonical_metrics
+        from `httparchive.pages.2021_07_01_*`
+    )
 
-  # Pages with canonicals that are absolute
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_absolute_canonical), COUNTIF(canonical_metrics.has_canonicals)) AS pct_canonicals_absolute,
-
-  # Pages with canonicals that are relative
-  SAFE_DIVIDE(COUNTIF(canonical_metrics.has_relative_canonical), COUNTIF(canonical_metrics.has_canonicals)) AS pct_canonicals_relative
-
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getCanonicalMetrics(payload) AS canonical_metrics
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-
--- Only reporting where wpt_bodies sucessfully extracted. ~20/100,000 pages missing wpt_bodies.
-WHERE
-  canonical_metrics.has_wpt_bodies
-GROUP BY
-  client,
-  js_error
+-- Only reporting where wpt_bodies sucessfully extracted. ~20/100,000 pages missing
+-- wpt_bodies.
+where canonical_metrics.has_wpt_bodies
+group by client, js_error

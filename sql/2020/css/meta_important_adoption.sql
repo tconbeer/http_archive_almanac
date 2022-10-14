@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getImportantProperties(css STRING)
 RETURNS STRUCT<total INT64, important INT64>
 LANGUAGE js
@@ -29,32 +29,29 @@ try {
 }
 ''';
 
-SELECT
-  percentile,
-  client,
-  COUNTIF(pct_important = 100) AS all_important_pages,
-  APPROX_QUANTILES(pct_important, 1000)[OFFSET(percentile * 10)] AS pct_important_props
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
-    SAFE_DIVIDE(SUM(properties.important), SUM(properties.total)) AS pct_important
-  FROM (
-      SELECT
-        client,
-        page,
-        getImportantProperties(css) AS properties
-      FROM
-        `httparchive.almanac.parsed_css`
-      WHERE
-        date = '2020-08-01')
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    countif(pct_important = 100) as all_important_pages,
+    approx_quantiles(pct_important, 1000)[
+        offset(percentile * 10)
+    ] as pct_important_props
+from
+    (
+        select
+            client,
+            page,
+            safe_divide(
+                sum(properties.important), sum(properties.total)
+            ) as pct_important
+        from
+            (
+                select client, page, getimportantproperties(css) as properties
+                from `httparchive.almanac.parsed_css`
+                where date = '2020-08-01'
+            )
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

@@ -1,7 +1,7 @@
-#standardSQL
+# standardSQL
 # Iframe loading property usage
-# Note: This query only reports if an attribute was ever used on a page. It is not a per iframe report.
-
+# Note: This query only reports if an attribute was ever used on a page. It is not a
+# per iframe report.
 # returns all the data we need from _markup
 CREATE TEMPORARY FUNCTION getIframeMarkupInfo(markup_string STRING)
 RETURNS STRUCT<
@@ -33,33 +33,28 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  loading,
-  total,
-  COUNT(0) AS count,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS device_count,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
+    client,
+    loading,
     total,
-    getIframeMarkupInfo(JSON_EXTRACT_SCALAR(payload, '$._markup')) AS iframe_markup_info
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  JOIN (
-      SELECT
-        _TABLE_SUFFIX,
-        COUNT(0) AS total
-      FROM
-        `httparchive.pages.2021_07_01_*`
-      GROUP BY
-        _TABLE_SUFFIX)
-  USING
-    (_TABLE_SUFFIX)
-),
-UNNEST(iframe_markup_info.loading) AS loading
-GROUP BY
-  total,
-  loading,
-  client
+    count(0) as count,
+    sum(count(0)) over (partition by client) as device_count,
+    safe_divide(count(0), sum(count(0)) over (partition by client)) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            getiframemarkupinfo(
+                json_extract_scalar(payload, '$._markup')
+            ) as iframe_markup_info
+        from `httparchive.pages.2021_07_01_*`
+        join
+            (
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2021_07_01_*`
+                group by _table_suffix
+            ) using (_table_suffix)
+    ),
+    unnest(iframe_markup_info.loading) as loading
+group by total, loading, client

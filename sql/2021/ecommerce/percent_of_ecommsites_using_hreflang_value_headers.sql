@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # page wpt_bodies metrics grouped by device and hreflang value in http headers
 # filter for Ecommerce sites
 # helper to create percent fields
@@ -24,52 +24,40 @@ try {
 } catch (e) {}
 return result;
 ''';
-SELECT
-  client,
-  NORMALIZE_AND_CASEFOLD(hreflang) AS hreflang,
-  total,
-  COUNT(0) AS count,
-  AS_PERCENT(COUNT(0),
-    total) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+select
+    client,
+    normalize_and_casefold(hreflang) as hreflang,
     total,
-    get_wpt_bodies_info(JSON_EXTRACT_SCALAR(payload,
-        '$._wpt_bodies')) AS wpt_bodies_info
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  JOIN (
-    SELECT
-      _TABLE_SUFFIX,
-      url
-    FROM
-      `httparchive.technologies.2021_07_01_*`
-    WHERE
-      category = 'Ecommerce' AND
-      (
-        app != 'Cart Functionality' AND
-        app != 'Google Analytics Enhanced eCommerce'
-      )
-    )
-  USING
-    (_TABLE_SUFFIX,
-      url)
-  JOIN (
-    SELECT
-      _TABLE_SUFFIX,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    GROUP BY
-      _TABLE_SUFFIX) # to get an accurate total of pages per device. also seems fast
-  USING
-    (_TABLE_SUFFIX) ),
-  UNNEST(wpt_bodies_info.hreflangs) AS hreflang
-GROUP BY
-  total,
-  hreflang,
-  client
-ORDER BY
-  count DESC,
-  client DESC
+    count(0) as count,
+    as_percent(count(0), total) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            get_wpt_bodies_info(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as wpt_bodies_info
+        from `httparchive.pages.2021_07_01_*`
+        join
+            (
+                select _table_suffix, url
+                from `httparchive.technologies.2021_07_01_*`
+                where
+                    category = 'Ecommerce'
+                    and (
+                        app != 'Cart Functionality'
+                        and app != 'Google Analytics Enhanced eCommerce'
+                    )
+            ) using (_table_suffix, url)
+        join
+            (
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2021_07_01_*`
+                # to get an accurate total of pages per device. also seems fast
+                group by _table_suffix
+            ) using (_table_suffix)
+    ),
+    unnest(wpt_bodies_info.hreflangs) as hreflang
+group by total, hreflang, client
+order by count desc, client desc

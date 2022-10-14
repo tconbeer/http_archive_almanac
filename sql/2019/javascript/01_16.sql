@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 01_16: Percent of pages that include link[rel=prefetch][as=script]
 CREATE TEMP FUNCTION hasScriptPrefetch(payload STRING)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -12,12 +12,12 @@ RETURNS BOOLEAN LANGUAGE js AS '''
 
 ''';
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(hasScriptPrefetch(payload)) AS num_pages,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(hasScriptPrefetch(payload)) * 100 / COUNT(0), 2) AS pct_script_prefetch
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(hasscriptprefetch(payload)) as num_pages,
+    count(0) as total,
+    round(
+        countif(hasscriptprefetch(payload)) * 100 / count(0), 2
+    ) as pct_script_prefetch
+from `httparchive.pages.2019_07_01_*`
+group by client

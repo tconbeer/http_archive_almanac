@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 CREATE TEMPORARY FUNCTION getGradientUsageBeyondBg(css STRING)
 RETURNS ARRAY<STRING>
 LANGUAGE js
@@ -144,36 +144,25 @@ try {
 }
 ''';
 
-SELECT
-  client,
-  property,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  COUNT(DISTINCT page) / total AS pct
-FROM (
-  SELECT DISTINCT
+select
     client,
-    page,
-    property
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getGradientUsageBeyondBg(css)) AS property
-  WHERE
-    date = '2020-08-01' AND
-    property IS NOT NULL)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  property,
-  total
-ORDER BY
-  pct DESC
+    property,
+    count(distinct page) as pages,
+    total,
+    count(distinct page) / total as pct
+from
+    (
+        select distinct client, page, property
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getgradientusagebeyondbg(css)) as property
+        where date = '2020-08-01' and property is not null
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    ) using (client)
+group by client, property, total
+order by pct desc

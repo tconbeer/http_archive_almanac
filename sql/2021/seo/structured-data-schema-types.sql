@@ -1,7 +1,5 @@
-#standardSQL
+# standardSQL
 # Structured data schema types
-
-
 # returns all the data we need from _wpt_bodies
 CREATE TEMPORARY FUNCTION getStructuredSchemaWptBodies(wpt_bodies_string STRING)
 RETURNS STRUCT<
@@ -24,36 +22,24 @@ try {
 return result;
 ''';
 
-SELECT
-  client,
-  type,
-  total,
-  COUNT(0) AS count,
-  SAFE_DIVIDE(COUNT(0), total) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    total,
-    getStructuredSchemaWptBodies(JSON_EXTRACT_SCALAR(payload,
-        '$._wpt_bodies')) AS structured_schema_wpt_bodies_info
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  JOIN (
-    SELECT
-      _TABLE_SUFFIX,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    GROUP BY
-      _TABLE_SUFFIX)
-  USING
-    (_TABLE_SUFFIX) ),
-  UNNEST(structured_schema_wpt_bodies_info.jsonld_and_microdata_types) AS type
-GROUP BY
-  total,
-  type,
-  client
-HAVING
-  count > 50
-ORDER BY
-  count DESC
+select client, type, total, count(0) as count, safe_divide(count(0), total) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            total,
+            getstructuredschemawptbodies(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as structured_schema_wpt_bodies_info
+        from `httparchive.pages.2021_07_01_*`
+        join
+            (
+                select _table_suffix, count(0) as total
+                from `httparchive.pages.2021_07_01_*`
+                group by _table_suffix
+            ) using (_table_suffix)
+    ),
+    unnest(structured_schema_wpt_bodies_info.jsonld_and_microdata_types) as type
+group by total, type, client
+having count > 50
+order by count desc

@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # 09_11: % pages with headings that skip levels
 CREATE TEMPORARY FUNCTION includesSkippedHeading(headings ARRAY<STRING>)
 RETURNS BOOLEAN LANGUAGE js AS '''
@@ -13,18 +13,22 @@ for (h of headings) {
 return false;
 ''';
 
-SELECT
-  client,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  (SELECT client, page, REGEXP_EXTRACT_ALL(body, '(?i)</h([1-6])>') AS headings FROM `httparchive.almanac.summary_response_bodies` WHERE date = '2019-07-01' AND firstHtml)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (client)
-WHERE
-  includesSkippedHeading(headings)
-GROUP BY
-  client,
-  total
+select
+    client,
+    count(distinct page) as pages,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from
+    (
+        select client, page, regexp_extract_all(body, '(?i)</h([1-6])>') as headings
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+where includesskippedheading(headings)
+group by client, total

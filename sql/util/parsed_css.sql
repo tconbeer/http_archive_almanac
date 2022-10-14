@@ -11,15 +11,6 @@ AS '''
   }
 ''';
 
-SELECT
-  date,
-  client,
-  page,
-  url,
-  parseCSS(body) AS css
-FROM
-  `httparchive.almanac.summary_response_bodies`
-WHERE
-  date = '2020-08-01' AND
-  type = 'css' AND
-  LENGTH(body) < 3 * 1024 * 1024 # 3 MB
+select date, client, page, url, parsecss(body) as css
+from `httparchive.almanac.summary_response_bodies`
+where date = '2020-08-01' and type = 'css' and length(body) < 3 * 1024 * 1024  # 3 MB

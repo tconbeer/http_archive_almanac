@@ -1,4 +1,4 @@
-#standardSQL
+# standardSQL
 # Prevalence of server information headers; count by number of hosts.
 CREATE TEMPORARY FUNCTION hasHeader(headers STRING, headername STRING)
 RETURNS BOOL DETERMINISTIC
@@ -8,30 +8,24 @@ LANGUAGE js AS '''
   return matching_headers.length > 0;
 ''';
 
-SELECT
-  date,
-  client,
-  headername,
-  COUNT(DISTINCT host) AS total_hosts,
-  COUNT(DISTINCT IF(hasHeader(response_headers, headername), host, NULL)) AS count_with_header,
-  COUNT(DISTINCT IF(hasHeader(response_headers, headername), host, NULL)) / COUNT(DISTINCT host) AS pct_with_header
-FROM (
-  SELECT
+select
     date,
     client,
-    NET.HOST(urlShort) AS host,
-    response_headers
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    (date = '2020-08-01' OR date = '2021-07-01')
-),
-UNNEST(['Server', 'X-Server', 'X-Backend-Server', 'X-Powered-By', 'X-Aspnet-Version']) AS headername
-GROUP BY
-  date,
-  client,
-  headername
-ORDER BY
-  date,
-  client,
-  count_with_header DESC
+    headername,
+    count(distinct host) as total_hosts,
+    count(
+        distinct if(hasheader(response_headers, headername), host, null)
+    ) as count_with_header,
+    count(distinct if(hasheader(response_headers, headername), host, null))
+    / count(distinct host) as pct_with_header
+from
+    (
+        select date, client, net.host(urlshort) as host, response_headers
+        from `httparchive.almanac.requests`
+        where (date = '2020-08-01' or date = '2021-07-01')
+    ),
+    unnest(
+        ['Server', 'X-Server', 'X-Backend-Server', 'X-Powered-By', 'X-Aspnet-Version']
+    ) as headername
+group by date, client, headername
+order by date, client, count_with_header desc

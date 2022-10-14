@@ -30,45 +30,36 @@ LANGUAGE js AS """
   }
 """;
 
-WITH
-rendered_data AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    getJSONLDContexts(JSON_EXTRACT(JSON_VALUE(JSON_EXTRACT(payload, '$._structured-data')), '$.structured_data.rendered')) AS jsonld_context
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+with
+    rendered_data as (
+        select
+            _table_suffix as client,
+            url,
+            getjsonldcontexts(
+                json_extract(
+                    json_value(json_extract(payload, '$._structured-data')),
+                    '$.structured_data.rendered'
+                )
+            ) as jsonld_context
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-page_totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-)
+    page_totals as (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
 
-SELECT
-  client,
-  NET.REG_DOMAIN(jsonld_context) AS jsonld_context,
-  COUNT(0) AS freq_jsonld_context,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_jsonld_context,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_jsonld_context,
-  COUNT(DISTINCT url) AS freq_pages,
-  total_pages,
-  COUNT(DISTINCT url) / total_pages AS pct_pages
-FROM
-  rendered_data,
-  UNNEST(jsonld_context) AS jsonld_context
-JOIN
-  page_totals
-USING (client)
-GROUP BY
-  client,
-  jsonld_context,
-  total_pages
-ORDER BY
-  pct_jsonld_context DESC,
-  client
+select
+    client,
+    net.reg_domain(jsonld_context) as jsonld_context,
+    count(0) as freq_jsonld_context,
+    sum(count(0)) over (partition by client) as total_jsonld_context,
+    count(0) / sum(count(0)) over (partition by client) as pct_jsonld_context,
+    count(distinct url) as freq_pages,
+    total_pages,
+    count(distinct url) / total_pages as pct_pages
+from rendered_data, unnest(jsonld_context) as jsonld_context
+join page_totals using (client)
+group by client, jsonld_context, total_pages
+order by pct_jsonld_context desc, client
