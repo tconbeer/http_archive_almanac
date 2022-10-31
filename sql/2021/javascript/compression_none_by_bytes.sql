@@ -1,55 +1,57 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
-RETURNS STRING
-DETERMINISTIC
-LANGUAGE js AS '''
+# standardSQL
+create temporary function getheader(headers string, headername string)
+returns string deterministic
+language js
+as
+    '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   if (matching_headers.length > 0) {
     return matching_headers[0].value;
   }
   return null;
-''';
+'''
+;
 
-SELECT
-  client,
-  host,
-  IF(kbytes < 100, FLOOR(kbytes / 5) * 5, 100) AS kbytes,
-  COUNT(DISTINCT page) AS pages,
-  ANY_VALUE(total_pages) AS total_pages,
-  COUNT(DISTINCT page) / ANY_VALUE(total_pages) AS pct_pages,
-  COUNT(0) AS js_requests,
-  SUM(COUNT(0)) OVER (PARTITION BY client, host) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client, host) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    IF(NET.HOST(url) IN (
-      SELECT domain FROM `httparchive.almanac.third_parties` WHERE date = '2021-07-01' AND category != 'hosting'
-    ), 'third party', 'first party') AS host,
-    respSize / 1024 AS kbytes
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    type = 'script' AND
-    getHeader(JSON_EXTRACT(payload, '$.response.headers'), 'Content-Encoding') IS NULL)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  host,
-  kbytes
-ORDER BY
-  client,
-  host,
-  kbytes
+    host,
+    if(kbytes < 100, floor(kbytes / 5) * 5, 100) as kbytes,
+    count(distinct page) as pages,
+    any_value(total_pages) as total_pages,
+    count(distinct page) / any_value(total_pages) as pct_pages,
+    count(0) as js_requests,
+    sum(count(0)) over (partition by client, host) as total,
+    count(0) / sum(count(0)) over (partition by client, host) as pct
+from
+    (
+        select
+            client,
+            page,
+            if(
+                net.host(url) in (
+                    select domain
+                    from `httparchive.almanac.third_parties`
+                    where date = '2021-07-01' and category != 'hosting'
+                ),
+                'third party',
+                'first party'
+            ) as host,
+            respsize / 1024 as kbytes
+        from `httparchive.almanac.requests`
+        where
+            date = '2021-07-01'
+            and type = 'script'
+            and getheader(
+                json_extract(payload, '$.response.headers'), 'Content-Encoding'
+            )
+            is null
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total_pages
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, host, kbytes
+order by client, host, kbytes

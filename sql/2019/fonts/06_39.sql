@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # 06_39-41: Font formats declared together
-CREATE TEMPORARY FUNCTION getFontFormats(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getfontformats(css string)
+returns array<string>
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -25,24 +28,17 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  formats,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontFormats(css)) AS formats
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  formats
-HAVING
-  formats IS NOT NULL AND
-  formats != ''
-ORDER BY
-  freq / total DESC
+select
+    client,
+    formats,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.parsed_css`, unnest(getfontformats(css)) as formats
+where date = '2019-07-01'
+group by client, formats
+having formats is not null and formats != ''
+order by freq / total desc

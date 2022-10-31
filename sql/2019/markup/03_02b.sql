@@ -1,7 +1,8 @@
-#standardSQL
+# standardSQL
 # 03_02b: Top elements
-CREATE TEMPORARY FUNCTION getElements(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>> LANGUAGE js AS '''
+create temporary function getelements(payload string)
+returns
+    array< struct<name string, freq int64 >> language js as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -10,21 +11,21 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  element.name,
-  SUM(element.freq) AS freq,
-  SUM(SUM(element.freq)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  ROUND(SUM(element.freq) * 100 / SUM(SUM(element.freq)) OVER (PARTITION BY _TABLE_SUFFIX), 2) AS pct
-FROM
-  `httparchive.pages.2019_07_01_*`,
-  UNNEST(getElements(payload)) AS element
-GROUP BY
-  client,
-  element.name
-ORDER BY
-  freq / total DESC,
-  client
-LIMIT 10000
+select
+    _table_suffix as client,
+    element.name,
+    sum(element.freq) as freq,
+    sum(sum(element.freq)) over (partition by _table_suffix) as total,
+    round(
+        sum(element.freq)
+        * 100
+        / sum(sum(element.freq)) over (partition by _table_suffix),
+        2
+    ) as pct
+from `httparchive.pages.2019_07_01_*`, unnest(getelements(payload)) as element
+group by client, element.name
+order by freq / total desc, client
+limit 10000

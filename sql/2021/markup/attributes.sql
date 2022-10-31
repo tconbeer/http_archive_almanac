@@ -1,8 +1,13 @@
-#standardSQL
+# standardSQL
 # pages almanac metrics grouped by device and element attribute use (frequency)
-
-CREATE TEMPORARY FUNCTION get_almanac_attribute_info(almanac_string STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>> LANGUAGE js AS '''
+create temporary function get_almanac_attribute_info(almanac_string string)
+returns
+    array<
+        struct<
+            name string,
+            freq int64 >> language js
+            as
+                '''
 try {
     var almanac = JSON.parse(almanac_string);
 
@@ -16,22 +21,22 @@ try {
 
 }
 return [];
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  almanac_attribute_info.name,
-  SUM(almanac_attribute_info.freq) AS freq, # total count from all pages
-  SUM(SUM(almanac_attribute_info.freq)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  SUM(almanac_attribute_info.freq) / SUM(SUM(almanac_attribute_info.freq)) OVER (PARTITION BY _TABLE_SUFFIX) AS pct_ratio
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(get_almanac_attribute_info(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS almanac_attribute_info
-GROUP BY
-  client,
-  almanac_attribute_info.name
-ORDER BY
-  pct_ratio DESC,
-  client,
-  freq DESC
-LIMIT 1000
+select
+    _table_suffix as client,
+    almanac_attribute_info.name,
+    sum(almanac_attribute_info.freq) as freq,  # total count from all pages
+    sum(sum(almanac_attribute_info.freq)) over (partition by _table_suffix) as total,
+    sum(almanac_attribute_info.freq) / sum(sum(almanac_attribute_info.freq)) over (
+        partition by _table_suffix
+    ) as pct_ratio
+from
+    `httparchive.pages.2021_07_01_*`,
+    unnest(
+        get_almanac_attribute_info(json_extract_scalar(payload, '$._almanac'))
+    ) as almanac_attribute_info
+group by client, almanac_attribute_info.name
+order by pct_ratio desc, client, freq desc
+limit 1000

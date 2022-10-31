@@ -1,106 +1,73 @@
-#standardSQL
+# standardSQL
 # Number of websites that deploy a certain number of trackers
+with
+    whotracksme as (
+        select domain, category, tracker
+        from `httparchive.almanac.whotracksme`
+        where date = '2021-07-01'
+    ),
 
-WITH whotracksme AS (
-  SELECT
-    domain,
-    category,
-    tracker
-  FROM
-    `httparchive.almanac.whotracksme`
-  WHERE
-    date = '2021-07-01'
-),
-
-totals AS (
-  SELECT
-    client,
-    COUNT(DISTINCT page) AS total_websites
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client
-)
-
-SELECT
-  client,
-  'any' AS type,
-  number_of_trackers,
-  COUNT(DISTINCT page) AS number_of_websites,
-  total_websites,
-  COUNT(DISTINCT page) / total_websites AS pct_websites
-FROM (
-  SELECT
-    client,
-    page,
-    COUNT(DISTINCT tracker) AS number_of_trackers
-  FROM
-    `httparchive.almanac.requests`
-  JOIN
-    whotracksme
-  ON (
-    NET.HOST(urlShort) = domain OR
-    ENDS_WITH(NET.HOST(urlShort), CONCAT('.', domain))
-  )
-  WHERE
-    date = '2021-07-01' AND
-    NET.REG_DOMAIN(page) != NET.REG_DOMAIN(urlShort) -- third party
-  GROUP BY
-    client,
-    page
-  )
-JOIN
-  totals
-USING (client)
-GROUP BY
-  client,
-  number_of_trackers,
-  total_websites
-UNION ALL
-SELECT
-  client,
-  'any_tracker' AS type,
-  number_of_trackers,
-  COUNT(DISTINCT page) AS number_of_websites,
-  total_websites,
-  COUNT(DISTINCT page) / total_websites AS pct_websites
-FROM (
-  SELECT
-    client,
-    page,
-    COUNT(DISTINCT tracker) AS number_of_trackers
-  FROM
-    `httparchive.almanac.requests`
-  JOIN
-    whotracksme
-  ON (
-    NET.HOST(urlShort) = domain OR
-    ENDS_WITH(NET.HOST(urlShort), CONCAT('.', domain))
-  )
-  WHERE
-    date = '2021-07-01' AND
-    NET.REG_DOMAIN(page) != NET.REG_DOMAIN(urlShort) AND -- third party
-    (
-      -- categories selected from https://whotracks.me/blog/tracker_categories.html
-      whotracksme.category = 'advertising' OR
-      whotracksme.category = 'pornvertising' OR
-      whotracksme.category = 'site_analytics' OR
-      whotracksme.category = 'social_media'
+    totals as (
+        select client, count(distinct page) as total_websites
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+        group by client
     )
-  GROUP BY
+
+select
     client,
-    page
-  )
-JOIN
-  totals
-USING (client)
-GROUP BY
-  client,
-  number_of_trackers,
-  total_websites
-ORDER BY
-  client,
-  type,
-  number_of_trackers
+    'any' as type,
+    number_of_trackers,
+    count(distinct page) as number_of_websites,
+    total_websites,
+    count(distinct page) / total_websites as pct_websites
+from
+    (
+        select client, page, count(distinct tracker) as number_of_trackers
+        from `httparchive.almanac.requests`
+        join
+            whotracksme
+            on (
+                net.host(urlshort) = domain
+                or ends_with(net.host(urlshort), concat('.', domain))
+            )
+        -- third party
+        where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
+        group by client, page
+    )
+join totals using (client)
+group by client, number_of_trackers, total_websites
+union all
+select
+    client,
+    'any_tracker' as type,
+    number_of_trackers,
+    count(distinct page) as number_of_websites,
+    total_websites,
+    count(distinct page) / total_websites as pct_websites
+from
+    (
+        select client, page, count(distinct tracker) as number_of_trackers
+        from `httparchive.almanac.requests`
+        join
+            whotracksme
+            on (
+                net.host(urlshort) = domain
+                or ends_with(net.host(urlshort), concat('.', domain))
+            )
+        where
+            date = '2021-07-01'
+            and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
+            and (
+                -- categories selected from
+                -- https://whotracks.me/blog/tracker_categories.html
+                whotracksme.category = 'advertising'
+                or whotracksme.category = 'pornvertising'
+                or whotracksme.category = 'site_analytics'
+                or whotracksme.category = 'social_media'
+            )
+        group by client, page
+    )
+join totals using (client)
+group by client, number_of_trackers, total_websites
+order by client, type, number_of_trackers

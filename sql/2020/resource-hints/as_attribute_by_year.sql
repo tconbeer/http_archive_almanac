@@ -1,8 +1,8 @@
-#standardSQL
+# standardSQL
 # 21_03: Attribute popularity for each hint.
-CREATE TEMPORARY FUNCTION getResourceHintAttrs(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
-LANGUAGE js AS '''
+create temporary function getresourcehintattrs(payload string)
+returns
+    array< struct<name string, attribute string, value string >> language js as '''
 var hints = new Set(['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch']);
 var attributes = ['as', 'crossorigin', 'media'];
 try {
@@ -28,40 +28,26 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-WITH pages AS (
-  SELECT
-    _TABLE_SUFFIX,
-    2020 AS year,
-    payload
-  FROM
-    `httparchive.pages.2020_08_01_*`
-  UNION ALL
-  SELECT
-    _TABLE_SUFFIX,
-    2019 AS year,
-    payload
-  FROM
-    `httparchive.pages.2019_07_01_*`
-)
+with
+    pages as (
+        select _table_suffix, 2020 as year, payload
+        from `httparchive.pages.2020_08_01_*`
+        union all
+        select _table_suffix, 2019 as year, payload
+        from `httparchive.pages.2019_07_01_*`
+    )
 
-SELECT
-  year,
-  _TABLE_SUFFIX AS client,
-  IFNULL(NORMALIZE_AND_CASEFOLD(hint.value), 'not set') AS value,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY year, _TABLE_SUFFIX) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY year, _TABLE_SUFFIX) AS pct
-FROM
-  pages,
-  UNNEST(getResourceHintAttrs(payload)) AS hint
-WHERE
-  name IN ('preload', 'prefetch') AND
-  attribute = 'as'
-GROUP BY
-  year,
-  client,
-  value
-ORDER BY
-  pct DESC
+select
+    year,
+    _table_suffix as client,
+    ifnull(normalize_and_casefold(hint.value), 'not set') as value,
+    count(0) as freq,
+    sum(count(0)) over (partition by year, _table_suffix) as total,
+    count(0) / sum(count(0)) over (partition by year, _table_suffix) as pct
+from pages, unnest(getresourcehintattrs(payload)) as hint
+where name in ('preload', 'prefetch') and attribute = 'as'
+group by year, client, value
+order by pct desc

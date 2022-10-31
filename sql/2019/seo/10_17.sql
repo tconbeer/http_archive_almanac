@@ -1,13 +1,11 @@
-#standardSQL
+# standardSQL
 # 10_17: HTTP(S) adoption
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(STARTS_WITH(url, 'https')) AS https,
-  COUNTIF(STARTS_WITH(url, 'http:')) AS http,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(STARTS_WITH(url, 'https')) * 100 / COUNT(0), 2) AS pct_https,
-  ROUND(COUNTIF(STARTS_WITH(url, 'http:')) * 100 / COUNT(0), 2) AS pct_http
-FROM
-  `httparchive.summary_pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(starts_with(url, 'https')) as https,
+    countif(starts_with(url, 'http:')) as http,
+    count(0) as total,
+    round(countif(starts_with(url, 'https')) * 100 / count(0), 2) as pct_https,
+    round(countif(starts_with(url, 'http:')) * 100 / count(0), 2) as pct_http
+from `httparchive.summary_pages.2019_07_01_*`
+group by client

@@ -1,53 +1,39 @@
-#standardSQL
+# standardSQL
 # Image format popularity by CMS
-SELECT
-  client,
-  cms,
-  ANY_VALUE(pages) AS pages,
-  format,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client, cms) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client, cms) AS pct
-FROM (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    url,
-    app AS cms
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'CMS')
-JOIN (
-  SELECT
+select
     client,
-    page AS url,
-    IF(mimeType = 'image/avif', 'avif', IF(mimeType = 'image/webp', 'webp', format)) AS format
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    type = 'image')
-USING
-  (client, url)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    app AS cms,
-    COUNT(DISTINCT url) AS pages
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'CMS'
-  GROUP BY
-    client,
-    cms)
-USING
-  (client, cms)
-WHERE
-  pages > 1000
-GROUP BY
-  client,
-  cms,
-  format
-ORDER BY
-  freq DESC
+    cms,
+    any_value(pages) as pages,
+    format,
+    count(0) as freq,
+    sum(count(0)) over (partition by client, cms) as total,
+    count(0) / sum(count(0)) over (partition by client, cms) as pct
+from
+    (
+        select distinct _table_suffix as client, url, app as cms
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'CMS'
+    )
+join
+    (
+        select
+            client,
+            page as url,
+            if(
+                mimetype = 'image/avif',
+                'avif',
+                if(mimetype = 'image/webp', 'webp', format)
+            ) as format
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and type = 'image'
+    ) using (client, url)
+join
+    (
+        select _table_suffix as client, app as cms, count(distinct url) as pages
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'CMS'
+        group by client, cms
+    ) using (client, cms)
+where pages > 1000
+group by client, cms, format
+order by freq desc

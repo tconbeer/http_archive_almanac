@@ -1,9 +1,14 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getPropertyUnits(css STRING)
-RETURNS ARRAY<STRUCT<property STRING, unit STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getpropertyunits(css string)
+returns
+    array<
+        struct<
+            property string,
+            unit string,
+            freq int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as
+                '''
 try {
   function compute(ast) {
     let ret = {
@@ -94,38 +99,29 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    property,
-    unit,
-    SUM(freq) AS freq,
-    SUM(SUM(freq)) OVER (PARTITION BY client, property) AS total,
-    SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client, property) AS pct
-  FROM (
-    SELECT
-      client,
-      unit.property,
-      unit.unit,
-      unit.freq
-    FROM
-      `httparchive.almanac.parsed_css`,
-      UNNEST(getPropertyUnits(css)) AS unit
-    WHERE
-      date = '2020-08-01' AND
-      # Limit the size of the CSS to avoid OOM crashes.
-      LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client,
-    unit,
-    property)
-WHERE
-  total >= 1000 AND
-  pct >= 0.01
-ORDER BY
-  total DESC,
-  pct DESC
+select *
+from
+    (
+        select
+            client,
+            property,
+            unit,
+            sum(freq) as freq,
+            sum(sum(freq)) over (partition by client, property) as total,
+            sum(freq) / sum(sum(freq)) over (partition by client, property) as pct
+        from
+            (
+                select client, unit.property, unit.unit, unit.freq
+                from
+                    `httparchive.almanac.parsed_css`,
+                    unnest(getpropertyunits(css)) as unit
+                # Limit the size of the CSS to avoid OOM crashes.
+                where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client, unit, property
+    )
+where total >= 1000 and pct >= 0.01
+order by total desc, pct desc

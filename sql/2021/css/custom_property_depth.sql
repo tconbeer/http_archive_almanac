@@ -1,9 +1,13 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCustomPropertyLengths(payload STRING)
-RETURNS ARRAY<STRUCT<depth INT64, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcustompropertylengths(payload string)
+returns
+    array<
+        struct<
+            depth int64,
+            freq int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as
+                '''
 try {
   function compute(vars) {
     function walkElements(node, callback, parent) {
@@ -79,27 +83,26 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  depth,
-  COUNT(DISTINCT url) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    custom_properties.depth,
-    custom_properties.freq
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getCustomPropertyLengths(payload)) AS custom_properties)
-GROUP BY
-  client,
-  depth
-ORDER BY
-  depth,
-  client
+select
+    client,
+    depth,
+    count(distinct url) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            url,
+            custom_properties.depth,
+            custom_properties.freq
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(getcustompropertylengths(payload)) as custom_properties
+    )
+group by client, depth
+order by depth, client

@@ -1,9 +1,13 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getPhysicalProperties(css STRING)
-RETURNS ARRAY<STRUCT<property STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getphysicalproperties(css string)
+returns
+    array<
+        struct<
+            property string,
+            freq int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as
+                '''
 try {
   function compute(ast) {
     let ret = {
@@ -78,35 +82,29 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    property,
-    COUNT(DISTINCT page) AS pages,
-    SUM(freq) AS freq,
-    SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-    SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-  FROM (
-    SELECT
-      client,
-      page,
-      prop.property,
-      prop.freq
-    FROM
-      `httparchive.almanac.parsed_css`,
-      UNNEST(getPhysicalProperties(css)) AS prop
-    WHERE
-      date = '2020-08-01' AND
-      # Limit the size of the CSS to avoid OOM crashes.
-      LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client,
-    property)
-WHERE
-  pct >= 0.01
-ORDER BY
-  pct DESC
+select *
+from
+    (
+        select
+            client,
+            property,
+            count(distinct page) as pages,
+            sum(freq) as freq,
+            sum(sum(freq)) over (partition by client) as total,
+            sum(freq) / sum(sum(freq)) over (partition by client) as pct
+        from
+            (
+                select client, page, prop.property, prop.freq
+                from
+                    `httparchive.almanac.parsed_css`,
+                    unnest(getphysicalproperties(css)) as prop
+                # Limit the size of the CSS to avoid OOM crashes.
+                where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client, property
+    )
+where pct >= 0.01
+order by pct desc

@@ -1,7 +1,8 @@
-#standardSQL
+# standardSQL
 # Most popular accesskey or aria-keyshortcuts keys
-CREATE TEMPORARY FUNCTION getShortcuts(payload STRING)
-RETURNS ARRAY<STRUCT<type STRING, shortcut STRING>> LANGUAGE js AS '''
+create temporary function getshortcuts(payload string)
+returns
+    array< struct<type string, shortcut string >> language js as '''
 try {
   const almanac = JSON.parse(payload);
 
@@ -23,24 +24,20 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  type_and_key.type AS type,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, type) AS total_type_uses,
+select
+    _table_suffix as client,
+    type_and_key.type as type,
+    sum(count(0)) over (partition by _table_suffix, type) as total_type_uses,
 
-  type_and_key.shortcut AS shortcut,
-  COUNT(0) AS total_uses,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX, type) AS pct_of_type_uses
-FROM
-  `httparchive.pages.2020_08_01_*`,
-  UNNEST(getShortcuts(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS type_and_key
-GROUP BY
-  client,
-  type_and_key.type,
-  type_and_key.shortcut
-HAVING
-  total_uses >= 100
-ORDER BY
-  total_uses DESC
+    type_and_key.shortcut as shortcut,
+    count(0) as total_uses,
+    count(0) / sum(count(0)) over (partition by _table_suffix, type) as pct_of_type_uses
+from
+    `httparchive.pages.2020_08_01_*`,
+    unnest(getshortcuts(json_extract_scalar(payload, '$._almanac'))) as type_and_key
+group by client, type_and_key.type, type_and_key.shortcut
+having total_uses >= 100
+order by total_uses desc

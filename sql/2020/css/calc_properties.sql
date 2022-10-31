@@ -1,9 +1,12 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCalcProperties(css STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcalcproperties(css string)
+returns
+    array<
+        struct<
+            name string,
+            freq int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as '''
 try {
   function compute(ast) {
     let ret = {
@@ -62,32 +65,23 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  name,
-  COUNT(DISTINCT url) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    url,
-    prop.name,
-    prop.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getCalcProperties(css)) AS prop
-  WHERE
-    date = '2020-08-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client,
-  name
-HAVING
-  pages >= 100
-ORDER BY
-  pct DESC
+    name,
+    count(distinct url) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, url, prop.name, prop.freq
+        from `httparchive.almanac.parsed_css`, unnest(getcalcproperties(css)) as prop
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+    )
+group by client, name
+having pages >= 100
+order by pct desc

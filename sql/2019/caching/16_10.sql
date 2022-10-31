@@ -1,35 +1,28 @@
-#standardSQL
+# standardSQL
 # 16_10: Use of other Cache-Control directives (e.g., public, private, immutable)
-SELECT
-  client,
-  all_requests,
-  total_using_control,
-  directive,
-  COUNT(0) AS occurrences,
-  ROUND(COUNT(0) * 100 / total_using_control, 2) AS pct_of_control,
-  ROUND(COUNT(0) * 100 / all_requests, 2) AS pct_all_requests
-FROM
-  `httparchive.almanac.requests`,
-  UNNEST(REGEXP_EXTRACT_ALL(LOWER(resp_cache_control), r'([a-z][^,\s="\']*)')) AS directive
-JOIN (
-  SELECT
+select
     client,
-    COUNT(0) AS all_requests,
-    COUNTIF(TRIM(resp_cache_control) != '') AS total_using_control
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    client
-)
-USING (client)
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  all_requests,
-  total_using_control,
-  directive
-ORDER BY
-  occurrences DESC
+    all_requests,
+    total_using_control,
+    directive,
+    count(0) as occurrences,
+    round(count(0) * 100 / total_using_control, 2) as pct_of_control,
+    round(count(0) * 100 / all_requests, 2) as pct_all_requests
+from
+    `httparchive.almanac.requests`,
+    unnest(
+        regexp_extract_all(lower(resp_cache_control), r'([a-z][^,\s="\']*)')
+    ) as directive
+join
+    (
+        select
+            client,
+            count(0) as all_requests,
+            countif(trim(resp_cache_control) != '') as total_using_control
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01'
+        group by client
+    ) using (client)
+where date = '2019-07-01'
+group by client, all_requests, total_using_control, directive
+order by occurrences desc

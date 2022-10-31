@@ -1,7 +1,8 @@
-#standardSQL
+# standardSQL
 # Optimal type used for email and phone inputs
-CREATE TEMPORARY FUNCTION getInputInfo(payload STRING)
-RETURNS ARRAY<STRUCT<detected_type STRING, using_best_type BOOLEAN>> LANGUAGE js AS '''
+create temporary function getinputinfo(payload string)
+returns
+    array< struct<detected_type string, using_best_type boolean >> language js as '''
   const new_line_regex = new RegExp('(?:\\r\\n|\\r|\\n)', 'g');
   function isFuzzyMatch(value, options) {
     value = value.replace(new_line_regex, '').trim().toLowerCase();
@@ -64,42 +65,46 @@ RETURNS ARRAY<STRUCT<detected_type STRING, using_best_type BOOLEAN>> LANGUAGE js
   } catch (e) {
     return [];
   }
-''';
+'''
+;
 
-SELECT
-  input_info.detected_type AS detected_type,
-  # is the input field using the best "type" attribute? E.g., type=email for an email
-  input_info.using_best_type AS using_best_type_attr,
+select
+    input_info.detected_type as detected_type,
+    # is the input field using the best "type" attribute? E.g., type=email for an email
+    input_info.using_best_type as using_best_type_attr,
 
-  # How many times an input requesting this type of data (email or phone) occurs
-  total_type_occurences,
-  # How many sites have an input requesting this type of data (email or phone)
-  total_pages_with_type,
-
-  COUNT(0) AS total,
-  COUNT(DISTINCT url) AS total_pages,
-
-  COUNT(0) / total_type_occurences AS pct_inputs,
-  COUNT(DISTINCT url) / total_pages_with_type AS pct_pages
-FROM
-  `httparchive.pages.2021_07_01_mobile`,
-  UNNEST(getInputInfo(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS input_info
-LEFT JOIN (
-  SELECT
-    input_info.detected_type AS detected_type,
     # How many times an input requesting this type of data (email or phone) occurs
-    COUNT(0) AS total_type_occurences,
+    total_type_occurences,
     # How many sites have an input requesting this type of data (email or phone)
-    COUNT(DISTINCT url) AS total_pages_with_type
-  FROM
+    total_pages_with_type,
+
+    count(0) as total,
+    count(distinct url) as total_pages,
+
+    count(0) / total_type_occurences as pct_inputs,
+    count(distinct url) / total_pages_with_type as pct_pages
+from
     `httparchive.pages.2021_07_01_mobile`,
-    UNNEST(getInputInfo(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS input_info
-  GROUP BY
-    input_info.detected_type
-)
-USING (detected_type)
-GROUP BY
-  input_info.detected_type,
-  input_info.using_best_type,
-  total_type_occurences,
-  total_pages_with_type
+    unnest(getinputinfo(json_extract_scalar(payload, '$._almanac'))) as input_info
+left join
+    (
+        select
+            input_info.detected_type as detected_type,
+            # How many times an input requesting this type of data (email or phone)
+            # occurs
+            count(0) as total_type_occurences,
+            # How many sites have an input requesting this type of data (email or
+            # phone)
+            count(distinct url) as total_pages_with_type
+        from
+            `httparchive.pages.2021_07_01_mobile`,
+            unnest(
+                getinputinfo(json_extract_scalar(payload, '$._almanac'))
+            ) as input_info
+        group by input_info.detected_type
+    ) using (detected_type)
+group by
+    input_info.detected_type,
+    input_info.using_best_type,
+    total_type_occurences,
+    total_pages_with_type
