@@ -1,6 +1,14 @@
-CREATE TEMPORARY FUNCTION getPixelInfo(responsiveImagesJsonString STRING)
-RETURNS ARRAY<STRUCT<imgURL STRING, approximateResourceWidth INT64, approximateResourceHeight INT64, byteSize INT64, isPixel BOOL, isDataURL BOOL>>
-LANGUAGE js AS '''
+create temporary function getpixelinfo(responsiveimagesjsonstring string)
+returns
+    array<
+        struct<
+            imgurl string,
+            approximateresourcewidth int64,
+            approximateresourceheight int64,
+            bytesize int64,
+            ispixel bool,
+            isdataurl bool >> language js
+            as '''
 const parsed = JSON.parse(responsiveImagesJsonString);
 if (parsed && parsed.map) {
   const dataRegEx = new RegExp('^data');
@@ -9,7 +17,8 @@ if (parsed && parsed.map) {
     isDataURL: dataRegEx.test(d.url)
   }));
 }
-''';
+'''
+;
 
 with
     imgs as (

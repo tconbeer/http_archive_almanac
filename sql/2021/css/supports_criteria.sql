@@ -1,9 +1,9 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getSupports(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getsupports(css string)
+returns array<string>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {};
@@ -44,7 +44,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

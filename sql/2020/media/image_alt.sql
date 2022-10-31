@@ -1,13 +1,10 @@
 # standardSQL
 # usage of alt text in images
 # returns all the data we need from _markup
-CREATE TEMPORARY FUNCTION get_markup_info(markup_string STRING)
-RETURNS STRUCT<
-  total INT64,
-  alt_missing INT64,
-  alt_blank INT64,
-  alt_present INT64
-> LANGUAGE js AS '''
+create temporary function get_markup_info(markup_string string)
+returns struct<total int64, alt_missing int64, alt_blank int64, alt_present int64>
+language js
+as '''
 var result = {};
 try {
     var markup = JSON.parse(markup_string);
@@ -21,7 +18,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

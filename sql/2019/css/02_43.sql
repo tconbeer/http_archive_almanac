@@ -1,9 +1,9 @@
 # standardSQL
 # 02_43: % of sites that use [id="foo"] selectors
-CREATE TEMPORARY FUNCTION getAttributeSelectorType(css STRING)
-RETURNS STRUCT<`=` BOOLEAN, `*=` BOOLEAN, `^=` BOOLEAN, `$=` BOOLEAN, `~=` BOOLEAN>
-LANGUAGE js
-AS '''
+create temporary function getattributeselectortype(css string)
+returns struct<`=` boolean, `*=` boolean, `^=` boolean, `$=` boolean, `~=` boolean>
+language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -28,7 +28,8 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
 select
     client,

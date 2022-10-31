@@ -1,8 +1,11 @@
 # Sheet: CSS Ruby
 # standardSQL
 # Adoption of CSS Ruby
-CREATE TEMPORARY FUNCTION usesRuby(css STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function usesruby(css string)
+returns boolean
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -23,7 +26,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select client, countif(uses_ruby) as freq, total, countif(uses_ruby) / total as pct
 from

@@ -1,7 +1,10 @@
 # standardSQL
 # Percent of pages that use @property
 # https://developer.mozilla.org/en-US/docs/Web/CSS/@property
-CREATE TEMP FUNCTION countAtProperties(css STRING) RETURNS ARRAY<INT64> LANGUAGE js AS '''
+create temp function countatproperties(css string)
+returns array<int64>
+language js
+as '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {
@@ -15,7 +18,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

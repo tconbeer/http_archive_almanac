@@ -2,13 +2,17 @@
 # percientile data from almanac per device
 # live run estimated $4.08 and took 2 min 28 sec
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_info(almanac_string STRING)
-RETURNS STRUCT<
-  scripts_total INT64,
-  none_jsonld_scripts_total INT64,
-  src_scripts_total INT64,
-  inline_scripts_total INT64
-> LANGUAGE js AS '''
+create temporary function get_almanac_info(almanac_string string)
+returns
+    struct<
+        scripts_total int64,
+        none_jsonld_scripts_total int64,
+        src_scripts_total int64,
+        inline_scripts_total int64
+    >
+language js
+as
+    '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -27,7 +31,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     percentile,

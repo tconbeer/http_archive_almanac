@@ -1,6 +1,9 @@
 # standardSQL
 # Most popular custom property names as a percent of pages.
-CREATE TEMPORARY FUNCTION getCustomPropertyNames(payload STRING) RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getcustompropertynames(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var vars = JSON.parse($['_css-variables']);
@@ -8,7 +11,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client, name, count(distinct url) as freq, total, count(distinct url) / total as pct

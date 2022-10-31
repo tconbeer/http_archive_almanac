@@ -2,10 +2,11 @@
 # Anchor rel attribute usage
 # Note: this query only reports if a rel attribute value was ever used on a page. It
 # is not a per anchor report.
-CREATE TEMPORARY FUNCTION getRelStatsWptBodies(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  rel ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function getrelstatswptbodies(wpt_bodies_string string)
+returns struct<rel array<string>>
+language js
+as
+    '''
 var result = {};
 //Function to retrieve only keys if value is >0
 function getKey(dict){
@@ -26,7 +27,8 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select client, rel, total, count(0) as count, safe_divide(count(0), total) as pct
 from

@@ -1,9 +1,12 @@
 # standardSQL
 # 09_15: % pages using duplicate aria-keyshortcuts, accesskey attrs
-CREATE TEMPORARY FUNCTION hasDuplicates(values ARRAY<STRING>)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function hasduplicates(values array<string>)
+returns boolean
+language js
+as '''
 return values.length != new Set(values).size;
-''';
+'''
+;
 
 select
     client,

@@ -1,13 +1,17 @@
 # standardSQL
 # Most popular custom property values as a percent of pages.
-CREATE TEMPORARY FUNCTION getCustomPropertyValues(json STRING) RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getcustompropertyvalues(json string)
+returns array<string>
+language js
+as '''
 try {
   var vars = JSON.parse(json);
   return Object.values(vars.summary).map(val => val.set[0].value)
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

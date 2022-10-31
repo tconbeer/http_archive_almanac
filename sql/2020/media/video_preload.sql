@@ -1,11 +1,11 @@
 # standardSQL
 # video preload
 # returns all the data we need from _media
-CREATE TEMPORARY FUNCTION get_media_info(media_string STRING)
-RETURNS STRUCT<
-  num_video_nodes INT64,
-  video_nodes_attributes ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function get_media_info(media_string string)
+returns struct<num_video_nodes int64, video_nodes_attributes array<string>>
+language js
+as
+    '''
 var result = {};
 try {
     var media = JSON.parse(media_string);
@@ -29,7 +29,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

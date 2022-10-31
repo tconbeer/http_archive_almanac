@@ -1,14 +1,17 @@
 # standardSQL
 # 11_04b: Manifests that are not JSON parsable
-CREATE TEMPORARY FUNCTION canParseManifest(manifest STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function canparsemanifest(manifest string)
+returns boolean
+language js
+as '''
 try {
   JSON.parse(manifest);
   return true;
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

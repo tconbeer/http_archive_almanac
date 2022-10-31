@@ -1,6 +1,11 @@
-CREATE TEMPORARY FUNCTION getPictureSwitching(payload STRING)
-RETURNS ARRAY<STRUCT<pictureMediaSwitching BOOLEAN, pictureTypeSwitching BOOLEAN>>
-LANGUAGE js AS '''
+create temporary function getpictureswitching(payload string)
+returns
+    array<
+        struct<
+            picturemediaswitching boolean,
+            picturetypeswitching boolean >> language js
+            as
+                '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);
@@ -13,7 +18,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

@@ -1,6 +1,16 @@
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload INT64, prefetch INT64, preconnect INT64, prerender INT64, `dns-prefetch` INT64, `modulepreload` INT64>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns
+    struct<
+        preload int64,
+        prefetch int64,
+        preconnect int64,
+        prerender int64,
+        `dns-prefetch` int64,
+        `modulepreload` int64
+    >
+language js
+as
+    '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 try {
   var $ = JSON.parse(payload);
@@ -17,11 +27,19 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION getGoodCwv(payload STRING)
-RETURNS STRUCT<cumulative_layout_shift BOOLEAN, first_contentful_paint BOOLEAN, first_input_delay BOOLEAN, largest_contentful_paint BOOLEAN>
-LANGUAGE js AS '''
+create temporary function getgoodcwv(payload string)
+returns
+    struct<
+        cumulative_layout_shift boolean,
+        first_contentful_paint boolean,
+        first_input_delay boolean,
+        largest_contentful_paint boolean
+    >
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var crux = $._CrUX;
@@ -37,7 +55,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     device,

@@ -3,14 +3,18 @@
 # this query aims to highlight sites with few same site links, like SPAs
 # TODO: this query may tell a better story if we use quantiles for links_same_site as
 # that would allow us to truly compare low-a-linking sites verse high-a-linking sites.
-CREATE TEMPORARY FUNCTION getLinkDesciptionsWptBodies(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  links_same_site INT64,
-  links_window_location INT64,
-  links_window_open INT64,
-  links_href_javascript INT64
+create temporary function getlinkdesciptionswptbodies(wpt_bodies_string string)
+returns
+    struct<
+        links_same_site int64,
+        links_window_location int64,
+        links_window_open int64,
+        links_href_javascript int64
 
-> LANGUAGE js AS '''
+    >
+language js
+as
+    '''
 var result = {};
 try {
   var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -29,7 +33,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

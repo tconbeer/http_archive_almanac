@@ -1,14 +1,16 @@
 # standardSQL
 # page almanac favicon image types grouped by device and type M217
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_info(almanac_string STRING)
-RETURNS STRUCT<
-  image_type_extension STRING
-> LANGUAGE js AS '''
+create temporary function get_almanac_info(almanac_string string)
+returns struct<image_type_extension string>
+language js
+as
+    '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -48,7 +50,8 @@ try {
 
 } catch (e) {result.image_type_extension = "NO_DATA";}
 return result;
-''';
+'''
+;
 
 select
     client,

@@ -1,7 +1,10 @@
 # standardSQL
 # 02_35: Distribution of duplicate font-family values per page
-CREATE TEMPORARY FUNCTION getFonts(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getfonts(css string)
+returns array<string>
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -18,7 +21,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

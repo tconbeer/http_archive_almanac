@@ -1,8 +1,18 @@
 # standardSQL
 # How many radios and checkboxes are there. How many of those inputs are correctly
 # placed in a fieldset with a legend?
-CREATE TEMPORARY FUNCTION totalCheckboxAndRadio(payload STRING)
-RETURNS STRUCT<radios INT64, checkboxes INT64, radios_in_fieldsets INT64, checkboxes_in_fieldsets INT64, checkboxes_in_fieldset_with_legend INT64, radios_in_fieldset_with_legend INT64> LANGUAGE js AS '''
+create temporary function totalcheckboxandradio(payload string)
+returns
+    struct<
+        radios int64,
+        checkboxes int64,
+        radios_in_fieldsets int64,
+        checkboxes_in_fieldsets int64,
+        checkboxes_in_fieldset_with_legend int64,
+        radios_in_fieldset_with_legend int64
+    >
+language js
+as '''
   try {
     const a11y = JSON.parse(payload);
 
@@ -37,7 +47,8 @@ RETURNS STRUCT<radios INT64, checkboxes INT64, radios_in_fieldsets INT64, checkb
       radios_in_fieldset_with_legend: 0,
     };
   }
-''';
+'''
+;
 
 select
     client,

@@ -1,7 +1,9 @@
 # standardSQL
 # List of the top used response headers
-CREATE TEMPORARY FUNCTION extractHTTPHeaders(HTTPheaders STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS """
+create temporary function extracthttpheaders(httpheaders string)
+returns array<string>
+language js
+as """
 try {
   var headers = JSON.parse(HTTPheaders);
 
@@ -12,7 +14,8 @@ try {
 } catch (e) {
   return "";
 }
-""";
+"""
+;
 
 select client, header, count(0) as num_requests, total, count(0) / total as pct
 from

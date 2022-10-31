@@ -1,7 +1,9 @@
 # standardSQL
 # Popular mobile input types
-CREATE TEMPORARY FUNCTION getInputTypes(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getinputtypes(payload string)
+returns array<string>
+language js
+as '''
 try {
   const almanac = JSON.parse(payload);
   return almanac.input_elements.nodes.map(function(node) {
@@ -14,7 +16,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     total_pages_with_inputs,

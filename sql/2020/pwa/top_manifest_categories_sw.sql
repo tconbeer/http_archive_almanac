@@ -1,7 +1,9 @@
 # standardSQL
 # Top manifest categories - based on 2019/14_04d.sql
-CREATE TEMPORARY FUNCTION getCategories(manifest STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getcategories(manifest string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(manifest);
   var categories = $.categories;
@@ -12,7 +14,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     client,

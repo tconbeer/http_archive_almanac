@@ -1,9 +1,14 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getShorthandValueCounts(css STRING)
-RETURNS ARRAY<STRUCT<property STRING, values ARRAY<INT64>>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getshorthandvaluecounts(css string)
+returns
+    array<
+        struct<
+            property string,
+            values array<int64 >>>
+            language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as
+                '''
 try {
   function compute(ast) {
     let ret = {
@@ -442,7 +447,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     percentile,

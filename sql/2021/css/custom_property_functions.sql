@@ -1,9 +1,10 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getCustomPropertyFunctions(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getcustompropertyfunctions(css string)
+returns array<string>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let ret = {
@@ -85,7 +86,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

@@ -1,15 +1,32 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
-RETURNS STRUCT<
-  class ARRAY<STRUCT<name STRING, value INT64>>,
-  id ARRAY<STRUCT<name STRING, value INT64>>,
-  attribute ARRAY<STRUCT<name STRING, value INT64>>,
-  pseudo_class ARRAY<STRUCT<name STRING, value INT64>>,
-  pseudo_element ARRAY<STRUCT<name STRING, value INT64>>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getselectorparts(css string)
+returns
+    struct<
+        class array<
+            struct<
+                name string,
+                value int64 >>,
+                id array<
+                    struct<
+                        name string,
+                        value int64 >>,
+                        attribute array<
+                            struct<
+                                name string,
+                                value int64 >>,
+                                pseudo_class array<
+                                    struct<
+                                        name string,
+                                        value int64 >>,
+                                        pseudo_element array<
+                                            struct<name string, value int64 >>>
+                                            language js
+                                            options
+                                                (
+                                                    library
+                                                    = "gs://httparchive/lib/css-utils.js"
+                                                )
+                                            as '''
 try {
   function compute(ast) {
     let ret = {
@@ -55,15 +72,18 @@ try {
 } catch (e) {
   return {class: [{name: e, value: 0}]};
 }
-''';
+'''
+;
 
 # https://www.stevenmoseley.com/blog/tech/high-performance-sql-correlated-scalar-aggregate-reduction-queries
-CREATE TEMPORARY FUNCTION encode(comparator STRING, data STRING) RETURNS STRING AS (
-  CONCAT(LPAD(comparator, 11, '0'), data)
-);
-CREATE TEMPORARY FUNCTION decode(value STRING) RETURNS STRING AS (
-  SUBSTR(value, 12)
-);
+create temporary function encode(comparator string, data string)
+returns string
+as (concat(lpad(comparator, 11, '0'), data))
+;
+create temporary function decode(value string)
+returns string
+as (substr(value, 12))
+;
 
 with
     selector_parts as (

@@ -1,9 +1,9 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getVendorPrefixPseudoElements(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getvendorprefixpseudoelements(css string)
+returns array<string>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -78,7 +78,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select *
 from

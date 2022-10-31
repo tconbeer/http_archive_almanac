@@ -1,13 +1,16 @@
 # standardSQL
 # 11_04: Top 500 manifest properties
-CREATE TEMPORARY FUNCTION getManifestProps(manifest STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getmanifestprops(manifest string)
+returns array<string>
+language js
+as '''
 try {
   return Object.keys(JSON.parse(manifest));
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     client,

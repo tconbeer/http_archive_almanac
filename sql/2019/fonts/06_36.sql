@@ -1,7 +1,10 @@
 # standardSQL
 # 06_36-38: Top declared font formats
-CREATE TEMPORARY FUNCTION getFontFormats(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getfontformats(css string)
+returns array<string>
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -27,7 +30,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

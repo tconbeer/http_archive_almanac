@@ -1,9 +1,13 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getGlobalKeywords(css STRING)
-RETURNS ARRAY<STRUCT<property STRING, keyword STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getglobalkeywords(css string)
+returns
+    array<
+        struct<
+            property string,
+            keyword string,
+            freq int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as '''
 try {
   function compute(ast) {
     let ret = {};
@@ -37,7 +41,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select *, pages / total_pages as pct_pages
 from

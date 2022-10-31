@@ -1,8 +1,10 @@
 # standardSQL
 # frequency of the number of element types used on a page
 # returns all the data we need from _element_count
-CREATE TEMPORARY FUNCTION get_element_type_COUNT(element_count_string STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function get_element_type_count(element_count_string string)
+returns int64
+language js
+as '''
 try {
     if (!element_count_string) return null;
 
@@ -14,7 +16,8 @@ try {
 
 } catch (e) {}
 return null;
-''';
+'''
+;
 
 select
     _table_suffix as client,

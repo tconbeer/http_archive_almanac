@@ -1,7 +1,9 @@
 # standardSQL
 # 03_02a: % of pages having elements
-CREATE TEMPORARY FUNCTION getElements(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getelements(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -10,7 +12,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

@@ -19,11 +19,29 @@
 # 0xD001 TLS_ECDHE_PSK_WITH_AES_128_GCM_SHA256
 # 0xD002 TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384
 # 0xD005 TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256
-CREATE TEMPORARY FUNCTION isModern(cipher STRING) RETURNS BOOLEAN AS (
-  cipher IN ('1301', '1302', '1303', '1304', '1305',
-    'C02B', 'C02C', 'C02F', 'C030', 'CCA8', 'CCA9',
-    'CCAC', 'D001', 'D002', 'D005')
-);
+create temporary function ismodern(cipher string)
+returns boolean
+as
+    (
+        cipher in (
+            '1301',
+            '1302',
+            '1303',
+            '1304',
+            '1305',
+            'C02B',
+            'C02C',
+            'C02F',
+            'C030',
+            'CCA8',
+            'CCA9',
+            'CCAC',
+            'D001',
+            'D002',
+            'D005'
+        )
+    )
+;
 
 select
     client,

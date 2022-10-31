@@ -1,9 +1,10 @@
 # standardSQL
 # pages markup metrics grouped by device and form type
 # returns number of forms
-CREATE TEMPORARY FUNCTION get_forms_count(markup_string STRING)
-RETURNS INT64
-LANGUAGE js AS '''
+create temporary function get_forms_count(markup_string string)
+returns int64
+language js
+as '''
 try {
   var markup = JSON.parse(markup_string);
 
@@ -13,7 +14,8 @@ try {
 } catch (e) {
   return 0;
 }
-''';
+'''
+;
 
 select
     client,

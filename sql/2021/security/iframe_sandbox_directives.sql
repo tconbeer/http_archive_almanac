@@ -1,13 +1,21 @@
 # standardSQL
 # usage of different directives for sandbox attribute on iframes
-CREATE TEMP FUNCTION getNumWithSandboxAttribute(payload STRING) AS ((
-  SELECT
-    COUNT(0)
-  FROM
-    UNNEST(JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.iframe-allow-sandbox')) AS iframeAttr
-  WHERE
-    JSON_EXTRACT_SCALAR(iframeAttr, '$.sandbox') IS NOT NULL
-));
+create temp function getnumwithsandboxattribute(payload string)
+as
+    (
+        (
+            select count(0)
+            from
+                unnest(
+                    json_extract_array(
+                        json_extract_scalar(payload, '$._security'),
+                        '$.iframe-allow-sandbox'
+                    )
+                ) as iframeattr
+            where json_extract_scalar(iframeattr, '$.sandbox') is not null
+        )
+    )
+;
 
 select
     client,

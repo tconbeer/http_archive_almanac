@@ -1,7 +1,9 @@
 # standardSQL
 # 02_06: % of sites that use each color format
-CREATE TEMPORARY FUNCTION getColorFormats(css STRING)
-RETURNS STRUCT<hsl BOOLEAN, hsla BOOLEAN, rgb BOOLEAN, rgba BOOLEAN, hex BOOLEAN> LANGUAGE js AS '''
+create temporary function getcolorformats(css string)
+returns struct<hsl boolean, hsla boolean, rgb boolean, rgba boolean, hex boolean>
+language js
+as '''
 try {
   var getColorFormat = (value) => {
     value = value.toLowerCase();
@@ -44,7 +46,8 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
 select
     client,

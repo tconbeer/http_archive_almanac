@@ -1,7 +1,10 @@
 # standardSQL
 # 02_05: % of sites that use logical properties
-CREATE TEMPORARY FUNCTION usesLogicalProps(css STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function useslogicalprops(css string)
+returns boolean
+language js
+as
+    '''
 try {
   var isLogicalProperty = (prop) => {
     prop = prop.toLowerCase();
@@ -28,7 +31,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

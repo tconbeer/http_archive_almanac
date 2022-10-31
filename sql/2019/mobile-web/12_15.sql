@@ -1,7 +1,9 @@
 # standardSQL
 # input attributes occurence defined set % (minus placeholder and required)
-CREATE TEMPORARY FUNCTION getInputStats(payload STRING)
-RETURNS STRUCT<has_advanced_attributes BOOLEAN, total_inputs INT64> LANGUAGE js AS '''
+create temporary function getinputstats(payload string)
+returns struct<has_advanced_attributes boolean, total_inputs int64>
+language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -25,7 +27,8 @@ RETURNS STRUCT<has_advanced_attributes BOOLEAN, total_inputs INT64> LANGUAGE js 
       total_inputs: 0
     };
   }
-''';
+'''
+;
 
 select
     count(0) as count,

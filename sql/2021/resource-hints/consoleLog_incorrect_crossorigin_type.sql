@@ -1,13 +1,17 @@
 # standardSQL
 # returns the file types for preload tags without the required crossorigin attribute
 # helper to convert the href into a type
-CREATE TEMPORARY FUNCTION getType (href STRING) RETURNS STRING AS (
-  IF(
-    REGEXP_CONTAINS(href, r'fonts\.googleapis\.com'),
-    'fonts.googleapis.com',
-    TRIM(TRIM(REGEXP_EXTRACT(href, r'\.[0-9a-z]+(?:[\?#]|$)'), '?'), '#')
-  )
-);
+create temporary function gettype(href string)
+returns string
+as
+    (
+        if(
+            regexp_contains(href, r'fonts\.googleapis\.com'),
+            'fonts.googleapis.com',
+            trim(trim(regexp_extract(href, r'\.[0-9a-z]+(?:[\?#]|$)'), '?'), '#')
+        )
+    )
+;
 
 select
     client,

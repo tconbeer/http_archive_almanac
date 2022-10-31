@@ -1,10 +1,10 @@
 # standardSQL
 # meta open graph video types
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_meta_og_video_types(almanac_string STRING)
-RETURNS STRUCT<
-  video_types ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function get_meta_og_video_types(almanac_string string)
+returns struct<video_types array<string>>
+language js
+as '''
 var result = {};
 try {
     var almanac = JSON.parse(almanac_string);
@@ -27,7 +27,8 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

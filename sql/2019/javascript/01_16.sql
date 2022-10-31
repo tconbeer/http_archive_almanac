@@ -1,7 +1,10 @@
 # standardSQL
 # 01_16: Percent of pages that include link[rel=prefetch][as=script]
-CREATE TEMP FUNCTION hasScriptPrefetch(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temp function hasscriptprefetch(payload string)
+returns boolean
+language js
+as
+    '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -10,7 +13,8 @@ RETURNS BOOLEAN LANGUAGE js AS '''
     return false;
   }
 
-''';
+'''
+;
 
 select
     _table_suffix as client,

@@ -1,8 +1,10 @@
 # standardSQL
 # 09_35: % of pages with distracting UX (marquee/blink elements, or
 # animation-iteration-count: infinite)
-CREATE TEMPORARY FUNCTION includesInfiniteAnimation(css STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function includesinfiniteanimation(css string)
+returns boolean
+language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if (values) {
@@ -24,9 +26,12 @@ try {
 } catch (e) {
   return false;
 }
-''';
-CREATE TEMPORARY FUNCTION includesMotionElement(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+'''
+;
+create temporary function includesmotionelement(payload string)
+returns boolean
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -35,7 +40,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

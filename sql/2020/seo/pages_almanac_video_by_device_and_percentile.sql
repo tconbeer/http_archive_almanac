@@ -2,10 +2,10 @@
 # percientile data from almanac per device for video tags - only taking into account
 # pages that have at least one video
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_info(almanac_string STRING)
-RETURNS STRUCT<
-  videos_total INT64
-> LANGUAGE js AS '''
+create temporary function get_almanac_info(almanac_string string)
+returns struct<videos_total int64>
+language js
+as '''
 var result = {
   videos_total: 0
 };
@@ -19,7 +19,8 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     percentile,

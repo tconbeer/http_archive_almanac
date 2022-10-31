@@ -4,23 +4,27 @@
 # https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/IAB%20Tech%20Lab%20-%20CMP%20API%20v2.md#tcdata
 # https://stackoverflow.com/a/65054751/7391782
 # Warning: fails if there are colons in the keys/values, but these are not expected
-CREATE TEMPORARY FUNCTION ExtractKeyValuePairs(input STRING) RETURNS ARRAY < STRUCT < key STRING,
-  value STRING > > AS (
-  (
-    SELECT
-      array(
-        SELECT AS STRUCT
-          trim(split(kv, ':') [SAFE_OFFSET(0)]) AS key,
-          trim(split(kv, ':') [SAFE_OFFSET(1)]) AS value
-        FROM
-          t.kv
-      )
-    FROM
-      UNNEST(
-        [STRUCT(SPLIT(TRANSLATE(input, '{}"', '')) AS kv)]
-      ) t
-  )
-);
+create temporary function extractkeyvaluepairs(input string)
+returns
+    array <
+        struct <
+            key string,
+            value string > >
+            as
+                (
+                    (
+                        select
+                            array(
+                                select as struct
+                                    trim(split(kv, ':')[safe_offset(0)]) as key,
+                                    trim(split(kv, ':')[safe_offset(1)]) as value
+                                from t.kv
+                            )
+                        from
+                            unnest([struct(split(translate(input, '{}"', '')) as kv)]) t
+                    )
+                )
+;
 
 with
     pages_iab_tcf_v2 as (

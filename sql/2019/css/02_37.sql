@@ -1,7 +1,10 @@
 # standardSQL
 # 02_37: Distribution of unique z-index values per page
-CREATE TEMPORARY FUNCTION getZIndexValues(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getzindexvalues(css string)
+returns array<string>
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -18,7 +21,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

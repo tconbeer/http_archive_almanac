@@ -2,10 +2,10 @@
 # get all pages with video nodes
 # along with all pages with video js files
 # check if video js is imported when a page has a video element or not
-CREATE TEMPORARY FUNCTION get_media_info(media_string STRING)
-RETURNS STRUCT<
-  num_video_nodes INT64
-> LANGUAGE js AS '''
+create temporary function get_media_info(media_string string)
+returns struct<num_video_nodes int64>
+language js
+as '''
 var result = {};
 try {
     var media = JSON.parse(media_string);
@@ -16,7 +16,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

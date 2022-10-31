@@ -1,7 +1,10 @@
 # standardSQL
 # 03_01a: % of pages with deprecated elements
-CREATE TEMPORARY FUNCTION containsDeprecatedElement(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function containsdeprecatedelement(payload string)
+returns boolean
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count)
@@ -12,7 +15,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

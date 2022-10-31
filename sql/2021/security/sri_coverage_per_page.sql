@@ -1,9 +1,16 @@
 # standardSQL
 # Subresource integrity: percentage of scripts on a page that have the integrity
 # attribute
-CREATE TEMP FUNCTION getNumScriptElements(sris ARRAY<STRING>) AS (
-  (SELECT COUNT(0) FROM UNNEST(sris) AS sri WHERE JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'script')
-);
+create temp function getnumscriptelements(sris array<string>)
+as
+    (
+        (
+            select count(0)
+            from unnest(sris) as sri
+            where json_extract_scalar(sri, '$.tagname') = 'script'
+        )
+    )
+;
 
 select
     client,

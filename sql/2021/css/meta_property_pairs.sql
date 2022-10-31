@@ -1,9 +1,13 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getPropertyPairs(css STRING)
-RETURNS ARRAY<STRUCT<pair STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getpropertypairs(css string)
+returns
+    array<
+        struct<
+            pair string,
+            freq int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as
+                '''
 try {
   function compute(ast) {
     let usedTogether = {};
@@ -83,7 +87,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

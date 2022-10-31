@@ -1,17 +1,21 @@
 # standardSQL
 # Markup stats
 # returns all the data we need from _markup
-CREATE TEMPORARY FUNCTION getMarkupStatsInfo(markup_string STRING)
-RETURNS STRUCT<
-  images_img_total INT64,
-  images_alt_missing_total INT64,
-  images_alt_blank_total INT64,
-  images_alt_present_total INT64,
+create temporary function getmarkupstatsinfo(markup_string string)
+returns
+    struct<
+        images_img_total int64,
+        images_alt_missing_total int64,
+        images_alt_blank_total int64,
+        images_alt_present_total int64,
 
-  has_html_amp_attribute BOOL,
-  has_rel_amphtml_tag BOOL,
-  has_html_amp_emoji_attribute BOOL
-> LANGUAGE js AS '''
+        has_html_amp_attribute bool,
+        has_rel_amphtml_tag bool,
+        has_html_amp_emoji_attribute bool
+    >
+language js
+as
+    '''
 var result = {
   images_img_total: 0,
   images_alt_missing_total: 0,
@@ -47,7 +51,8 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

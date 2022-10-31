@@ -1,6 +1,7 @@
-CREATE TEMPORARY FUNCTION fixFormat(format STRING, mimeType STRING)
-RETURNS STRING
-LANGUAGE js AS '''
+create temporary function fixformat(format string, mimetype string)
+returns string
+language js
+as '''
 if (mimeType === "image/avif") {
   return "avif";
 } else if (mimeType === "image/webp" || format==="webp") {
@@ -8,7 +9,8 @@ if (mimeType === "image/avif") {
 } else {
   return format;
 }
-''';
+'''
+;
 
 select
     client,

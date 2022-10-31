@@ -1,7 +1,13 @@
 # standardSQL
 # pages almanac metrics grouped by device and element attribute use (frequency)
-CREATE TEMPORARY FUNCTION get_almanac_attribute_info(almanac_string STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>> LANGUAGE js AS '''
+create temporary function get_almanac_attribute_info(almanac_string string)
+returns
+    array<
+        struct<
+            name string,
+            freq int64 >> language js
+            as
+                '''
 try {
     var almanac = JSON.parse(almanac_string);
 
@@ -15,7 +21,8 @@ try {
 
 }
 return [];
-''';
+'''
+;
 
 select
     _table_suffix as client,

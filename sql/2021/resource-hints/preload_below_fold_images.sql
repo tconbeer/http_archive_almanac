@@ -1,10 +1,11 @@
 # standardSQL
 # Analyze the below the fold (i.e. not in the viewport) images that are preloaded
-CREATE TEMPORARY FUNCTION
-preloadedNonViewportImages(almanacJsonStr STRING,
-  imagesJsonStr STRING)
-RETURNS INT64
-LANGUAGE js AS '''
+create temporary function
+    preloadednonviewportimages(almanacjsonstr string, imagesjsonstr string)
+returns int64
+language js
+as
+    '''
 try {
     var almanac = JSON.parse(almanacJsonStr)
     if (Array.isArray(almanac) || typeof almanac != 'object' || almanac == null) return null;
@@ -30,7 +31,8 @@ try {
 catch {
     return null
 }
-''';
+'''
+;
 with
     image_stats_tb as (
         select

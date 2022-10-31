@@ -1,7 +1,9 @@
 # standardSQL
 # Detailed alt-svc headers
-CREATE TEMPORARY FUNCTION getUpgradeHeader(payload STRING)
-RETURNS STRING LANGUAGE js AS """
+create temporary function getupgradeheader(payload string)
+returns string
+language js
+as """
 try {
   var $ = JSON.parse(payload);
   var headers = $.response.headers;
@@ -9,7 +11,8 @@ try {
 } catch (e) {
   return '';
 }
-""";
+"""
+;
 
 select
     client,

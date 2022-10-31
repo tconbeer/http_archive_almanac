@@ -1,9 +1,10 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getColorStops(css STRING)
-RETURNS ARRAY<INT64>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getcolorstops(css string)
+returns array<int64>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let ret = {
@@ -156,7 +157,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     percentile,

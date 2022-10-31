@@ -1,7 +1,10 @@
 # standardSQL
 # returns the value of the monetization meta node
-CREATE TEMPORARY FUNCTION get_almanac_meta_monetization(almanac_string STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function get_almanac_meta_monetization(almanac_string string)
+returns string
+language js
+as
+    '''
 try {
     const almanac = JSON.parse(almanac_string);
     if (Array.isArray(almanac) || typeof almanac != 'object') return '';
@@ -19,7 +22,8 @@ try {
 } catch (e) {
   return "";
 }
-''';
+'''
+;
 
 select
     client,

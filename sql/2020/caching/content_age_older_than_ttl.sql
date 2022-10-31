@@ -1,14 +1,17 @@
 # standardSQL
 # Requests with a content age older than its TTL
-CREATE TEMPORARY FUNCTION toTimestamp(date_string STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function totimestamp(date_string string)
+returns int64
+language js
+as '''
   try {
     var timestamp = Math.round(new Date(date_string).getTime() / 1000);
     return isNaN(timestamp) || timestamp < 0 ? -1 : timestamp;
   } catch (e) {
     return null;
   }
-''';
+'''
+;
 
 select
     client,

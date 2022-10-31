@@ -1,8 +1,17 @@
 # standardSQL
 # 19_01: % of sites that use each type of hint.
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload BOOLEAN, prefetch BOOLEAN, preconnect BOOLEAN, prerender BOOLEAN, `dns-prefetch` BOOLEAN>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns
+    struct<
+        preload boolean,
+        prefetch boolean,
+        preconnect boolean,
+        prerender boolean,
+        `dns-prefetch` boolean
+    >
+language js
+as
+    '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch'];
 try {
   var $ = JSON.parse(payload);
@@ -17,7 +26,8 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
 select
     client,

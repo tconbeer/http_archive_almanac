@@ -1,9 +1,11 @@
 # standardSQL
 # Media property usage of link tags with rel=alternate
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION getMediaPropertyAlmanacInfo(almanac_string STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+create temporary function getmediapropertyalmanacinfo(almanac_string string)
+returns array<string>
+language js
+as
+    '''
 var result = [];
 try {
     var almanac = JSON.parse(almanac_string);
@@ -19,7 +21,8 @@ try {
 
 } catch (e) {result.push("ERROR "+e);} // results show some issues with the validity of the payload
 return result;
-''';
+'''
+;
 
 select client, media, total, count(0) as count, safe_divide(count(0), total) as pct
 from

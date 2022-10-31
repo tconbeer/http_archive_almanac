@@ -1,7 +1,9 @@
 # standardSQL
 # links or buttons only containing an icon
-CREATE TEMPORARY FUNCTION hasButtonIconSet(payload STRING)
-RETURNS BOOL LANGUAGE js AS '''
+create temporary function hasbuttoniconset(payload string)
+returns bool
+language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -12,7 +14,8 @@ RETURNS BOOL LANGUAGE js AS '''
   } catch (e) {
     return false;
   }
-''';
+'''
+;
 
 select
     count(url) as total,

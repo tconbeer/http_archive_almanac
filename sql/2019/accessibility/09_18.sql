@@ -1,8 +1,10 @@
 # standardSQL
 # 09_18: % of pages having a table caption/thead
 # Caveat: This does not necessarily enforce that the element is within the table.
-CREATE TEMPORARY FUNCTION getTableElements(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function gettableelements(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -12,7 +14,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

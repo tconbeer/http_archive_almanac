@@ -1,8 +1,11 @@
 # standardSQL
 # Use this sql to find popular library imports for popular_pwa_libraries.sql
 # And also other importscripts used in service workers
-CREATE TEMPORARY FUNCTION getSWLibraries(importScriptsInfo STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getswlibraries(importscriptsinfo string)
+returns array<string>
+language js
+as
+    '''
 try {
   /* 'importScriptsInfo' returns an array of libraries that might import other libraries
       The final array of libraries comes from the combination of both */
@@ -19,7 +22,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select _table_suffix as client, script, count(distinct url) as freq
 from

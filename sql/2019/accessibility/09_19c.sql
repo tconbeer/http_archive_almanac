@@ -2,8 +2,33 @@
 # 09_19c: % valid ARIA attributes
 # Valid attributes from
 # https://github.com/dequelabs/axe-core/blob/master/lib/commons/aria/index.js
-CREATE TEMPORARY FUNCTION isValidAttribute(attr STRING) RETURNS BOOLEAN AS
-(attr IN ('aria-atomic', 'aria-busy', 'aria-controls', 'aria-current', 'aria-describedby', 'aria-disabled', 'aria-dropeffect', 'aria-flowto', 'aria-grabbed', 'aria-haspopup', 'aria-hidden', 'aria-invalid', 'aria-keyshortcuts', 'aria-label', 'aria-labelledby', 'aria-live', 'aria-owns', 'aria-relevant', 'aria-roledescription'));
+create temporary function isvalidattribute(attr string)
+returns boolean
+as
+    (
+        attr in (
+            'aria-atomic',
+            'aria-busy',
+            'aria-controls',
+            'aria-current',
+            'aria-describedby',
+            'aria-disabled',
+            'aria-dropeffect',
+            'aria-flowto',
+            'aria-grabbed',
+            'aria-haspopup',
+            'aria-hidden',
+            'aria-invalid',
+            'aria-keyshortcuts',
+            'aria-label',
+            'aria-labelledby',
+            'aria-live',
+            'aria-owns',
+            'aria-relevant',
+            'aria-roledescription'
+        )
+    )
+;
 
 select
     client,

@@ -1,40 +1,45 @@
 # standardSQL
 # page wpt_bodies metrics grouped by device
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  comment_count INT64,
-  conditional_comment_count INT64,
-  head_size INT64,
-  no_h1 BOOL,
-  target_blank_total INT64,
-  target_blank_noopener_noreferrer_total INT64,
-  target_blank_noopener_total INT64,
-  target_blank_noreferrer_total INT64,
-  target_blank_neither_total INT64,
+create temporary function get_wpt_bodies_info(wpt_bodies_string string)
+returns
+    struct<
+        comment_count int64,
+        conditional_comment_count int64,
+        head_size int64,
+        no_h1 bool,
+        target_blank_total int64,
+        target_blank_noopener_noreferrer_total int64,
+        target_blank_noopener_total int64,
+        target_blank_noreferrer_total int64,
+        target_blank_neither_total int64,
 
-  n_h1 INT64,
-  n_h2 INT64,
-  n_h3 INT64,
-  n_h4 INT64,
-  n_h5 INT64,
-  n_h6 INT64,
-  n_h7 INT64,
-  n_h8 INT64,
-  n_non_empty_h1 INT64,
-  n_non_empty_h2 INT64,
-  n_non_empty_h3 INT64,
-  n_non_empty_h4 INT64,
-  n_non_empty_h5 INT64,
-  n_non_empty_h6 INT64,
-  n_non_empty_h7 INT64,
-  n_non_empty_h8 INT64
-> LANGUAGE js AS '''
+        n_h1 int64,
+        n_h2 int64,
+        n_h3 int64,
+        n_h4 int64,
+        n_h5 int64,
+        n_h6 int64,
+        n_h7 int64,
+        n_h8 int64,
+        n_non_empty_h1 int64,
+        n_non_empty_h2 int64,
+        n_non_empty_h3 int64,
+        n_non_empty_h4 int64,
+        n_non_empty_h5 int64,
+        n_non_empty_h6 int64,
+        n_non_empty_h7 int64,
+        n_non_empty_h8 int64
+    >
+language js
+as
+    '''
 var result = {};
 try {
     var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -115,7 +120,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

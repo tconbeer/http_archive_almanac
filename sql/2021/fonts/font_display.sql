@@ -1,7 +1,8 @@
 # standardSQL
 # font_display
-CREATE TEMPORARY FUNCTION getFontDisplay(css STRING)
-RETURNS ARRAY < STRING > LANGUAGE js AS '''
+create temporary function getfontdisplay(css string)
+returns
+    array <string > language js as '''
 try {
     var reduceValues = (values, rule) => {
         if ('rules' in rule) {
@@ -25,7 +26,8 @@ try {
 } catch (e) {
     return [null];
 }
-''';
+'''
+;
 
 select
     client,

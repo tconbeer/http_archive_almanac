@@ -1,7 +1,10 @@
 # standardSQL
 # 02_41: Distribution of transitions per page
-CREATE TEMPORARY FUNCTION getTransitions(css STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function gettransitions(css string)
+returns int64
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -18,7 +21,8 @@ try {
 } catch (e) {
   return 0;
 }
-''';
+'''
+;
 
 select
     client,

@@ -1,8 +1,10 @@
 # standardSQL
 # 09_03: % of pages having elements (see also 03_02a)
 # For 09_12 we can invert the pct to get the % of pages with no h1
-CREATE TEMPORARY FUNCTION getElements(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getelements(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -11,7 +13,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

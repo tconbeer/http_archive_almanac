@@ -1,7 +1,9 @@
 # standardSQL
 # input attributes
-CREATE TEMPORARY FUNCTION getInputAttributes(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getinputattributes(payload string)
+returns array<string>
+language js
+as '''
   var attrs = [];
   try {
     var $ = JSON.parse(payload);
@@ -15,10 +17,13 @@ RETURNS ARRAY<STRING> LANGUAGE js AS '''
   } catch (e) {
     return [];
   }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION hasInputs(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function hasinputs(payload string)
+returns boolean
+language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -31,7 +36,8 @@ RETURNS BOOLEAN LANGUAGE js AS '''
   } catch (e) {
     return 0;
   }
-''';
+'''
+;
 
 select
     total_pages_with_inputs,

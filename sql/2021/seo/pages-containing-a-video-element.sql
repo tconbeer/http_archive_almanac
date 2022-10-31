@@ -1,10 +1,10 @@
 # standardSQL
 # Pages containing a video element
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION getVideosAlmanacInfo(almanac_string STRING)
-RETURNS STRUCT<
-  videos_total INT64
-> LANGUAGE js AS '''
+create temporary function getvideosalmanacinfo(almanac_string string)
+returns struct<videos_total int64>
+language js
+as '''
 var result = {
   videos_total: 0
 };
@@ -18,7 +18,8 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

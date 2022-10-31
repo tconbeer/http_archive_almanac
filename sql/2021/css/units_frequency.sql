@@ -1,9 +1,13 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getUnits(css STRING)
-RETURNS ARRAY<STRUCT<unit STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getunits(css string)
+returns
+    array<
+        struct<
+            unit string,
+            freq int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as
+                '''
 try {
   function compute(ast) {
     let ret = {
@@ -93,7 +97,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select *
 from

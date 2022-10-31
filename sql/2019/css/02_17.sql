@@ -1,7 +1,9 @@
 # standardSQL
 # 02_17: % of pages using em/rem/px in media queries
-CREATE TEMPORARY FUNCTION getUnits(css STRING)
-RETURNS STRUCT<em BOOLEAN, rem BOOLEAN, px BOOLEAN> LANGUAGE js AS '''
+create temporary function getunits(css string)
+returns struct<em boolean, rem boolean, px boolean>
+language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {
@@ -22,7 +24,8 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
 select
     client,

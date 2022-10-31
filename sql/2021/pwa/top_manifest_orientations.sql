@@ -1,6 +1,9 @@
 # standardSQL
 # Top manifest orientations
-CREATE TEMP FUNCTION getOrientation(manifest STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function getorientation(manifest string)
+returns string
+language js
+as '''
 try {
   var $ = Object.values(JSON.parse(manifest))[0];
   if (!('orientation' in $)) {
@@ -10,7 +13,8 @@ try {
 } catch {
   return '(not set)'
 }
-''';
+'''
+;
 
 select
     'PWA Sites' as type,

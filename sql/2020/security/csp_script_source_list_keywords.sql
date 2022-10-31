@@ -1,17 +1,19 @@
 # standardSQL
 # CSP: usage of default/script-src, and within the directive usage of strict-dynamic,
 # nonce values, unsafe-inline and unsafe-eval
-CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
-RETURNS STRING
-DETERMINISTIC
-LANGUAGE js AS '''
+create temporary function getheader(headers string, headername string)
+returns string deterministic
+language js
+as
+    '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   if (matching_headers.length > 0) {
     return matching_headers[0].value;
   }
   return null;
-''';
+'''
+;
 select
     client,
     total_pages,

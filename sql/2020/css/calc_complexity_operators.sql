@@ -1,9 +1,12 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getCalcOperatorComplexity(css STRING)
-RETURNS ARRAY<STRUCT<num INT64, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getcalcoperatorcomplexity(css string)
+returns
+    array<
+        struct<
+            num int64,
+            freq int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as '''
 try {
   function compute(ast) {
     let ret = {
@@ -62,7 +65,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

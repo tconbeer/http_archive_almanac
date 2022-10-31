@@ -1,6 +1,8 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getStylesheets(payload STRING)
-RETURNS STRUCT<remote INT64, inline INT64> LANGUAGE js AS '''
+create temporary function getstylesheets(payload string)
+returns struct<remote int64, inline int64>
+language js
+as '''
 try {
   var $ = JSON.parse(payload)
   var sass = JSON.parse($._sass);
@@ -8,7 +10,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     percentile,

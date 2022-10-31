@@ -1,6 +1,6 @@
-CREATE TEMPORARY FUNCTION getImageSizing(payload STRING)
-RETURNS ARRAY<STRUCT<property STRING, value STRING>>
-LANGUAGE js AS '''
+create temporary function getimagesizing(payload string)
+returns
+    array< struct<property string, value string >> language js as '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);
@@ -13,7 +13,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

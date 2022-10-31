@@ -1,9 +1,10 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getColorArgComma(css STRING)
-RETURNS STRUCT<commas INT64, nocommas INT64>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getcolorargcomma(css string)
+returns struct<commas int64, nocommas int64>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let usage = {
@@ -150,7 +151,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     client,

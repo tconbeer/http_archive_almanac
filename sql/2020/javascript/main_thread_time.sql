@@ -1,13 +1,17 @@
 # standardSQL
 # Cumulative V8 main thread time
-CREATE TEMPORARY FUNCTION totalMainThreadTime(payload STRING) RETURNS FLOAT64 LANGUAGE js AS '''
+create temporary function totalmainthreadtime(payload string)
+returns float64
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   return Object.values($._v8Stats.main_thread).reduce((sum, i) => sum + i, 0);
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     percentile,

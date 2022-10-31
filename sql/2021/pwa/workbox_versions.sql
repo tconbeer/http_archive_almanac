@@ -1,7 +1,10 @@
 # standardSQL
 # Workbox versions
-CREATE TEMPORARY FUNCTION getWorkboxVersions(workboxInfo STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getworkboxversions(workboxinfo string)
+returns array<string>
+language js
+as
+    '''
 try {
   var workboxPackageMethods = Object.values(JSON.parse(workboxInfo));
   if (typeof workboxPackageMethods == 'string') {
@@ -24,7 +27,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

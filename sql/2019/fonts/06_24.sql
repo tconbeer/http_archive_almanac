@@ -1,7 +1,9 @@
 # standardSQL
 # 06_24: % of pages that use specific font-weight integers (eg 555 vs 500)
-CREATE TEMPORARY FUNCTION usesVariableWeights(css STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function usesvariableweights(css string)
+returns int64
+language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -28,7 +30,8 @@ try {
 } catch (e) {
   return 0;
 }
-''';
+'''
+;
 
 select
     client,

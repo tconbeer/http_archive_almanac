@@ -1,34 +1,39 @@
 # standardSQL
 # pages markup metrics grouped by device
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
 # returns all the data we need from _markup
-CREATE TEMPORARY FUNCTION get_markup_info(markup_string STRING)
-RETURNS STRUCT<
-  favicon BOOL,
-  app_id_present BOOL,
-  amp_rel_amphtml_present BOOL,
-  noscripts_count INT64,
-  noscripts_iframe_googletagmanager_count INT64,
-  svg_element_total INT64,
-  svg_img_total INT64,
-  svg_object_total INT64,
-  svg_embed_total INT64,
-  svg_iframe_total INT64,
-  svg_total INT64,
-  buttons_total INT64,
-  buttons_with_type INT64,
-  contains_audios_with_autoplay BOOL,
-  contains_audios_without_autoplay BOOL,
-  inputs_types_image_total INT64,
-  inputs_types_button_total INT64,
-  inputs_types_submit_total INT64,
-  dirs_html_dir STRING,
-  dirs_body_nodes_dir_total INT64
-> LANGUAGE js AS '''
+create temporary function get_markup_info(markup_string string)
+returns
+    struct<
+        favicon bool,
+        app_id_present bool,
+        amp_rel_amphtml_present bool,
+        noscripts_count int64,
+        noscripts_iframe_googletagmanager_count int64,
+        svg_element_total int64,
+        svg_img_total int64,
+        svg_object_total int64,
+        svg_embed_total int64,
+        svg_iframe_total int64,
+        svg_total int64,
+        buttons_total int64,
+        buttons_with_type int64,
+        contains_audios_with_autoplay bool,
+        contains_audios_without_autoplay bool,
+        inputs_types_image_total int64,
+        inputs_types_button_total int64,
+        inputs_types_submit_total int64,
+        dirs_html_dir string,
+        dirs_body_nodes_dir_total int64
+    >
+language js
+as
+    '''
 var result = {};
 try {
     var markup = JSON.parse(markup_string);
@@ -101,7 +106,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

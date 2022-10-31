@@ -1,7 +1,8 @@
 # standardSQL
 # 06_10: % of pages that declare a font with italics
-CREATE TEMPORARY FUNCTION getFonts(css STRING)
-RETURNS ARRAY<STRUCT<weight STRING, style STRING>> LANGUAGE js AS '''
+create temporary function getfonts(css string)
+returns
+    array< struct<weight string, style string >> language js as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -32,7 +33,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

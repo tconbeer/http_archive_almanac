@@ -1,10 +1,12 @@
 # standardSQL
-CREATE TEMP FUNCTION getFuguAPIs(data STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+create temp function getfuguapis(data string)
+returns array<string>
+language js
+as '''
 const $ = JSON.parse(data);
 return Object.keys($);
-''';
+'''
+;
 
 select
     _table_suffix as client,

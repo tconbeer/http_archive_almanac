@@ -1,8 +1,20 @@
 # standardSQL
 # 08_03: and 08_04: - RSA and ECDSA certificates
-CREATE TEMPORARY FUNCTION getHexCert(cert STRING) RETURNS STRING AS (
-  TO_HEX(FROM_BASE64(REPLACE(REGEXP_REPLACE(cert, '-----(BEGIN|END) CERTIFICATE-----', ''), '\n', '')))
-);
+create temporary function gethexcert(cert string)
+returns string
+as
+    (
+        to_hex(
+            from_base64(
+                replace(
+                    regexp_replace(cert, '-----(BEGIN|END) CERTIFICATE-----', ''),
+                    '\n',
+                    ''
+                )
+            )
+        )
+    )
+;
 
 select
     client,

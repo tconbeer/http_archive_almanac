@@ -1,8 +1,15 @@
 # standardSQL
 # Count JSON-LD relationships with their value entity types
-CREATE TEMP FUNCTION getJSONLDEntitiesRelationships(rendered STRING)
-RETURNS ARRAY<STRUCT<_from STRING, relationship STRING, _to STRING, depth NUMERIC>>
-LANGUAGE js AS """
+create temp function getjsonldentitiesrelationships(rendered string)
+returns
+    array<
+        struct<
+            _from string,
+            relationship string,
+            _to string,
+            depth numeric >> language js
+            as
+                """
   try {
     const types = new Map();
 
@@ -39,7 +46,8 @@ LANGUAGE js AS """
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
 with
     rendered_data as (

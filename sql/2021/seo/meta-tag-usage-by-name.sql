@@ -1,9 +1,11 @@
 # standardSQL
 # Meta tag usage by name
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION getMetaTagAlmanacInfo(almanac_string STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+create temporary function getmetatagalmanacinfo(almanac_string string)
+returns array<string>
+language js
+as
+    '''
 var result = [];
 try {
     var almanac = JSON.parse(almanac_string);
@@ -19,7 +21,8 @@ try {
 
 } catch (e) {} // results show some issues with the validity of the payload
 return result;
-''';
+'''
+;
 
 select
     client, meta_tag_name, total, count(0) as count, safe_divide(count(0), total) as pct

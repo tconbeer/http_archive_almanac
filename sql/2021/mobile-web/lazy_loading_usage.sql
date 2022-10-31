@@ -1,7 +1,9 @@
 # standardSQL
 # Usage of native lazy loading
-CREATE TEMPORARY FUNCTION usesLoadingLazy(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function usesloadinglazy(payload string)
+returns boolean
+language js
+as '''
 try {
   const almanac = JSON.parse(payload);
 
@@ -17,7 +19,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 select
     client,
     countif(total_img > 0) as pages_with_images,

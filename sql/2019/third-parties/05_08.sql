@@ -1,8 +1,8 @@
 # standardSQL
 # Top 100 third party domains by total script execution time.
-CREATE TEMPORARY FUNCTION getExecutionTimes(report STRING)
-RETURNS ARRAY<STRUCT<url STRING, execution_time FLOAT64>>
-LANGUAGE js AS '''
+create temporary function getexecutiontimes(report string)
+returns
+    array< struct<url string, execution_time float64 >> language js as '''
 try {
   var $ = JSON.parse(report);
   return $.audits['bootup-time'].details.items.map(item => ({
@@ -12,7 +12,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     thirdpartydomain,

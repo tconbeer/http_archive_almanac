@@ -1,7 +1,9 @@
 # standardSQL
 # 09_11: % pages with headings that skip levels
-CREATE TEMPORARY FUNCTION includesSkippedHeading(headings ARRAY<STRING>)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function includesskippedheading(headings array<string>)
+returns boolean
+language js
+as '''
 var previous = null;
 for (h of headings) {
   h = parseInt(h);
@@ -11,7 +13,8 @@ for (h of headings) {
   previous = h;
 }
 return false;
-''';
+'''
+;
 
 select
     client,

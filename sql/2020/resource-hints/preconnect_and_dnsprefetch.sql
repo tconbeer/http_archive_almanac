@@ -1,8 +1,9 @@
 # standardSQL
 # 21_06: Frequency of link tags that set both preconnect & dns-prefetch
-CREATE TEMPORARY FUNCTION preconnectsAndPrefetchesDns(payload STRING)
-RETURNS BOOLEAN
-LANGUAGE js AS '''
+create temporary function preconnectsandprefetchesdns(payload string)
+returns boolean
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -13,7 +14,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

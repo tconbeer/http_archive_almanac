@@ -1,8 +1,9 @@
 # standardSQL
 # Lazy-loaded images within the initial viewport
-CREATE TEMPORARY FUNCTION hasLazyLoadedImagesInViewport(payload STRING)
-RETURNS STRUCT<isLazy BOOL, inViewport BOOL>
-LANGUAGE js AS '''
+create temporary function haslazyloadedimagesinviewport(payload string)
+returns struct<islazy bool, inviewport bool>
+language js
+as '''
 try {
   var images = JSON.parse(payload);
   if (!Array.isArray(images) || typeof images != "object" || images == null)
@@ -27,7 +28,8 @@ try {
 } catch {
   return {};
 }
-''';
+'''
+;
 
 select
     client,

@@ -1,8 +1,18 @@
 # standardSQL
 # Retrieves resource hints from HTTP headers
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload BOOLEAN, prefetch BOOLEAN, preconnect BOOLEAN, prerender BOOLEAN, `dns-prefetch` BOOLEAN, `modulepreload` BOOLEAN>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns
+    struct<
+        preload boolean,
+        prefetch boolean,
+        preconnect boolean,
+        prerender boolean,
+        `dns-prefetch` boolean,
+        `modulepreload` boolean
+    >
+language js
+as
+    '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch', 'modulepreload'];
 var re = new RegExp(`(${hints.map(hint => `\\\\b${hint}\\\\b`).join('|')})`, 'ig');
 try {
@@ -18,7 +28,8 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
 select
     client,

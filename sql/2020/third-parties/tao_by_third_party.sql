@@ -2,8 +2,10 @@
 # Percent of third-party requests with "Timing-Allow-Origin" headers
 # Header reference:
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Timing-Allow-Origin
-CREATE TEMP FUNCTION get_tao(headers STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temp function get_tao(headers string)
+returns string
+language js
+as '''
   try {
     const regex = /timing-allow-origin = (\\*|(http.*?,? )+)/gm;
     output = regex.exec(headers)[1]+", ";
@@ -12,7 +14,8 @@ RETURNS STRING LANGUAGE js AS '''
   } catch (e) {
     return false;
   }
-''';
+'''
+;
 
 with
     requests as (

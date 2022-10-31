@@ -1,11 +1,14 @@
 # standardSQL
 # M221
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION get_heading_info(wpt_bodies_string STRING)
-RETURNS ARRAY<STRUCT<
-  heading STRING,
-  total INT64
-  >> LANGUAGE js AS '''
+create temporary function get_heading_info(wpt_bodies_string string)
+returns
+    array<
+        struct<
+            heading string,
+            total int64 >> language js
+            as
+                '''
 var result = [];
 try {
     var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -19,7 +22,8 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     heading,

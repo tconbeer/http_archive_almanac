@@ -1,7 +1,9 @@
 # standardSQL
 # 02_08b: % of selectors that use classes or IDs
-CREATE TEMPORARY FUNCTION getSelectorType(css STRING)
-RETURNS STRUCT<class INT64, id INT64, total INT64> LANGUAGE js AS '''
+create temporary function getselectortype(css string)
+returns struct<class int64, id int64, total int64>
+language js
+as '''
 var types = {
   'class': 0,
   'id': 0,
@@ -33,7 +35,8 @@ try {
 } catch (e) {
   return types;
 }
-''';
+'''
+;
 
 select
     client,

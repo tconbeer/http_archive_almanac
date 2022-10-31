@@ -1,14 +1,17 @@
 # standardSQL
 # Most frequent vulnerable libraries
-CREATE TEMPORARY FUNCTION getVulnerabilities(audit STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getvulnerabilities(audit string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(i => i.detectedLib.text.split('@')[0]);
 } catch(e) {
   return [];
 }
-''';
+'''
+;
 
 select lib, count(0) as freq, total, count(0) / total as pct
 from

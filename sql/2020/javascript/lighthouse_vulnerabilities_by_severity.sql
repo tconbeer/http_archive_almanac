@@ -1,7 +1,8 @@
 # standardSQL
 # Vulnerabilities per page by severity
-CREATE TEMPORARY FUNCTION getVulnerabilities(audit STRING)
-RETURNS ARRAY<STRUCT<severity STRING, freq INT64>> LANGUAGE js AS '''
+create temporary function getvulnerabilities(audit string)
+returns
+    array< struct<severity string, freq int64 >> language js as '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(({highestSeverity, vulnCount}) => {
@@ -13,7 +14,8 @@ try {
 } catch(e) {
   return [];
 }
-''';
+'''
+;
 
 select
     severity,

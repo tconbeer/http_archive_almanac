@@ -1,9 +1,10 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getGradientHints(css STRING)
-RETURNS INT64
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getgradienthints(css string)
+returns int64
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let ret = {
@@ -156,7 +157,8 @@ try {
 } catch (e) {
   return 0;
 }
-''';
+'''
+;
 
 select client, countif(hints > 0) as pages, total, countif(hints > 0) / total as pct
 from

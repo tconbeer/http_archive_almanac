@@ -1,7 +1,10 @@
 # standardSQL
 # Popular PWA script
-CREATE TEMPORARY FUNCTION getSWLibraries(importScriptsInfo STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getswlibraries(importscriptsinfo string)
+returns array<string>
+language js
+as
+    '''
 try {
   /* 'importScriptsInfo' returns an array of script that might import other script
       The final array of script comes from the combination of both */
@@ -18,7 +21,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

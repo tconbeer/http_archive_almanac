@@ -1,6 +1,9 @@
 # standardSQL
 # LCP element node details
-CREATE TEMP FUNCTION getLoadingAttr(attributes STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function getloadingattr(attributes string)
+returns string
+language js
+as '''
   try {
     const data = JSON.parse(attributes);
     const loadingAttr = data.find(attr => attr["name"] === "loading")
@@ -8,9 +11,13 @@ CREATE TEMP FUNCTION getLoadingAttr(attributes STRING) RETURNS STRING LANGUAGE j
   } catch (e) {
     return "";
   }
-''';
+'''
+;
 
-CREATE TEMP FUNCTION getDecodingAttr(attributes STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function getdecodingattr(attributes string)
+returns string
+language js
+as '''
   try {
     const data = JSON.parse(attributes);
     const decodingAttr = data.find(attr => attr["name"] === "decoding")
@@ -18,9 +25,13 @@ CREATE TEMP FUNCTION getDecodingAttr(attributes STRING) RETURNS STRING LANGUAGE 
   } catch (e) {
     return "";
   }
-''';
+'''
+;
 
-CREATE TEMP FUNCTION getLoadingClasses(attributes STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function getloadingclasses(attributes string)
+returns string
+language js
+as '''
   try {
     const data = JSON.parse(attributes);
     const classes = data.find(attr => attr["name"] === "class").value
@@ -32,7 +43,8 @@ CREATE TEMP FUNCTION getLoadingClasses(attributes STRING) RETURNS STRING LANGUAG
   } catch (e) {
     return "";
   }
-''';
+'''
+;
 
 with
     lcp_stats as (

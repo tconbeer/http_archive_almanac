@@ -1,7 +1,9 @@
 # standardSQL
 # 09_17: % pages using tables with headings
-CREATE TEMPORARY FUNCTION getTableInfo(payload STRING)
-RETURNS STRUCT<has_table BOOLEAN, has_th BOOLEAN> LANGUAGE js AS '''
+create temporary function gettableinfo(payload string)
+returns struct<has_table boolean, has_th boolean>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -22,7 +24,8 @@ try {
     has_th: false
   };
 }
-''';
+'''
+;
 select
     client,
     count(0) as total_pages,

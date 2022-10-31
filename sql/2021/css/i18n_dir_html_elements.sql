@@ -1,8 +1,7 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getMarkupDirs(payload STRING)
-RETURNS ARRAY<STRUCT<element STRING, value STRING>>
-LANGUAGE js
-AS '''
+create temporary function getmarkupdirs(payload string)
+returns
+    array< struct<element string, value string >> language js as '''
 try {
   var $ = JSON.parse(payload);
   var dirs = JSON.parse($._markup).dirs;
@@ -24,7 +23,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select *
 from

@@ -1,7 +1,9 @@
 # standardSQL
 # 02_16: % of pages using min/max-width in media queries
-CREATE TEMPORARY FUNCTION getMediaType(css STRING)
-RETURNS STRUCT<max_width BOOLEAN, min_width BOOLEAN> LANGUAGE js AS '''
+create temporary function getmediatype(css string)
+returns struct<max_width boolean, min_width boolean>
+language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if (rule.type != 'media') {
@@ -21,7 +23,8 @@ try {
 } catch (e) {
   return {};
 }
-''';
+'''
+;
 
 select
     client,

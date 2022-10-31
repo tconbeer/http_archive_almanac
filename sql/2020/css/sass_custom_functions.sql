@@ -1,5 +1,8 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getCustomFunctionCount(payload STRING) RETURNS INT64 LANGUAGE js AS '''
+create temporary function getcustomfunctioncount(payload string)
+returns int64
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -11,7 +14,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     percentile,

@@ -1,13 +1,15 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getSpecificityInfo(css STRING)
-RETURNS STRUCT<
-  ruleCount NUMERIC,
-  selectorCount NUMERIC,
-  distribution ARRAY<STRUCT<specificity STRING, specificity_cmp STRING, freq INT64>>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getspecificityinfo(css string)
+returns
+    struct<
+        rulecount numeric,
+        selectorcount numeric,
+        distribution array<
+            struct<specificity string, specificity_cmp string, freq int64 >>>
+            language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as
+                '''
 try {
   function extractSpecificity(ast) {
     let ret = {
@@ -77,7 +79,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     percentile,

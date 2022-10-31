@@ -1,18 +1,23 @@
 # standardSQL
 # pages element_count metrics grouped by device
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
 # returns all the data we need from _element_count
-CREATE TEMPORARY FUNCTION get_element_count_info(element_count_string STRING)
-RETURNS STRUCT<
-  contains_custom_element BOOL,
-  contains_obsolete_element BOOL,
-  contains_details_element BOOL,
-  contains_summary_element BOOL
-> LANGUAGE js AS '''
+create temporary function get_element_count_info(element_count_string string)
+returns
+    struct<
+        contains_custom_element bool,
+        contains_obsolete_element bool,
+        contains_details_element bool,
+        contains_summary_element bool
+    >
+language js
+as
+    '''
 var result = {};
 try {
     if (!element_count_string) return result;
@@ -33,7 +38,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

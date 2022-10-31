@@ -1,10 +1,10 @@
 # standardSQL
 # Robots txt status codes
 # returns all the data we need from _robots_txt
-CREATE TEMPORARY FUNCTION getRobotsStatusInfo(robots_txt_string STRING)
-RETURNS STRUCT<
-  status_code STRING
-> LANGUAGE js AS '''
+create temporary function getrobotsstatusinfo(robots_txt_string string)
+returns struct<status_code string>
+language js
+as '''
 var result = {};
 try {
     var robots_txt = JSON.parse(robots_txt_string);
@@ -17,7 +17,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

@@ -2,8 +2,17 @@
 # Get summary of all lighthouse scores for a category for PWA pages
 # Note scores, weightings, groups and descriptions may be off in mixed months when new
 # versions of Lighthouse roles out
-CREATE TEMPORARY FUNCTION getAudits(report STRING, category STRING)
-RETURNS ARRAY<STRUCT<id STRING, weight INT64, audit_group STRING, title STRING, description STRING, score INT64>> LANGUAGE js AS '''
+create temporary function getaudits(report string, category string)
+returns
+    array<
+        struct<
+            id string,
+            weight int64,
+            audit_group string,
+            title string,
+            description string,
+            score int64 >> language js
+            as '''
 var $ = JSON.parse(report);
 var auditrefs = $.categories[category].auditRefs;
 var audits = $.audits;
@@ -19,7 +28,8 @@ for (auditref of auditrefs) {
   });
 }
 return results;
-''';
+'''
+;
 
 select
     audits.id as id,

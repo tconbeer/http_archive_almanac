@@ -1,9 +1,10 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION hasGridlikeFlexbox(css STRING)
-RETURNS BOOLEAN
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function hasgridlikeflexbox(css string)
+returns boolean
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   const ast = JSON.parse(css);
   return walkRules(ast, rule => {
@@ -18,7 +19,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

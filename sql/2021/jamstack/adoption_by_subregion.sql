@@ -1,6 +1,9 @@
 # standardSQL
 # All CMS popularity per geo
-CREATE TEMP FUNCTION GET_GEO(country_code STRING, geo STRING) RETURNS STRING LANGUAGE js AS '''
+create temp function get_geo(country_code string, geo string)
+returns string
+language js
+as '''
 var countries = {
   "af": {
     "name": "Afghanistan",
@@ -1194,7 +1197,8 @@ var countries = {
   }
 };
 return countries[country_code][geo];
-''';
+'''
+;
 
 with
     geo_summary as (

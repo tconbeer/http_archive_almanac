@@ -1,17 +1,23 @@
 # standardSQL
 # percentage/count of pages that contain common elements and roles
-CREATE TEMPORARY FUNCTION getUsedRoles(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getusedroles(payload string)
+returns array<string>
+language js
+as '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.nodes_using_role.usage_and_count);
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION get_element_types(element_count_string STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function get_element_types(element_count_string string)
+returns array<string>
+language js
+as
+    '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 
@@ -24,7 +30,8 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
 with
     mappings as (

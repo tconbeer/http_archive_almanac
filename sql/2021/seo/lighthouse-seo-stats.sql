@@ -1,16 +1,11 @@
 # standardSQL
 # Lighthouse SEO stats
 # live run is about $9
-CREATE TEMPORARY FUNCTION isCrawlableDetails(report STRING)
-RETURNS STRUCT<
-  disallow BOOL,
-  noindex BOOL,
-  both BOOL,
-  neither BOOL
->
-DETERMINISTIC
-LANGUAGE js
-AS '''
+create temporary function iscrawlabledetails(report string)
+returns struct<disallow bool, noindex bool, both bool, neither bool> deterministic
+language js
+as
+    '''
 var result = {disallow: false, noindex: false};
 try {
     var $ = JSON.parse(report);
@@ -20,7 +15,8 @@ try {
 } catch (e) {
 }
 return result;
-''';
+'''
+;
 
 select
     count(0) as total,

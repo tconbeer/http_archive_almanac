@@ -1,8 +1,9 @@
 # standardSQL
 # meta nodes
-CREATE TEMPORARY FUNCTION getMetaNodes(payload STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+create temporary function getmetanodes(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -10,7 +11,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 with
     totals as (

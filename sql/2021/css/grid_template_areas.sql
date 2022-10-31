@@ -1,9 +1,9 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION hasGridTemplateAreas(css STRING)
-RETURNS BOOLEAN
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function hasgridtemplateareas(css string)
+returns boolean
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {};
@@ -28,7 +28,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

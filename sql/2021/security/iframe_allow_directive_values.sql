@@ -1,13 +1,21 @@
 # standardSQL
 # distribution of values for different directives for allow attribute on iframes
-CREATE TEMP FUNCTION getNumWithAllowAttribute(payload STRING) AS ((
-  SELECT
-    COUNT(0)
-  FROM
-    UNNEST(JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.iframe-allow-sandbox')) AS iframeAttr
-  WHERE
-    JSON_EXTRACT_SCALAR(iframeAttr, '$.allow') IS NOT NULL
-));
+create temp function getnumwithallowattribute(payload string)
+as
+    (
+        (
+            select count(0)
+            from
+                unnest(
+                    json_extract_array(
+                        json_extract_scalar(payload, '$._security'),
+                        '$.iframe-allow-sandbox'
+                    )
+                ) as iframeattr
+            where json_extract_scalar(iframeattr, '$.allow') is not null
+        )
+    )
+;
 
 select
     client,

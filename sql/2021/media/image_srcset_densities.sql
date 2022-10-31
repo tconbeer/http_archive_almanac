@@ -1,6 +1,12 @@
-CREATE TEMPORARY FUNCTION getSrcsetDensities(payload STRING)
-RETURNS ARRAY<STRUCT<currentSrcDensity INT64, srcsetCandidateDensities ARRAY<FLOAT64>>>
-LANGUAGE js AS '''
+create temporary function getsrcsetdensities(payload string)
+returns
+    array<
+        struct<
+            currentsrcdensity int64,
+            srcsetcandidatedensities array<float64 >>>
+            language js
+            as
+                '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);
@@ -13,7 +19,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     percentile,

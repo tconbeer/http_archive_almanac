@@ -1,7 +1,10 @@
 # standardSQL
 # 08_35: HttpOnly cookies
-CREATE TEMPORARY FUNCTION extractHeader(payload STRING, name STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function extractheader(payload string, name string)
+returns string
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var header = $._headers.response.find(h => h.toLowerCase().startsWith(name.toLowerCase()));
@@ -12,7 +15,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     client,

@@ -2,9 +2,9 @@
 # 19_05: Preload only: % of sites that are using as=font/as=fetch without a
 # crossorigin attribute,
 # or that are using any other as value with a crossorigin attribute.
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, href STRING>>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns
+    array< struct<name string, href string >> language js as '''
 var hints = new Set(['preload', 'prefetch']);
 try {
   var $ = JSON.parse(payload);
@@ -25,7 +25,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

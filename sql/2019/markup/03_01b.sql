@@ -1,7 +1,9 @@
 # standardSQL
 # 03_01b: Top deprecated elements
-CREATE TEMPORARY FUNCTION getElements(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getelements(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -10,11 +12,44 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION isDeprecated(element STRING) AS (
-  element IN ('applet', 'acronym', 'bgsound', 'dir', 'frame', 'frameset', 'noframes', 'isindex', 'keygen', 'listing', 'menuitem', 'nextid', 'noembed', 'plaintext', 'rb', 'rtc', 'strike', 'xmp', 'basefont', 'big', 'blink', 'center', 'font', 'marquee', 'multicol', 'nobr', 'spacer', 'tt')
-);
+create temporary function isdeprecated(element string)
+as
+    (
+        element in (
+            'applet',
+            'acronym',
+            'bgsound',
+            'dir',
+            'frame',
+            'frameset',
+            'noframes',
+            'isindex',
+            'keygen',
+            'listing',
+            'menuitem',
+            'nextid',
+            'noembed',
+            'plaintext',
+            'rb',
+            'rtc',
+            'strike',
+            'xmp',
+            'basefont',
+            'big',
+            'blink',
+            'center',
+            'font',
+            'marquee',
+            'multicol',
+            'nobr',
+            'spacer',
+            'tt'
+        )
+    )
+;
 
 select
     _table_suffix as client,

@@ -1,8 +1,9 @@
 # standardSQL
 # Count JSON-LD contexts
-CREATE TEMP FUNCTION getJSONLDContexts(rendered STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS """
+create temp function getjsonldcontexts(rendered string)
+returns array<string>
+language js
+as """
   try {
     const arrayify = (value) => Array.isArray(value) ? value : [value];
 
@@ -28,7 +29,8 @@ LANGUAGE js AS """
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
 with
     rendered_data as (

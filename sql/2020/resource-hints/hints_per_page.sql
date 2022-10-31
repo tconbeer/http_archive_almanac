@@ -1,8 +1,17 @@
 # standardSQL
 # 21_02: Distribution of number of times each hint is used per site.
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload INT64, prefetch INT64, preconnect INT64, prerender INT64, `dns-prefetch` INT64>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns
+    struct<
+        preload int64,
+        prefetch int64,
+        preconnect int64,
+        prerender int64,
+        `dns-prefetch` int64
+    >
+language js
+as
+    '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch'];
 try {
   var $ = JSON.parse(payload);
@@ -19,7 +28,8 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
 select
     percentile,

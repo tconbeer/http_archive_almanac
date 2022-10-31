@@ -1,7 +1,9 @@
 # standardSQL
 # 04_14: Distribution of image network setup times
-CREATE TEMPORARY FUNCTION getNetworkSetupTime(payload STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function getnetworksetuptime(payload string)
+returns int64
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var timings = $.timings;
@@ -13,7 +15,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     percentile,

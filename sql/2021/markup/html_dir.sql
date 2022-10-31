@@ -1,8 +1,10 @@
 # standardSQL
 # page almanac metrics grouped by device and html dir
 # returns all the data we need from _almanac
-CREATE TEMPORARY FUNCTION get_almanac_html_dir(almanac_string STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function get_almanac_html_dir(almanac_string string)
+returns string
+language js
+as '''
 try {
     var almanac = JSON.parse(almanac_string);
 
@@ -14,7 +16,8 @@ try {
 
 } catch (e) {}
 return '';
-''';
+'''
+;
 
 select
     client,

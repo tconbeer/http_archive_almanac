@@ -1,9 +1,10 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION hasMulticol(css STRING)
-RETURNS BOOLEAN
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function hasmulticol(css string)
+returns boolean
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   const ast = JSON.parse(css);
   let props = countDeclarationsByProperty(ast.stylesheet.rules, {properties: /^column[s-]/});
@@ -11,7 +12,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

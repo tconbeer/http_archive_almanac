@@ -1,14 +1,17 @@
 # standardSQL
 # Top manifest icon sizes - based on 2019/14_04f.sql
-CREATE TEMPORARY FUNCTION getIconSizes(manifest STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function geticonsizes(manifest string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(manifest);
   return $.icons.map(icon => icon.sizes);
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     client,

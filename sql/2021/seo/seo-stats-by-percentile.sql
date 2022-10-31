@@ -1,28 +1,32 @@
 # standardSQL
 # SEO stats by percentile
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  title_words INT64,
-  title_characters INT64,
-  links_other_property INT64,
-  links_same_site INT64,
-  links_same_property INT64,
-  visible_words_rendered_count INT64,
-  visible_words_raw_count INT64,
-  meta_description_words INT64,
-  meta_description_characters INT64,
-  image_links INT64,
-  text_links INT64,
-  hash_link INT64,
-  hash_only_link INT64,
-  javascript_void_links INT64,
-  same_page_jumpto_total INT64,
-  same_page_dynamic_total INT64,
-  same_page_other_total INT64,
+create temporary function get_wpt_bodies_info(wpt_bodies_string string)
+returns
+    struct<
+        title_words int64,
+        title_characters int64,
+        links_other_property int64,
+        links_same_site int64,
+        links_same_property int64,
+        visible_words_rendered_count int64,
+        visible_words_raw_count int64,
+        meta_description_words int64,
+        meta_description_characters int64,
+        image_links int64,
+        text_links int64,
+        hash_link int64,
+        hash_only_link int64,
+        javascript_void_links int64,
+        same_page_jumpto_total int64,
+        same_page_dynamic_total int64,
+        same_page_other_total int64,
 
-  valid_data BOOL
-> LANGUAGE js AS '''
+        valid_data bool
+    >
+language js
+as
+    '''
 
 function allPropsAreInt(props) {
   const keys = Object.keys(props);
@@ -93,7 +97,8 @@ try {
     valid_data: false,
   };
 }
-''';
+'''
+;
 
 select
     percentile,

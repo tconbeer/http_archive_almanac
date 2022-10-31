@@ -1,10 +1,13 @@
 # standardSQL
 # Float styles
-CREATE TEMPORARY FUNCTION getLayoutUsage(css STRING)
-RETURNS ARRAY<STRUCT<name STRING, value INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getlayoutusage(css string)
+returns
+    array<
+        struct<
+            name string,
+            value int64 >> language js
+            options (library = "gs://httparchive/lib/css-utils.js")
+            as '''
 try {
   const ast = JSON.parse(css);
   let ret = {};
@@ -40,7 +43,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select *, pages / total_pages as pct_pages
 from

@@ -1,7 +1,9 @@
 # standardSQL
 # 02_42: Distribution of keyframes per page
-CREATE TEMPORARY FUNCTION getKeyframes(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getkeyframes(css string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.reduce((values, rule) => {
@@ -13,7 +15,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

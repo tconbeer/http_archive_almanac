@@ -1,15 +1,18 @@
 # standardSQL
 # Manifests that are not JSON parsable for service worker pages - based on
 # 2019/14_04b.sql
-CREATE TEMPORARY FUNCTION canParseManifest(manifest STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function canparsemanifest(manifest string)
+returns boolean
+language js
+as '''
 try {
   JSON.parse(manifest);
   return true;
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

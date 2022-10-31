@@ -5,8 +5,10 @@
 # helper to get robots size in kibibytes (KiB)
 # Note: Assumes mostly ASCII 1byte = 1character.  Size is collected by
 # custom measurement as string length.
-CREATE TEMPORARY FUNCTION getRobotsSize(payload STRING)
-RETURNS FLOAT64 LANGUAGE js AS '''
+create temporary function getrobotssize(payload string)
+returns float64
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var robots = JSON.parse($._robots_txt);
@@ -14,7 +16,8 @@ try {
 } catch (e) {
   return 0;
 }
-''';
+'''
+;
 
 select
     client,

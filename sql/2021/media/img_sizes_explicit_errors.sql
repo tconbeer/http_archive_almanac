@@ -1,6 +1,12 @@
-CREATE TEMPORARY FUNCTION get_responsive_settings(images_string STRING)
-RETURNS ARRAY<STRUCT<sizes BOOL, srcsetHasWDescriptors BOOL, sizesWasImplicit BOOL, sizesParseError BOOL>>
-LANGUAGE js AS '''
+create temporary function get_responsive_settings(images_string string)
+returns
+    array<
+        struct<
+            sizes bool,
+            srcsethaswdescriptors bool,
+            sizeswasimplicit bool,
+            sizesparseerror bool >> language js
+            as '''
 let result = [];
 try {
 const images_ = JSON.parse(images_string);
@@ -17,7 +23,8 @@ if (images_ && images_["responsive-images"]) {
 }
 } catch (e) {}
 return result;
-''';
+'''
+;
 select
     client,
     count(0) as images_with_sizes,

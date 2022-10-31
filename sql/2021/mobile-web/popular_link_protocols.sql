@@ -1,14 +1,17 @@
 # standardSQL
 # % of pages using each link protocol
-CREATE TEMPORARY FUNCTION getUsedProtocols(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getusedprotocols(payload string)
+returns array<string>
+language js
+as '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.link_protocols_used);
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 select
     _table_suffix as client,
     total_pages,

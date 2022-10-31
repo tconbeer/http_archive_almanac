@@ -1,15 +1,17 @@
 # standardSQL
 # Count Microdata item types
-CREATE TEMP FUNCTION getMicrodataItemTypes(rendered STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS """
+create temp function getmicrodataitemtypes(rendered string)
+returns array<string>
+language js
+as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.microdata_itemtypes.map(itemType => itemType.toLowerCase());
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
 with
     rendered_data as (

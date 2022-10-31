@@ -1,7 +1,9 @@
 # standardSQL
 # 11_04g: Top manifest orientations
-CREATE TEMPORARY FUNCTION getOrientation(manifest STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function getorientation(manifest string)
+returns string
+language js
+as '''
 try {
   var $ = JSON.parse(manifest);
   if (!('orientation' in $)) {
@@ -11,7 +13,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     client,

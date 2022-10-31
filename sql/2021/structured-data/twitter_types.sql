@@ -1,15 +1,17 @@
 # standardSQL
 # Count Twitter types
-CREATE TEMP FUNCTION getTwitterTypes(rendered STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS """
+create temp function gettwittertypes(rendered string)
+returns array<string>
+language js
+as """
   try {
     rendered = JSON.parse(rendered);
     return rendered.twitter.map(twitter => twitter.name.toLowerCase());
   } catch (e) {
     return [];
   }
-""";
+"""
+;
 
 with
     rendered_data as (

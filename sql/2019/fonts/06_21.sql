@@ -1,7 +1,10 @@
 # standardSQL
 # 06_21: % of pages with VF using font-variation-settings
-CREATE TEMPORARY FUNCTION usesFontVariationSettings(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function usesfontvariationsettings(css string)
+returns array<string>
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -17,7 +20,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select client, count(0) as freq, total, round(count(0) * 100 / total, 2) as pct
 from

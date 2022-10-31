@@ -1,7 +1,9 @@
 # standardSQL
 # 02_01: % of sites that use custom properties.
-CREATE TEMPORARY FUNCTION usesCustomProps(css STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function usescustomprops(css string)
+returns boolean
+language js
+as '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -18,7 +20,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

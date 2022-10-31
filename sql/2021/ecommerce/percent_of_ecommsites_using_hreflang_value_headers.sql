@@ -2,16 +2,16 @@
 # page wpt_bodies metrics grouped by device and hreflang value in http headers
 # filter for Ecommerce sites
 # helper to create percent fields
-CREATE TEMP FUNCTION
-AS_PERCENT (freq FLOAT64,
-  total FLOAT64)
-RETURNS FLOAT64 AS ( SAFE_DIVIDE(freq,
-  total) );
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (safe_divide(freq, total))
+;
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION
-get_wpt_bodies_info(wpt_bodies_string STRING)
-RETURNS STRUCT< hreflangs ARRAY<STRING> >
-LANGUAGE js AS '''
+create temporary function get_wpt_bodies_info(wpt_bodies_string string)
+returns struct<hreflangs array<string>>
+language js
+as
+    '''
 var result = {
   hreflangs: []
 };
@@ -23,7 +23,8 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 select
     client,
     normalize_and_casefold(hreflang) as hreflang,

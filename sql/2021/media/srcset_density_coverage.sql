@@ -1,15 +1,17 @@
 # standardSQL
 # images srcset candidates average
-CREATE TEMPORARY FUNCTION getSrcsetInfo(responsiveImagesJsonString STRING)
-RETURNS ARRAY<STRUCT<
-    hasSrcset BOOL,
-    srcsetHasXDescriptors BOOL,
-    srcsetHasWDescriptors BOOL,
-    srcsetCandidateDensities ARRAY<FLOAT64>,
-    numberOfSrcsetCandidates INT64,
-    minDensity FLOAT64,
-    maxDensity FLOAT64>>
-LANGUAGE js AS '''
+create temporary function getsrcsetinfo(responsiveimagesjsonstring string)
+returns
+    array<
+        struct<
+            hassrcset bool,
+            srcsethasxdescriptors bool,
+            srcsethaswdescriptors bool,
+            srcsetcandidatedensities array<float64>,
+            numberofsrcsetcandidates int64,
+            mindensity float64,
+            maxdensity float64 >> language js
+            as '''
   const parsed = JSON.parse( responsiveImagesJsonString );
   if ( parsed && parsed.map ) {
     return parsed.map( d => {
@@ -32,7 +34,8 @@ LANGUAGE js AS '''
       return result;
     });
   }
-''';
+'''
+;
 
 with
     imgs as (

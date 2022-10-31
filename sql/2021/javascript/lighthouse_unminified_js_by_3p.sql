@@ -1,7 +1,8 @@
 # standardSQL
 # Pages with unminified JS by 1P/3P
-CREATE TEMPORARY FUNCTION getUnminifiedJsUrls(audit STRING)
-RETURNS ARRAY<STRUCT<url STRING, wastedBytes INT64>> LANGUAGE js AS '''
+create temporary function getunminifiedjsurls(audit string)
+returns
+    array< struct<url string, wastedbytes int64 >> language js as '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(({url, wastedBytes}) => {
@@ -10,7 +11,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     avg(pct_1p_wasted_bytes) as avg_pct_1p_wasted_bytes,

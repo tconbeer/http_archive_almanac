@@ -1,7 +1,10 @@
 # standardSQL
 # 09_01b: % of pages having any heading
-CREATE TEMPORARY FUNCTION hasHeading(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function hasheading(payload string)
+returns boolean
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -13,7 +16,8 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
 select
     client,

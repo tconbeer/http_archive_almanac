@@ -1,7 +1,10 @@
 # standardSQL
 # Top obsolete elements
-CREATE TEMPORARY FUNCTION get_element_types(element_count_string STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function get_element_types(element_count_string string)
+returns array<string>
+language js
+as
+    '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 
@@ -14,11 +17,44 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION is_obsolete(element STRING) AS (
-  element IN ('applet', 'acronym', 'bgsound', 'dir', 'frame', 'frameset', 'noframes', 'isindex', 'keygen', 'listing', 'menuitem', 'nextid', 'noembed', 'plaintext', 'rb', 'rtc', 'strike', 'xmp', 'basefont', 'big', 'blink', 'center', 'font', 'marquee', 'multicol', 'nobr', 'spacer', 'tt')
-);
+create temporary function is_obsolete(element string)
+as
+    (
+        element in (
+            'applet',
+            'acronym',
+            'bgsound',
+            'dir',
+            'frame',
+            'frameset',
+            'noframes',
+            'isindex',
+            'keygen',
+            'listing',
+            'menuitem',
+            'nextid',
+            'noembed',
+            'plaintext',
+            'rb',
+            'rtc',
+            'strike',
+            'xmp',
+            'basefont',
+            'big',
+            'blink',
+            'center',
+            'font',
+            'marquee',
+            'multicol',
+            'nobr',
+            'spacer',
+            'tt'
+        )
+    )
+;
 
 select
     _table_suffix as client,

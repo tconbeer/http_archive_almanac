@@ -1,16 +1,20 @@
 # standardSQL
 # pages markup metrics grouped by device and input type
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
 # returns all the data we need from _markup
-CREATE TEMPORARY FUNCTION get_markup_inputs_info(markup_string STRING)
-RETURNS ARRAY<STRUCT<
-  name STRING,
-  freq INT64
-  >> LANGUAGE js AS '''
+create temporary function get_markup_inputs_info(markup_string string)
+returns
+    array<
+        struct<
+            name string,
+            freq int64 >> language js
+            as
+                '''
 var result = [];
 try {
     var markup = JSON.parse(markup_string);
@@ -29,7 +33,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     _table_suffix as client,

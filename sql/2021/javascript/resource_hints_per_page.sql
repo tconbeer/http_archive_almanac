@@ -1,7 +1,7 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getResourceHintAttrs(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
-LANGUAGE js AS '''
+create temporary function getresourcehintattrs(payload string)
+returns
+    array< struct<name string, attribute string, value string >> language js as '''
 var hints = new Set(['preload', 'prefetch']);
 var attributes = ['as'];
 try {
@@ -26,7 +26,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     percentile,

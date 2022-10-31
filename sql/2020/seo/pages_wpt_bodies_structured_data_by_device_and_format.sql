@@ -1,15 +1,17 @@
 # standardSQL
 # page wpt_bodies metrics grouped by device and structured data format used on a page
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION get_wpt_bodies_info(wpt_bodies_string STRING)
-RETURNS STRUCT<
-  items_by_format ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function get_wpt_bodies_info(wpt_bodies_string string)
+returns struct<items_by_format array<string>>
+language js
+as
+    '''
 var result = {
 items_by_format: []
 };
@@ -37,7 +39,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

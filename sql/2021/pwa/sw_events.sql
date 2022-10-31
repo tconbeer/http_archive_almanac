@@ -1,7 +1,9 @@
 # standardSQL
 # SW events
-CREATE TEMPORARY FUNCTION getSWEvents(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getswevents(payload string)
+returns array<string>
+language js
+as '''
 try {
   var payloadJSON = JSON.parse(payload);
   var swEventListenersInfo = (Object.values(payloadJSON.swEventListenersInfo)).flat();
@@ -10,7 +12,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

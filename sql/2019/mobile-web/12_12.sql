@@ -1,7 +1,9 @@
 # standardSQL
 # 12_12: Popular input types
-CREATE TEMPORARY FUNCTION getInputTypes(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getinputtypes(payload string)
+returns array<string>
+language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -11,7 +13,8 @@ RETURNS ARRAY<STRING> LANGUAGE js AS '''
   } catch (e) {
     return [];
   }
-''';
+'''
+;
 
 select
     input_type,

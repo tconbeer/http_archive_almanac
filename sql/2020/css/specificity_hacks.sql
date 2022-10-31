@@ -1,16 +1,18 @@
 # standardSQL
-CREATE TEMPORARY FUNCTION getSpecificityHacks(css STRING)
-RETURNS STRUCT<
-  bem NUMERIC,
-  attribute_id NUMERIC,
-  duplicate_classes NUMERIC,
-  root_descendant NUMERIC,
-  html_descendant NUMERIC,
-  not_id_descendant NUMERIC
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+create temporary function getspecificityhacks(css string)
+returns
+    struct<
+        bem numeric,
+        attribute_id numeric,
+        duplicate_classes numeric,
+        root_descendant numeric,
+        html_descendant numeric,
+        not_id_descendant numeric
+    >
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
 
 function compute() {
@@ -85,7 +87,8 @@ return ret;
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     percentile,

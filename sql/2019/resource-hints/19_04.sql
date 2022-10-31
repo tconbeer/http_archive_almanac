@@ -1,8 +1,8 @@
 # standardSQL
 # 19_04: Popular resource types to preload/prefecth.
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, href STRING>>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns
+    array< struct<name string, href string >> language js as '''
 var hints = new Set(['preload', 'prefetch']);
 try {
   var $ = JSON.parse(payload);
@@ -23,7 +23,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

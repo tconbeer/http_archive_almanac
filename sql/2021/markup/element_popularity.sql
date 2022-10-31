@@ -1,7 +1,10 @@
 # standardSQL
 # percentage/count of pages that contain each element
-CREATE TEMPORARY FUNCTION get_element_types(element_count_string STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function get_element_types(element_count_string string)
+returns array<string>
+language js
+as
+    '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 
@@ -14,7 +17,8 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

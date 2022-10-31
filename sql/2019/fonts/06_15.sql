@@ -1,7 +1,10 @@
 # standardSQL
 # 06_15: % of pages preconnecting a web font host
-CREATE TEMPORARY FUNCTION getPreconnectUrls(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getpreconnecturls(payload string)
+returns array<string>
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -9,7 +12,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

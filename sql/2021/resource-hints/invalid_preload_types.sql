@@ -1,8 +1,13 @@
 # standardSQL
 # returns the number of valid and invalid preload resource types
-CREATE TEMPORARY FUNCTION getInvalidTypes(almanac_string STRING)
-RETURNS ARRAY<STRUCT<type STRING, num_occurrences NUMERIC>>
-LANGUAGE js AS '''
+create temporary function getinvalidtypes(almanac_string string)
+returns
+    array<
+        struct<
+            type string,
+            num_occurrences numeric >> language js
+            as
+                '''
 try {
   // obtained from https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload#what_types_of_content_can_be_preloaded
   var validResourceTypes = [
@@ -61,7 +66,8 @@ try {
 } catch (error) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

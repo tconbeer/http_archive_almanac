@@ -1,7 +1,9 @@
 # standardSQL
 # 09_28: Pages that auto refresh, e.g. http-equiv="refresh" attribute in the meta tag
-CREATE TEMPORARY FUNCTION getTotalMetaRefresh(payload STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function gettotalmetarefresh(payload string)
+returns int64
+language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -23,7 +25,8 @@ RETURNS INT64 LANGUAGE js AS '''
   } catch (e) {
     return 0;
   }
-''';
+'''
+;
 
 select
     client,

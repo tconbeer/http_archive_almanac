@@ -1,7 +1,10 @@
 # standardSQL
 # 03_06: Elements per page
-CREATE TEMPORARY FUNCTION countElements(payload STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function countelements(payload string)
+returns int64
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count);
@@ -10,7 +13,8 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
 select
     percentile,

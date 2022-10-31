@@ -1,14 +1,17 @@
 # standardSQL
 # How often pages contain an element with a given attribute
-CREATE TEMPORARY FUNCTION getUsedAttributes(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getusedattributes(payload string)
+returns array<string>
+language js
+as '''
 try {
   const almanac = JSON.parse(payload);
   return Object.keys(almanac.attributes_used_on_elements);
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 select
     _table_suffix as client,
     total_sites,

@@ -1,6 +1,17 @@
-CREATE TEMPORARY FUNCTION getSrcsetInfo(responsiveImagesJsonString STRING)
-RETURNS ARRAY<STRUCT<imgURL STRING, approximateResourceWidth INT64, approximateResourceHeight INT64, byteSize INT64, bitsPerPixel NUMERIC, isPixel BOOL, isDataURL BOOL, resourceFormat STRING>>
-LANGUAGE js AS '''
+create temporary function getsrcsetinfo(responsiveimagesjsonstring string)
+returns
+    array<
+        struct<
+            imgurl string,
+            approximateresourcewidth int64,
+            approximateresourceheight int64,
+            bytesize int64,
+            bitsperpixel numeric,
+            ispixel bool,
+            isdataurl bool,
+            resourceformat string >> language js
+            as
+                '''
 
 function pithyType( { contentType, url } ) {
   const subtypeMap = {
@@ -109,7 +120,8 @@ function pithyType( { contentType, url } ) {
       resourceFormat: pithyType({ contentType: d.mimeType, url: d.url })
     }) );
   }
-''';
+'''
+;
 
 with
     imgs as (

@@ -1,7 +1,9 @@
 # standardSQL
 # 21_09: Top importance values on priority hints.
-CREATE TEMPORARY FUNCTION getPriorityHintImportance(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getpriorityhintimportance(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -9,7 +11,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

@@ -1,7 +1,10 @@
 # standardSQL
 # 06_28: Popularity of font-variation-settings axes
-CREATE TEMPORARY FUNCTION getFontVariationSettings(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getfontvariationsettings(css string)
+returns array<string>
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -17,7 +20,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     client,

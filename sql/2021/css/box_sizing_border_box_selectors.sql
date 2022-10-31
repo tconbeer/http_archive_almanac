@@ -1,9 +1,9 @@
 # standardSQL
 # Top selectors used with box-sizing: border-box
-CREATE TEMP FUNCTION
-getBorderBoxSelectors(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+create temp function getborderboxselectors(css string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {
@@ -24,7 +24,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 select *
 from
     (

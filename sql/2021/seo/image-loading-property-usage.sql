@@ -3,10 +3,10 @@
 # Note: This query only reports if an attribute was ever used on a page. It is not a
 # per img report.
 # returns all the data we need from _markup
-CREATE TEMPORARY FUNCTION getLoadingPropertyMarkupInfo(markup_string STRING)
-RETURNS STRUCT<
-  loading ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function getloadingpropertymarkupinfo(markup_string string)
+returns struct<loading array<string>>
+language js
+as '''
 var result = {};
 
 //Function to retrieve only keys if value is >0
@@ -31,7 +31,8 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

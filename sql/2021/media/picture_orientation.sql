@@ -1,10 +1,9 @@
 # standardSQL
 # picture using orientation
-CREATE TEMPORARY FUNCTION get_media_info(media_string STRING)
-RETURNS STRUCT<
-  num_picture_img INT64,
-  num_picture_using_orientation INT64
-> LANGUAGE js AS '''
+create temporary function get_media_info(media_string string)
+returns struct<num_picture_img int64, num_picture_using_orientation int64>
+language js
+as '''
 var result = {};
 try {
     var media = JSON.parse(media_string);
@@ -16,7 +15,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select
     client,

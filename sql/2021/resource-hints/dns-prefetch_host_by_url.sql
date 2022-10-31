@@ -2,9 +2,11 @@
 # Most popular hosts users dns-prefetch to
 # capped to one hit per url to avoid having the results skewed by websites which
 # dns-prefetch many resources from the same host
-CREATE TEMPORARY FUNCTION getResourceHintsHrefs(payload STRING, hint STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+create temporary function getresourcehintshrefs(payload string, hint string)
+returns array<string>
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -12,7 +14,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select client, host, freq, total, pct
 from

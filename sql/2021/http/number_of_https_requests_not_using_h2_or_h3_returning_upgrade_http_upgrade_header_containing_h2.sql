@@ -1,8 +1,11 @@
 # standardSQL
 # Number of HTTPS requests not using H2 or H3 returning upgrade HTTP header containing
 # H2
-CREATE TEMPORARY FUNCTION extractHTTPHeader(HTTPheaders STRING, header STRING)
-RETURNS STRING LANGUAGE js AS """
+create temporary function extracthttpheader(httpheaders string, header string)
+returns string
+language js
+as
+    """
 try {
   var headers = JSON.parse(HTTPheaders);
 
@@ -13,7 +16,8 @@ try {
 } catch (e) {
   return "";
 }
-""";
+"""
+;
 
 select
     client,

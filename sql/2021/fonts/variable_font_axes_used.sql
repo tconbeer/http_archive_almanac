@@ -1,7 +1,10 @@
 # standardSQL
 # VF_axis_value
-CREATE TEMPORARY FUNCTION getFontVariationSettings(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getfontvariationsettings(css string)
+returns array<string>
+language js
+as
+    '''
 try {
     var reduceValues = (values, rule) => {
         if ('rules' in rule) {
@@ -17,7 +20,8 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 select
     client,
     regexp_extract(lower(values), '[\'"]([\\w]{4})[\'"]') as axis,

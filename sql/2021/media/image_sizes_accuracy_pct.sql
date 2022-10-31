@@ -1,6 +1,8 @@
-CREATE TEMPORARY FUNCTION getSizesAccuracy(payload STRING)
-RETURNS ARRAY<STRUCT<sizesAbsoluteError INT64, sizesRelativeError FLOAT64>>
-LANGUAGE js AS '''
+create temporary function getsizesaccuracy(payload string)
+returns
+    array<
+        struct<
+            sizesabsoluteerror int64, sizesrelativeerror float64 >> language js as '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);
@@ -13,7 +15,8 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
 select
     _table_suffix as client,

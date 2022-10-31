@@ -1,9 +1,11 @@
 # standardSQL
 # Percentiles of Max-Age-attribute, Expires-attribute and real age (Max-Age has
 # precedence) of cookies set over all requests
-CREATE TEMPORARY FUNCTION getCookieAgeValues(headers STRING, epochOfRequest NUMERIC)
-RETURNS STRING DETERMINISTIC
-LANGUAGE js AS '''
+create temporary function getcookieagevalues(headers string, epochofrequest numeric)
+returns string deterministic
+language js
+as
+    '''
   const regexMaxAge = new RegExp(/max-age\\s*=\\s*(?<value>-*[0-9]+)/i);
   const regexExpires = new RegExp(/expires\\s*=\\s*(?<value>.*?)(;|$)/i);
   const parsed_headers = JSON.parse(headers);
@@ -32,7 +34,8 @@ LANGUAGE js AS '''
       }
   });
   return JSON.stringify(result);
-''';
+'''
+;
 
 with
     age_values as (

@@ -1,10 +1,11 @@
 # standardSQL
 # Robots txt user agent usage
 # returns all the data we need from _robots_txt
-CREATE TEMPORARY FUNCTION getRobotsTextUserAgents(robots_txt_string STRING)
-RETURNS STRUCT<
-  user_agents ARRAY<STRING>
-> LANGUAGE js AS '''
+create temporary function getrobotstextuseragents(robots_txt_string string)
+returns struct<user_agents array<string>>
+language js
+as
+    '''
 var result = {
   user_agents: []
 };
@@ -21,7 +22,8 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
 select client, user_agent, total, count(0) as count, safe_divide(count(0), total) as pct
 from
