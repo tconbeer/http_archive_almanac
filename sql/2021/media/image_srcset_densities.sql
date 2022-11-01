@@ -1,12 +1,8 @@
 create temporary function getsrcsetdensities(payload string)
-returns
-    array<
-        struct<
-            currentsrcdensity int64,
-            srcsetcandidatedensities array<float64 >>>
-            language js
-            as
-                '''
+returns array<struct<currentsrcdensity int64, srcsetcandidatedensities array<float64>>>
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);

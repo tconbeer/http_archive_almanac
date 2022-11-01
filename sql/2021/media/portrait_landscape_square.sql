@@ -8,9 +8,12 @@ returns
             aspectratio numeric,
             isportrait bool,
             islandscape bool,
-            issquare bool >> language js
-            as
-                '''
+            issquare bool
+        >
+    >
+language js
+as
+    '''
   const parsed = JSON.parse( responsiveImagesJsonString );
   if ( parsed && parsed.map ) {
     return parsed.map( d => {

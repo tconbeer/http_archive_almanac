@@ -1,12 +1,9 @@
 # standardSQL
 create temporary function getpaintworklets(css string)
-returns
-    array<
-        struct<
-            name string,
-            freq int64 >> language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as '''
+returns array<struct<name string, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   var ast = JSON.parse(css);
   var ret = {};

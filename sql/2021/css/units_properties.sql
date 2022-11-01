@@ -1,14 +1,10 @@
 # standardSQL
 create temporary function getpropertyunits(css string)
-returns
-    array<
-        struct<
-            property string,
-            unit string,
-            freq int64 >> language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as
-                '''
+returns array<struct<property string, unit string, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let ret = {

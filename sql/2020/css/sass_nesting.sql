@@ -1,12 +1,9 @@
 # standardSQL
 create temporary function getnestedusage(payload string)
-returns
-    array<
-        struct<
-            nested string,
-            freq int64 >> language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as '''
+returns array<struct<nested string, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);

@@ -9,9 +9,12 @@ returns
             bitsperpixel numeric,
             ispixel bool,
             isdataurl bool,
-            resourceformat string >> language js
-            as
-                '''
+            resourceformat string
+        >
+    >
+language js
+as
+    '''
 
 function pithyType( { contentType, url } ) {
   const subtypeMap = {

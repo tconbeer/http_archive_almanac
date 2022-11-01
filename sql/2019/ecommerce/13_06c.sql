@@ -1,8 +1,9 @@
 # standardSQL
 # 13_06c: Distribution of image dimensions
 create temporary function getimagedimensions(payload string)
-returns
-    array< struct<height int64, width int64 >> language js as '''
+returns array<struct<height int64, width int64>>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var images = JSON.parse($._Images);

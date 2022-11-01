@@ -10,8 +10,11 @@ returns
             srcsetcandidatedensities array<float64>,
             numberofsrcsetcandidates int64,
             mindensity float64,
-            maxdensity float64 >> language js
-            as '''
+            maxdensity float64
+        >
+    >
+language js
+as '''
   const parsed = JSON.parse( responsiveImagesJsonString );
   if ( parsed && parsed.map ) {
     return parsed.map( d => {

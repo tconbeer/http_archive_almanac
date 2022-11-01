@@ -2,13 +2,10 @@
 # M221
 # returns all the data we need from _wpt_bodies
 create temporary function get_heading_info(wpt_bodies_string string)
-returns
-    array<
-        struct<
-            heading string,
-            total int64 >> language js
-            as
-                '''
+returns array<struct<heading string, total int64>>
+language js
+as
+    '''
 var result = [];
 try {
     var wpt_bodies = JSON.parse(wpt_bodies_string);

@@ -8,9 +8,12 @@ returns
             naturalwidth int64,
             naturalheight int64,
             width int64,
-            height int64 >> language js
-            as
-                '''
+            height int64
+        >
+    >
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var images = JSON.parse($._Images) || [];

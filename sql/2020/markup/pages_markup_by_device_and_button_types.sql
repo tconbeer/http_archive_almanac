@@ -8,13 +8,10 @@ as (round(safe_divide(freq, total), 4))
 
 # returns all the data we need from _markup
 create temporary function get_markup_buttons_info(markup_string string)
-returns
-    array<
-        struct<
-            name string,
-            freq int64 >> language js
-            as
-                '''
+returns array<struct<name string, freq int64>>
+language js
+as
+    '''
 var result = [];
 try {
     var markup = JSON.parse(markup_string);

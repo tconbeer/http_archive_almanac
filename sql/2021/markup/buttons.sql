@@ -2,13 +2,10 @@
 # pages markup metrics grouped by device and button type
 # returns button struct
 create temporary function get_markup_buttons_info(markup_string string)
-returns
-    array<
-        struct<
-            name string,
-            freq int64 >> language js
-            as
-                '''
+returns array<struct<name string, freq int64>>
+language js
+as
+    '''
 var result = [];
 try {
     var markup = JSON.parse(markup_string);

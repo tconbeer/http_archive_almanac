@@ -1,8 +1,7 @@
 create temporary function getsizesaccuracy(payload string)
-returns
-    array<
-        struct<
-            sizesabsoluteerror int64, sizesrelativeerror float64 >> language js as '''
+returns array<struct<sizesabsoluteerror int64, sizesrelativeerror float64>>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);

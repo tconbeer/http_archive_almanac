@@ -1,10 +1,9 @@
 # standardSQL
 # Adoption of @property declarations
 create temp function getatpropertyvalues(css string)
-returns
-    array<
-        struct<
-            syntax string, inherits string, `initial-value` string >> language js as '''
+returns array<struct<syntax string, inherits string, `initial-value` string>>
+language js
+as '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {

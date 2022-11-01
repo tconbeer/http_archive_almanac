@@ -1,13 +1,10 @@
 # standardSQL
 # Count Classic Microformats types
 create temp function getclassicmicroformatstypes(rendered string)
-returns
-    array<
-        struct<
-            name string,
-            count numeric >> language js
-            as
-                """
+returns array<struct<name string, count numeric>>
+language js
+as
+    """
   try {
     rendered = JSON.parse(rendered);
     return rendered.microformats_classic_types.map(microformats_classic_type => ({name: microformats_classic_type.name, count: microformats_classic_type.count}));

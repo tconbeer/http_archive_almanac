@@ -7,13 +7,10 @@ as (round(safe_divide(freq, total), 4))
 ;
 
 create temporary function get_element_types_info(element_count_string string)
-returns
-    array<
-        struct<
-            name string,
-            freq int64 >> language js
-            as
-                '''
+returns array<struct<name string, freq int64>>
+language js
+as
+    '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 

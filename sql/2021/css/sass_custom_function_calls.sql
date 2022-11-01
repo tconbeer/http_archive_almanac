@@ -1,7 +1,8 @@
 # standardSQL
 create temporary function getcustomfunctioncalls(payload string)
-returns
-    array< struct<fn string, freq int64 >> language js as '''
+returns array<struct<fn string, freq int64>>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);

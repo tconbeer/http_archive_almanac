@@ -1,13 +1,10 @@
 # standardSQL
 create temporary function getcustompropertyvaluetypes(payload string)
-returns
-    array<
-        struct<
-            type string,
-            freq int64 >> language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as
-                '''
+returns array<struct<type string, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(vars) {
     function walkElements(node, callback) {

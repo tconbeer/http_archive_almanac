@@ -1,7 +1,8 @@
 # standardSQL
 create temporary function getresourcehintattrs(payload string)
-returns
-    array< struct<name string, attribute string, value string >> language js as '''
+returns array<struct<name string, attribute string, value string>>
+language js
+as '''
 var hints = new Set(['preload', 'prefetch']);
 var attributes = ['as'];
 try {

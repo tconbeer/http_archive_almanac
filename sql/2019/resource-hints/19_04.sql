@@ -1,8 +1,9 @@
 # standardSQL
 # 19_04: Popular resource types to preload/prefecth.
 create temporary function getresourcehints(payload string)
-returns
-    array< struct<name string, href string >> language js as '''
+returns array<struct<name string, href string>>
+language js
+as '''
 var hints = new Set(['preload', 'prefetch']);
 try {
   var $ = JSON.parse(payload);

@@ -7,8 +7,11 @@ returns
             approximateresourceheight int64,
             bytesize int64,
             ispixel bool,
-            isdataurl bool >> language js
-            as '''
+            isdataurl bool
+        >
+    >
+language js
+as '''
 const parsed = JSON.parse(responsiveImagesJsonString);
 if (parsed && parsed.map) {
   const dataRegEx = new RegExp('^data');

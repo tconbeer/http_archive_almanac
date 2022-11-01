@@ -1,15 +1,10 @@
 # standardSQL
 # Find the most nested entity in a JSON-LD document
 create temp function getjsonldentitiesrelationships(rendered string)
-returns
-    array<
-        struct<
-            _from string,
-            relationship string,
-            _to string,
-            depth numeric >> language js
-            as
-                """
+returns array<struct<_from string, relationship string, _to string, depth numeric>>
+language js
+as
+    """
   try {
     const types = new Map();
 

@@ -1,8 +1,9 @@
 # standardSQL
 # Pages with unminified JS by 1P/3P
 create temporary function getunminifiedjsurls(audit string)
-returns
-    array< struct<url string, wastedbytes int64 >> language js as '''
+returns array<struct<url string, wastedbytes int64>>
+language js
+as '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(({url, wastedBytes}) => {

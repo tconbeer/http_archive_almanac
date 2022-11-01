@@ -5,11 +5,13 @@ returns
         rulecount numeric,
         selectorcount numeric,
         distribution array<
-            struct<specificity string, specificity_cmp string, freq int64 >>>
-            language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as
-                '''
+            struct<specificity string, specificity_cmp string, freq int64>
+        >
+    >
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function extractSpecificity(ast) {
     let ret = {

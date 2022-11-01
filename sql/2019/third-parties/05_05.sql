@@ -2,8 +2,9 @@
 # Percentage of script execution time that are from third party requests broken down
 # by third party category.
 create temporary function getexecutiontimes(report string)
-returns
-    array< struct<url string, execution_time float64 >> language js as '''
+returns array<struct<url string, execution_time float64>>
+language js
+as '''
 try {
   var $ = JSON.parse(report);
   return $.audits['bootup-time'].details.items.map(item => ({

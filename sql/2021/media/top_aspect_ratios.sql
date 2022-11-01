@@ -6,9 +6,12 @@ returns
             approximateresourcewidth int64,
             approximateresourceheight int64,
             aspectratio numeric,
-            resourceformat string >> language js
-            as
-                '''
+            resourceformat string
+        >
+    >
+language js
+as
+    '''
   const parsed = JSON.parse( responsiveImagesJsonString );
   if ( parsed && parsed.map ) {
     return parsed.map( d => ({

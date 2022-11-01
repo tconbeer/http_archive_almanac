@@ -1,8 +1,9 @@
 # standardSQL
 # Most popular accesskey or aria-keyshortcuts keys
 create temporary function getshortcuts(payload string)
-returns
-    array< struct<type string, shortcut string >> language js as '''
+returns array<struct<type string, shortcut string>>
+language js
+as '''
 try {
   const almanac = JSON.parse(payload);
 

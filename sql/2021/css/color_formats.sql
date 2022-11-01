@@ -1,13 +1,10 @@
 # standardSQL
 create temporary function getcolorformats(css string)
-returns
-    array<
-        struct<
-            name string,
-            value int64 >> language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as
-                '''
+returns array<struct<name string, value int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let usage = {

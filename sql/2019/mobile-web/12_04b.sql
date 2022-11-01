@@ -1,13 +1,10 @@
 # standardSQL
 # 12_04b: Viewport directive usage
 create temporary function getviewportdirectivedata(payload string)
-returns
-    array<
-        struct<
-            directive string,
-            value string >> language js
-            as
-                '''
+returns array<struct<directive string, value string>>
+language js
+as
+    '''
   var viewport_separator_regex = new RegExp('(,|;| )+', 'gm');
 
   try {

@@ -1,8 +1,9 @@
 # standardSQL
 # 19_10: Top tag/importance combinations on priority hints.
 create temporary function getpriorityhints(payload string)
-returns
-    array< struct<tag string, importance string >> language js as '''
+returns array<struct<tag string, importance string>>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);

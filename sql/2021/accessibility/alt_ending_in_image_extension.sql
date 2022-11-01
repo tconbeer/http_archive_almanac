@@ -1,13 +1,10 @@
 # standardSQL
 # Alt text ending in an image extension
 create temporary function getusedextensions(payload string)
-returns
-    array<
-        struct<
-            extension string,
-            total int64 >> language js
-            as
-                '''
+returns array<struct<extension string, total int64>>
+language js
+as
+    '''
 try {
   const a11y = JSON.parse(payload);
 

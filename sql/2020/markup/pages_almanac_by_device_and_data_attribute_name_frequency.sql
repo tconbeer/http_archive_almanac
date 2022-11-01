@@ -6,13 +6,10 @@ as (round(safe_divide(freq, total), 4))
 ;
 
 create temporary function get_almanac_attribute_info(almanac_string string)
-returns
-    array<
-        struct<
-            name string,
-            freq int64 >> language js
-            as
-                '''
+returns array<struct<name string, freq int64>>
+language js
+as
+    '''
 try {
     var almanac = JSON.parse(almanac_string);
 

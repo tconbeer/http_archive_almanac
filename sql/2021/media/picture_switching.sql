@@ -1,11 +1,8 @@
 create temporary function getpictureswitching(payload string)
-returns
-    array<
-        struct<
-            picturemediaswitching boolean,
-            picturetypeswitching boolean >> language js
-            as
-                '''
+returns array<struct<picturemediaswitching boolean, picturetypeswitching boolean>>
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var responsiveImages = JSON.parse($._responsive_images);

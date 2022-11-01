@@ -2,31 +2,15 @@
 create temporary function getselectorparts(css string)
 returns
     struct<
-        class array<
-            struct<
-                name string,
-                value int64 >>,
-                id array<
-                    struct<
-                        name string,
-                        value int64 >>,
-                        attribute array<
-                            struct<
-                                name string,
-                                value int64 >>,
-                                pseudo_class array<
-                                    struct<
-                                        name string,
-                                        value int64 >>,
-                                        pseudo_element array<
-                                            struct<name string, value int64 >>>
-                                            language js
-                                            options
-                                                (
-                                                    library
-                                                    = "gs://httparchive/lib/css-utils.js"
-                                                )
-                                            as '''
+        class array<struct<name string, value int64>>,
+        id array<struct<name string, value int64>>,
+        attribute array<struct<name string, value int64>>,
+        pseudo_class array<struct<name string, value int64>>,
+        pseudo_element array<struct<name string, value int64>>
+    >
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {

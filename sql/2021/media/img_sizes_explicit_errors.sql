@@ -5,8 +5,11 @@ returns
             sizes bool,
             srcsethaswdescriptors bool,
             sizeswasimplicit bool,
-            sizesparseerror bool >> language js
-            as '''
+            sizesparseerror bool
+        >
+    >
+language js
+as '''
 let result = [];
 try {
 const images_ = JSON.parse(images_string);

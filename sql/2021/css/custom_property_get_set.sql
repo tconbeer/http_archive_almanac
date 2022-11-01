@@ -1,12 +1,9 @@
 # standardSQL
 create temporary function getcustompropertyusage(payload string)
-returns
-    array<
-        struct<
-            name string,
-            freq int64 >> language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as '''
+returns array<struct<name string, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(vars) {
     let ret = {

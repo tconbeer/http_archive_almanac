@@ -1,12 +1,9 @@
 # standardSQL
 create temporary function getimportantproperties(css string)
-returns
-    array<
-        struct<
-            property string,
-            freq int64 >> language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as '''
+returns array<struct<property string, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   var ast = JSON.parse(css);
   let ret = {

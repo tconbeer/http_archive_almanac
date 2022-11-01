@@ -1,7 +1,8 @@
 # standardSQL
 create temporary function getmarkupdirs(payload string)
-returns
-    array< struct<element string, value string >> language js as '''
+returns array<struct<element string, value string>>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var dirs = JSON.parse($._markup).dirs;

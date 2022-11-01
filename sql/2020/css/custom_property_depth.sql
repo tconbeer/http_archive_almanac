@@ -1,13 +1,10 @@
 # standardSQL
 create temporary function getcustompropertylengths(payload string)
-returns
-    array<
-        struct<
-            depth int64,
-            freq int64 >> language js
-            options (library = "gs://httparchive/lib/css-utils.js")
-            as
-                '''
+returns array<struct<depth int64, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(vars) {
     function walkElements(node, callback, parent) {

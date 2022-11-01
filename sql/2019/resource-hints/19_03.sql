@@ -1,8 +1,9 @@
 # standardSQL
 # 19_03: Attribute popularity for each hint.
 create temporary function getresourcehints(payload string)
-returns
-    array< struct<name string, attribute string, value string >> language js as '''
+returns array<struct<name string, attribute string, value string>>
+language js
+as '''
 var hints = new Set(['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch']);
 var attributes = ['as', 'crossorigin'];
 try {

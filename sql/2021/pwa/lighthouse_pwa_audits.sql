@@ -11,8 +11,11 @@ returns
             audit_group string,
             title string,
             description string,
-            score int64 >> language js
-            as '''
+            score int64
+        >
+    >
+language js
+as '''
 var auditrefs = JSON.parse(auditRefs);
 var audits = JSON.parse(audits);
 var results = [];
