@@ -1,12 +1,15 @@
-#standardSQL
+# standardSQL
 # % mobile sites with sufficient text color contrast with its background
-SELECT
-  COUNTIF(color_contrast_score IS NOT NULL) AS total_applicable,
-  COUNTIF(CAST(color_contrast_score AS NUMERIC) = 1) AS total_sufficient,
-  COUNTIF(CAST(color_contrast_score AS NUMERIC) = 1) / COUNTIF(color_contrast_score IS NOT NULL) AS perc_in_applicable
-FROM (
-  SELECT
-    JSON_EXTRACT_SCALAR(report, '$.audits.color-contrast.score') AS color_contrast_score
-  FROM
-    `httparchive.lighthouse.2020_08_01_mobile`
-)
+select
+    countif(color_contrast_score is not null) as total_applicable,
+    countif(cast(color_contrast_score as numeric) = 1) as total_sufficient,
+    countif(cast(color_contrast_score as numeric) = 1)
+    / countif(color_contrast_score is not null) as perc_in_applicable
+from
+    (
+        select
+            json_extract_scalar(
+                report, '$.audits.color-contrast.score'
+            ) as color_contrast_score
+        from `httparchive.lighthouse.2020_08_01_mobile`
+    )

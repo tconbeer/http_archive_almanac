@@ -1,12 +1,9 @@
-#standardSQL
+# standardSQL
 # Internal and external link metrics by quantile and rank
-
-CREATE TEMPORARY FUNCTION getOutgoingLinkMetrics(payload STRING)
-RETURNS STRUCT<
-  same_site INT64,
-  same_property INT64,
-  other_property INT64
-> LANGUAGE js AS '''
+create temporary function getoutgoinglinkmetrics(payload string)
+returns struct<same_site int64, same_property int64, other_property int64>
+language js
+as '''
 var result = {same_site: 0,
               same_property: 0,
               other_property: 0};
@@ -30,43 +27,38 @@ try {
 } catch (e) {}
 
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  percentile,
-  rank_grouping,
-  COUNT(DISTINCT page) AS pages,
-  APPROX_QUANTILES(outgoing_link_metrics.same_site, 1000)[OFFSET(percentile * 10)] AS outgoing_links_same_site,
-  APPROX_QUANTILES(outgoing_link_metrics.same_property, 1000)[OFFSET(percentile * 10)] AS outgoing_links_same_property,
-  APPROX_QUANTILES(outgoing_link_metrics.other_property, 1000)[OFFSET(percentile * 10)] AS outgoing_links_other_property
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    getOutgoingLinkMetrics(payload) AS outgoing_link_metrics
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
-UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-LEFT JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    rank
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-)
-USING
-  (client, page),
-  UNNEST([1e3, 1e4, 1e5, 1e6, 1e7]) AS rank_grouping
-WHERE
-  rank <= rank_grouping
-GROUP BY
-  client,
-  rank_grouping,
-  percentile
-ORDER BY
-  client,
-  rank_grouping,
-  percentile
+select
+    client,
+    percentile,
+    rank_grouping,
+    count(distinct page) as pages,
+    approx_quantiles(outgoing_link_metrics.same_site, 1000)[
+        offset(percentile * 10)
+    ] as outgoing_links_same_site,
+    approx_quantiles(outgoing_link_metrics.same_property, 1000)[
+        offset(percentile * 10)
+    ] as outgoing_links_same_property,
+    approx_quantiles(outgoing_link_metrics.other_property, 1000)[
+        offset(percentile * 10)
+    ] as outgoing_links_other_property
+from
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            getoutgoinglinkmetrics(payload) as outgoing_link_metrics
+        from `httparchive.pages.2021_07_01_*`
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+left join
+    (
+        select _table_suffix as client, url as page, rank
+        from `httparchive.summary_pages.2021_07_01_*`
+    ) using (client, page),
+    unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_grouping
+where rank <= rank_grouping
+group by client, rank_grouping, percentile
+order by client, rank_grouping, percentile

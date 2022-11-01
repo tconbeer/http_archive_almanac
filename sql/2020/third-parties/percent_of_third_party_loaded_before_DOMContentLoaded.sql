@@ -1,55 +1,41 @@
-#standardSQL
+# standardSQL
 # Percent of third-party requests loaded before DOM Content Loaded event
+with
+    requests as (
+        select
+            _table_suffix as client,
+            page,
+            url,
+            safe_cast(json_extract_scalar(payload, '$._load_end') as int64) as load_end
+        from `httparchive.requests.2020_08_01_*`
+    ),
 
-WITH requests AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    page,
-    url,
-    SAFE_CAST(JSON_EXTRACT_SCALAR(payload, '$._load_end') AS INT64) AS load_end
-  FROM
-    `httparchive.requests.2020_08_01_*`
-),
+    pages as (
+        select _table_suffix as client, url, oncontentloaded
+        from `httparchive.summary_pages.2020_08_01_*`
+    ),
 
-pages AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    onContentLoaded
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-),
+    third_party as (
+        select category, domain
+        from `httparchive.almanac.third_parties`
+        where date = '2020-08-01'
+    ),
 
-third_party AS (
-  SELECT
-    category,
-    domain
-  FROM
-    `httparchive.almanac.third_parties`
-  WHERE
-    date = '2020-08-01'
-),
+    base as (
+        select
+            requests.client as client,
+            third_party.domain as request_domain,
+            if(requests.load_end < pages.oncontentloaded, 1, 0) as early_request,
+            third_party.category as request_category
+        from requests
+        inner join third_party on net.host(requests.url) = net.host(third_party.domain)
+        left join pages on requests.page = pages.url and requests.client = pages.client
+    )
 
-base AS (
-  SELECT
-    requests.client AS client,
-    third_party.domain AS request_domain,
-    IF(requests.load_end < pages.onContentLoaded, 1, 0) AS early_request,
-    third_party.category AS request_category
-  FROM requests
-  INNER JOIN third_party
-  ON NET.HOST(requests.url) = NET.HOST(third_party.domain)
-  LEFT JOIN pages
-  ON requests.page = pages.url AND requests.client = pages.client
-)
-
-SELECT
-  client,
-  request_category,
-  COUNT(0) AS total_requests,
-  SUM(early_request) / COUNT(0) AS pct_early_requests
-FROM
-  base
-GROUP BY
-  client,
-  request_category
+select
+    client,
+    request_category,
+    count(0) as total_requests,
+    sum(early_request) / count(0) as pct_early_requests
+from base
+group by client, request_category

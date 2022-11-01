@@ -1,9 +1,9 @@
-#standardSQL
+# standardSQL
 # meta nodes
-
-CREATE TEMPORARY FUNCTION getMetaNodes(payload STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js AS '''
+create temporary function getmetanodes(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -11,40 +11,26 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-WITH totals AS (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total_pages
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX
-)
+with
+    totals as (
+        select _table_suffix, count(0) as total_pages
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    )
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  IF(IFNULL(TRIM(name), '') = '', '(not set)', name) AS name,
-  COUNT(0) AS freq,
-  COUNT(0) / SUM(COUNT(0)) OVER () AS pct_nodes,
-  COUNT(DISTINCT url) AS num_urls,
-  COUNT(DISTINCT url) / total_pages AS pct_pages
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getMetaNodes(payload)) AS name
-JOIN
-  totals
-USING
-  (_TABLE_SUFFIX)
-GROUP BY
-  client,
-  total_pages,
-  name
-HAVING
-  freq > 1
-ORDER BY
-  pct_nodes DESC,
-  client,
-  name
-LIMIT 200
+select
+    _table_suffix as client,
+    if(ifnull(trim(name), '') = '', '(not set)', name) as name,
+    count(0) as freq,
+    count(0) / sum(count(0)) over () as pct_nodes,
+    count(distinct url) as num_urls,
+    count(distinct url) / total_pages as pct_pages
+from `httparchive.pages.2021_07_01_*`, unnest(getmetanodes(payload)) as name
+join totals using (_table_suffix)
+group by client, total_pages, name
+having freq > 1
+order by pct_nodes desc, client, name
+limit 200

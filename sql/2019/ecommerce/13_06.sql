@@ -1,21 +1,16 @@
-#standardSQL
+# standardSQL
 # 13_06: Distribution of image stats
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  APPROX_QUANTILES(reqImg, 1000)[OFFSET(percentile * 10)] AS image_count,
-  ROUND(APPROX_QUANTILES(bytesImg, 1000)[OFFSET(percentile * 10)] / 1024, 2) AS image_kbytes
-FROM
-  `httparchive.summary_pages.2019_07_01_*`
-JOIN
-  `httparchive.technologies.2019_07_01_*`
-USING (_TABLE_SUFFIX, url),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-WHERE
-  category = 'Ecommerce'
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    _table_suffix as client,
+    approx_quantiles(reqimg, 1000)[offset(percentile * 10)] as image_count,
+    round(
+        approx_quantiles(bytesimg, 1000)[offset(percentile * 10)] / 1024, 2
+    ) as image_kbytes
+from `httparchive.summary_pages.2019_07_01_*`
+join
+    `httparchive.technologies.2019_07_01_*` using (_table_suffix, url),
+    unnest([10, 25, 50, 75, 90]) as percentile
+where category = 'Ecommerce'
+group by percentile, client
+order by percentile, client

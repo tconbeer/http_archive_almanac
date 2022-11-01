@@ -1,21 +1,18 @@
-#standardSQL
+# standardSQL
 # 09_24: % pages with aria-posinset and aria-setsize
-SELECT
-  client,
-  COUNTIF(posinset AND setsize) AS freq,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(posinset AND setsize) * 100 / COUNT(0), 2) AS pct
-FROM (
-  SELECT
+select
     client,
-    REGEXP_CONTAINS(body, '\\saria-posinset=') AS posinset,
-    REGEXP_CONTAINS(body, '\\saria-setsize=') AS setsize
-  FROM
-    `httparchive.almanac.summary_response_bodies`
-  WHERE
-    date = '2019-07-01' AND
-    firstHtml)
-GROUP BY
-  client
-ORDER BY
-  freq / total DESC
+    countif(posinset and setsize) as freq,
+    count(0) as total,
+    round(countif(posinset and setsize) * 100 / count(0), 2) as pct
+from
+    (
+        select
+            client,
+            regexp_contains(body, '\\saria-posinset=') as posinset,
+            regexp_contains(body, '\\saria-setsize=') as setsize
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    )
+group by client
+order by freq / total desc

@@ -1,13 +1,16 @@
-#standardSQL
+# standardSQL
 # Top used elements
 # See related: sql/2019/03_Markup/03_02b.sql
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
-
-CREATE TEMPORARY FUNCTION get_element_types_info(element_count_string STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>> LANGUAGE js AS '''
+create temporary function get_element_types_info(element_count_string string)
+returns array<struct<name string, freq int64>>
+language js
+as
+    '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 
@@ -20,20 +23,22 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  element_type_info.name,
-  SUM(element_type_info.freq) AS freq_m201, # total count from all pages
-  AS_PERCENT(SUM(element_type_info.freq), SUM(SUM(element_type_info.freq)) OVER (PARTITION BY _TABLE_SUFFIX)) AS pct_m202
-FROM
-  `httparchive.pages.2020_08_01_*`,
-  UNNEST(get_element_types_info(JSON_EXTRACT_SCALAR(payload, '$._element_count'))) AS element_type_info
-GROUP BY
-  client,
-  element_type_info.name
-ORDER BY
-  freq_m201 DESC,
-  client
-LIMIT 1000
+select
+    _table_suffix as client,
+    element_type_info.name,
+    sum(element_type_info.freq) as freq_m201,  # total count from all pages
+    as_percent(
+        sum(element_type_info.freq),
+        sum(sum(element_type_info.freq)) over (partition by _table_suffix)
+    ) as pct_m202
+from
+    `httparchive.pages.2020_08_01_*`,
+    unnest(
+        get_element_types_info(json_extract_scalar(payload, '$._element_count'))
+    ) as element_type_info
+group by client, element_type_info.name
+order by freq_m201 desc, client
+limit 1000

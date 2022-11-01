@@ -1,14 +1,15 @@
-#standardSQL
-
-
-# returns the number of unused font files (assuming they are the same font based on the filename) that were preloaded
+# standardSQL
+# returns the number of unused font files (assuming they are the same font based on
+# the filename) that were preloaded
 # Ex: The below HTML will return 1:
-#
+# 
 # <link rel="preload" href="./roboto.woff2" as="font" />
 # <link rel="preload" href="./roboto.woff" as="font" />
 # <link rel="preload" href="./montserrat.woff2" as="font" />
-CREATE TEMPORARY FUNCTION getUnusedFontDownloadsCount(almanac_string STRING)
-RETURNS INT64 LANGUAGE js AS '''
+create temporary function getunusedfontdownloadscount(almanac_string string)
+returns int64
+language js
+as '''
 try {
   const almanac = JSON.parse(almanac_string);
   if (Array.isArray(almanac) || typeof almanac != "object") return null;
@@ -57,26 +58,24 @@ try {
 } catch {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  unused_font_count,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      getUnusedFontDownloadsCount(JSON_EXTRACT_SCALAR(payload, '$._almanac')) AS unused_font_count
-    FROM
-      `httparchive.pages.2021_07_01_*`
-)
-WHERE
-  unused_font_count IS NOT NULL
-GROUP BY
-  client,
-  unused_font_count
-ORDER BY
-  client,
-  unused_font_count
+select
+    client,
+    unused_font_count,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            getunusedfontdownloadscount(
+                json_extract_scalar(payload, '$._almanac')
+            ) as unused_font_count
+        from `httparchive.pages.2021_07_01_*`
+    )
+where unused_font_count is not null
+group by client, unused_font_count
+order by client, unused_font_count

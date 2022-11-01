@@ -1,13 +1,9 @@
-#standardSQL
+# standardSQL
 # Percent of pages using Performance observer
-
-SELECT
-  client,
-  num_urls AS pages_with_performance_observer,
-  total_urls AS total_pages,
-  pct_urls AS pct_pages_with_performance_observer
-FROM
-  `httparchive.blink_features.usage`
-WHERE
-  yyyymmdd = '20200801' AND
-  feature = 'PerformanceObserverForWindow'
+select
+    client,
+    num_urls as pages_with_performance_observer,
+    total_urls as total_pages,
+    pct_urls as pct_pages_with_performance_observer
+from `httparchive.blink_features.usage`
+where yyyymmdd = '20200801' and feature = 'PerformanceObserverForWindow'
