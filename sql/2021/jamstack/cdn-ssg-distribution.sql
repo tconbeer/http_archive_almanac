@@ -1,6 +1,6 @@
 # standardSQL
 # Core Web Vitals distribution by SSG
-# 
+#
 # Note that this is an unweighted average of all sites per SSG.
 # Performance of sites with millions of visitors as weighted the same as small sites.
 select client, app, cdn, count(distinct url) as origins

@@ -1,6 +1,6 @@
 # standardSQL
 # 08_40: Check for 'Vulnerable JS' noted in Lighthouse run
-# 
+#
 # Lighthouse score = 0 - means site contains at min 1 vulnerable JS
 select
     json_extract_scalar(report, '$.audits.no-vulnerable-libraries.score') as score,

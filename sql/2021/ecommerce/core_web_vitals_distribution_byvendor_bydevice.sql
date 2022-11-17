@@ -1,6 +1,6 @@
 # standardSQL
 # Core Web Vitals distribution by Ecommerce vendor
-# 
+#
 # Note that this is an unweighted average of all sites per Ecommerce vendor.
 # Performance of sites with millions of visitors as weighted the same as small sites.
 select

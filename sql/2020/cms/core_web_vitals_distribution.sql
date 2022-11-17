@@ -1,6 +1,6 @@
 # standardSQL
 # Core Web Vitals distribution by CMS
-# 
+#
 # Note that this is an unweighted average of all sites per CMS.
 # Performance of sites with millions of visitors as weighted the same as small sites.
 select

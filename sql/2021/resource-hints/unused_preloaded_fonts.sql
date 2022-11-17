@@ -2,7 +2,7 @@
 # returns the number of unused font files (assuming they are the same font based on
 # the filename) that were preloaded
 # Ex: The below HTML will return 1:
-# 
+#
 # <link rel="preload" href="./roboto.woff2" as="font" />
 # <link rel="preload" href="./roboto.woff" as="font" />
 # <link rel="preload" href="./montserrat.woff2" as="font" />
