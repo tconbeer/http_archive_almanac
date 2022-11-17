@@ -1,8 +1,10 @@
-#standardSQL
+# standardSQL
 # 10_13: % of desktop pages that include a stylesheet with a breakpoint under 600px.
 # See also 12_06
-CREATE TEMPORARY FUNCTION hasBreakpoint(css STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function hasbreakpoint(css string)
+returns boolean
+language js
+as '''
 function matchAll(re, str) {
   var results = [];
   while ((matches = re.exec(str)) !== null) {
@@ -21,16 +23,13 @@ try {
 } catch (e) {
   false;
 }
-''';
+'''
+;
 
-SELECT
-  COUNT(DISTINCT page) AS pages,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  (SELECT page, css FROM `httparchive.almanac.parsed_css` WHERE client = 'desktop'),
-  (SELECT COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_desktop`)
-WHERE
-  date = '2019-07-01' AND
-  hasBreakpoint(css)
-GROUP BY
-  total
+select
+    count(distinct page) as pages, round(count(distinct page) * 100 / total, 2) as pct
+from
+    (select page, css from `httparchive.almanac.parsed_css` where client = 'desktop'),
+    (select count(0) as total from `httparchive.summary_pages.2019_07_01_desktop`)
+where date = '2019-07-01' and hasbreakpoint(css)
+group by total

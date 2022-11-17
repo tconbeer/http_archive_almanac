@@ -1,36 +1,23 @@
-#standardSQL
+# standardSQL
 # Most popular CSS frameworks by rank
-SELECT
-  client,
-  framework,
-  rank,
-  COUNT(DISTINCT page) AS pages,
-  COUNT(DISTINCT page) / rank AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    rank AS _rank
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`)
-LEFT JOIN (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    app AS framework,
-    url AS page
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  WHERE
-    category = 'UI frameworks')
-USING
-  (client, page),
-  UNNEST([1e3, 1e4, 1e5, 1e6, 1e7]) AS rank
-WHERE
-  _rank <= rank
-GROUP BY
-  client,
-  framework,
-  rank
-ORDER BY
-  rank,
-  pct DESC
+select
+    client,
+    framework,
+    rank,
+    count(distinct page) as pages,
+    count(distinct page) / rank as pct
+from
+    (
+        select _table_suffix as client, url as page, rank as _rank
+        from `httparchive.summary_pages.2021_07_01_*`
+    )
+left join
+    (
+        select distinct _table_suffix as client, app as framework, url as page
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'UI frameworks'
+    ) using (client, page),
+    unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank
+where _rank <= rank
+group by client, framework, rank
+order by rank, pct desc

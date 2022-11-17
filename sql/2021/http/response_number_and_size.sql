@@ -1,32 +1,25 @@
 # standardSQL
 # Number and Size of all responses by percentile
-
-SELECT
-  client,
-  percentile,
-  APPROX_QUANTILES(number, 1000)[OFFSET(percentile * 10)] AS responsesCount,
-  APPROX_QUANTILES(respHeaderSizeKiB, 1000)[OFFSET(percentile * 10)] AS respHeaderSizeKiB,
-  APPROX_QUANTILES(respBodySizeKiB, 1000)[OFFSET(percentile * 10)] AS respBodySizeKiB
-FROM
-  (
-    SELECT
-      client,
-      page,
-      COUNT(0) AS number,
-      SUM(respHeadersSize) / 1024 AS respHeaderSizeKiB,
-      SUM(respBodySize) / 1024 AS respBodySizeKiB
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2021-07-01'
-    GROUP BY
-      client,
-      page
-  ),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  client,
-  percentile
-ORDER BY
-  client,
-  percentile
+select
+    client,
+    percentile,
+    approx_quantiles(number, 1000)[offset(percentile * 10)] as responsescount,
+    approx_quantiles(respheadersizekib, 1000)[
+        offset(percentile * 10)
+    ] as respheadersizekib,
+    approx_quantiles(respbodysizekib, 1000)[offset(percentile * 10)] as respbodysizekib
+from
+    (
+        select
+            client,
+            page,
+            count(0) as number,
+            sum(respheaderssize) / 1024 as respheadersizekib,
+            sum(respbodysize) / 1024 as respbodysizekib
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by client, percentile
+order by client, percentile

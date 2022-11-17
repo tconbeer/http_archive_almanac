@@ -1,41 +1,31 @@
-#standardSQL
+# standardSQL
 # 20.15 - Measure number of TCP Connections per site.
-SELECT
-  'mobile' AS client,
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') AS protocol,
-  COUNT(0) AS num_pages,
-  APPROX_QUANTILES(_connections, 100)[SAFE_ORDINAL(50)] AS median,
-  APPROX_QUANTILES(_connections, 100)[SAFE_ORDINAL(75)] AS p75,
-  APPROX_QUANTILES(_connections, 100)[SAFE_ORDINAL(95)] AS p95
-FROM
-  `httparchive.requests.2019_07_01_mobile` AS requests
-INNER JOIN
-  `httparchive.summary_pages.2019_07_01_mobile` AS summary
-ON
-  requests.url = summary.url
-WHERE
-  JSON_EXTRACT_SCALAR(payload, '$._is_base_page') = 'true'
-GROUP BY
-  client,
-  protocol
+select
+    'mobile' as client,
+    json_extract_scalar(payload, '$._protocol') as protocol,
+    count(0) as num_pages,
+    approx_quantiles(_connections, 100)[safe_ordinal(50)] as median,
+    approx_quantiles(_connections, 100)[safe_ordinal(75)] as p75,
+    approx_quantiles(_connections, 100)[safe_ordinal(95)] as p95
+from `httparchive.requests.2019_07_01_mobile` as requests
+inner join
+    `httparchive.summary_pages.2019_07_01_mobile` as summary
+    on requests.url = summary.url
+where json_extract_scalar(payload, '$._is_base_page') = 'true'
+group by client, protocol
 
-UNION ALL
+union all
 
-SELECT
-  'desktop' AS client,
-  JSON_EXTRACT_SCALAR(payload, '$._protocol') AS protocol,
-  COUNT(0) AS num_pages,
-  APPROX_QUANTILES(_connections, 100)[SAFE_ORDINAL(50)] AS median,
-  APPROX_QUANTILES(_connections, 100)[SAFE_ORDINAL(75)] AS p75,
-  APPROX_QUANTILES(_connections, 100)[SAFE_ORDINAL(95)] AS p95
-FROM
-  `httparchive.requests.2019_07_01_desktop` AS requests
-INNER JOIN
-  `httparchive.summary_pages.2019_07_01_desktop` AS summary
-ON
-  requests.url = summary.url
-WHERE
-  JSON_EXTRACT_SCALAR(payload, '$._is_base_page') = 'true'
-GROUP BY
-  client,
-  protocol
+select
+    'desktop' as client,
+    json_extract_scalar(payload, '$._protocol') as protocol,
+    count(0) as num_pages,
+    approx_quantiles(_connections, 100)[safe_ordinal(50)] as median,
+    approx_quantiles(_connections, 100)[safe_ordinal(75)] as p75,
+    approx_quantiles(_connections, 100)[safe_ordinal(95)] as p95
+from `httparchive.requests.2019_07_01_desktop` as requests
+inner join
+    `httparchive.summary_pages.2019_07_01_desktop` as summary
+    on requests.url = summary.url
+where json_extract_scalar(payload, '$._is_base_page') = 'true'
+group by client, protocol

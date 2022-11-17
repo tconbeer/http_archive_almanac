@@ -1,15 +1,13 @@
-#standardSQL
-SELECT
-  SUBSTR(_TABLE_SUFFIX, 0, 10) AS date,
-  IF(ENDS_WITH(_TABLE_SUFFIX, 'desktop'), 'desktop', 'mobile') AS client,
-  COUNT(DISTINCT IF(LOWER(attr) = '"lazy"', url, NULL)) / COUNT(DISTINCT url) AS percent
-FROM
-  `httparchive.pages.*`
-LEFT JOIN
-  UNNEST(JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, "$['_img-loading-attr']"), '$')) AS attr
-GROUP BY
-  date,
-  client
-ORDER BY
-  date DESC,
-  client
+# standardSQL
+select
+    substr(_table_suffix, 0, 10) as date,
+    if(ends_with(_table_suffix, 'desktop'), 'desktop', 'mobile') as client,
+    count(distinct if(lower(attr) = '"lazy"', url, null))
+    / count(distinct url) as percent
+from `httparchive.pages.*`
+left join
+    unnest(
+        json_extract_array(json_extract_scalar(payload, "$['_img-loading-attr']"), '$')
+    ) as attr
+group by date, client
+order by date desc, client

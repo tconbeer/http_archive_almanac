@@ -1,34 +1,36 @@
-#standardSQL
-# distribution_of_compression_types_cdn_cs_origin.sql : What compression formats are being used (gzip, brotli, etc) for compressed resources served by CDNs
-
-SELECT
-  client,
-  cdn,
-  compression_type,
-  COUNT(0) AS num_requests,
-  SUM(COUNT(0)) OVER (PARTITION BY client, cdn) AS total_compressed,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client, cdn) AS pct
-FROM (
-  SELECT
+# standardSQL
+# distribution_of_compression_types_cdn_cs_origin.sql : What compression formats are
+# being used (gzip, brotli, etc) for compressed resources served by CDNs
+select
     client,
-    IF( IFNULL(NULLIF(REGEXP_EXTRACT(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN') = 'ORIGIN', 'ORIGIN', 'CDN') AS cdn,
-    CASE
-      WHEN resp_content_encoding = 'gzip' THEN 'Gzip'
-      WHEN resp_content_encoding = 'br' THEN 'Brotli'
-      WHEN resp_content_encoding = '' THEN 'no text compression'
-      ELSE 'other'
-    END AS compression_type
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    resp_content_encoding != ''
-  )
-GROUP BY
-  client,
-  cdn,
-  compression_type
-ORDER BY
-  client,
-  cdn,
-  compression_type
+    cdn,
+    compression_type,
+    count(0) as num_requests,
+    sum(count(0)) over (partition by client, cdn) as total_compressed,
+    count(0) / sum(count(0)) over (partition by client, cdn) as pct
+from
+    (
+        select
+            client,
+            if(
+                ifnull(
+                    nullif(regexp_extract(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN'
+                )
+                = 'ORIGIN',
+                'ORIGIN',
+                'CDN'
+            ) as cdn,
+            case
+                when resp_content_encoding = 'gzip'
+                then 'Gzip'
+                when resp_content_encoding = 'br'
+                then 'Brotli'
+                when resp_content_encoding = ''
+                then 'no text compression'
+                else 'other'
+            end as compression_type
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and resp_content_encoding != ''
+    )
+group by client, cdn, compression_type
+order by client, cdn, compression_type

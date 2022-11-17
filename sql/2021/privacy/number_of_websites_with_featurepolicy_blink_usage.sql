@@ -1,23 +1,9 @@
-#standardSQL
+# standardSQL
 # Pages that use Feature-Policy (based on Blink features)
-
-SELECT DISTINCT
-  client,
-  feature,
-  num_urls,
-  total_urls,
-  pct_urls AS pct_urls
-FROM
-  `httparchive.blink_features.usage`
-WHERE
-  yyyymmdd = '20210701' AND
-  feature LIKE '%FeaturePolicy%'
-ORDER BY
-  feature,
-  client
-
+select distinct client, feature, num_urls, total_urls, pct_urls as pct_urls
+from `httparchive.blink_features.usage`
+where yyyymmdd = '20210701' and feature like '%FeaturePolicy%'
 # relevant Blink features:
-
 # CameraDisabledByFeaturePolicyEstimate
 # FeaturePolicyAllowAttribute
 # FeaturePolicyAllowAttributeDeprecatedSyntax
@@ -39,3 +25,4 @@ ORDER BY
 # GetUserMediaCameraDisallowedByFeaturePolicyInCrossOriginIframe
 # GetUserMediaMicDisallowedByFeaturePolicyInCrossOriginIframe
 # MicrophoneDisabledByFeaturePolicyEstimate
+order by feature, client

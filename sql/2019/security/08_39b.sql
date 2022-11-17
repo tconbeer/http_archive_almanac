@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # 08_39b: SRI header
-CREATE TEMPORARY FUNCTION extractHeader(payload STRING, name STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function extractheader(payload string, name string)
+returns string
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var header = $._headers.response.find(h => h.toLowerCase().startsWith(name.toLowerCase()));
@@ -12,21 +15,22 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(requires_sri) AS pages,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(requires_sri) * 100 / COUNT(0), 2) AS pct
-FROM (
-  SELECT
+select
     client,
-    REGEXP_CONTAINS(extractHeader(payload, 'Content-Security-Policy'), '(?i)require-sri-for') AS requires_sri
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01' AND
-    firstHtml)
-GROUP BY
-  client
+    countif(requires_sri) as pages,
+    count(0) as total,
+    round(countif(requires_sri) * 100 / count(0), 2) as pct
+from
+    (
+        select
+            client,
+            regexp_contains(
+                extractheader(payload, 'Content-Security-Policy'), '(?i)require-sri-for'
+            ) as requires_sri
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01' and firsthtml
+    )
+group by client

@@ -1,51 +1,36 @@
-#standardSQL
+# standardSQL
 # 13_02: % of eCommerce tagged sites by device
-## Carry 2020 and 2021 data in run
-## This query is built using 2019 query from https://github.com/HTTPArchive/almanac.httparchive.org/blob/main/sql/2019/13_Ecommerce/13_02b.sql but this commit fixes a flaw in 2019 query. See - https://github.com/HTTPArchive/almanac.httparchive.org/issues/1810
-SELECT
-  _TABLE_SUFFIX AS client,
-  2021 AS year,
-  COUNT(DISTINCT url) AS freq,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.technologies.2021_07_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(DISTINCT url) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (_TABLE_SUFFIX)
-WHERE
-  category = 'Ecommerce'
-GROUP BY
-  client,
-  total
-UNION ALL
-SELECT
-  _TABLE_SUFFIX AS client,
-  2020 AS year,
-  COUNT(DISTINCT url) AS freq,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.technologies.2020_08_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(DISTINCT url) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (_TABLE_SUFFIX)
-WHERE
-  category = 'Ecommerce'
-GROUP BY
-  client,
-  total
+# # Carry 2020 and 2021 data in run
+# # This query is built using 2019 query from
+# https://github.com/HTTPArchive/almanac.httparchive.org/blob/main/sql/2019/13_Ecommerce/13_02b.sql but this commit fixes a flaw in 2019 query. See - https://github.com/HTTPArchive/almanac.httparchive.org/issues/1810
+select
+    _table_suffix as client,
+    2021 as year,
+    count(distinct url) as freq,
+    total,
+    count(distinct url) / total as pct
+from `httparchive.technologies.2021_07_01_*`
+join
+    (
+        select _table_suffix, count(distinct url) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    ) using (_table_suffix)
+where category = 'Ecommerce'
+group by client, total
+union all
+select
+    _table_suffix as client,
+    2020 as year,
+    count(distinct url) as freq,
+    total,
+    count(distinct url) / total as pct
+from `httparchive.technologies.2020_08_01_*`
+join
+    (
+        select _table_suffix, count(distinct url) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by _table_suffix
+    ) using (_table_suffix)
+where category = 'Ecommerce'
+group by client, total

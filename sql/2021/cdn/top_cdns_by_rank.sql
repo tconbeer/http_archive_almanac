@@ -1,47 +1,62 @@
-#standardSQL
+# standardSQL
 # top_cdns_by_rank.sql: Top CDNs used on the root HTML pages by CrUX rank
-SELECT
-  client,
-  nested_rank,
-  cdn,
-  COUNTIF(firstHtml) AS firstHtmlHits,
-  SUM(COUNTIF(firstHtml)) OVER (PARTITION BY client) AS firstHtmlTotalHits,
-  SAFE_DIVIDE(COUNTIF(firstHtml), SUM(COUNTIF(firstHtml)) OVER (PARTITION BY client)) AS firstHtmlHitsPct,
-
-  COUNTIF(NOT firstHtml AND NOT sameHost AND sameDomain) AS subDomainHits,
-  SUM(COUNTIF(NOT firstHtml AND NOT sameHost AND sameDomain)) OVER (PARTITION BY client) AS subDomainTotalHits,
-  SAFE_DIVIDE(COUNTIF(NOT firstHtml AND NOT sameHost AND sameDomain), SUM(COUNTIF(NOT firstHtml AND NOT sameHost AND sameDomain)) OVER (PARTITION BY client)) AS subDomainHitsPct,
-
-  COUNTIF(NOT firstHtml AND NOT sameHost AND NOT sameDomain) AS thirdPartyHits,
-  SUM(COUNTIF(NOT firstHtml AND NOT sameHost AND NOT sameDomain)) OVER (PARTITION BY client) AS thirdPartyTotalHits,
-  SAFE_DIVIDE(COUNTIF(NOT firstHtml AND NOT sameHost AND NOT sameDomain), SUM(COUNTIF(NOT firstHtml AND NOT sameHost AND NOT sameDomain)) OVER (PARTITION BY client)) AS thirdPartyHitsPct,
-
-  COUNT(0) AS hits,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS totalHits,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS hitsPct
-FROM (
-  SELECT
+select
     client,
-    rank,
-    page,
-    url,
-    firstHtml,
-    respBodySize,
-    IFNULL(NULLIF(REGEXP_EXTRACT(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN') AS cdn, # sometimes _cdn provider detection includes multiple entries. we bias for the DNS detected entry which is the first entry
-    NET.HOST(url) = NET.HOST(page) AS sameHost,
-    NET.HOST(url) = NET.HOST(page) OR NET.REG_DOMAIN(url) = NET.REG_DOMAIN(page) AS sameDomain # if toplevel reg_domain will return NULL so we group this as sameDomain
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'),
-  UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS nested_rank
-WHERE
-  rank <= nested_rank
-GROUP BY
-  client,
-  nested_rank,
-  cdn
-ORDER BY
-  client DESC,
-  nested_rank,
-  firstHtmlHits DESC
+    nested_rank,
+    cdn,
+    countif(firsthtml) as firsthtmlhits,
+    sum(countif(firsthtml)) over (partition by client) as firsthtmltotalhits,
+    safe_divide(
+        countif(firsthtml), sum(countif(firsthtml)) over (partition by client)
+    ) as firsthtmlhitspct,
+
+    countif(not firsthtml and not samehost and samedomain) as subdomainhits,
+    sum(countif(not firsthtml and not samehost and samedomain)) over (
+        partition by client
+    ) as subdomaintotalhits,
+    safe_divide(
+        countif(not firsthtml and not samehost and samedomain),
+        sum(countif(not firsthtml and not samehost and samedomain)) over (
+            partition by client
+        )
+    ) as subdomainhitspct,
+
+    countif(not firsthtml and not samehost and not samedomain) as thirdpartyhits,
+    sum(countif(not firsthtml and not samehost and not samedomain)) over (
+        partition by client
+    ) as thirdpartytotalhits,
+    safe_divide(
+        countif(not firsthtml and not samehost and not samedomain),
+        sum(countif(not firsthtml and not samehost and not samedomain)) over (
+            partition by client
+        )
+    ) as thirdpartyhitspct,
+
+    count(0) as hits,
+    sum(count(0)) over (partition by client) as totalhits,
+    safe_divide(count(0), sum(count(0)) over (partition by client)) as hitspct
+from
+    (
+        select
+            client,
+            rank,
+            page,
+            url,
+            firsthtml,
+            respbodysize,
+            # sometimes _cdn provider detection includes multiple entries. we bias for
+            # the DNS detected entry which is the first entry
+            ifnull(
+                nullif(regexp_extract(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN'
+            ) as cdn,
+            net.host(url) = net.host(page) as samehost,
+            # if toplevel reg_domain will return NULL so we group this as sameDomain
+            net.host(url) = net.host(page)
+            or net.reg_domain(url) = net.reg_domain(page) as samedomain
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+    ),
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as nested_rank
+where rank <= nested_rank
+group by client, nested_rank, cdn
+order by client desc, nested_rank, firsthtmlhits desc

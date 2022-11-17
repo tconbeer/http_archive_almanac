@@ -1,34 +1,37 @@
-#standardSQL
-# Presence of Last-Modified and ETag header, statistics on weak, strong, and invalid ETag.
-SELECT
-  client,
-  COUNT(0) AS total_requests,
-  COUNTIF(uses_no_etag) AS total_using_no_etag,
-  COUNTIF(uses_etag) AS total_using_etag,
-  COUNTIF(uses_weak_etag) AS total_using_weak_etag,
-  COUNTIF(uses_strong_etag) AS total_using_strong_etag,
-  COUNTIF(NOT uses_weak_etag AND NOT uses_strong_etag AND uses_etag) AS total_using_invalid_etag,
-  COUNTIF(uses_last_modified) AS total_using_last_modified,
-  COUNTIF(uses_etag AND uses_last_modified) AS total_using_both,
-  COUNTIF(NOT uses_etag AND NOT uses_last_modified) AS total_using_neither,
-  COUNTIF(uses_no_etag) / COUNT(0) AS pct_using_no_etag,
-  COUNTIF(uses_etag) / COUNT(0) AS pct_using_etag,
-  COUNTIF(uses_weak_etag) / COUNT(0) AS pct_using_weak_etag,
-  COUNTIF(uses_strong_etag) / COUNT(0) AS pct_using_strong_etag,
-  COUNTIF(NOT uses_weak_etag AND NOT uses_strong_etag AND uses_etag) / COUNT(0) AS pct_using_invalid_etag,
-  COUNTIF(uses_last_modified) / COUNT(0) AS pct_using_last_modified,
-  COUNTIF(uses_etag AND uses_last_modified) / COUNT(0) AS pct_using_both,
-  COUNTIF(NOT uses_etag AND NOT uses_last_modified) / COUNT(0) AS pct_using_neither
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    TRIM(resp_etag) = '' AS uses_no_etag,
-    TRIM(resp_etag) != '' AS uses_etag,
-    TRIM(resp_last_modified) != '' AS uses_last_modified,
-    REGEXP_CONTAINS(TRIM(resp_etag), '^W/".*"') AS uses_weak_etag,
-    REGEXP_CONTAINS(TRIM(resp_etag), '^".*"') AS uses_strong_etag
-  FROM
-    `httparchive.summary_requests.2020_08_01_*`
-)
-GROUP BY
-  client
+# standardSQL
+# Presence of Last-Modified and ETag header, statistics on weak, strong, and invalid
+# ETag.
+select
+    client,
+    count(0) as total_requests,
+    countif(uses_no_etag) as total_using_no_etag,
+    countif(uses_etag) as total_using_etag,
+    countif(uses_weak_etag) as total_using_weak_etag,
+    countif(uses_strong_etag) as total_using_strong_etag,
+    countif(
+        not uses_weak_etag and not uses_strong_etag and uses_etag
+    ) as total_using_invalid_etag,
+    countif(uses_last_modified) as total_using_last_modified,
+    countif(uses_etag and uses_last_modified) as total_using_both,
+    countif(not uses_etag and not uses_last_modified) as total_using_neither,
+    countif(uses_no_etag) / count(0) as pct_using_no_etag,
+    countif(uses_etag) / count(0) as pct_using_etag,
+    countif(uses_weak_etag) / count(0) as pct_using_weak_etag,
+    countif(uses_strong_etag) / count(0) as pct_using_strong_etag,
+    countif(not uses_weak_etag and not uses_strong_etag and uses_etag)
+    / count(0) as pct_using_invalid_etag,
+    countif(uses_last_modified) / count(0) as pct_using_last_modified,
+    countif(uses_etag and uses_last_modified) / count(0) as pct_using_both,
+    countif(not uses_etag and not uses_last_modified) / count(0) as pct_using_neither
+from
+    (
+        select
+            _table_suffix as client,
+            trim(resp_etag) = '' as uses_no_etag,
+            trim(resp_etag) != '' as uses_etag,
+            trim(resp_last_modified) != '' as uses_last_modified,
+            regexp_contains(trim(resp_etag), '^W/".*"') as uses_weak_etag,
+            regexp_contains(trim(resp_etag), '^".*"') as uses_strong_etag
+        from `httparchive.summary_requests.2020_08_01_*`
+    )
+group by client

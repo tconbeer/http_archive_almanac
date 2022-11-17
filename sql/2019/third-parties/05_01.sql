@@ -1,31 +1,31 @@
-#standardSQL
+# standardSQL
 # Percentage of pages that include at least one third party resource.
-SELECT
-  client,
-  COUNT(0) AS numberOfPages,
-  COUNTIF(numberOfThirdPartyRequests > 0) AS numberOfPagesWithThirdParty,
-  ROUND(COUNTIF(numberOfThirdPartyRequests > 0) * 100 / COUNT(0), 2) AS percentOfPagesWithThirdParty
-FROM (
-  SELECT
+select
     client,
-    pageUrl,
-    COUNTIF(thirdPartyDomain IS NOT NULL) AS numberOfThirdPartyRequests
-  FROM (
-    SELECT
-      client,
-      page AS pageUrl,
-      DomainsOver50Table.requestDomain AS thirdPartyDomain
-    FROM
-      `httparchive.almanac.summary_requests`
-    LEFT JOIN
-      `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains` AS DomainsOver50Table
-    ON NET.HOST(url) = DomainsOver50Table.requestDomain
-    WHERE
-      date = '2019-07-01'
-  )
-  GROUP BY
-    client,
-    pageUrl
-)
-GROUP BY
-  client
+    count(0) as numberofpages,
+    countif(numberofthirdpartyrequests > 0) as numberofpageswiththirdparty,
+    round(
+        countif(numberofthirdpartyrequests > 0) * 100 / count(0), 2
+    ) as percentofpageswiththirdparty
+from
+    (
+        select
+            client,
+            pageurl,
+            countif(thirdpartydomain is not null) as numberofthirdpartyrequests
+        from
+            (
+                select
+                    client,
+                    page as pageurl,
+                    domainsover50table.requestdomain as thirdpartydomain
+                from `httparchive.almanac.summary_requests`
+                left join
+                    `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains`
+                    as domainsover50table
+                    on net.host(url) = domainsover50table.requestdomain
+                where date = '2019-07-01'
+            )
+        group by client, pageurl
+    )
+group by client

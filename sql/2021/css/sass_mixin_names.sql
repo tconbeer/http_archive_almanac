@@ -1,5 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getMixinNames(payload STRING) RETURNS ARRAY<STRING> LANGUAGE js AS '''
+# standardSQL
+create temporary function getmixinnames(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -11,36 +14,35 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  mixin,
-  COUNT(DISTINCT url) AS pages,
-  total_sass,
-  COUNT(DISTINCT url) / total_sass AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    mixin
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getMixinNames(payload)) AS mixin)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNTIF(SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._sass'), '$.scss.size') AS INT64) > 0) AS total_sass
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  mixin,
-  total_sass
-ORDER BY
-  pct DESC
-LIMIT 1000
+select
+    client,
+    mixin,
+    count(distinct url) as pages,
+    total_sass,
+    count(distinct url) / total_sass as pct
+from
+    (
+        select _table_suffix as client, url, mixin
+        from `httparchive.pages.2021_07_01_*`, unnest(getmixinnames(payload)) as mixin
+    )
+join
+    (
+        select
+            _table_suffix as client,
+            countif(
+                safe_cast(
+                    json_extract_scalar(
+                        json_extract_scalar(payload, '$._sass'), '$.scss.size'
+                    ) as int64
+                )
+                > 0
+            ) as total_sass
+        from `httparchive.pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, mixin, total_sass
+order by pct desc
+limit 1000

@@ -1,27 +1,34 @@
-#standardSQL
+# standardSQL
 # TTL statistics for cacheable content (no-store absent)
-SELECT
-  client,
-  COUNT(0) AS total_requests,
-  COUNTIF(NOT uses_cache_control AND NOT uses_expires) AS total_using_neither,
-  COUNTIF(NOT uses_no_store AND uses_max_age AND exp_age = 0) AS total_exp_age_zero,
-  COUNTIF(NOT uses_no_store AND uses_max_age AND exp_age > 0) AS total_exp_age_gt_zero,
-  COUNTIF(uses_no_store) AS total_not_cacheable,
-  COUNTIF(NOT uses_no_store) AS total_cacheable,
-  COUNTIF(NOT uses_cache_control AND NOT uses_expires) / COUNTIF(NOT uses_no_store) AS pct_using_neither,
-  COUNTIF(NOT uses_no_store AND uses_max_age AND exp_age = 0) / COUNTIF(NOT uses_no_store) AS pct_using_exp_age_zero,
-  COUNTIF(NOT uses_no_store AND uses_max_age AND exp_age > 0) / COUNTIF(NOT uses_no_store) AS pct_using_exp_age_gt_zero,
-  COUNTIF(uses_no_store) / COUNT(0) AS pct_not_cacheable,
-  COUNTIF(NOT uses_no_store) / COUNT(0) AS pct_cacheable
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    TRIM(resp_cache_control) != '' AS uses_cache_control,
-    TRIM(resp_expires) != '' AS uses_expires,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)no-store') AS uses_no_store,
-    REGEXP_CONTAINS(resp_cache_control, r'(?i)max-age\s*=\s*[0-9]+') AS uses_max_age,
-    expAge AS exp_age
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`)
-GROUP BY
-  client
+select
+    client,
+    count(0) as total_requests,
+    countif(not uses_cache_control and not uses_expires) as total_using_neither,
+    countif(not uses_no_store and uses_max_age and exp_age = 0) as total_exp_age_zero,
+    countif(
+        not uses_no_store and uses_max_age and exp_age > 0
+    ) as total_exp_age_gt_zero,
+    countif(uses_no_store) as total_not_cacheable,
+    countif(not uses_no_store) as total_cacheable,
+    countif(not uses_cache_control and not uses_expires)
+    / countif(not uses_no_store) as pct_using_neither,
+    countif(not uses_no_store and uses_max_age and exp_age = 0)
+    / countif(not uses_no_store) as pct_using_exp_age_zero,
+    countif(not uses_no_store and uses_max_age and exp_age > 0)
+    / countif(not uses_no_store) as pct_using_exp_age_gt_zero,
+    countif(uses_no_store) / count(0) as pct_not_cacheable,
+    countif(not uses_no_store) / count(0) as pct_cacheable
+from
+    (
+        select
+            _table_suffix as client,
+            trim(resp_cache_control) != '' as uses_cache_control,
+            trim(resp_expires) != '' as uses_expires,
+            regexp_contains(resp_cache_control, r'(?i)no-store') as uses_no_store,
+            regexp_contains(
+                resp_cache_control, r'(?i)max-age\s*=\s*[0-9]+'
+            ) as uses_max_age,
+            expage as exp_age
+        from `httparchive.summary_requests.2021_07_01_*`
+    )
+group by client
