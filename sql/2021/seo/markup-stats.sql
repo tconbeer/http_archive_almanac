@@ -1,19 +1,21 @@
-#standardSQL
+# standardSQL
 # Markup stats
-
-
 # returns all the data we need from _markup
-CREATE TEMPORARY FUNCTION getMarkupStatsInfo(markup_string STRING)
-RETURNS STRUCT<
-  images_img_total INT64,
-  images_alt_missing_total INT64,
-  images_alt_blank_total INT64,
-  images_alt_present_total INT64,
+create temporary function getmarkupstatsinfo(markup_string string)
+returns
+    struct<
+        images_img_total int64,
+        images_alt_missing_total int64,
+        images_alt_blank_total int64,
+        images_alt_present_total int64,
 
-  has_html_amp_attribute BOOL,
-  has_rel_amphtml_tag BOOL,
-  has_html_amp_emoji_attribute BOOL
-> LANGUAGE js AS '''
+        has_html_amp_attribute bool,
+        has_rel_amphtml_tag bool,
+        has_html_amp_emoji_attribute bool
+    >
+language js
+as
+    '''
 var result = {
   images_img_total: 0,
   images_alt_missing_total: 0,
@@ -49,42 +51,63 @@ try {
     }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # Pages with img
-  SAFE_DIVIDE(COUNTIF(markup_info.images_img_total > 0), COUNT(0)) AS pct_has_img,
+    # Pages with img
+    safe_divide(countif(markup_info.images_img_total > 0), count(0)) as pct_has_img,
 
-  #  percent pages with an img alt
-  SUM(markup_info.images_img_total) AS total_img,
-  SUM(markup_info.images_alt_present_total) AS total_img_alt_present,
-  SUM(markup_info.images_alt_blank_total) AS total_img_alt_blank,
-  SUM(markup_info.images_alt_missing_total) AS total_img_alt_missing,
-  SAFE_DIVIDE(SUM(markup_info.images_alt_missing_total), SUM(markup_info.images_img_total)) AS pct_images_with_img_alt_missing,
-  SAFE_DIVIDE(SUM(markup_info.images_alt_present_total), SUM(markup_info.images_img_total)) AS pct_images_with_img_alt_present, # present does not include blank
-  SAFE_DIVIDE(SUM(markup_info.images_alt_blank_total), SUM(markup_info.images_img_total)) AS pct_images_with_img_alt_blank,
-  SAFE_DIVIDE(SUM(markup_info.images_alt_blank_total) + SUM(markup_info.images_alt_present_total), SUM(markup_info.images_img_total)) AS pct_images_with_img_alt_blank_or_present,
+    # percent pages with an img alt
+    sum(markup_info.images_img_total) as total_img,
+    sum(markup_info.images_alt_present_total) as total_img_alt_present,
+    sum(markup_info.images_alt_blank_total) as total_img_alt_blank,
+    sum(markup_info.images_alt_missing_total) as total_img_alt_missing,
+    safe_divide(
+        sum(markup_info.images_alt_missing_total), sum(markup_info.images_img_total)
+    ) as pct_images_with_img_alt_missing,
+    safe_divide(  # present does not include blank
+        sum(markup_info.images_alt_present_total), sum(markup_info.images_img_total)
+    ) as pct_images_with_img_alt_present,
+    safe_divide(
+        sum(markup_info.images_alt_blank_total), sum(markup_info.images_img_total)
+    ) as pct_images_with_img_alt_blank,
+    safe_divide(
+        sum(markup_info.images_alt_blank_total)
+        + sum(markup_info.images_alt_present_total),
+        sum(markup_info.images_img_total)
+    ) as pct_images_with_img_alt_blank_or_present,
 
-  # Pages with <html amp> tag
-  COUNTIF(markup_info.has_html_amp_attribute) AS has_html_amp_attribute,
-  COUNTIF(markup_info.has_html_amp_emoji_attribute) AS has_html_amp_emoji_attribute,
-  SAFE_DIVIDE(COUNTIF(markup_info.has_html_amp_attribute), COUNT(0)) AS pct_has_html_amp_attribute,
-  SAFE_DIVIDE(COUNTIF(markup_info.has_html_amp_emoji_attribute), COUNT(0)) AS pct_has_html_amp_emoji_attribute,
-  SAFE_DIVIDE(COUNTIF(markup_info.has_html_amp_emoji_attribute OR markup_info.has_html_amp_attribute), COUNT(0)) AS pct_has_html_amp_or_emoji_attribute,
+    # Pages with <html amp> tag
+    countif(markup_info.has_html_amp_attribute) as has_html_amp_attribute,
+    countif(markup_info.has_html_amp_emoji_attribute) as has_html_amp_emoji_attribute,
+    safe_divide(
+        countif(markup_info.has_html_amp_attribute), count(0)
+    ) as pct_has_html_amp_attribute,
+    safe_divide(
+        countif(markup_info.has_html_amp_emoji_attribute), count(0)
+    ) as pct_has_html_amp_emoji_attribute,
+    safe_divide(
+        countif(
+            markup_info.has_html_amp_emoji_attribute
+            or markup_info.has_html_amp_attribute
+        ),
+        count(0)
+    ) as pct_has_html_amp_or_emoji_attribute,
 
-  # Pages with rel=amphtml
-  SAFE_DIVIDE(COUNTIF(markup_info.has_rel_amphtml_tag), COUNT(0)) AS pct_has_rel_amphtml_tag
+    # Pages with rel=amphtml
+    safe_divide(
+        countif(markup_info.has_rel_amphtml_tag), count(0)
+    ) as pct_has_rel_amphtml_tag
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      getMarkupStatsInfo(JSON_EXTRACT_SCALAR(payload, '$._markup')) AS markup_info
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-GROUP BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            getmarkupstatsinfo(json_extract_scalar(payload, '$._markup')) as markup_info
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

@@ -1,10 +1,10 @@
-#standardSQL
+# standardSQL
 # pages markup metrics grouped by device and form type
-
 # returns number of forms
-CREATE TEMPORARY FUNCTION get_forms_count(markup_string STRING)
-RETURNS INT64
-LANGUAGE js AS '''
+create temporary function get_forms_count(markup_string string)
+returns int64
+language js
+as '''
 try {
   var markup = JSON.parse(markup_string);
 
@@ -14,24 +14,23 @@ try {
 } catch (e) {
   return 0;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  forms_count,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_page_with_form
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    get_forms_count(JSON_EXTRACT_SCALAR(payload, '$._element_count')) AS forms_count
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client,
-  forms_count
-ORDER BY
-  client,
-  forms_count
+select
+    client,
+    forms_count,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct_page_with_form
+from
+    (
+        select
+            _table_suffix as client,
+            get_forms_count(
+                json_extract_scalar(payload, '$._element_count')
+            ) as forms_count
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client, forms_count
+order by client, forms_count

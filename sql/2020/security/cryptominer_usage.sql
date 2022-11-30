@@ -1,16 +1,9 @@
-#standardSQL
-SELECT
-  LEFT(_TABLE_SUFFIX, 10) AS month,
-  IF(ENDS_WITH(_TABLE_SUFFIX, '_desktop'), 'desktop', 'mobile') AS client,
-  COUNT(0) AS freq
-FROM
-  `httparchive.technologies.*`
-WHERE
-  category = 'Cryptominers' OR
-  category = 'Cryptominer'
-GROUP BY
-  _TABLE_SUFFIX
-ORDER BY
-  client,
-  month,
-  freq DESC
+# standardSQL
+select
+    left(_table_suffix, 10) as month,
+    if(ends_with(_table_suffix, '_desktop'), 'desktop', 'mobile') as client,
+    count(0) as freq
+from `httparchive.technologies.*`
+where category = 'Cryptominers' or category = 'Cryptominer'
+group by _table_suffix
+order by client, month, freq desc

@@ -1,18 +1,15 @@
-#standardSQL
+# standardSQL
 # 06_04: counts font-display value usage
-SELECT
-  score,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER () AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (), 2) AS pct
-FROM (
-  SELECT
-    JSON_EXTRACT(report, '$.audits.font-display.score') AS score
-  FROM
-    `httparchive.lighthouse.2019_07_01_*`)
-WHERE
-  score IS NOT NULL
-GROUP BY
-  score
-ORDER BY
-  freq / total DESC
+select
+    score,
+    count(0) as freq,
+    sum(count(0)) over () as total,
+    round(count(0) * 100 / sum(count(0)) over (), 2) as pct
+from
+    (
+        select json_extract(report, '$.audits.font-display.score') as score
+        from `httparchive.lighthouse.2019_07_01_*`
+    )
+where score is not null
+group by score
+order by freq / total desc

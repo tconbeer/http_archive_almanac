@@ -1,8 +1,9 @@
-#standardSQL
+# standardSQL
 # Top 100 third party domains by total script execution time.
-CREATE TEMPORARY FUNCTION getExecutionTimes(report STRING)
-RETURNS ARRAY<STRUCT<url STRING, execution_time FLOAT64>>
-LANGUAGE js AS '''
+create temporary function getexecutiontimes(report string)
+returns array<struct<url string, execution_time float64>>
+language js
+as '''
 try {
   var $ = JSON.parse(report);
   return $.audits['bootup-time'].details.items.map(item => ({
@@ -12,35 +13,37 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  thirdPartyDomain,
-  COUNT(0) AS totalScripts,
-  SUM(executionTime) AS totalExecutionTime,
-  ROUND(SUM(executionTime) * 100 / MAX(t2.totalExecutionTime), 2) AS percentExecutionTime
-FROM (
-  SELECT
-    item.execution_time AS executionTime,
-    NET.HOST(item.url) AS requestDomain,
-    DomainsOver50Table.requestDomain AS thirdPartyDomain
-  FROM
-    `httparchive.lighthouse.2019_07_01_mobile`,
-    UNNEST(getExecutionTimes(report)) AS item
-  LEFT JOIN
-    `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains` AS DomainsOver50Table
-  ON
-    NET.HOST(item.url) = DomainsOver50Table.requestDomain ) t1,
-  (
-    SELECT
-      SUM(item.execution_time) AS totalExecutionTime
-    FROM
-      `httparchive.lighthouse.2019_07_01_mobile`,
-      UNNEST(getExecutionTimes(report)) AS item ) t2
-WHERE
-  thirdPartyDomain IS NOT NULL
-GROUP BY
-  thirdPartyDomain
-ORDER BY
-  totalExecutionTime DESC
-LIMIT 100
+select
+    thirdpartydomain,
+    count(0) as totalscripts,
+    sum(executiontime) as totalexecutiontime,
+    round(
+        sum(executiontime) * 100 / max(t2.totalexecutiontime), 2
+    ) as percentexecutiontime
+from
+    (
+        select
+            item.execution_time as executiontime,
+            net.host(item.url) as requestdomain,
+            domainsover50table.requestdomain as thirdpartydomain
+        from
+            `httparchive.lighthouse.2019_07_01_mobile`,
+            unnest(getexecutiontimes(report)) as item
+        left join
+            `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains`
+            as domainsover50table
+            on net.host(item.url) = domainsover50table.requestdomain
+    ) t1,
+    (
+        select sum(item.execution_time) as totalexecutiontime
+        from
+            `httparchive.lighthouse.2019_07_01_mobile`,
+            unnest(getexecutiontimes(report)) as item
+    ) t2
+where thirdpartydomain is not null
+group by thirdpartydomain
+order by totalexecutiontime desc
+limit 100
