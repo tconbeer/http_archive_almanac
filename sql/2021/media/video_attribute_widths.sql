@@ -10,6 +10,8 @@ try {
 }
 '''
 ;
+
+
 with
     videonotes as (
         select

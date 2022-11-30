@@ -28,6 +28,8 @@ try {
 }
 '''
 ;
+
+
 create temporary function includesmotionelement(payload string)
 returns boolean
 language js

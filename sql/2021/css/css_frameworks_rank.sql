@@ -17,7 +17,7 @@ left join
         from `httparchive.technologies.2021_07_01_*`
         where category = 'UI frameworks'
     ) using (client, page),
-    unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank
+    unnest([1e3, 1e4, 1e5, 1e6, 1e7]) as rank
 where _rank <= rank
 group by client, framework, rank
 order by rank, pct desc

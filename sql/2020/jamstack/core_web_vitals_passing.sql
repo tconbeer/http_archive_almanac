@@ -9,6 +9,8 @@ create temp function is_non_zero(good float64, needs_improvement float64, poor f
 returns bool
 as (good + needs_improvement + poor > 0)
 ;
+
+
 select
     app,
     cdn,

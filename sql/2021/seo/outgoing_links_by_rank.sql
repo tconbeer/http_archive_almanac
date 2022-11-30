@@ -58,7 +58,7 @@ left join
         select _table_suffix as client, url as page, rank
         from `httparchive.summary_pages.2021_07_01_*`
     ) using (client, page),
-    unnest([1 e3, 1 e4, 1 e5, 1 e6, 1 e7]) as rank_grouping
+    unnest([1e3, 1e4, 1e5, 1e6, 1e7]) as rank_grouping
 where rank <= rank_grouping
 group by client, rank_grouping, percentile
 order by client, rank_grouping, percentile
