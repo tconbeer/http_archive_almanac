@@ -1,7 +1,10 @@
-#standardSQL
-#font_format_declared_by_font_face
-CREATE TEMPORARY FUNCTION getFontFormats(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+# standardSQL
+# font_format_declared_by_font_face
+create temporary function getfontformats(css string)
+returns array<string>
+language js
+as
+    '''
 try {
   var reduceValues = (values, rule) => {
     if ('rules' in rule) {
@@ -27,20 +30,15 @@ try {
 } catch (e) {
   return [];
 }
-''';
-SELECT
-  client,
-  format,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getFontFormats(css)) AS format
-WHERE
-  date = '2020-08-01'
-GROUP BY
-  client,
-  format
-ORDER BY
-  client, pct DESC
+'''
+;
+select
+    client,
+    format,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from `httparchive.almanac.parsed_css`, unnest(getfontformats(css)) as format
+where date = '2020-08-01'
+group by client, format
+order by client, pct desc

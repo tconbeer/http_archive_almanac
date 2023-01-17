@@ -1,30 +1,19 @@
-#standardSQL
+# standardSQL
 # Top JS frameworks and libraries
-SELECT
-  _TABLE_SUFFIX AS client,
-  category,
-  app,
-  COUNT(DISTINCT url) AS pages,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.technologies.2021_07_01_*`
-JOIN (
-  SELECT
-    _TABLE_SUFFIX,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    _TABLE_SUFFIX)
-USING
-  (_TABLE_SUFFIX)
-WHERE
-  category IN ('JavaScript frameworks', 'JavaScript libraries')
-GROUP BY
-  client,
-  category,
-  app,
-  total
-ORDER BY
-  pct DESC
+select
+    _table_suffix as client,
+    category,
+    app,
+    count(distinct url) as pages,
+    total,
+    count(distinct url) / total as pct
+from `httparchive.technologies.2021_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    ) using (_table_suffix)
+where category in ('JavaScript frameworks', 'JavaScript libraries')
+group by client, category, app, total
+order by pct desc

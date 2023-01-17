@@ -1,17 +1,17 @@
-#standardSQL
+# standardSQL
 # pages markup metrics grouped by device and button type
-
 # helper to create percent fields
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
 # returns all the data we need from _markup
-CREATE TEMPORARY FUNCTION get_markup_buttons_info(markup_string STRING)
-RETURNS ARRAY<STRUCT<
-  name STRING,
-  freq INT64
-  >> LANGUAGE js AS '''
+create temporary function get_markup_buttons_info(markup_string string)
+returns array<struct<name string, freq int64>>
+language js
+as
+    '''
 var result = [];
 try {
     var markup = JSON.parse(markup_string);
@@ -30,27 +30,30 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  button_type_info.name AS button_type,
-  COUNTIF(button_type_info.freq > 0) AS freq_page_with_button,
-  AS_PERCENT(COUNTIF(button_type_info.freq > 0), total) AS pct_page_with_button,
-  SUM(button_type_info.freq) AS freq_button,
-  AS_PERCENT(SUM(button_type_info.freq), SUM(SUM(button_type_info.freq)) OVER (PARTITION BY _TABLE_SUFFIX)) AS pct_button
-FROM
-  `httparchive.pages.2020_08_01_*`
-JOIN
-  (SELECT _TABLE_SUFFIX, COUNT(0) AS total FROM
-      `httparchive.pages.2020_08_01_*`
-    GROUP BY _TABLE_SUFFIX) # to get an accurate total of pages per device. also seems fast
-USING (_TABLE_SUFFIX),
-  UNNEST(get_markup_buttons_info(JSON_EXTRACT_SCALAR(payload, '$._markup'))) AS button_type_info
-GROUP BY
-  client,
-  button_type,
-  total
-ORDER BY
-  freq_page_with_button DESC
-LIMIT 1000
+select
+    _table_suffix as client,
+    button_type_info.name as button_type,
+    countif(button_type_info.freq > 0) as freq_page_with_button,
+    as_percent(countif(button_type_info.freq > 0), total) as pct_page_with_button,
+    sum(button_type_info.freq) as freq_button,
+    as_percent(
+        sum(button_type_info.freq),
+        sum(sum(button_type_info.freq)) over (partition by _table_suffix)
+    ) as pct_button
+from `httparchive.pages.2020_08_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2020_08_01_*`
+        # to get an accurate total of pages per device. also seems fast
+        group by _table_suffix
+    ) using (_table_suffix),
+    unnest(
+        get_markup_buttons_info(json_extract_scalar(payload, '$._markup'))
+    ) as button_type_info
+group by client, button_type, total
+order by freq_page_with_button desc
+limit 1000

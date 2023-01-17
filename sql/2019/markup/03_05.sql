@@ -1,14 +1,12 @@
-#standardSQL
+# standardSQL
 # 03_05: % of pages with shadow roots
-CREATE TEMPORARY FUNCTION hasShadowRoot(payload STRING) AS (
-  JSON_EXTRACT_SCALAR(payload, '$._has_shadow_root') = 'true'
-);
+create temporary function hasshadowroot(payload string)
+as (json_extract_scalar(payload, '$._has_shadow_root') = 'true')
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(hasShadowRoot(payload)) AS pages,
-  ROUND(COUNTIF(hasShadowRoot(payload)) * 100 / COUNT(0), 2) AS pct_pages
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(hasshadowroot(payload)) as pages,
+    round(countif(hasshadowroot(payload)) * 100 / count(0), 2) as pct_pages
+from `httparchive.pages.2019_07_01_*`
+group by client

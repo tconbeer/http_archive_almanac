@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 21_09: Top importance values on priority hints.
-CREATE TEMPORARY FUNCTION getPriorityHintImportance(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getpriorityhintimportance(payload string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var almanac = JSON.parse($._almanac);
@@ -9,19 +11,17 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  importance,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS pct
-FROM
-  `httparchive.pages.2020_08_01_*`,
-  UNNEST(getPriorityHintImportance(payload)) AS importance
-GROUP BY
-  client,
-  importance
-ORDER BY
-  pct DESC
+select
+    _table_suffix as client,
+    importance,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix) as total,
+    count(0) / sum(count(0)) over (partition by _table_suffix) as pct
+from
+    `httparchive.pages.2020_08_01_*`,
+    unnest(getpriorityhintimportance(payload)) as importance
+group by client, importance
+order by pct desc
