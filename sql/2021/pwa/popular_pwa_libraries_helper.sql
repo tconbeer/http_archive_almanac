@@ -1,8 +1,11 @@
-#standardSQL
+# standardSQL
 # Use this sql to find popular library imports for popular_pwa_libraries.sql
 # And also other importscripts used in service workers
-CREATE TEMPORARY FUNCTION getSWLibraries(importScriptsInfo STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getswlibraries(importscriptsinfo string)
+returns array<string>
+language js
+as
+    '''
 try {
   /* 'importScriptsInfo' returns an array of libraries that might import other libraries
       The final array of libraries comes from the combination of both */
@@ -19,30 +22,25 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  script,
-  COUNT(DISTINCT url) AS freq
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getSWLibraries(JSON_EXTRACT(payload, '$._pwa.importScriptsInfo'))) AS script
-WHERE
-  JSON_EXTRACT(payload, '$._pwa.importScriptsInfo') != '[]' AND
-  JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true' AND
-  LOWER(script) NOT LIKE '%workbox%' AND
-  LOWER(script) NOT LIKE '%sw-toolbox%' AND
-  LOWER(script) NOT LIKE '%firebase%' AND
-  LOWER(script) NOT LIKE '%onesignalsdk%' AND
-  LOWER(script) NOT LIKE '%najva%' AND
-  LOWER(script) NOT LIKE '%upush%' AND
-  LOWER(script) NOT LIKE '%cache-polyfill.js%' AND
-  LOWER(script) NOT LIKE '%analytics-helper.js%' AND
-  LOWER(script) NOT LIKE '%recaptcha%' AND
-  LOWER(script) NOT LIKE '%pwabuilder%'
-GROUP BY
-  _TABLE_SUFFIX,
-  script
-ORDER BY
-  freq DESC
+select _table_suffix as client, script, count(distinct url) as freq
+from
+    `httparchive.pages.2021_07_01_*`,
+    unnest(getswlibraries(json_extract(payload, '$._pwa.importScriptsInfo'))) as script
+where
+    json_extract(payload, '$._pwa.importScriptsInfo') != '[]'
+    and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+    and lower(script) not like '%workbox%'
+    and lower(script) not like '%sw-toolbox%'
+    and lower(script) not like '%firebase%'
+    and lower(script) not like '%onesignalsdk%'
+    and lower(script) not like '%najva%'
+    and lower(script) not like '%upush%'
+    and lower(script) not like '%cache-polyfill.js%'
+    and lower(script) not like '%analytics-helper.js%'
+    and lower(script) not like '%recaptcha%'
+    and lower(script) not like '%pwabuilder%'
+group by _table_suffix, script
+order by freq desc

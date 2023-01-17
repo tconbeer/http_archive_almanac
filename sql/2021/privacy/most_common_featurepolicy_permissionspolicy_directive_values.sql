@@ -1,173 +1,158 @@
-#standardSQL
+# standardSQL
 # Most common directives for Feature-Policy or Permissions-Policy
-
-WITH page_ranks AS (
-  SELECT
-    client,
-    page,
-    rank
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml = TRUE
-),
-
-response_headers AS (
-  SELECT
-    client,
-    page,
-    LOWER(JSON_VALUE(response_header, '$.name')) AS header_name,
-    LOWER(JSON_VALUE(response_header, '$.value')) AS header_value
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(JSON_QUERY_ARRAY(response_headers)) response_header
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml = TRUE
-),
-
-meta_tags AS (
-  SELECT
-    client,
-    url AS page,
-    LOWER(JSON_VALUE(meta_node, '$.http-equiv')) AS tag_name,
-    LOWER(JSON_VALUE(meta_node, '$.content')) AS tag_value
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url,
-      JSON_VALUE(payload, '$._almanac') AS metrics
-    FROM
-      `httparchive.pages.2021_07_01_*`
+with
+    page_ranks as (
+        select client, page, rank
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and firsthtml = true
     ),
-    UNNEST(JSON_QUERY_ARRAY(metrics, '$.meta-nodes.nodes')) meta_node
-  WHERE
-    JSON_VALUE(meta_node, '$.http-equiv') IS NOT NULL
-),
 
-totals AS (
-  SELECT
+    response_headers as (
+        select
+            client,
+            page,
+            lower(json_value(response_header, '$.name')) as header_name,
+            lower(json_value(response_header, '$.value')) as header_value
+        from
+            `httparchive.almanac.requests`,
+            unnest(json_query_array(response_headers)) response_header
+        where date = '2021-07-01' and firsthtml = true
+    ),
+
+    meta_tags as (
+        select
+            client,
+            url as page,
+            lower(json_value(meta_node, '$.http-equiv')) as tag_name,
+            lower(json_value(meta_node, '$.content')) as tag_value
+        from
+            (
+                select
+                    _table_suffix as client,
+                    url,
+                    json_value(payload, '$._almanac') as metrics
+                from `httparchive.pages.2021_07_01_*`
+            ),
+            unnest(json_query_array(metrics, '$.meta-nodes.nodes')) meta_node
+        where json_value(meta_node, '$.http-equiv') is not null
+    ),
+
+    totals as (
+        select client, rank_grouping, count(distinct page) as total_websites
+        from
+            `httparchive.almanac.requests`,
+            unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+        where date = '2021-07-01' and firsthtml = true and rank <= rank_grouping
+        group by client, rank_grouping
+    ),
+
+    merged_feature_policy as (
+        select
+            client,
+            page,
+            if(
+                header_name = 'feature-policy', header_value, tag_value
+            ) as feature_policy_value
+        from response_headers
+        full outer join meta_tags using (client, page)
+        where header_name = 'feature-policy' or tag_name = 'feature-policy'
+    ),
+
+    merged_permissions_policy as (
+        select
+            client,
+            page,
+            if(
+                header_name = 'permissions-policy', header_value, tag_value
+            ) as permissions_policy_value
+        from response_headers
+        full outer join meta_tags using (client, page)
+        where header_name = 'permissions-policy' or tag_name = 'permissions-policy'
+    ),
+
+    normalized_feature_policy as (  -- normalize
+        -- remove quotes
+        select client, page, replace(feature_policy_value, "'", '') as policy_value
+        from merged_feature_policy
+    ),
+
+    normalized_permissions_policy as (  -- normalize
+        select
+            client,
+            page,
+            replace(
+                replace(
+                    replace(
+                        replace(
+                            replace(
+                                replace(
+                                    -- swap directive delimiter
+                                    replace(permissions_policy_value, ',', ';'),
+                                    '=',  -- drop name/value delimiter
+                                    ' '
+                                ),
+                                '()',  -- special case for feature disabling
+                                'none'
+                            ),
+                            '(',  -- remove parentheses
+                            ''
+                        ),
+                        ')',
+                        ''
+                    ),
+                    '"',  -- remove quotes
+                    ''
+                ),
+                "'",
+                ''
+            ) as policy_value
+        from merged_permissions_policy
+    )
+
+select
     client,
     rank_grouping,
-    COUNT(DISTINCT page) AS total_websites
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml = TRUE AND
-    rank <= rank_grouping
-  GROUP BY
+    rtrim(split(trim(directive), ' ')[offset(0)], ':') as directive_name,
+    trim(origin) as origin,
+    count(distinct page) as number_of_websites_with_directive,
+    total_websites,
+    count(distinct page) / total_websites as pct_websites_with_directive
+from
+    (
+        select distinct *
+        from
+            (
+                select *
+                from normalized_feature_policy
+                union all
+                select *
+                from normalized_permissions_policy
+            )
+    ),
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+join page_ranks using (client, page)
+join
+    totals using (client, rank_grouping),
+    unnest(split(policy_value, ';')) directive,
+    unnest(  -- Directive may specify explicit origins or not.
+        if(
+            -- test if any explicit origin is provided
+            array_length(split(trim(directive), ' ')) = 1,
+            -- if not, add a dummy empty origin to make the query work
+            [trim(directive), ''],
+            split(trim(directive), ' ')  -- if it is, split the different origins
+        )
+    ) as origin
+with
+offset as
+offset
+where trim(directive) != '' and
+offset > 0 and rank <= rank_grouping
+group by client, rank_grouping, directive_name, origin, total_websites
+order by
+    pct_websites_with_directive desc,
+    rank_grouping,
     client,
-    rank_grouping
-),
-
-merged_feature_policy AS (
-  SELECT
-    client,
-    page,
-    IF(header_name = 'feature-policy', header_value, tag_value) AS feature_policy_value
-  FROM
-    response_headers
-  FULL OUTER JOIN
-    meta_tags
-  USING (client, page)
-  WHERE
-    header_name = 'feature-policy' OR
-    tag_name = 'feature-policy'
-),
-
-merged_permissions_policy AS (
-  SELECT
-    client,
-    page,
-    IF(header_name = 'permissions-policy', header_value, tag_value) AS permissions_policy_value
-  FROM
-    response_headers
-  FULL OUTER JOIN
-    meta_tags
-  USING (client, page)
-  WHERE
-    header_name = 'permissions-policy' OR
-    tag_name = 'permissions-policy'
-),
-
-normalized_feature_policy AS (  -- normalize
-  SELECT
-    client,
-    page,
-    REPLACE(feature_policy_value, "'", '') AS policy_value  -- remove quotes
-  FROM
-    merged_feature_policy
-),
-
-normalized_permissions_policy AS (  -- normalize
-  SELECT
-    client,
-    page,
-    REPLACE(REPLACE(
-        REPLACE(REPLACE(
-            REPLACE(
-              REPLACE(
-                REPLACE(permissions_policy_value, ',', ';'),  -- swap directive delimiter
-                '=', ' '), -- drop name/value delimiter
-              '()', 'none' -- special case for feature disabling
-            ),
-            '(', ''), ')', ''), -- remove parentheses
-        '"', ''), "'", '') -- remove quotes
-    AS policy_value
-  FROM
-    merged_permissions_policy
-)
-
-
-SELECT
-  client,
-  rank_grouping,
-  RTRIM(SPLIT(TRIM(directive), ' ')[OFFSET(0)], ':') AS directive_name,
-  TRIM(origin) AS origin,
-  COUNT(DISTINCT page) AS number_of_websites_with_directive,
-  total_websites,
-  COUNT(DISTINCT page) / total_websites AS pct_websites_with_directive
-FROM
-  (
-    SELECT DISTINCT * FROM (
-      SELECT * FROM normalized_feature_policy
-      UNION ALL
-      SELECT * FROM normalized_permissions_policy
-    )
-  ),
-  UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-JOIN
-  page_ranks
-USING (client, page)
-JOIN
-  totals
-USING (client, rank_grouping),
-  UNNEST(SPLIT(policy_value, ';')) directive,
-  UNNEST(  -- Directive may specify explicit origins or not.
-    IF(
-      ARRAY_LENGTH(SPLIT(TRIM(directive), ' ')) = 1,  -- test if any explicit origin is provided
-      [TRIM(directive), ''],  -- if not, add a dummy empty origin to make the query work
-      SPLIT(TRIM(directive), ' '  -- if it is, split the different origins
-      )
-    )
-  ) AS origin WITH OFFSET AS offset
-WHERE
-  TRIM(directive) != '' AND
-  offset > 0 AND
-  rank <= rank_grouping
-GROUP BY
-  client,
-  rank_grouping,
-  directive_name,
-  origin,
-  total_websites
-ORDER BY
-  pct_websites_with_directive DESC,
-  rank_grouping,
-  client,
-  number_of_websites_with_directive DESC,
-  directive_name,
-  origin
+    number_of_websites_with_directive desc,
+    directive_name,
+    origin

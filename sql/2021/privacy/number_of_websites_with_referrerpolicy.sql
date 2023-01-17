@@ -1,85 +1,93 @@
-#standardSQL
+# standardSQL
 # Websites using Referrer-Policy
+with
+    referrer_policy_custom_metrics as (
+        select
+            _table_suffix as client,
+            url as page,
+            json_value(
+                json_value(payload, '$._privacy'),
+                '$.referrerPolicy.entire_document_policy'
+            ) as entire_document_policy_meta,
+            json_query_array(
+                json_value(payload, '$._privacy'),
+                '$.referrerPolicy.individual_requests'
+            ) as individual_requests,
+            json_query_array(
+                json_value(payload, '$._privacy'), '$.referrerPolicy.link_relations'
+            ) as link_relations
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-WITH referrer_policy_custom_metrics AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    JSON_VALUE(JSON_VALUE(payload, '$._privacy'), '$.referrerPolicy.entire_document_policy') AS entire_document_policy_meta,
-    JSON_QUERY_ARRAY(JSON_VALUE(payload, '$._privacy'), '$.referrerPolicy.individual_requests') AS individual_requests,
-    JSON_QUERY_ARRAY(JSON_VALUE(payload, '$._privacy'), '$.referrerPolicy.link_relations') AS link_relations
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+    response_headers as (
+        select
+            client,
+            page,
+            lower(json_value(response_header, '$.name')) as name,
+            lower(json_value(response_header, '$.value')) as value
+        from
+            `httparchive.almanac.requests`,
+            unnest(json_query_array(response_headers)) response_header
+        where date = '2021-07-01' and firsthtml = true
+    ),
 
-response_headers AS (
-  SELECT
-    client,
-    page,
-    LOWER(JSON_VALUE(response_header, '$.name')) AS name,
-    LOWER(JSON_VALUE(response_header, '$.value')) AS value
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(JSON_QUERY_ARRAY(response_headers)) response_header
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml = TRUE
-),
+    referrer_policy_headers as (
+        select client, page, value as entire_document_policy_header
+        from response_headers
+        where name = 'referrer-policy'
+    )
 
-referrer_policy_headers AS (
-  SELECT
-    client,
-    page,
-    value AS entire_document_policy_header
-  FROM
-    response_headers
-  WHERE
-    name = 'referrer-policy'
-)
-
-SELECT
-  *,
-  number_of_websites_with_entire_document_policy_meta / number_of_websites AS pct_websites_with_entire_document_policy_meta,
-  number_of_websites_with_entire_document_policy_header / number_of_websites AS pct_websites_with_entire_document_policy_header,
-  number_of_websites_with_entire_document_policy / number_of_websites AS pct_websites_with_entire_document_policy,
-  number_of_websites_with_any_individual_requests / number_of_websites AS pct_websites_with_any_individual_requests,
-  number_of_websites_with_any_link_relations / number_of_websites AS pct_websites_with_any_link_relations,
-  number_of_websites_with_any_referrer_policy / number_of_websites AS pct_websites_with_any_referrer_policy
-FROM (
-  SELECT
-    client,
-    COUNT(DISTINCT IF(
-        entire_document_policy_meta IS NOT NULL,
-        page, NULL)) AS number_of_websites_with_entire_document_policy_meta,
-    COUNT(DISTINCT IF(
-        entire_document_policy_header IS NOT NULL,
-        page, NULL)) AS number_of_websites_with_entire_document_policy_header,
-    COUNT(DISTINCT IF(
-      entire_document_policy_meta IS NOT NULL OR
-      entire_document_policy_header IS NOT NULL,
-      page, NULL)
-    ) AS number_of_websites_with_entire_document_policy,
-    COUNT(DISTINCT IF(
-        ARRAY_LENGTH(individual_requests) > 0,
-        page, NULL)) AS number_of_websites_with_any_individual_requests,
-    COUNT(DISTINCT IF(
-        ARRAY_LENGTH(link_relations) > 0,
-        page, NULL)) AS number_of_websites_with_any_link_relations,
-    COUNT(DISTINCT IF(
-      entire_document_policy_meta IS NOT NULL OR
-      entire_document_policy_header IS NOT NULL OR
-      ARRAY_LENGTH(individual_requests) > 0 OR
-      ARRAY_LENGTH(link_relations) > 0,
-      page, NULL)
-    ) AS number_of_websites_with_any_referrer_policy,
-    COUNT(DISTINCT page) AS number_of_websites
-  FROM
-    referrer_policy_custom_metrics
-  FULL OUTER JOIN
-    referrer_policy_headers
-  USING (client, page)
-  GROUP BY
-    client
-)
-ORDER BY
-  client
+select
+    *,
+    number_of_websites_with_entire_document_policy_meta
+    / number_of_websites as pct_websites_with_entire_document_policy_meta,
+    number_of_websites_with_entire_document_policy_header
+    / number_of_websites as pct_websites_with_entire_document_policy_header,
+    number_of_websites_with_entire_document_policy
+    / number_of_websites as pct_websites_with_entire_document_policy,
+    number_of_websites_with_any_individual_requests
+    / number_of_websites as pct_websites_with_any_individual_requests,
+    number_of_websites_with_any_link_relations
+    / number_of_websites as pct_websites_with_any_link_relations,
+    number_of_websites_with_any_referrer_policy
+    / number_of_websites as pct_websites_with_any_referrer_policy
+from
+    (
+        select
+            client,
+            count(
+                distinct if(entire_document_policy_meta is not null, page, null)
+            ) as number_of_websites_with_entire_document_policy_meta,
+            count(
+                distinct if(entire_document_policy_header is not null, page, null)
+            ) as number_of_websites_with_entire_document_policy_header,
+            count(
+                distinct if(
+                    entire_document_policy_meta is not null
+                    or entire_document_policy_header is not null,
+                    page,
+                    null
+                )
+            ) as number_of_websites_with_entire_document_policy,
+            count(
+                distinct if(array_length(individual_requests) > 0, page, null)
+            ) as number_of_websites_with_any_individual_requests,
+            count(
+                distinct if(array_length(link_relations) > 0, page, null)
+            ) as number_of_websites_with_any_link_relations,
+            count(
+                distinct if(
+                    entire_document_policy_meta is not null
+                    or entire_document_policy_header is not null
+                    or array_length(individual_requests) > 0
+                    or array_length(link_relations) > 0,
+                    page,
+                    null
+                )
+            ) as number_of_websites_with_any_referrer_policy,
+            count(distinct page) as number_of_websites
+        from referrer_policy_custom_metrics
+        full outer join referrer_policy_headers using (client, page)
+        group by client
+    )
+order by client

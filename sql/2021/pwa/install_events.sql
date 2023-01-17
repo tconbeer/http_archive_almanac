@@ -1,8 +1,10 @@
-#standardSQL
+# standardSQL
 # SW install events
-
-CREATE TEMPORARY FUNCTION getInstallEvents(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getinstallevents(payload string)
+returns array<string>
+language js
+as
+    '''
 try {
   var payloadJSON = JSON.parse(payload);
 
@@ -27,43 +29,35 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  install_event,
-  COUNT(DISTINCT url) AS freq,
-  total,
-  COUNT(DISTINCT url) / total AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(getInstallEvents(JSON_EXTRACT(payload, '$._pwa'))) AS install_event
-JOIN
-  (
-    SELECT
-      _TABLE_SUFFIX,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    WHERE
-      -- This condition filters out tests that might have broken when running the 'pwa' metric
-      -- as even pages without any pwa capabilities will have a _pwa object with empty fields
-      JSON_EXTRACT(payload, '$._pwa') != '[]'
-    GROUP BY
-      _TABLE_SUFFIX
-  )
-USING (_TABLE_SUFFIX)
-WHERE
-  (
-    JSON_EXTRACT(payload, '$._pwa.windowEventListenersInfo') != '[]' OR
-    JSON_EXTRACT(payload, '$._pwa.windowPropertiesInfo') != '[]'
-  ) AND
-  install_event != '' AND
-  install_event != '[]'
-GROUP BY
-  client,
-  total,
-  install_event
-ORDER BY
-  freq / total DESC,
-  client
+select
+    _table_suffix as client,
+    install_event,
+    count(distinct url) as freq,
+    total,
+    count(distinct url) / total as pct
+from
+    `httparchive.pages.2021_07_01_*`,
+    unnest(getinstallevents(json_extract(payload, '$._pwa'))) as install_event
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2021_07_01_*`
+        -- This condition filters out tests that might have broken when running the
+        -- 'pwa' metric
+        -- as even pages without any pwa capabilities will have a _pwa object with
+        -- empty fields
+        where json_extract(payload, '$._pwa') != '[]'
+        group by _table_suffix
+    ) using (_table_suffix)
+where
+    (
+        json_extract(payload, '$._pwa.windowEventListenersInfo') != '[]'
+        or json_extract(payload, '$._pwa.windowPropertiesInfo') != '[]'
+    )
+    and install_event != ''
+    and install_event != '[]'
+group by client, total, install_event
+order by freq / total desc, client

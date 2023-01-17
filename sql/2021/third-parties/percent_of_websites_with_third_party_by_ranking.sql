@@ -1,64 +1,37 @@
-#standardSQL
+# standardSQL
 # Percent of websites with third parties by ranking
+with
+    requests as (
+        select _table_suffix as client, pageid as page, url
+        from `httparchive.summary_requests.2021_07_01_*`
+    ),
 
-WITH requests AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    pageid AS page,
-    url
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-),
+    third_party as (
+        select domain, category, count(distinct page) as page_usage
+        from `httparchive.almanac.third_parties` tp
+        join requests r on net.host(r.url) = net.host(tp.domain)
+        where date = '2021-07-01' and category != 'hosting'
+        group by domain, category
+        having page_usage >= 50
+    ),
 
-third_party AS (
-  SELECT
-    domain,
-    category,
-    COUNT(DISTINCT page) AS page_usage
-  FROM
-    `httparchive.almanac.third_parties` tp
-  JOIN
-    requests r
-  ON NET.HOST(r.url) = NET.HOST(tp.domain)
-  WHERE
-    date = '2021-07-01' AND
-    category != 'hosting'
-  GROUP BY
-    domain,
-    category
-  HAVING
-    page_usage >= 50
-),
+    pages as (
+        select _table_suffix as client, pageid as page, rank
+        from `httparchive.summary_pages.2021_07_01_*`
+    )
 
-pages AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    pageid AS page,
-    rank
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-)
-
-SELECT
-  client,
-  rank_grouping,
-  COUNT(DISTINCT IF(domain IS NOT NULL, page, NULL)) AS pages_with_third_party,
-  COUNT(DISTINCT page) AS total_pages,
-  COUNT(DISTINCT IF(domain IS NOT NULL, page, NULL)) / COUNT(DISTINCT page) AS pct_pages_with_third_party
-FROM
-  pages
-JOIN
-  requests
-USING (client, page)
-LEFT JOIN
-  third_party
-ON NET.HOST(requests.url) = NET.HOST(third_party.domain),
-  UNNEST([1000, 10000, 100000, 1000000, 10000000]) AS rank_grouping
-WHERE
-  rank <= rank_grouping
-GROUP BY
-  client,
-  rank_grouping
-ORDER BY
-  client,
-  rank_grouping
+select
+    client,
+    rank_grouping,
+    count(distinct if(domain is not null, page, null)) as pages_with_third_party,
+    count(distinct page) as total_pages,
+    count(distinct if(domain is not null, page, null))
+    / count(distinct page) as pct_pages_with_third_party
+from pages
+join requests using (client, page)
+left join
+    third_party on net.host(requests.url) = net.host(third_party.domain),
+    unnest([1000, 10000, 100000, 1000000, 10000000]) as rank_grouping
+where rank <= rank_grouping
+group by client, rank_grouping
+order by client, rank_grouping

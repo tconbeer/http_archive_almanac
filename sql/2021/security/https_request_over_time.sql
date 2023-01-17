@@ -1,13 +1,12 @@
-#standardSQL
-SELECT
-  SUBSTR(_TABLE_SUFFIX, 0, 10) AS date,
-  IF(ENDS_WITH(_TABLE_SUFFIX, 'desktop'), 'desktop', 'mobile') AS client,
-  SUM(IF(STARTS_WITH(request, 'https'), 1, 0)) / COUNT(0) AS percent
-FROM
-  (SELECT url AS request, page AS url, _TABLE_SUFFIX AS _TABLE_SUFFIX FROM `httparchive.requests.*`)
-GROUP BY
-  date,
-  client
-ORDER BY
-  date DESC,
-  client
+# standardSQL
+select
+    substr(_table_suffix, 0, 10) as date,
+    if(ends_with(_table_suffix, 'desktop'), 'desktop', 'mobile') as client,
+    sum(if(starts_with(request, 'https'), 1, 0)) / count(0) as percent
+from
+    (
+        select url as request, page as url, _table_suffix as _table_suffix
+        from `httparchive.requests.*`
+    )
+group by date, client
+order by date desc, client

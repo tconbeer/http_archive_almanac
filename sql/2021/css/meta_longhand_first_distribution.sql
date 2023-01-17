@@ -1,9 +1,10 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getLonghandFirstProperties(css STRING)
-RETURNS ARRAY<STRUCT<property STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getlonghandfirstproperties(css string)
+returns array<struct<property string, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let ret = {
@@ -442,26 +443,23 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(freq_longhand_first, 1000)[OFFSET(percentile * 10)] AS longhand_first_per_page
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    property.freq AS freq_longhand_first
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getLonghandFirstProperties(css)) AS property
-  WHERE
-    date = '2021-07-01' AND
-    property.freq > 0),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(freq_longhand_first, 1000)[
+        offset(percentile * 10)
+    ] as longhand_first_per_page
+from
+    (
+        select client, property.freq as freq_longhand_first
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getlonghandfirstproperties(css)) as property
+        where date = '2021-07-01' and property.freq > 0
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

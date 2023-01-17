@@ -1,18 +1,20 @@
-#standardSQL
+# standardSQL
 # 04_21: % of pages having a hero image
-SELECT
-  client,
-  COUNTIF(has_hero_image) AS hero_image,
-  COUNTIF(has_hero_bgimage) AS hero_bg_image,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(has_hero_image) * 100 / COUNT(0), 2) AS pct_hero_img,
-  ROUND(COUNTIF(has_hero_bgimage) * 100 / COUNT(0), 2) AS pct_hero_bgimg
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    JSON_EXTRACT_SCALAR(payload, "$['_heroElementTimes.Image']") IS NOT NULL AS has_hero_image,
-    JSON_EXTRACT_SCALAR(payload, "$['_heroElementTimes.BackgroundImage']") IS NOT NULL AS has_hero_bgimage
-  FROM
-    `httparchive.pages.2019_07_01_*`)
-GROUP BY
-  client
+select
+    client,
+    countif(has_hero_image) as hero_image,
+    countif(has_hero_bgimage) as hero_bg_image,
+    count(0) as total,
+    round(countif(has_hero_image) * 100 / count(0), 2) as pct_hero_img,
+    round(countif(has_hero_bgimage) * 100 / count(0), 2) as pct_hero_bgimg
+from
+    (
+        select
+            _table_suffix as client,
+            json_extract_scalar(payload, "$['_heroElementTimes.Image']")
+            is not null as has_hero_image,
+            json_extract_scalar(payload, "$['_heroElementTimes.BackgroundImage']")
+            is not null as has_hero_bgimage
+        from `httparchive.pages.2019_07_01_*`
+    )
+group by client

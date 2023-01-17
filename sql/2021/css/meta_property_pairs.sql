@@ -1,9 +1,10 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getPropertyPairs(css STRING)
-RETURNS ARRAY<STRUCT<pair STRING, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getpropertypairs(css string)
+returns array<struct<pair string, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let usedTogether = {};
@@ -83,31 +84,23 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  pair,
-  COUNT(DISTINCT page) AS pages,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    property.pair,
-    property.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getPropertyPairs(css)) AS property
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client,
-  pair
-ORDER BY
-  pct DESC
-LIMIT 500
+    pair,
+    count(distinct page) as pages,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, page, property.pair, property.freq
+        from `httparchive.almanac.parsed_css`, unnest(getpropertypairs(css)) as property
+        # Limit the size of the CSS to avoid OOM crashes.
+        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+    )
+group by client, pair
+order by pct desc
+limit 500

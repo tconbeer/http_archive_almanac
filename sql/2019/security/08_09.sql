@@ -1,18 +1,13 @@
-#standardSQL
+# standardSQL
 # 08_09 Legacy cipher suites
 # Distribution of all ciphers
-SELECT
-  _TABLE_SUFFIX AS client,
-  JSON_EXTRACT_SCALAR(payload, '$._securityDetails.cipher') AS cipher,
-  COUNT(0) AS cipher_count,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX), 2) AS pct
-FROM
-  `httparchive.requests.2019_07_01_*`
-GROUP BY
-  client,
-  cipher
-HAVING
-  cipher IS NOT NULL
-ORDER BY
-  cipher_count DESC
+select
+    _table_suffix as client,
+    json_extract_scalar(payload, '$._securityDetails.cipher') as cipher,
+    count(0) as cipher_count,
+    sum(count(0)) over (partition by _table_suffix) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by _table_suffix), 2) as pct
+from `httparchive.requests.2019_07_01_*`
+group by client, cipher
+having cipher is not null
+order by cipher_count desc
