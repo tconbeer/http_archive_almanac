@@ -109,7 +109,6 @@ with
         from merged_permissions_policy
     )
 
-
 select
     client,
     rank_grouping,

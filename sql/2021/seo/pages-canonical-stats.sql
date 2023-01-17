@@ -117,7 +117,6 @@ try {
 ;
 
 
-
 select
     client,
     count(0) as total,

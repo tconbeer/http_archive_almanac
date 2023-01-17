@@ -211,7 +211,6 @@ with
         where header_name = 'origin-trial' or tag_name = 'origin-trial'
     )
 
-
 select
     client,
     coalesce(

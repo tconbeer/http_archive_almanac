@@ -23,7 +23,6 @@ with
         group by canonicaldomain
     )
 
-
 select canonicaldomain, total_pages, pct_pages
 from
     (
