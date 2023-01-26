@@ -29,6 +29,6 @@ select
 from `httparchive.almanac.requests`
 where date = '2021-07-01' and firsthtml
 group by client, protocol, http_or_https, altsvc
--- Use QUALIFY rather than HAVING to allow total column to work
-qualify num_pages >= 100
+qualify  -- Use QUALIFY rather than HAVING to allow total column to work
+    num_pages >= 100
 order by num_pages desc

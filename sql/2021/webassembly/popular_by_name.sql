@@ -7,9 +7,9 @@ select
         then '(unityweb app)'
         else
             regexp_replace(
-                -- lowercase & extract filename between last `/` and `.` or `?`
-                -- trim trailing hashes to transform `name-0abc43234[...]` to `name`
-                regexp_extract(lower(url), r'.*/([^./?]*)'), r'-[0-9a-f]{20,32}$', ''
+                regexp_extract(lower(url), r'.*/([^./?]*)'),  -- lowercase & extract filename between last `/` and `.` or `?`
+                r'-[0-9a-f]{20,32}$',  -- trim trailing hashes to transform `name-0abc43234[...]` to `name`
+                ''
             )
     end as name,
     count(0) as count,

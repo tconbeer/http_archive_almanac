@@ -10,12 +10,13 @@ with
                 partition by country_code, if(device = 'desktop', 'desktop', 'mobile')
             ) as total
         from `chrome-ux-report.materialized.country_summary`
-        # We're intentionally using May 2021 CrUX data here.
-        # That's because there's a two month lag between CrUX and HA datasets.
-        # Since we're only JOINing with the CrUX dataset to see which URLs
-        # belong to different countries (as opposed to CWV field data)
-        # it's not necessary to look at the 202107 dataset.
-        where yyyymm = 202105
+        where
+            # We're intentionally using May 2021 CrUX data here.
+            # That's because there's a two month lag between CrUX and HA datasets.
+            # Since we're only JOINing with the CrUX dataset to see which URLs
+            # belong to different countries (as opposed to CWV field data)
+            # it's not necessary to look at the 202107 dataset.
+            yyyymm = 202105
         union all
         select
             'ALL' as geo,

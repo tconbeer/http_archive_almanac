@@ -18,23 +18,20 @@ from
             page,
             url,
             firsthtml,
-            # sometimes _cdn provider detection includes multiple entries. we bias for
-            # the DNS detected entry which is the first entry
             ifnull(
                 nullif(regexp_extract(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN'
-            ) as cdn,
+            ) as cdn,  # sometimes _cdn provider detection includes multiple entries. we bias for the DNS detected entry which is the first entry
             cast(json_extract(payload, '$.timings.ssl') as int64) as tlstime,
             array_length(
                 split(json_extract(payload, '$._securityDetails.sanList'), '')
             ) as sanlength,
             if(net.host(url) = net.host(page), true, false) as samehost,
-            # if toplevel reg_domain will return NULL so we group this as sameDomain
             if(
                 net.host(url) = net.host(page)
                 or net.reg_domain(url) = net.reg_domain(page),
                 true,
                 false
-            ) as samedomain
+            ) as samedomain  # if toplevel reg_domain will return NULL so we group this as sameDomain
         from `httparchive.almanac.requests`
         where date = '2021-07-01'
         group by client, requestid, page, url, firsthtml, cdn, tlstime, sanlength

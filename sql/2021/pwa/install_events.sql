@@ -45,11 +45,12 @@ join
     (
         select _table_suffix, count(0) as total
         from `httparchive.pages.2021_07_01_*`
-        -- This condition filters out tests that might have broken when running the
-        -- 'pwa' metric
-        -- as even pages without any pwa capabilities will have a _pwa object with
-        -- empty fields
-        where json_extract(payload, '$._pwa') != '[]'
+        where
+            -- This condition filters out tests that might have broken when running
+            -- the 'pwa' metric
+            -- as even pages without any pwa capabilities will have a _pwa object with
+            -- empty fields
+            json_extract(payload, '$._pwa') != '[]'
         group by _table_suffix
     ) using (_table_suffix)
 where

@@ -44,15 +44,12 @@ from
             url,
             firsthtml,
             respbodysize,
-            # sometimes _cdn provider detection includes multiple entries. we bias for
-            # the DNS detected entry which is the first entry
             ifnull(
                 nullif(regexp_extract(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN'
-            ) as cdn,
+            ) as cdn,  # sometimes _cdn provider detection includes multiple entries. we bias for the DNS detected entry which is the first entry
             net.host(url) = net.host(page) as samehost,
-            # if toplevel reg_domain will return NULL so we group this as sameDomain
             net.host(url) = net.host(page)
-            or net.reg_domain(url) = net.reg_domain(page) as samedomain
+            or net.reg_domain(url) = net.reg_domain(page) as samedomain  # if toplevel reg_domain will return NULL so we group this as sameDomain
         from `httparchive.almanac.requests`
         where date = '2021-07-01'
     ),

@@ -8,7 +8,6 @@ select
     round(approx_quantiles(bytestotal, 1000)[offset(750)] / 1024, 2) as p75,
     round(approx_quantiles(bytestotal, 1000)[offset(900)] / 1024, 2) as p90
 from `httparchive.summary_pages.*`
--- ignore mid-month figures as not always available and throws off chart
-where bytestotal > 0 and substr(_table_suffix, 9, 2) = '01'
+where bytestotal > 0 and substr(_table_suffix, 9, 2) = '01'  -- ignore mid-month figures as not always available and throws off chart
 group by date, client
 order by date desc, client

@@ -35,14 +35,13 @@ from
             case
                 when net.host(url) = net.host(page) then true else false
             end as samehost,
-            # if toplevel reg_domain will return NULL so we group this as sameDomain
             case
                 when
                     net.host(url) = net.host(page)
                     or net.reg_domain(url) = net.reg_domain(page)
                 then true
                 else false
-            end as samedomain
+            end as samedomain  # if toplevel reg_domain will return NULL so we group this as sameDomain
         from `httparchive.almanac.requests3`
     -- GROUP BY client, pageid, requestid, page, url, firstHtml, _cdn_provider,
     -- respBodySize

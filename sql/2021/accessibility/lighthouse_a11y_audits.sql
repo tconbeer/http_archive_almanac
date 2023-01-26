@@ -46,7 +46,6 @@ select
 from
     `httparchive.lighthouse.2021_07_01_mobile`,
     unnest(getaudits(report, 'accessibility')) as audits
-# necessary to avoid out of memory issues. Excludes very large results
-where length(report) < 20000000
+where length(report) < 20000000  # necessary to avoid out of memory issues. Excludes very large results
 group by audits.id
 order by median_weight desc, id

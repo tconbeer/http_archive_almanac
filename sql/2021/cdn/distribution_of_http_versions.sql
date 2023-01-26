@@ -80,10 +80,11 @@ from
             cast(json_extract(payload, '$._socket') as int64) as socket
         from `httparchive.almanac.requests`
         -- `httparchive.sample_data.requests`
-        # WPT changes the response fields based on a redirect (url becomes the
-        # Location path instead of the original) causing insonsistencies in the
-        # counts, so we ignore them
-        where resp_location = '' or resp_location is null and date = '2021-07-01'
+        where
+            # WPT changes the response fields based on a redirect (url becomes the
+            # Location path instead of the original) causing insonsistencies in the
+            # counts, so we ignore them
+            resp_location = '' or resp_location is null and date = '2021-07-01'
     ) a
 left join
     (

@@ -3,6 +3,10 @@
 select distinct client, feature, num_urls, total_urls, pct_urls
 from `httparchive.blink_features.usage`
 where yyyymmdd = '20210701' and feature = 'NavigatorDoNotTrack'
-# relevant Blink features:
-# DNT: NavigatorDoNotTrack
-order by feature, client
+order by
+    feature,
+    client
+
+    # relevant Blink features:
+    # DNT: NavigatorDoNotTrack
+    

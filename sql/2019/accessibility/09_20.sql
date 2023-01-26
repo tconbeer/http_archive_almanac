@@ -12,7 +12,8 @@ from
             = '1' as is_valid
         from `httparchive.lighthouse.2019_07_01_mobile`
     )
-# Ignore pages with no aria-* attributes
-where is_valid is not null
+where
+    # Ignore pages with no aria-* attributes
+    is_valid is not null
 group by is_valid
 order by pages desc

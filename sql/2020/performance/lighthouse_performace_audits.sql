@@ -46,7 +46,6 @@ select
 from
     `httparchive.lighthouse.2020_09_01_mobile`,
     unnest(getaudits(report, 'performance')) as audits
-# necessary to avoid out of memory issues. Excludes 16 very large results
-where length(report) < 20000000
+where length(report) < 20000000  # necessary to avoid out of memory issues. Excludes 16 very large results
 group by audits.id
 order by median_weight desc, id

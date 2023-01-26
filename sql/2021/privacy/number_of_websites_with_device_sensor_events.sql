@@ -24,10 +24,11 @@ with
     ),
 
     sites_and_events as (
-        -- the home page that was crawled
-        -- the url that added the event listener, can be scripts etc.
-        -- the name of the event
-        select client, site, url_and_events.key as url, event
+        select
+            client,
+            site,  -- the home page that was crawled
+            url_and_events.key as url,  -- the url that added the event listener, can be scripts etc.
+            event  -- the name of the event
         from
             (
                 select
@@ -52,8 +53,9 @@ select
     count(distinct url) as number_of_urls
 from sites_and_events
 join total_pages using (client)
--- device* events, from
--- https://www.esat.kuleuven.be/cosic/publications/article-3078.pdf
-where event like 'device%'
+where
+    -- device* events, from
+    -- https://www.esat.kuleuven.be/cosic/publications/article-3078.pdf
+    event like 'device%'
 group by client, event, total
 order by client, event

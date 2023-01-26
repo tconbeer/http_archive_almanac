@@ -51,7 +51,6 @@ where
     date = '2020-08-01'
     and client = 'mobile'
     and page = l.url
-    # necessary to avoid out of memory issues. Excludes 16 very large results
-    and length(report) < 20000000
+    and length(report) < 20000000  # necessary to avoid out of memory issues. Excludes 16 very large results
 group by audits.id
 order by median_weight desc, id

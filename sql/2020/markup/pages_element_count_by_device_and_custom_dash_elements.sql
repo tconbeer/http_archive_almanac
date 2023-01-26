@@ -45,12 +45,12 @@ join
     (
         select _table_suffix, count(0) as total
         from `httparchive.pages.2020_08_01_*`
-        # to get an accurate total of pages per device. also seems fast
         group by _table_suffix
-    ) using (_table_suffix),
-    unnest(  # so we end up with pages + element_type_with_a_dash rows
+    )  # to get an accurate total of pages per device. also seems fast
+    using (_table_suffix),
+    unnest(
         get_element_types_with_a_dash(json_extract_scalar(payload, '$._element_count'))
-    ) as element_type_with_a_dash
+    ) as element_type_with_a_dash  # so we end up with pages + element_type_with_a_dash rows
 group by client, total, element_type_with_a_dash
 order by pct desc, client
 limit 1000

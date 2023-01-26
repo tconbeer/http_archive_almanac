@@ -73,8 +73,9 @@ from
                     (respsize > 1500 or regexp_contains(mimetype, r'svg')) and
 
                     # strip favicon requests
+                    format != 'ico'
                     # strip video mimetypes ANDother favicons
-                    format != 'ico' and not regexp_contains(mimetype, r'video|ico')
+                    and not regexp_contains(mimetype, r'video|ico')
                 group by client, page, imagetype
             )
         cross join unnest(['jpg', 'png', 'webp', 'gif', 'svg']) as webimagetype

@@ -1,7 +1,6 @@
 # standardSQL
 # 17_02g: % of Pages using a JS CDN Host
-# doing the Pct calc causes memory problems with bigquery
-select *, round(100 * pageusecount / totalpagescount, 2) as pct
+select *, round(100 * pageusecount / totalpagescount, 2) as pct  # doing the Pct calc causes memory problems with bigquery
 from
     (
         select

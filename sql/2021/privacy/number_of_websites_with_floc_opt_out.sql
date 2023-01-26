@@ -54,8 +54,10 @@ full outer join
 join totals using (client, rank_grouping)
 where
     (
-        # value could contain other policies
-        (header_name = 'permissions-policy' and header_value like 'interest-cohort=()')
+        (
+            header_name = 'permissions-policy'
+            and header_value like 'interest-cohort=()'  # value could contain other policies
+        )
         or (tag_name = 'permissions-policy' and tag_value like 'interest-cohort=()')
     )
     and rank <= rank_grouping

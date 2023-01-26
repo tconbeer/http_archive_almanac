@@ -26,10 +26,11 @@ from
                     '$.web_component_specs.template'
                 )
             ) as template
-        # Note: We're intentionally querying the September dataset here because of a
-        # bug in the custom metric.
-        # See https://github.com/HTTPArchive/legacy.httparchive.org/pull/231.
-        from `httparchive.pages.2021_09_01_*`
+        from
+            # Note: We're intentionally querying the September dataset here because of
+            # a bug in the custom metric.
+            # See https://github.com/HTTPArchive/legacy.httparchive.org/pull/231.
+            `httparchive.pages.2021_09_01_*`
     ),
     unnest([10, 25, 50, 75, 90, 100]) as percentile
 group by percentile, client

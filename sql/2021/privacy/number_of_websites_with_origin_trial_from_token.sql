@@ -162,8 +162,7 @@ with
             client,
             page,
             lower(json_value(response_header, '$.name')) as header_name,
-            -- may not lowercase this value as it is a base64 string
-            json_value(response_header, '$.value') as header_value
+            json_value(response_header, '$.value') as header_value  -- may not lowercase this value as it is a base64 string
         from
             `httparchive.almanac.requests`,
             unnest(json_query_array(response_headers)) response_header
@@ -175,8 +174,7 @@ with
             client,
             url as page,
             lower(json_value(meta_node, '$.http-equiv')) as tag_name,
-            -- may not lowercase this value as it is a base64 string
-            json_value(meta_node, '$.content') as tag_value
+            json_value(meta_node, '$.content') as tag_value  -- may not lowercase this value as it is a base64 string
         from
             (
                 select
@@ -217,8 +215,7 @@ select
         origin_trials_from_custom_metric.featureelem,
         origin_trials_from_headers_and_meta_tags.featureelem
     ) as featureelem,
-    -- crawled sites containing at leat one origin trial
-    count(distinct site) as number_of_websites,
+    count(distinct site) as number_of_websites,  -- crawled sites containing at leat one origin trial
     count(
         distinct coalesce(
             origin_trials_from_custom_metric.originelem,

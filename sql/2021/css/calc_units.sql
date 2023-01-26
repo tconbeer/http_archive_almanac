@@ -76,8 +76,10 @@ from
     (
         select client, url, unit.name as unit, unit.freq
         from `httparchive.almanac.parsed_css`, unnest(getcalcunits(css)) as unit
-        # Limit the size of the CSS to avoid OOM crashes.
-        where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+        where
+            date = '2021-07-01'
+            # Limit the size of the CSS to avoid OOM crashes.
+            and length(css) < 0.1 * 1024 * 1024
     )
 group by client, unit
 having pages >= 100

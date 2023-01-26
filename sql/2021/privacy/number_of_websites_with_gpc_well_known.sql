@@ -10,8 +10,7 @@ with
 select
     _table_suffix as client,
     total_websites as total_websites,
-    -- crawled sites containing at least one origin trial
-    count(0) as number_of_websites,
+    count(0) as number_of_websites,  -- crawled sites containing at least one origin trial
     count(0) / total_websites as percent_of_websites
 from `httparchive.pages.2021_07_01_*`
 join totals using (_table_suffix)

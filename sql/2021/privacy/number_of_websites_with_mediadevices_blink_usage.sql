@@ -12,16 +12,20 @@ where
         or feature like '%Camera%'
         or feature like '%Microphone%'
     )
-# relevant Blink features:
-# MediaDevicesEnumerateDevices
-# GetUserMediaSecureOrigin
-# GetUserMediaPromise
-# GetUserMediaLegacy
-# GetUserMediaPrefixed
-# GetUserMediaSecureOriginIframe
-# GetUserMediaInsecureOrigin
-# GetUserMediaInsecureOriginIframe
-# V8MediaSession_SetMicrophoneActive_Method
-# V8MediaSession_SetCameraActive_Method
-# GetDisplayMedia
-order by feature, client
+order by
+    feature,
+    client
+
+    # relevant Blink features:
+    # MediaDevicesEnumerateDevices
+    # GetUserMediaSecureOrigin
+    # GetUserMediaPromise
+    # GetUserMediaLegacy
+    # GetUserMediaPrefixed
+    # GetUserMediaSecureOriginIframe
+    # GetUserMediaInsecureOrigin
+    # GetUserMediaInsecureOriginIframe
+    # V8MediaSession_SetMicrophoneActive_Method
+    # V8MediaSession_SetCameraActive_Method
+    # GetDisplayMedia
+    

@@ -71,8 +71,7 @@ with
     ),
 
     normalized_feature_policy as (  -- normalize
-        -- remove quotes
-        select client, page, replace(feature_policy_value, "'", '') as policy_value
+        select client, page, replace(feature_policy_value, "'", '') as policy_value  -- remove quotes
         from merged_feature_policy
     ),
 
@@ -86,26 +85,26 @@ with
                         replace(
                             replace(
                                 replace(
-                                    -- swap directive delimiter
-                                    replace(permissions_policy_value, ',', ';'),
-                                    '=',  -- drop name/value delimiter
+                                    replace(permissions_policy_value, ',', ';'),  -- swap directive delimiter
+                                    '=',
                                     ' '
-                                ),
-                                '()',  -- special case for feature disabling
-                                'none'
+                                ),  -- drop name/value delimiter
+                                '()',
+                                'none'  -- special case for feature disabling
                             ),
-                            '(',  -- remove parentheses
+                            '(',
                             ''
                         ),
                         ')',
                         ''
-                    ),
-                    '"',  -- remove quotes
+                    ),  -- remove parentheses
+                    '"',
                     ''
                 ),
                 "'",
                 ''
-            ) as policy_value
+            )  -- remove quotes
+            as policy_value
         from merged_permissions_policy
     )
 
@@ -136,11 +135,11 @@ join
     unnest(split(policy_value, ';')) directive,
     unnest(  -- Directive may specify explicit origins or not.
         if(
-            -- test if any explicit origin is provided
-            array_length(split(trim(directive), ' ')) = 1,
-            -- if not, add a dummy empty origin to make the query work
-            [trim(directive), ''],
-            split(trim(directive), ' ')  -- if it is, split the different origins
+            array_length(split(trim(directive), ' ')) = 1,  -- test if any explicit origin is provided
+            [trim(directive), ''],  -- if not, add a dummy empty origin to make the query work
+            split(
+                trim(directive), ' '  -- if it is, split the different origins
+            )
         )
     ) as origin
 with

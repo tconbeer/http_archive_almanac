@@ -28,7 +28,8 @@ join
     )
     on concat(origin, '/') = url
     and if(device = 'desktop', 'desktop', 'mobile') = client
-# The CrUX 202008 dataset is not available until September 8.
-where date = '2020-07-01'
+where
+    # The CrUX 202008 dataset is not available until September 8.
+    date = '2020-07-01'
 group by client, cms
 order by origins desc

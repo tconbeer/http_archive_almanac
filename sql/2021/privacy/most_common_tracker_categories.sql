@@ -28,8 +28,7 @@ join
         or ends_with(net.host(urlshort), concat('.', domain))
     )
 join totals using (client)
--- third party
-where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
+where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
 group by client, category, total_websites
 union all
 select
@@ -46,8 +45,7 @@ join
         or ends_with(net.host(urlshort), concat('.', domain))
     )
 join totals using (client)
--- third party
-where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
+where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
 group by client, total_websites
 union all
 select
@@ -66,8 +64,9 @@ join
 join totals using (client)
 where
     date = '2021-07-01'
-    and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
-    and (
+    and net.reg_domain(page) != net.reg_domain(urlshort)
+    and  -- third party
+    (
         -- categories selected from https://whotracks.me/blog/tracker_categories.html
         whotracksme.category = 'advertising'
         or whotracksme.category = 'pornvertising'

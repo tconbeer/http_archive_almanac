@@ -12,11 +12,9 @@ from
     (
         select
             client,
-            # sometimes _cdn provider detection includes multiple entries. we bias for
-            # the DNS detected entry which is the first entry
             ifnull(
                 nullif(regexp_extract(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN'
-            ) as cdn,
+            ) as cdn,  # sometimes _cdn provider detection includes multiple entries. we bias for the DNS detected entry which is the first entry
             case
                 when resp_content_encoding = 'gzip'
                 then 'Gzip'

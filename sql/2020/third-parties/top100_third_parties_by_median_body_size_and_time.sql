@@ -20,8 +20,7 @@ with
             canonicaldomain,
             approx_quantiles(body_size, 1000)[offset(500)]
             / 1024 as median_body_size_kb,
-            -- noqa: L010
-            approx_quantiles(time, 1000)[offset(500)] / 1000 as median_time_s
+            approx_quantiles(time, 1000)[offset(500)] / 1000 as median_time_s  -- noqa: L010
         from requests
         inner join third_party on net.host(requests.host) = net.host(third_party.domain)
         group by client, category, canonicaldomain

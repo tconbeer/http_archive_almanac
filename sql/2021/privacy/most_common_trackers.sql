@@ -43,8 +43,7 @@ join
         or ends_with(net.host(urlshort), concat('.', domain))
     )
 join totals using (client)
--- third party
-where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)
+where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
 group by client, tracker, category, istracker, total_websites
 order by pct_websites desc, client
 limit 1000

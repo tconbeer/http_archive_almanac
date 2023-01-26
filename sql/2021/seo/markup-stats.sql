@@ -69,9 +69,9 @@ select
     safe_divide(
         sum(markup_info.images_alt_missing_total), sum(markup_info.images_img_total)
     ) as pct_images_with_img_alt_missing,
-    safe_divide(  # present does not include blank
+    safe_divide(
         sum(markup_info.images_alt_present_total), sum(markup_info.images_img_total)
-    ) as pct_images_with_img_alt_present,
+    ) as pct_images_with_img_alt_present,  # present does not include blank
     safe_divide(
         sum(markup_info.images_alt_blank_total), sum(markup_info.images_img_total)
     ) as pct_images_with_img_alt_blank,

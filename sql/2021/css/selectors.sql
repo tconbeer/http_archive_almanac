@@ -106,9 +106,11 @@ from
             (
                 select client, page, getspecificityinfo(css) as info
                 from `httparchive.almanac.parsed_css`
-                # Limit the size of the CSS to avoid OOM crashes. This loses ~20% of
-                # stylesheets.
-                where date = '2021-07-01' and length(css) < 0.1 * 1024 * 1024
+                where
+                    date = '2021-07-01'
+                    # Limit the size of the CSS to avoid OOM crashes. This loses ~20%
+                    # of stylesheets.
+                    and length(css) < 0.1 * 1024 * 1024
             )
         group by client, page
     ),

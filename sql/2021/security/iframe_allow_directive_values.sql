@@ -47,19 +47,18 @@ join
     ) using (client),
     unnest(  -- Directive may specify explicit origins or not.
         if(
-            -- test if any explicit origin is provided
-            array_length(split(trim(allow_attr), ' ')) = 1,
-            -- if not, add a dummy empty origin to make the query work
-            [trim(allow_attr), ''],
-            split(trim(allow_attr), ' ')  -- if it is, split the different origins
+            array_length(split(trim(allow_attr), ' ')) = 1,  -- test if any explicit origin is provided
+            [trim(allow_attr), ''],  -- if not, add a dummy empty origin to make the query work
+            split(
+                trim(allow_attr), ' '  -- if it is, split the different origins
+            )
         )
     ) as origin
 with
 offset as
 offset
 where
--- do not retain the first part of the directive (as this is the directive name)
-offset > 0
+offset > 0  -- do not retain the first part of the directive (as this is the directive name)
 group by client, directive, origin, total_iframes_with_allow
 having pct > 0.001
 order by client, pct desc

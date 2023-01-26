@@ -102,12 +102,13 @@ from
         from `httparchive.pages.2019_07_01_*`
     -- LIMIT 1000
     )
-# it appears the _Images array is populated only from <img> tag requests and not CSS
-# or favicon
-# likewise the bigImageCount and smallImageCount only track images > 100,000 and <
-# 10,000 respectively.
-# Meaning images between 10KB and 100KB won't show up in the count
-# https://github.com/WPO-Foundation/webpagetest/blob/master/www/breakdown.inc#L95
-where csspixels > 0 and naturalpixels > 0 and (smallimagecount > 0 or bigimagecount > 0)
+where
+    # it appears the _Images array is populated only from <img> tag requests and not
+    # CSS or favicon
+    # likewise the bigImageCount and smallImageCount only track images > 100,000 and <
+    # 10,000 respectively.
+    # Meaning images between 10KB and 100KB won't show up in the count
+    # https://github.com/WPO-Foundation/webpagetest/blob/master/www/breakdown.inc#L95
+    csspixels > 0 and naturalpixels > 0 and (smallimagecount > 0 or bigimagecount > 0)
 group by client
 order by client desc

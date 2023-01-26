@@ -55,9 +55,9 @@ from
             (
                 select _table_suffix, count(0) as total
                 from `httparchive.pages.2021_07_01_*`
-                # to get an accurate total of pages per device. also seems fast
                 group by _table_suffix
-            ) using (_table_suffix)
+            )  # to get an accurate total of pages per device. also seems fast
+            using (_table_suffix)
     ),
     unnest(wpt_bodies_info.hreflangs) as hreflang
 group by total, hreflang, client

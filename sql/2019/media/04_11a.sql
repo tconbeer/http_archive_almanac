@@ -130,8 +130,9 @@ left join
             (respsize > 1500 or regexp_contains(mimetype, r'svg')) and
 
             # strip favicon requests
+            format != 'ico'
             # strip video mimetypes and other favicons
-            format != 'ico' and not regexp_contains(mimetype, r'video|ico')
+            and not regexp_contains(mimetype, r'video|ico')
     -- limit 1000
     )
     on (b.client = a.client and a.page = b.page and a.url = b.url)

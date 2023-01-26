@@ -58,8 +58,8 @@ from
                 select _table_suffix, count(0) as total
                 from `httparchive.pages.2020_08_01_*`
                 group by _table_suffix
-            # to get an accurate total of pages per device. also seems fast
-            ) using (_table_suffix)
+            )  # to get an accurate total of pages per device. also seems fast
+            using (_table_suffix)
     ),
     unnest(markup_info.loading) as loading
 group by total, loading, client

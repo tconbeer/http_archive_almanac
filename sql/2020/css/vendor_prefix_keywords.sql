@@ -97,8 +97,10 @@ from
         from
             `httparchive.almanac.parsed_css`,
             unnest(getvendorprefixkeywords(css)) as keyword
-        # Limit the size of the CSS to avoid OOM crashes.
-        where date = '2020-08-01' and length(css) < 0.1 * 1024 * 1024
+        where
+            date = '2020-08-01'
+            # Limit the size of the CSS to avoid OOM crashes.
+            and length(css) < 0.1 * 1024 * 1024
         group by client, keyword
     )
 order by pct desc
