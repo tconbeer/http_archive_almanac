@@ -1,15 +1,16 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
-RETURNS STRUCT<
-  class ARRAY<STRING>,
-  id ARRAY<STRING>,
-  attribute ARRAY<STRING>,
-  pseudo_class ARRAY<STRING>,
-  pseudo_element ARRAY<STRING>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getselectorparts(css string)
+returns
+    struct<
+        class array<string>,
+        id array<string>,
+        attribute array<string>,
+        pseudo_class array<string>,
+        pseudo_element array<string>
+    >
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -55,36 +56,35 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  pages,
-  pseudo_element.value AS pseudo_element,
-  pseudo_element.count AS freq,
-  pseudo_element.count / pages AS pct
-FROM (
-  SELECT
+select
     client,
-    COUNT(DISTINCT page) AS pages,
-    APPROX_TOP_COUNT(pseudo_element, 100) AS pseudo_elements
-  FROM (
-      SELECT DISTINCT
-        client,
-        page,
-        pseudo_element
-      FROM
-        `httparchive.almanac.parsed_css`
-      LEFT JOIN
-        UNNEST(getSelectorParts(css).pseudo_element) AS pseudo_element
-      WHERE
-        date = '2021-07-01' AND
-        # Limit the size of the CSS to avoid OOM crashes.
-        LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client),
-  UNNEST(pseudo_elements) AS pseudo_element
-WHERE
-  pseudo_element.value IS NOT NULL
-ORDER BY
-  pct DESC
+    pages,
+    pseudo_element.value as pseudo_element,
+    pseudo_element.count as freq,
+    pseudo_element.count / pages as pct
+from
+    (
+        select
+            client,
+            count(distinct page) as pages,
+            approx_top_count(pseudo_element, 100) as pseudo_elements
+        from
+            (
+                select distinct client, page, pseudo_element
+                from `httparchive.almanac.parsed_css`
+                left join unnest(getselectorparts(css).pseudo_element) as pseudo_element
+                where
+                    date = '2021-07-01'
+                    and
+                    # Limit the size of the CSS to avoid OOM crashes.
+                    length(css)
+                    < 0.1 * 1024 * 1024
+            )
+        group by client
+    ),
+    unnest(pseudo_elements) as pseudo_element
+where pseudo_element.value is not null
+order by pct desc

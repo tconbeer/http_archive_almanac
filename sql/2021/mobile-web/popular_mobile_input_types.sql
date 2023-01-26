@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # Popular mobile input types
-CREATE TEMPORARY FUNCTION getInputTypes(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getinputtypes(payload string)
+returns array<string>
+language js
+as '''
 try {
   const almanac = JSON.parse(payload);
   return almanac.input_elements.nodes.map(function(node) {
@@ -14,38 +16,44 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  total_pages_with_inputs,
-  total_inputs,
+select
+    total_pages_with_inputs,
+    total_inputs,
 
-  input_type,
-  COUNT(input_type) AS occurences,
-  COUNT(DISTINCT url) AS total_pages_used_in,
+    input_type,
+    count(input_type) as occurences,
+    count(distinct url) as total_pages_used_in,
 
-  COUNT(input_type) / total_inputs AS pct_of_all_inputs,
-  COUNT(DISTINCT url) / total_pages_with_inputs AS pct_used_in_pages
-FROM
-  `httparchive.pages.2021_07_01_mobile`,
-  (
-    SELECT
-      COUNT(0) AS total_pages_with_inputs
-    FROM
-      `httparchive.pages.2021_07_01_mobile`
-    WHERE
-      SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.input_elements.total') AS INT64) > 0
-  ),
-  (
-    SELECT
-      SUM(SAFE_CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.input_elements.total') AS INT64)) AS total_inputs
-    FROM
-      `httparchive.pages.2021_07_01_mobile`
-  ),
-  UNNEST(getInputTypes(JSON_EXTRACT_SCALAR(payload, '$._almanac'))) AS input_type
-GROUP BY
-  input_type,
-  total_inputs,
-  total_pages_with_inputs
-ORDER BY
-  occurences DESC
+    count(input_type) / total_inputs as pct_of_all_inputs,
+    count(distinct url) / total_pages_with_inputs as pct_used_in_pages
+from
+    `httparchive.pages.2021_07_01_mobile`,
+    (
+        select count(0) as total_pages_with_inputs
+        from `httparchive.pages.2021_07_01_mobile`
+        where
+            safe_cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'), '$.input_elements.total'
+                ) as int64
+            )
+            > 0
+    ),
+    (
+        select
+            sum(
+                safe_cast(
+                    json_extract_scalar(
+                        json_extract_scalar(payload, '$._almanac'),
+                        '$.input_elements.total'
+                    ) as int64
+                )
+            ) as total_inputs
+        from `httparchive.pages.2021_07_01_mobile`
+    ),
+    unnest(getinputtypes(json_extract_scalar(payload, '$._almanac'))) as input_type
+group by input_type, total_inputs, total_pages_with_inputs
+order by occurences desc

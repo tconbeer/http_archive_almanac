@@ -1,38 +1,31 @@
-#standardSQL
+# standardSQL
 # Pages that use media devices (using Blink features)
+select distinct client, feature, num_urls, total_urls, pct_urls as pct_urls
+from `httparchive.blink_features.usage`
+where
+    yyyymmdd = '20210701'
+    and (
+        feature like '%MediaDevices%'
+        or feature like '%EnumerateDevices%'
+        or feature like '%GetUserMedia%'
+        or feature like '%GetDisplayMedia%'
+        or feature like '%Camera%'
+        or feature like '%Microphone%'
+    )
+order by
+    feature,
+    client
 
-SELECT DISTINCT
-  client,
-  feature,
-  num_urls,
-  total_urls,
-  pct_urls AS pct_urls
-FROM
-  `httparchive.blink_features.usage`
-WHERE
-  yyyymmdd = '20210701' AND
-  (
-    feature LIKE '%MediaDevices%' OR
-    feature LIKE '%EnumerateDevices%' OR
-    feature LIKE '%GetUserMedia%' OR
-    feature LIKE '%GetDisplayMedia%' OR
-    feature LIKE '%Camera%' OR
-    feature LIKE '%Microphone%'
-  )
-ORDER BY
-  feature,
-  client
-
-# relevant Blink features:
-
-# MediaDevicesEnumerateDevices
-# GetUserMediaSecureOrigin
-# GetUserMediaPromise
-# GetUserMediaLegacy
-# GetUserMediaPrefixed
-# GetUserMediaSecureOriginIframe
-# GetUserMediaInsecureOrigin
-# GetUserMediaInsecureOriginIframe
-# V8MediaSession_SetMicrophoneActive_Method
-# V8MediaSession_SetCameraActive_Method
-# GetDisplayMedia
+    # relevant Blink features:
+    # MediaDevicesEnumerateDevices
+    # GetUserMediaSecureOrigin
+    # GetUserMediaPromise
+    # GetUserMediaLegacy
+    # GetUserMediaPrefixed
+    # GetUserMediaSecureOriginIframe
+    # GetUserMediaInsecureOrigin
+    # GetUserMediaInsecureOriginIframe
+    # V8MediaSession_SetMicrophoneActive_Method
+    # V8MediaSession_SetCameraActive_Method
+    # GetDisplayMedia
+    

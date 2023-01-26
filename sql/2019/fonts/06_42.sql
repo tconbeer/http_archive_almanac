@@ -1,21 +1,27 @@
-#standardSQL
+# standardSQL
 # 06_42: % of pages that include a color font
-SELECT
-  client,
-  COUNT(DISTINCT page) AS freq,
-  total,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct
-FROM
-  `httparchive.almanac.requests`
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING
-  (client)
-WHERE
-  date = '2019-07-01' AND
-  type = 'font' AND
-  # Color fonts have any of sbix, cbdt, svg or colr tables.
-  ARRAY_LENGTH(REGEXP_EXTRACT_ALL(JSON_EXTRACT(payload, '$._font_details.table_sizes'), '(?i)(sbix|cbdt|svg|colr)')) > 0
-GROUP BY
-  client,
-  total
+select
+    client,
+    count(distinct page) as freq,
+    total,
+    round(count(distinct page) * 100 / total, 2) as pct
+from `httparchive.almanac.requests`
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+where
+    date = '2019-07-01'
+    and type = 'font'
+    and
+    # Color fonts have any of sbix, cbdt, svg or colr tables.
+    array_length(
+        regexp_extract_all(
+            json_extract(payload, '$._font_details.table_sizes'),
+            '(?i)(sbix|cbdt|svg|colr)'
+        )
+    )
+    > 0
+group by client, total

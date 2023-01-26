@@ -1,19 +1,15 @@
-#standardSQL
-#static dynamic compression
-SELECT
-  client,
-  resp_content_encoding,
-  IF(LOWER(resp_cache_control) LIKE '%no-store%', 'dynamic', 'static') AS static_or_dynamic,
-  COUNT(0) AS num_requests,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2020-08-01'
-GROUP BY
-  client,
-  resp_content_encoding,
-  static_or_dynamic
-ORDER BY
-  num_requests DESC
+# standardSQL
+# static dynamic compression
+select
+    client,
+    resp_content_encoding,
+    if(
+        lower(resp_cache_control) like '%no-store%', 'dynamic', 'static'
+    ) as static_or_dynamic,
+    count(0) as num_requests,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from `httparchive.almanac.requests`
+where date = '2020-08-01'
+group by client, resp_content_encoding, static_or_dynamic
+order by num_requests desc

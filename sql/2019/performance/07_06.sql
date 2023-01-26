@@ -1,10 +1,8 @@
-#standardSQL
+# standardSQL
 # 07_06: % offline websites
-SELECT
-  COUNTIF(offlineDensity > 0) AS freq,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(offlineDensity > 0) * 100 / COUNT(0), 2) AS pct
-FROM
-  `chrome-ux-report.materialized.metrics_summary`
-WHERE
-  date = '2019-07-01'
+select
+    countif(offlinedensity > 0) as freq,
+    count(0) as total,
+    round(countif(offlinedensity > 0) * 100 / count(0), 2) as pct
+from `chrome-ux-report.materialized.metrics_summary`
+where date = '2019-07-01'

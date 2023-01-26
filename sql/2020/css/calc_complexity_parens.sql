@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getCalcParenComplexity(css STRING)
-RETURNS ARRAY<STRUCT<num INT64, freq INT64>>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getcalcparencomplexity(css string)
+returns array<struct<num int64, freq int64>>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -62,29 +62,27 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  num,
-  SUM(freq) AS freq,
-  SUM(SUM(freq)) OVER (PARTITION BY client) AS total,
-  SUM(freq) / SUM(SUM(freq)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    url,
-    parens.num,
-    parens.freq
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getCalcParenComplexity(css)) AS parens
-  WHERE
-    date = '2020-08-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client,
-  num
-ORDER BY
-  pct DESC
+    num,
+    sum(freq) as freq,
+    sum(sum(freq)) over (partition by client) as total,
+    sum(freq) / sum(sum(freq)) over (partition by client) as pct
+from
+    (
+        select client, url, parens.num, parens.freq
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getcalcparencomplexity(css)) as parens
+        where
+            date = '2020-08-01'
+            and
+            # Limit the size of the CSS to avoid OOM crashes.
+            length(css)
+            < 0.1 * 1024 * 1024
+    )
+group by client, num
+order by pct desc
