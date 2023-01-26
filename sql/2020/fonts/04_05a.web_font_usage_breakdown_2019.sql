@@ -1,20 +1,13 @@
-#standardSQL
-#web_font_usage_breakdown_2019
-SELECT
-  client,
-  NET.HOST(url) AS host,
-  COUNT(DISTINCT page) AS pages,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total,
-  COUNT(DISTINCT page) / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2019-07-01' AND
-  type = 'font' AND
-  NET.HOST(page) != NET.HOST(url)
-GROUP BY
-  client, url, page
-HAVING
-  pages >= 1000
-ORDER BY
-  pct DESC
+# standardSQL
+# web_font_usage_breakdown_2019
+select
+    client,
+    net.host(url) as host,
+    count(distinct page) as pages,
+    sum(count(distinct page)) over (partition by client) as total,
+    count(distinct page) / sum(count(distinct page)) over (partition by client) as pct
+from `httparchive.almanac.requests`
+where date = '2019-07-01' and type = 'font' and net.host(page) != net.host(url)
+group by client, url, page
+having pages >= 1000
+order by pct desc

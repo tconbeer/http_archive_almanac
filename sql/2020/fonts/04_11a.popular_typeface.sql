@@ -1,7 +1,11 @@
-#standardSQL
-#popular_typeface
-CREATE TEMPORARY FUNCTION getFontFamilies(css STRING)
-RETURNS ARRAY <STRING> LANGUAGE js AS '''
+# standardSQL
+# popular_typeface
+create temporary function getfontfamilies(css string)
+returns
+    array <
+        string > language js
+        as
+            '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.filter(rule => rule.type == 'font-face').map(rule => {
@@ -11,38 +15,24 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  font_family,
-  pages,
-  total,
-  pages / total AS pct
-FROM (
-  SELECT
-    client,
-    font_family,
-    COUNT(DISTINCT page) AS pages
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getFontFamilies(css)) AS font_family
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    font_family)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-WHERE
-  pages / total >= 0.004
-ORDER BY
-  pct DESC
+select client, font_family, pages, total, pages / total as pct
+from
+    (
+        select client, font_family, count(distinct page) as pages
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getfontfamilies(css)) as font_family
+        where date = '2020-08-01'
+        group by client, font_family
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    ) using (client)
+where pages / total >= 0.004
+order by pct desc

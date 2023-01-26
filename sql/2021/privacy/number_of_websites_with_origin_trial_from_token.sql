@@ -1,22 +1,23 @@
-#standardSQL
+# standardSQL
 # Pages that participate in the FLoC origin trial
-
-CREATE TEMP FUNCTION retrieveOriginTrials(tokenElem STRING)
-RETURNS STRUCT<
-  validityElem STRING,
-  versionElem INTEGER,
-  originElem STRING,
-  subdomainElem BOOLEAN,
-  thirdpartyElem BOOLEAN,
-  usageElem STRING,
-  featureElem STRING,
-  expiryElem TIMESTAMP
->
-LANGUAGE js
+create temp function retrieveorigintrials(tokenelem string)
+returns
+    struct<
+        validityelem string,
+        versionelem integer,
+        originelem string,
+        subdomainelem boolean,
+        thirdpartyelem boolean,
+        usageelem string,
+        featureelem string,
+        expiryelem timestamp
+    >
+language js
 -- https://stackoverflow.com/questions/60094731/can-i-use-textencoder-in-bigquery-js-udf
-OPTIONS (library = "gs://fh-bigquery/js/inexorabletash.encoding.js")
+options (library = "gs://fh-bigquery/js/inexorabletash.encoding.js")
 -- https://github.com/GoogleChrome/OriginTrials/blob/gh-pages/check-token.html
-AS """
+as
+    """
   let validityElem,
     versionElem,
     originElem,
@@ -144,98 +145,94 @@ AS """
   };
 
   return origin_trial_metadata;
-""";
+"""
+;
 
-WITH pages_origin_trials AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    JSON_VALUE(payload, '$._origin-trials') AS metrics
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
-
-response_headers AS (
-  SELECT
-    client,
-    page,
-    LOWER(JSON_VALUE(response_header, '$.name')) AS header_name,
-    JSON_VALUE(response_header, '$.value') AS header_value  -- may not lowercase this value as it is a base64 string
-  FROM
-    `httparchive.almanac.requests`,
-    UNNEST(JSON_QUERY_ARRAY(response_headers)) response_header
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml = TRUE
-),
-
-meta_tags AS (
-  SELECT
-    client,
-    url AS page,
-    LOWER(JSON_VALUE(meta_node, '$.http-equiv')) AS tag_name,
-    JSON_VALUE(meta_node, '$.content') AS tag_value  -- may not lowercase this value as it is a base64 string
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url,
-      JSON_VALUE(payload, '$._almanac') AS metrics
-    FROM
-      `httparchive.pages.2021_07_01_*`
+with
+    pages_origin_trials as (
+        select
+            _table_suffix as client,
+            url,
+            json_value(payload, '$._origin-trials') as metrics
+        from `httparchive.pages.2021_07_01_*`
     ),
-    UNNEST(JSON_QUERY_ARRAY(metrics, '$.meta-nodes.nodes')) meta_node
-  WHERE
-    JSON_VALUE(meta_node, '$.http-equiv') IS NOT NULL
-),
 
-extracted_origin_trials_from_custom_metric AS (
-  SELECT
+    response_headers as (
+        select
+            client,
+            page,
+            lower(json_value(response_header, '$.name')) as header_name,
+            json_value(response_header, '$.value') as header_value  -- may not lowercase this value as it is a base64 string
+        from
+            `httparchive.almanac.requests`,
+            unnest(json_query_array(response_headers)) response_header
+        where date = '2021-07-01' and firsthtml = true
+    ),
+
+    meta_tags as (
+        select
+            client,
+            url as page,
+            lower(json_value(meta_node, '$.http-equiv')) as tag_name,
+            json_value(meta_node, '$.content') as tag_value  -- may not lowercase this value as it is a base64 string
+        from
+            (
+                select
+                    _table_suffix as client,
+                    url,
+                    json_value(payload, '$._almanac') as metrics
+                from `httparchive.pages.2021_07_01_*`
+            ),
+            unnest(json_query_array(metrics, '$.meta-nodes.nodes')) meta_node
+        where json_value(meta_node, '$.http-equiv') is not null
+    ),
+
+    extracted_origin_trials_from_custom_metric as (
+        select
+            client,
+            url as site,  -- the home page that was crawled
+            retrieveorigintrials(
+                json_value(metric, '$.token')
+            ) as origin_trials_from_custom_metric
+        from pages_origin_trials, unnest(json_query_array(metrics)) metric
+    ),
+
+    extracted_origin_trials_from_headers_and_meta_tags as (
+        select
+            client,
+            page as site,  -- the home page that was crawled
+            retrieveorigintrials(
+                if(header_name = 'origin-trial', header_value, tag_value)
+            ) as origin_trials_from_headers_and_meta_tags
+        from response_headers
+        full outer join meta_tags using (client, page)
+        where header_name = 'origin-trial' or tag_name = 'origin-trial'
+    )
+
+select
     client,
-    url AS site, -- the home page that was crawled
-    retrieveOriginTrials(JSON_VALUE(metric, '$.token')) AS origin_trials_from_custom_metric
-  FROM
-    pages_origin_trials, UNNEST(JSON_QUERY_ARRAY(metrics)) metric
-),
-
-extracted_origin_trials_from_headers_and_meta_tags AS (
-  SELECT
-    client,
-    page AS site, -- the home page that was crawled
-    retrieveOriginTrials(IF(header_name = 'origin-trial', header_value, tag_value)) AS origin_trials_from_headers_and_meta_tags
-  FROM
-    response_headers
-  FULL OUTER JOIN
-    meta_tags
-  USING (client, page)
-  WHERE
-    header_name = 'origin-trial' OR
-    tag_name = 'origin-trial'
-)
-
-
-SELECT
-  client,
-  COALESCE(origin_trials_from_custom_metric.featureElem, origin_trials_from_headers_and_meta_tags.featureElem) AS featureElem,
-  COUNT(DISTINCT site) AS number_of_websites, -- crawled sites containing at leat one origin trial
-  COUNT(DISTINCT COALESCE(origin_trials_from_custom_metric.originElem, origin_trials_from_headers_and_meta_tags.originElem))
-  AS number_of_origins -- origins with an origin trial
-FROM
-  extracted_origin_trials_from_custom_metric
-FULL OUTER JOIN
-  extracted_origin_trials_from_headers_and_meta_tags
-USING (client, site)
-WHERE
-  (
-    origin_trials_from_custom_metric.featureElem = 'InterestCohortAPI' OR
-    origin_trials_from_custom_metric.featureElem = 'ConversionMeasurement' OR
-    origin_trials_from_custom_metric.featureElem = 'TrustTokens' OR
-    origin_trials_from_headers_and_meta_tags.featureElem = 'InterestCohortAPI' OR
-    origin_trials_from_headers_and_meta_tags.featureElem = 'ConversionMeasurement' OR
-    origin_trials_from_headers_and_meta_tags.featureElem = 'TrustTokens'
-  )
-GROUP BY
-  client,
-  featureElem
-ORDER BY
-  client,
-  featureElem
+    coalesce(
+        origin_trials_from_custom_metric.featureelem,
+        origin_trials_from_headers_and_meta_tags.featureelem
+    ) as featureelem,
+    count(distinct site) as number_of_websites,  -- crawled sites containing at leat one origin trial
+    count(
+        distinct coalesce(
+            origin_trials_from_custom_metric.originelem,
+            origin_trials_from_headers_and_meta_tags.originelem
+        )
+    ) as number_of_origins  -- origins with an origin trial
+from extracted_origin_trials_from_custom_metric
+full outer join extracted_origin_trials_from_headers_and_meta_tags using (client, site)
+where
+    (
+        origin_trials_from_custom_metric.featureelem = 'InterestCohortAPI'
+        or origin_trials_from_custom_metric.featureelem = 'ConversionMeasurement'
+        or origin_trials_from_custom_metric.featureelem = 'TrustTokens'
+        or origin_trials_from_headers_and_meta_tags.featureelem = 'InterestCohortAPI'
+        or origin_trials_from_headers_and_meta_tags.featureelem
+        = 'ConversionMeasurement'
+        or origin_trials_from_headers_and_meta_tags.featureelem = 'TrustTokens'
+    )
+group by client, featureelem
+order by client, featureelem

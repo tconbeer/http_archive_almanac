@@ -1,17 +1,14 @@
-#standardSQL
+# standardSQL
 # Use of AppCache and ServiceWorkers
-SELECT
-  IF(STARTS_WITH(url, 'https'), 'https', 'http') AS http_type,
-  JSON_EXTRACT_SCALAR(report, '$.audits.appcache-manifest.score') AS using_appcache,
-  JSON_EXTRACT_SCALAR(report, '$.audits.service-worker.score') AS using_serviceworkers,
-  COUNT(0) AS occurrences,
-  SUM(COUNT(0)) OVER () AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER () AS pct
-FROM
-  `httparchive.lighthouse.2020_08_01_mobile`
-GROUP BY
-  http_type,
-  using_appcache,
-  using_serviceworkers
-ORDER BY
-  pct DESC
+select
+    if(starts_with(url, 'https'), 'https', 'http') as http_type,
+    json_extract_scalar(report, '$.audits.appcache-manifest.score') as using_appcache,
+    json_extract_scalar(
+        report, '$.audits.service-worker.score'
+    ) as using_serviceworkers,
+    count(0) as occurrences,
+    sum(count(0)) over () as total,
+    count(0) / sum(count(0)) over () as pct
+from `httparchive.lighthouse.2020_08_01_mobile`
+group by http_type, using_appcache, using_serviceworkers
+order by pct desc
