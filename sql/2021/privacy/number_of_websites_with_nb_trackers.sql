@@ -56,9 +56,8 @@ from
             )
         where
             date = '2021-07-01'
-            and net.reg_domain(page) != net.reg_domain(urlshort)
-            and  -- third party
-            (
+            and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
+            and (
                 -- categories selected from
                 -- https://whotracks.me/blog/tracker_categories.html
                 whotracksme.category = 'advertising'

@@ -2,8 +2,8 @@
 # Distribution of page weight, requests, and co2 grams per CMS web page
 # https://gitlab.com/wholegrain/carbon-api-2-0/-/blob/b498ec3bb239536d3612c5f3d758f46e0d2431a6/includes/carbonapi.php
 create temp function green(url string)
-as (false)
-;  -- TODO: Investigate fetching from Green Web Foundation
+as (false)  -- TODO: Investigate fetching from Green Web Foundation
+;
 create temp function adjustdatatransfer(val int64)
 as (val * 0.75 + 0.02 * val * 0.25)
 ;
