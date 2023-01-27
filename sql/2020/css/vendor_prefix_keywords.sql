@@ -1,9 +1,10 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getVendorPrefixKeywords(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getvendorprefixkeywords(css string)
+returns array<string>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let ret = {
@@ -80,28 +81,27 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    keyword,
-    COUNT(DISTINCT page) AS pages,
-    COUNT(0) AS freq,
-    SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-    COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getVendorPrefixKeywords(css)) AS keyword
-  WHERE
-    date = '2020-08-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024
-  GROUP BY
-    client,
-    keyword)
-ORDER BY
-  pct DESC
-LIMIT 500
+select *
+from
+    (
+        select
+            client,
+            keyword,
+            count(distinct page) as pages,
+            count(0) as freq,
+            sum(count(0)) over (partition by client) as total,
+            count(0) / sum(count(0)) over (partition by client) as pct
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getvendorprefixkeywords(css)) as keyword
+        where
+            date = '2020-08-01'
+            # Limit the size of the CSS to avoid OOM crashes.
+            and length(css) < 0.1 * 1024 * 1024
+        group by client, keyword
+    )
+order by pct desc
+limit 500

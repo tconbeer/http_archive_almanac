@@ -1,37 +1,35 @@
-#standardSQL
+# standardSQL
 # CORP usage: most commonly used header values
-CREATE TEMPORARY FUNCTION getHeader(headers STRING, headername STRING)
-RETURNS STRING DETERMINISTIC
-LANGUAGE js AS '''
+create temporary function getheader(headers string, headername string)
+returns string deterministic
+language js
+as
+    '''
   const parsed_headers = JSON.parse(headers);
   const matching_headers = parsed_headers.filter(h => h.name.toLowerCase() == headername.toLowerCase());
   if (matching_headers.length > 0) {
     return matching_headers[0].value;
   }
   return null;
-''';
+'''
+;
 
-SELECT
-  client,
-  corp_header,
-  SUM(COUNT(DISTINCT host)) OVER (PARTITION BY client) AS total_corp_headers,
-  COUNT(DISTINCT host) AS freq,
-  COUNT(DISTINCT host) / SUM(COUNT(DISTINCT host)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    NET.HOST(urlShort) AS host,
-    getHeader(response_headers, 'Cross-Origin-Resource-Policy') AS corp_header
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-)
-WHERE
-  corp_header IS NOT NULL
-GROUP BY
-  client,
-  corp_header
-ORDER BY
-  pct DESC
-LIMIT 100
+    corp_header,
+    sum(count(distinct host)) over (partition by client) as total_corp_headers,
+    count(distinct host) as freq,
+    count(distinct host) / sum(count(distinct host)) over (partition by client) as pct
+from
+    (
+        select
+            client,
+            net.host(urlshort) as host,
+            getheader(response_headers, 'Cross-Origin-Resource-Policy') as corp_header
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+    )
+where corp_header is not null
+group by client, corp_header
+order by pct desc
+limit 100

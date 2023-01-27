@@ -1,7 +1,11 @@
-#standardSQL
-#popular typeface by country
-CREATE TEMPORARY FUNCTION getFontFamilies(css STRING)
-RETURNS ARRAY < STRING > LANGUAGE js AS '''
+# standardSQL
+# popular typeface by country
+create temporary function getfontfamilies(css string)
+returns
+    array <
+        string > language js
+        as
+            '''
 try {
     var $ = JSON.parse(css);
     return $.stylesheet.rules.filter(rule => rule.type == 'font-face').map(rule => {
@@ -11,45 +15,38 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  country,
-  font_family,
-  freq,
-  total,
-  pct
-FROM (
-  SELECT
-    client,
-    country,
-    font_family,
-    COUNT(0) AS freq,
-    SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-    COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct,
-    ROW_NUMBER() OVER (PARTITION BY client, country ORDER BY COUNT(0) DESC) AS sort_row
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(getFontFamilies(css)) AS font_family
-  JOIN (
-    SELECT DISTINCT
-      origin, device,
-      `chrome-ux-report`.experimental.GET_COUNTRY(country_code) AS country
-    FROM
-      `chrome-ux-report.materialized.country_summary`
-    WHERE
-      yyyymm = 202008)
-  ON
-    CONCAT(origin, '/') = page AND
-    IF(device = 'desktop', 'desktop', 'mobile') = client
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    country,
-    font_family
-  ORDER BY
-    client, country, freq DESC)
-WHERE
-  sort_row <= 1
+select client, country, font_family, freq, total, pct
+from
+    (
+        select
+            client,
+            country,
+            font_family,
+            count(0) as freq,
+            sum(count(0)) over (partition by client) as total,
+            count(0) / sum(count(0)) over (partition by client) as pct,
+            row_number() over (
+                partition by client, country order by count(0) desc
+            ) as sort_row
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(getfontfamilies(css)) as font_family
+        join
+            (
+                select distinct
+                    origin,
+                    device,
+                    `chrome-ux-report`.experimental.get_country(country_code) as country
+                from `chrome-ux-report.materialized.country_summary`
+                where yyyymm = 202008
+            )
+            on concat(origin, '/') = page
+            and if(device = 'desktop', 'desktop', 'mobile') = client
+        where date = '2020-08-01'
+        group by client, country, font_family
+        order by client, country, freq desc
+    )
+where sort_row <= 1

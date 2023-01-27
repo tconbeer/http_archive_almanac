@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # Vulnerabilities per page by severity
-CREATE TEMPORARY FUNCTION getVulnerabilities(audit STRING)
-RETURNS ARRAY<STRUCT<severity STRING, freq INT64>> LANGUAGE js AS '''
+create temporary function getvulnerabilities(audit string)
+returns array<struct<severity string, freq int64>>
+language js
+as '''
 try {
   var $ = JSON.parse(audit);
   return $.details.items.map(({highestSeverity, vulnCount}) => {
@@ -13,25 +15,24 @@ try {
 } catch(e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  severity,
-  COUNT(DISTINCT page) AS pages,
-  APPROX_QUANTILES(freq, 1000)[OFFSET(500)] AS median_vulnerability_count_per_page
-FROM (
-  SELECT
-    url AS page,
-    vulnerability.severity,
-    SUM(vulnerability.freq) AS freq
-  FROM
-    `httparchive.lighthouse.2020_08_01_mobile`
-  LEFT JOIN
-    UNNEST(getVulnerabilities(JSON_EXTRACT(report, "$.audits['no-vulnerable-libraries']"))) AS vulnerability
-  GROUP BY
-    page,
-    severity)
-GROUP BY
-  severity
-ORDER BY
-  pages DESC
+select
+    severity,
+    count(distinct page) as pages,
+    approx_quantiles(freq, 1000)[offset(500)] as median_vulnerability_count_per_page
+from
+    (
+        select url as page, vulnerability.severity, sum(vulnerability.freq) as freq
+        from `httparchive.lighthouse.2020_08_01_mobile`
+        left join
+            unnest(
+                getvulnerabilities(
+                    json_extract(report, "$.audits['no-vulnerable-libraries']")
+                )
+            ) as vulnerability
+        group by page, severity
+    )
+group by severity
+order by pages desc

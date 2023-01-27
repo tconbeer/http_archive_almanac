@@ -1,51 +1,56 @@
-#standardSQL
+# standardSQL
 # most common hostnames of iframes that have the allow or sandbox attribute
-CREATE TEMP FUNCTION hasPolicy(attr STRING, policy_type STRING)
-RETURNS BOOL DETERMINISTIC
-LANGUAGE js AS '''
+create temp function haspolicy(attr string, policy_type string)
+returns bool deterministic
+language js
+as '''
   const $ = JSON.parse(attr);
   return $[policy_type] !== null;
-''';
+'''
+;
 
-SELECT
-  client,
-  policy_type,
-  hostname,
-  total_iframes,
-  COUNTIF(has_policy) AS freq,
-  COUNTIF(has_policy) / total_iframes AS pct
-FROM (
-  SELECT
+select
     client,
     policy_type,
-    JSON_EXTRACT_SCALAR(iframeAttr, '$.hostname') AS hostname,
-    hasPolicy(iframeAttr, policy_type) AS has_policy
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.iframe-allow-sandbox') AS iframeAttrs
-    FROM
-      `httparchive.pages.2021_07_01_*`),
-    UNNEST(iframeAttrs) AS iframeAttr,
-    UNNEST(['allow', 'sandbox']) AS policy_type
-)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    SUM(ARRAY_LENGTH(JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.iframe-allow-sandbox'))) AS total_iframes
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  total_iframes,
-  policy_type,
-  hostname
-HAVING
-  pct > 0.001
-ORDER BY
-  client,
-  pct DESC
+    hostname,
+    total_iframes,
+    countif(has_policy) as freq,
+    countif(has_policy) / total_iframes as pct
+from
+    (
+        select
+            client,
+            policy_type,
+            json_extract_scalar(iframeattr, '$.hostname') as hostname,
+            haspolicy(iframeattr, policy_type) as has_policy
+        from
+            (
+                select
+                    _table_suffix as client,
+                    json_extract_array(
+                        json_extract_scalar(payload, '$._security'),
+                        '$.iframe-allow-sandbox'
+                    ) as iframeattrs
+                from `httparchive.pages.2021_07_01_*`
+            ),
+            unnest(iframeattrs) as iframeattr,
+            unnest(['allow', 'sandbox']) as policy_type
+    )
+join
+    (
+        select
+            _table_suffix as client,
+            sum(
+                array_length(
+                    json_extract_array(
+                        json_extract_scalar(payload, '$._security'),
+                        '$.iframe-allow-sandbox'
+                    )
+                )
+            ) as total_iframes
+        from `httparchive.pages.2021_07_01_*`
+        group by client
+    ) using (client)
+group by client, total_iframes, policy_type, hostname
+having pct > 0.001
+order by client, pct desc

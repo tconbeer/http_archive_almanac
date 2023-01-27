@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 01_15: Percent of pages that include link[rel=modulepreload]
-CREATE TEMP FUNCTION hasModulePreload(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temp function hasmodulepreload(payload string)
+returns boolean
+language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -10,14 +12,13 @@ RETURNS BOOLEAN LANGUAGE js AS '''
     return false;
   }
 
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(hasModulePreload(payload)) AS num_pages,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(hasModulePreload(payload)) * 100 / COUNT(0), 2) AS pct_modulepreload
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(hasmodulepreload(payload)) as num_pages,
+    count(0) as total,
+    round(countif(hasmodulepreload(payload)) * 100 / count(0), 2) as pct_modulepreload
+from `httparchive.pages.2019_07_01_*`
+group by client
