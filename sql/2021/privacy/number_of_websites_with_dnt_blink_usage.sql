@@ -1,21 +1,12 @@
-#standardSQL
+# standardSQL
 # Pages that request DNT status (based on Blink features)
+select distinct client, feature, num_urls, total_urls, pct_urls
+from `httparchive.blink_features.usage`
+where yyyymmdd = '20210701' and feature = 'NavigatorDoNotTrack'
+order by
+    feature,
+    client
 
-SELECT DISTINCT
-  client,
-  feature,
-  num_urls,
-  total_urls,
-  pct_urls
-FROM
-  `httparchive.blink_features.usage`
-WHERE
-  yyyymmdd = '20210701' AND
-  feature = 'NavigatorDoNotTrack'
-ORDER BY
-  feature,
-  client
-
-# relevant Blink features:
-
-# DNT: NavigatorDoNotTrack
+    # relevant Blink features:
+    # DNT: NavigatorDoNotTrack
+    

@@ -1,91 +1,94 @@
-#standardSQL
+# standardSQL
 # SEO stats
-
-# Note: Canonical metrics moved to pages-canonical-stats.sql.  Should be removed from here in 2022.
-
+# Note: Canonical metrics moved to pages-canonical-stats.sql.  Should be removed from
+# here in 2022.
 # returns all the data we need from _wpt_bodies
-CREATE TEMPORARY FUNCTION getSeoStatsWptBodies(wpt_bodies_string STRING)
-RETURNS STRUCT<
+create temporary function getseostatswptbodies(wpt_bodies_string string)
+returns
+    struct<
 
-  # tags
-  n_titles INT64,
-  title_words INT64,
-  n_meta_descriptions INT64,
-  n_h1 INT64,
-  n_h2 INT64,
-  n_h3 INT64,
-  n_h4 INT64,
-  n_non_empty_h1 INT64,
-  n_non_empty_h2 INT64,
-  n_non_empty_h3 INT64,
-  n_non_empty_h4 INT64,
-  has_same_h1_title BOOL,
+        # tags
+        n_titles int64,
+        title_words int64,
+        n_meta_descriptions int64,
+        n_h1 int64,
+        n_h2 int64,
+        n_h3 int64,
+        n_h4 int64,
+        n_non_empty_h1 int64,
+        n_non_empty_h2 int64,
+        n_non_empty_h3 int64,
+        n_non_empty_h4 int64,
+        has_same_h1_title bool,
 
-  # robots
-  robots_has_robots_meta_tag BOOL,
-  robots_has_x_robots_tag BOOL,
-  rendering_changed_robots_meta_tag BOOL,
+        # robots
+        robots_has_robots_meta_tag bool,
+        robots_has_x_robots_tag bool,
+        rendering_changed_robots_meta_tag bool,
 
-  # canonical
-  has_canonicals BOOL,
-  has_self_canonical BOOL,
-  is_canonicalized BOOL,
-  has_http_canonical BOOL,
-  has_rendered_canonical BOOL,
-  has_raw_canonical BOOL,
-  has_canonical_mismatch BOOL,
-  rendering_changed_canonical BOOL,
-  http_header_changed_canonical BOOL,
+        # canonical
+        has_canonicals bool,
+        has_self_canonical bool,
+        is_canonicalized bool,
+        has_http_canonical bool,
+        has_rendered_canonical bool,
+        has_raw_canonical bool,
+        has_canonical_mismatch bool,
+        rendering_changed_canonical bool,
+        http_header_changed_canonical bool,
 
-  # hreflang
-  rendering_changed_hreflang BOOL,
-  has_hreflang BOOL,
-  has_http_hreflang BOOL,
-  has_rendered_hreflang BOOL,
-  has_raw_hreflang BOOL,
+        # hreflang
+        rendering_changed_hreflang bool,
+        has_hreflang bool,
+        has_http_hreflang bool,
+        has_rendered_hreflang bool,
+        has_raw_hreflang bool,
 
-  # structured data
-  has_raw_jsonld_or_microdata BOOL,
-  has_rendered_jsonld_or_microdata BOOL,
-  rendering_changes_structured_data BOOL,
+        # structured data
+        has_raw_jsonld_or_microdata bool,
+        has_rendered_jsonld_or_microdata bool,
+        rendering_changes_structured_data bool,
 
-  # meta robots
-  rendered_otherbot_status_index BOOL,
-  rendered_otherbot_status_follow BOOL,
-  rendered_otherbot_noarchive BOOL,
-  rendered_otherbot_nosnippet BOOL,
-  rendered_otherbot_unavailable_after BOOL,
-  rendered_otherbot_max_snippet BOOL,
-  rendered_otherbot_max_image_preview BOOL,
-  rendered_otherbot_max_video_preview BOOL,
-  rendered_otherbot_notranslate BOOL,
-  rendered_otherbot_noimageindex BOOL,
-  rendered_otherbot_nocache BOOL,
+        # meta robots
+        rendered_otherbot_status_index bool,
+        rendered_otherbot_status_follow bool,
+        rendered_otherbot_noarchive bool,
+        rendered_otherbot_nosnippet bool,
+        rendered_otherbot_unavailable_after bool,
+        rendered_otherbot_max_snippet bool,
+        rendered_otherbot_max_image_preview bool,
+        rendered_otherbot_max_video_preview bool,
+        rendered_otherbot_notranslate bool,
+        rendered_otherbot_noimageindex bool,
+        rendered_otherbot_nocache bool,
 
-  rendered_googlebot_status_index BOOL,
-  rendered_googlebot_status_follow BOOL,
-  rendered_googlebot_noarchive BOOL,
-  rendered_googlebot_nosnippet BOOL,
-  rendered_googlebot_unavailable_after BOOL,
-  rendered_googlebot_max_snippet BOOL,
-  rendered_googlebot_max_image_preview BOOL,
-  rendered_googlebot_max_video_preview BOOL,
-  rendered_googlebot_notranslate BOOL,
-  rendered_googlebot_noimageindex BOOL,
-  rendered_googlebot_nocache BOOL,
+        rendered_googlebot_status_index bool,
+        rendered_googlebot_status_follow bool,
+        rendered_googlebot_noarchive bool,
+        rendered_googlebot_nosnippet bool,
+        rendered_googlebot_unavailable_after bool,
+        rendered_googlebot_max_snippet bool,
+        rendered_googlebot_max_image_preview bool,
+        rendered_googlebot_max_video_preview bool,
+        rendered_googlebot_notranslate bool,
+        rendered_googlebot_noimageindex bool,
+        rendered_googlebot_nocache bool,
 
-  rendered_googlebot_news_status_index BOOL,
-  rendered_googlebot_news_status_follow BOOL,
-  rendered_googlebot_news_noarchive BOOL,
-  rendered_googlebot_news_nosnippet BOOL,
-  rendered_googlebot_news_unavailable_after BOOL,
-  rendered_googlebot_news_max_snippet BOOL,
-  rendered_googlebot_news_max_image_preview BOOL,
-  rendered_googlebot_news_max_video_preview BOOL,
-  rendered_googlebot_news_notranslate BOOL,
-  rendered_googlebot_news_noimageindex BOOL,
-  rendered_googlebot_news_nocache BOOL
-> LANGUAGE js AS '''
+        rendered_googlebot_news_status_index bool,
+        rendered_googlebot_news_status_follow bool,
+        rendered_googlebot_news_noarchive bool,
+        rendered_googlebot_news_nosnippet bool,
+        rendered_googlebot_news_unavailable_after bool,
+        rendered_googlebot_news_max_snippet bool,
+        rendered_googlebot_news_max_image_preview bool,
+        rendered_googlebot_news_max_video_preview bool,
+        rendered_googlebot_news_notranslate bool,
+        rendered_googlebot_news_noimageindex bool,
+        rendered_googlebot_news_nocache bool
+    >
+language js
+as
+    '''
 var result = {};
 try {
   var wpt_bodies = JSON.parse(wpt_bodies_string);
@@ -322,165 +325,311 @@ try {
   }
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # meta title inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_titles > 0), COUNT(0)) AS pct_has_title_tag,
+    # meta title inclusion
+    safe_divide(countif(wpt_bodies_info.n_titles > 0), count(0)) as pct_has_title_tag,
 
-  # meta description inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_meta_descriptions > 0), COUNT(0)) AS pct_has_meta_description,
+    # meta description inclusion
+    safe_divide(
+        countif(wpt_bodies_info.n_meta_descriptions > 0), count(0)
+    ) as pct_has_meta_description,
 
-  # H1 inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_h1 > 0), COUNT(0)) AS pct_has_h1,
+    # H1 inclusion
+    safe_divide(countif(wpt_bodies_info.n_h1 > 0), count(0)) as pct_has_h1,
 
-  # H2 inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_h2 > 0), COUNT(0)) AS pct_has_h2,
+    # H2 inclusion
+    safe_divide(countif(wpt_bodies_info.n_h2 > 0), count(0)) as pct_has_h2,
 
-  # H3 inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_h3 > 0), COUNT(0)) AS pct_has_h3,
+    # H3 inclusion
+    safe_divide(countif(wpt_bodies_info.n_h3 > 0), count(0)) as pct_has_h3,
 
-  # H4 inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_h4 > 0), COUNT(0)) AS pct_has_h4,
+    # H4 inclusion
+    safe_divide(countif(wpt_bodies_info.n_h4 > 0), count(0)) as pct_has_h4,
 
-  # Non-empty H1 inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_non_empty_h1 > 0), COUNT(0)) AS pct_has_non_empty_h1,
+    # Non-empty H1 inclusion
+    safe_divide(
+        countif(wpt_bodies_info.n_non_empty_h1 > 0), count(0)
+    ) as pct_has_non_empty_h1,
 
-  # Non-empty H2 inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_non_empty_h2 > 0), COUNT(0)) AS pct_has_non_empty_h2,
+    # Non-empty H2 inclusion
+    safe_divide(
+        countif(wpt_bodies_info.n_non_empty_h2 > 0), count(0)
+    ) as pct_has_non_empty_h2,
 
-  # Non-empty H3 inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_non_empty_h3 > 0), COUNT(0)) AS pct_has_non_empty_h3,
+    # Non-empty H3 inclusion
+    safe_divide(
+        countif(wpt_bodies_info.n_non_empty_h3 > 0), count(0)
+    ) as pct_has_non_empty_h3,
 
-  # Non-empty H4 inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.n_non_empty_h4 > 0), COUNT(0)) AS pct_has_non_empty_h4,
+    # Non-empty H4 inclusion
+    safe_divide(
+        countif(wpt_bodies_info.n_non_empty_h4 > 0), count(0)
+    ) as pct_has_non_empty_h4,
 
-  # Same title and H1
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_same_h1_title ), COUNT(0)) AS pct_has_same_h1_title,
+    # Same title and H1
+    safe_divide(
+        countif(wpt_bodies_info.has_same_h1_title), count(0)
+    ) as pct_has_same_h1_title,
 
-  # Meta Robots inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.robots_has_robots_meta_tag), COUNT(0)) AS pct_has_meta_robots,
+    # Meta Robots inclusion
+    safe_divide(
+        countif(wpt_bodies_info.robots_has_robots_meta_tag), count(0)
+    ) as pct_has_meta_robots,
 
-  # HTTP Header Robots inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.robots_has_x_robots_tag), COUNT(0)) AS pct_has_x_robots_tag,
+    # HTTP Header Robots inclusion
+    safe_divide(
+        countif(wpt_bodies_info.robots_has_x_robots_tag), count(0)
+    ) as pct_has_x_robots_tag,
 
-  # Meta Robots and x-robots inclusion
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.robots_has_robots_meta_tag AND wpt_bodies_info.robots_has_x_robots_tag), COUNT(0)) AS pct_has_meta_robots_and_x_robots_tag,
+    # Meta Robots and x-robots inclusion
+    safe_divide(
+        countif(
+            wpt_bodies_info.robots_has_robots_meta_tag
+            and wpt_bodies_info.robots_has_x_robots_tag
+        ),
+        count(0)
+    ) as pct_has_meta_robots_and_x_robots_tag,
 
-  # Rendering changed Robots
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendering_changed_robots_meta_tag), COUNT(0)) AS pct_rendering_changed_robots_meta_tag,
+    # Rendering changed Robots
+    safe_divide(
+        countif(wpt_bodies_info.rendering_changed_robots_meta_tag), count(0)
+    ) as pct_rendering_changed_robots_meta_tag,
 
-  # Pages with canonical
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_canonicals), COUNT(0)) AS pct_has_canonical,
+    # Pages with canonical
+    safe_divide(countif(wpt_bodies_info.has_canonicals), count(0)) as pct_has_canonical,
 
-  # Pages with self-canonical
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_self_canonical), COUNT(0)) AS pct_has_self_canonical,
+    # Pages with self-canonical
+    safe_divide(
+        countif(wpt_bodies_info.has_self_canonical), count(0)
+    ) as pct_has_self_canonical,
 
-  # Pages canonicalized
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.is_canonicalized), COUNT(0)) AS pct_is_canonicalized,
+    # Pages canonicalized
+    safe_divide(
+        countif(wpt_bodies_info.is_canonicalized), count(0)
+    ) as pct_is_canonicalized,
 
-  # Pages with canonical in HTTP header
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_http_canonical), COUNT(0)) AS pct_http_canonical,
+    # Pages with canonical in HTTP header
+    safe_divide(
+        countif(wpt_bodies_info.has_http_canonical), count(0)
+    ) as pct_http_canonical,
 
-  # Pages with canonical in raw html
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_raw_canonical), COUNT(0)) AS pct_has_raw_canonical,
+    # Pages with canonical in raw html
+    safe_divide(
+        countif(wpt_bodies_info.has_raw_canonical), count(0)
+    ) as pct_has_raw_canonical,
 
-  # Pages with canonical in rendered html
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_rendered_canonical), COUNT(0)) AS pct_has_rendered_canonical,
+    # Pages with canonical in rendered html
+    safe_divide(
+        countif(wpt_bodies_info.has_rendered_canonical), count(0)
+    ) as pct_has_rendered_canonical,
 
-  # Pages with canonical in rendered but not raw html
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_rendered_canonical AND NOT wpt_bodies_info.has_raw_canonical), COUNT(0)) AS pct_has_rendered_but_not_raw_canonical,
+    # Pages with canonical in rendered but not raw html
+    safe_divide(
+        countif(
+            wpt_bodies_info.has_rendered_canonical
+            and not wpt_bodies_info.has_raw_canonical
+        ),
+        count(0)
+    ) as pct_has_rendered_but_not_raw_canonical,
 
-  # Pages with canonical mismatch
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_canonical_mismatch), COUNT(0)) AS pct_has_canonical_mismatch,
+    # Pages with canonical mismatch
+    safe_divide(
+        countif(wpt_bodies_info.has_canonical_mismatch), count(0)
+    ) as pct_has_canonical_mismatch,
 
-  # Pages with canonical conflict between raw and rendered
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendering_changed_canonical), COUNT(0)) AS pct_has_conflict_rendering_changed_canonical,
+    # Pages with canonical conflict between raw and rendered
+    safe_divide(
+        countif(wpt_bodies_info.rendering_changed_canonical), count(0)
+    ) as pct_has_conflict_rendering_changed_canonical,
 
-  # Pages with canonical conflict between raw and http header
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.http_header_changed_canonical), COUNT(0)) AS pct_has_conflict_http_header_changed_canonical,
+    # Pages with canonical conflict between raw and http header
+    safe_divide(
+        countif(wpt_bodies_info.http_header_changed_canonical), count(0)
+    ) as pct_has_conflict_http_header_changed_canonical,
 
-  # Pages with canonical conflict between raw and http header
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.http_header_changed_canonical OR wpt_bodies_info.rendering_changed_canonical), COUNT(0)) AS pct_has_conflict_http_header_or_rendering_changed_canonical,
+    # Pages with canonical conflict between raw and http header
+    safe_divide(
+        countif(
+            wpt_bodies_info.http_header_changed_canonical
+            or wpt_bodies_info.rendering_changed_canonical
+        ),
+        count(0)
+    ) as pct_has_conflict_http_header_or_rendering_changed_canonical,
 
-  # Pages with hreflang conflict between raw and rendered
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendering_changed_hreflang), COUNT(0)) AS pct_has_conflict_raw_rendered_hreflang,
+    # Pages with hreflang conflict between raw and rendered
+    safe_divide(
+        countif(wpt_bodies_info.rendering_changed_hreflang), count(0)
+    ) as pct_has_conflict_raw_rendered_hreflang,
 
-  # Pages with hreflang
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_hreflang), COUNT(0)) AS pct_has_hreflang,
+    # Pages with hreflang
+    safe_divide(countif(wpt_bodies_info.has_hreflang), count(0)) as pct_has_hreflang,
 
-  # Pages with http hreflang
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_http_hreflang), COUNT(0)) AS pct_has_http_hreflang,
+    # Pages with http hreflang
+    safe_divide(
+        countif(wpt_bodies_info.has_http_hreflang), count(0)
+    ) as pct_has_http_hreflang,
 
-  # Pages with rendered hreflang
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_rendered_hreflang), COUNT(0)) AS pct_has_rendered_hreflang,
+    # Pages with rendered hreflang
+    safe_divide(
+        countif(wpt_bodies_info.has_rendered_hreflang), count(0)
+    ) as pct_has_rendered_hreflang,
 
-  # Pages with raw hreflang
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_raw_hreflang), COUNT(0)) AS pct_has_raw_hreflang,
+    # Pages with raw hreflang
+    safe_divide(
+        countif(wpt_bodies_info.has_raw_hreflang), count(0)
+    ) as pct_has_raw_hreflang,
 
-  # Pages with hreflang in rendered but not raw html
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_rendered_hreflang AND NOT wpt_bodies_info.has_raw_hreflang), COUNT(0)) AS pct_has_rendered_but_not_raw_hreflang,
+    # Pages with hreflang in rendered but not raw html
+    safe_divide(
+        countif(
+            wpt_bodies_info.has_rendered_hreflang
+            and not wpt_bodies_info.has_raw_hreflang
+        ),
+        count(0)
+    ) as pct_has_rendered_but_not_raw_hreflang,
 
-  # Pages with raw jsonld or microdata
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_raw_jsonld_or_microdata), COUNT(0)) AS pct_has_raw_jsonld_or_microdata,
+    # Pages with raw jsonld or microdata
+    safe_divide(
+        countif(wpt_bodies_info.has_raw_jsonld_or_microdata), count(0)
+    ) as pct_has_raw_jsonld_or_microdata,
 
-  # Pages with rendered jsonld or microdata
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_rendered_jsonld_or_microdata), COUNT(0)) AS pct_has_rendered_jsonld_or_microdata,
+    # Pages with rendered jsonld or microdata
+    safe_divide(
+        countif(wpt_bodies_info.has_rendered_jsonld_or_microdata), count(0)
+    ) as pct_has_rendered_jsonld_or_microdata,
 
-  # Pages with only rendered jsonld or microdata
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.has_rendered_jsonld_or_microdata AND NOT wpt_bodies_info.has_raw_jsonld_or_microdata), COUNT(0)) AS pct_has_only_rendered_jsonld_or_microdata,
+    # Pages with only rendered jsonld or microdata
+    safe_divide(
+        countif(
+            wpt_bodies_info.has_rendered_jsonld_or_microdata
+            and not wpt_bodies_info.has_raw_jsonld_or_microdata
+        ),
+        count(0)
+    ) as pct_has_only_rendered_jsonld_or_microdata,
 
-  # Pages where rendering changed jsonld or microdata
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendering_changes_structured_data), COUNT(0)) AS pct_rendering_changes_structured_data,
+    # Pages where rendering changed jsonld or microdata
+    safe_divide(
+        countif(wpt_bodies_info.rendering_changes_structured_data), count(0)
+    ) as pct_rendering_changes_structured_data,
 
-  # http or https
-  SAFE_DIVIDE(COUNTIF(protocol = 'https'), COUNT(0)) AS pct_https,
+    # http or https
+    safe_divide(countif(protocol = 'https'), count(0)) as pct_https,
 
-  # meta robots
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_status_index), COUNT(0)) AS pct_rendered_otherbot_status_index,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_status_follow), COUNT(0)) AS pct_rendered_otherbot_status_follow,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_noarchive), COUNT(0)) AS pct_rendered_otherbot_noarchive,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_nosnippet), COUNT(0)) AS pct_rendered_otherbot_nosnippet,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_unavailable_after), COUNT(0)) AS pct_rendered_otherbot_unavailable_after,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_max_snippet), COUNT(0)) AS pct_rendered_otherbot_max_snippet,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_max_image_preview), COUNT(0)) AS pct_rendered_otherbot_max_image_preview,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_max_video_preview), COUNT(0)) AS pct_rendered_otherbot_max_video_preview,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_notranslate), COUNT(0)) AS pct_rendered_otherbot_notranslate,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_noimageindex), COUNT(0)) AS pct_rendered_otherbot_noimageindex,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_otherbot_nocache), COUNT(0)) AS pct_rendered_otherbot_nocache,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_status_index), COUNT(0)) AS pct_rendered_googlebot_status_index,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_status_follow), COUNT(0)) AS pct_rendered_googlebot_status_follow,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_noarchive), COUNT(0)) AS pct_rendered_googlebot_noarchive,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_nosnippet), COUNT(0)) AS pct_rendered_googlebot_nosnippet,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_unavailable_after), COUNT(0)) AS pct_rendered_googlebot_unavailable_after,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_max_snippet), COUNT(0)) AS pct_rendered_googlebot_max_snippet,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_max_image_preview), COUNT(0)) AS pct_rendered_googlebot_max_image_preview,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_max_video_preview), COUNT(0)) AS pct_rendered_googlebot_max_video_preview,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_notranslate), COUNT(0)) AS pct_rendered_googlebot_notranslate,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_noimageindex), COUNT(0)) AS pct_rendered_googlebot_noimageindex,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_nocache), COUNT(0)) AS pct_rendered_googlebot_nocache,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_status_index), COUNT(0)) AS pct_rendered_googlebot_news_status_index,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_status_follow), COUNT(0)) AS pct_rendered_googlebot_news_status_follow,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_noarchive), COUNT(0)) AS pct_rendered_googlebot_news_noarchive,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_nosnippet), COUNT(0)) AS pct_rendered_googlebot_news_nosnippet,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_unavailable_after), COUNT(0)) AS pct_rendered_googlebot_news_unavailable_after,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_max_snippet), COUNT(0)) AS pct_rendered_googlebot_news_max_snippet,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_max_image_preview), COUNT(0)) AS pct_rendered_googlebot_news_max_image_preview,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_max_video_preview), COUNT(0)) AS pct_rendered_googlebot_news_max_video_preview,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_notranslate), COUNT(0)) AS pct_rendered_googlebot_news_notranslate,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_noimageindex), COUNT(0)) AS pct_rendered_googlebot_news_noimageindex,
-  SAFE_DIVIDE(COUNTIF(wpt_bodies_info.rendered_googlebot_news_nocache), COUNT(0)) AS pct_rendered_googlebot_news_nocache
+    # meta robots
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_status_index), count(0)
+    ) as pct_rendered_otherbot_status_index,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_status_follow), count(0)
+    ) as pct_rendered_otherbot_status_follow,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_noarchive), count(0)
+    ) as pct_rendered_otherbot_noarchive,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_nosnippet), count(0)
+    ) as pct_rendered_otherbot_nosnippet,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_unavailable_after), count(0)
+    ) as pct_rendered_otherbot_unavailable_after,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_max_snippet), count(0)
+    ) as pct_rendered_otherbot_max_snippet,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_max_image_preview), count(0)
+    ) as pct_rendered_otherbot_max_image_preview,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_max_video_preview), count(0)
+    ) as pct_rendered_otherbot_max_video_preview,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_notranslate), count(0)
+    ) as pct_rendered_otherbot_notranslate,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_noimageindex), count(0)
+    ) as pct_rendered_otherbot_noimageindex,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_otherbot_nocache), count(0)
+    ) as pct_rendered_otherbot_nocache,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_status_index), count(0)
+    ) as pct_rendered_googlebot_status_index,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_status_follow), count(0)
+    ) as pct_rendered_googlebot_status_follow,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_noarchive), count(0)
+    ) as pct_rendered_googlebot_noarchive,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_nosnippet), count(0)
+    ) as pct_rendered_googlebot_nosnippet,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_unavailable_after), count(0)
+    ) as pct_rendered_googlebot_unavailable_after,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_max_snippet), count(0)
+    ) as pct_rendered_googlebot_max_snippet,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_max_image_preview), count(0)
+    ) as pct_rendered_googlebot_max_image_preview,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_max_video_preview), count(0)
+    ) as pct_rendered_googlebot_max_video_preview,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_notranslate), count(0)
+    ) as pct_rendered_googlebot_notranslate,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_noimageindex), count(0)
+    ) as pct_rendered_googlebot_noimageindex,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_nocache), count(0)
+    ) as pct_rendered_googlebot_nocache,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_status_index), count(0)
+    ) as pct_rendered_googlebot_news_status_index,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_status_follow), count(0)
+    ) as pct_rendered_googlebot_news_status_follow,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_noarchive), count(0)
+    ) as pct_rendered_googlebot_news_noarchive,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_nosnippet), count(0)
+    ) as pct_rendered_googlebot_news_nosnippet,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_unavailable_after), count(0)
+    ) as pct_rendered_googlebot_news_unavailable_after,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_max_snippet), count(0)
+    ) as pct_rendered_googlebot_news_max_snippet,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_max_image_preview), count(0)
+    ) as pct_rendered_googlebot_news_max_image_preview,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_max_video_preview), count(0)
+    ) as pct_rendered_googlebot_news_max_video_preview,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_notranslate), count(0)
+    ) as pct_rendered_googlebot_news_notranslate,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_noimageindex), count(0)
+    ) as pct_rendered_googlebot_news_noimageindex,
+    safe_divide(
+        countif(wpt_bodies_info.rendered_googlebot_news_nocache), count(0)
+    ) as pct_rendered_googlebot_news_nocache
 
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    SPLIT(url, ':')[OFFSET(0)] AS protocol,
-    getSeoStatsWptBodies(JSON_EXTRACT_SCALAR(payload, '$._wpt_bodies')) AS wpt_bodies_info
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            split(url, ':')[offset(0)] as protocol,
+            getseostatswptbodies(
+                json_extract_scalar(payload, '$._wpt_bodies')
+            ) as wpt_bodies_info
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

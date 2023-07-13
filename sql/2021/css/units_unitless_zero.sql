@@ -1,9 +1,10 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION hasUnitlessZero(css STRING)
-RETURNS BOOLEAN
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function hasunitlesszero(css string)
+returns boolean
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as
+    '''
 try {
   function compute(ast) {
     let ret = {
@@ -88,23 +89,21 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(DISTINCT IF(has_unitless_zero, page, NULL)) AS pages,
-  COUNT(DISTINCT page) AS total,
-  COUNT(DISTINCT IF(has_unitless_zero, page, NULL)) / COUNT(DISTINCT page) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    hasUnitlessZero(css) AS has_unitless_zero
-  FROM
-    `httparchive.almanac.parsed_css`
-  WHERE
-    date = '2021-07-01' AND
-    # Limit the size of the CSS to avoid OOM crashes.
-    LENGTH(css) < 0.1 * 1024 * 1024)
-GROUP BY
-  client
+    count(distinct if(has_unitless_zero, page, null)) as pages,
+    count(distinct page) as total,
+    count(distinct if(has_unitless_zero, page, null)) / count(distinct page) as pct
+from
+    (
+        select client, page, hasunitlesszero(css) as has_unitless_zero
+        from `httparchive.almanac.parsed_css`
+        where
+            date = '2021-07-01'
+            # Limit the size of the CSS to avoid OOM crashes.
+            and length(css) < 0.1 * 1024 * 1024
+    )
+group by client

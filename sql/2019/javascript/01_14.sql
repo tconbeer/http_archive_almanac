@@ -1,7 +1,10 @@
-#standardSQL
+# standardSQL
 # 01_14: Percent of pages that include link[rel=preload][as=script]
-CREATE TEMP FUNCTION hasScriptPreload(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temp function hasscriptpreload(payload string)
+returns boolean
+language js
+as
+    '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -10,14 +13,13 @@ RETURNS BOOLEAN LANGUAGE js AS '''
     return false;
   }
 
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(hasScriptPreload(payload)) AS num_pages,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(hasScriptPreload(payload)) * 100 / COUNT(0), 2) AS pct_script_preload
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(hasscriptpreload(payload)) as num_pages,
+    count(0) as total,
+    round(countif(hasscriptpreload(payload)) * 100 / count(0), 2) as pct_script_preload
+from `httparchive.pages.2019_07_01_*`
+group by client

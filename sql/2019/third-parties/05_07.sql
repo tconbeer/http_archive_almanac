@@ -1,29 +1,29 @@
-#standardSQL
+# standardSQL
 # Top 100 third party domains by total byte weight
-SELECT
-  thirdPartyDomain,
-  COUNT(0) AS totalRequests,
-  SUM(requestBytes) AS totalBytes,
-  ROUND(SUM(requestBytes) * 100 / MAX(totalRequestBytes), 2) AS percentBytes
-FROM (
-  SELECT
-    respSize AS requestBytes,
-    NET.HOST(url) AS requestDomain,
-    DomainsOver50Table.requestDomain AS thirdPartyDomain
-  FROM
-    `httparchive.almanac.summary_requests`
-  LEFT JOIN
-    `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains` AS DomainsOver50Table
-  ON NET.HOST(url) = DomainsOver50Table.requestDomain
-  WHERE
-    date = '2019-07-01'
-),
-(
-  SELECT SUM(respSize) AS totalRequestBytes FROM `httparchive.almanac.summary_requests` WHERE date = '2019-07-01'
-)
-WHERE thirdPartyDomain IS NOT NULL
-GROUP BY
-  thirdPartyDomain
-ORDER BY
-  totalBytes DESC
-LIMIT 100
+select
+    thirdpartydomain,
+    count(0) as totalrequests,
+    sum(requestbytes) as totalbytes,
+    round(sum(requestbytes) * 100 / max(totalrequestbytes), 2) as percentbytes
+from
+    (
+        select
+            respsize as requestbytes,
+            net.host(url) as requestdomain,
+            domainsover50table.requestdomain as thirdpartydomain
+        from `httparchive.almanac.summary_requests`
+        left join
+            `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains`
+            as domainsover50table
+            on net.host(url) = domainsover50table.requestdomain
+        where date = '2019-07-01'
+    ),
+    (
+        select sum(respsize) as totalrequestbytes
+        from `httparchive.almanac.summary_requests`
+        where date = '2019-07-01'
+    )
+where thirdpartydomain is not null
+group by thirdpartydomain
+order by totalbytes desc
+limit 100

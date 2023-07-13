@@ -1,31 +1,26 @@
-#standardSQL
+# standardSQL
 # Percentage of pages that include at least one ad resource.
-SELECT
-  client,
-  COUNT(0) AS numberOfPages,
-  COUNTIF(numberOfAdRequests > 0) AS numberOfPagesWithAd,
-  ROUND(COUNTIF(numberOfAdRequests > 0) * 100 / COUNT(0), 2) AS percentOfPagesWithAd
-FROM (
-  SELECT
+select
     client,
-    pageUrl,
-    COUNTIF(thirdPartyCategory = 'ad') AS numberOfAdRequests
-  FROM (
-    SELECT
-      client,
-      page AS pageUrl,
-      ThirdPartyTable.category AS thirdPartyCategory
-    FROM
-      `httparchive.almanac.summary_requests`
-    LEFT JOIN
-      `lighthouse-infrastructure.third_party_web.2019_07_01` AS ThirdPartyTable
-    ON NET.HOST(url) = ThirdPartyTable.domain
-    WHERE
-      date = '2019-07-01'
-  )
-  GROUP BY
-    client,
-    pageUrl
-)
-GROUP BY
-  client
+    count(0) as numberofpages,
+    countif(numberofadrequests > 0) as numberofpageswithad,
+    round(countif(numberofadrequests > 0) * 100 / count(0), 2) as percentofpageswithad
+from
+    (
+        select client, pageurl, countif(thirdpartycategory = 'ad') as numberofadrequests
+        from
+            (
+                select
+                    client,
+                    page as pageurl,
+                    thirdpartytable.category as thirdpartycategory
+                from `httparchive.almanac.summary_requests`
+                left join
+                    `lighthouse-infrastructure.third_party_web.2019_07_01`
+                    as thirdpartytable
+                    on net.host(url) = thirdpartytable.domain
+                where date = '2019-07-01'
+            )
+        group by client, pageurl
+    )
+group by client

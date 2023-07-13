@@ -1,42 +1,33 @@
 # standardSQL
 # Measure number of TCP Connections per site.
-SELECT
-  percentile,
-  client,
-  http_version_category,
-  COUNT(0) AS num_pages,
-  APPROX_QUANTILES(_connections, 1000)[OFFSET(percentile * 10)] AS connections
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
-    CASE
-      WHEN LOWER(protocol) = 'quic' OR LOWER(protocol) LIKE 'h3%' THEN 'HTTP/2+'
-      WHEN LOWER(protocol) = 'http/2' OR LOWER(protocol) = 'http/3' THEN 'HTTP/2+'
-      WHEN protocol IS NULL THEN 'Unknown'
-      ELSE UPPER(protocol)
-    END AS http_version_category
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01' AND
-    firstHtml)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    _connections
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`)
-USING
-  (client, page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  http_version_category
-ORDER BY
-  percentile,
-  client,
-  num_pages DESC,
-  http_version_category
+    http_version_category,
+    count(0) as num_pages,
+    approx_quantiles(_connections, 1000)[offset(percentile * 10)] as connections
+from
+    (
+        select
+            client,
+            page,
+            case
+                when lower(protocol) = 'quic' or lower(protocol) like 'h3%'
+                then 'HTTP/2+'
+                when lower(protocol) = 'http/2' or lower(protocol) = 'http/3'
+                then 'HTTP/2+'
+                when protocol is null
+                then 'Unknown'
+                else upper(protocol)
+            end as http_version_category
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01' and firsthtml
+    )
+join
+    (
+        select _table_suffix as client, url as page, _connections
+        from `httparchive.summary_pages.2021_07_01_*`
+    ) using (client, page),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client, http_version_category
+order by percentile, client, num_pages desc, http_version_category
