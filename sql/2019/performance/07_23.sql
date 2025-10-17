@@ -1,22 +1,19 @@
-#standardSQL
+# standardSQL
 # 07_23: Percentiles of loading CPU time
-#where the main thread of the browser was busy
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(loading_cpu_time, 1000)[OFFSET(100)] AS loading_cpu_time
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
+# where the main thread of the browser was busy
+select
+    percentile,
+    client,
+    approx_quantiles(loading_cpu_time, 1000)[offset(100)] as loading_cpu_time
+from
     (
-      CAST(IFNULL(JSON_EXTRACT(payload, "$['_cpu.ParseHTML']"), '0') AS INT64)
-    ) AS loading_cpu_time
-  FROM
-    `httparchive.pages.2019_07_01_*`),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+        select
+            _table_suffix as client,
+            (
+                cast(ifnull(json_extract(payload, "$['_cpu.ParseHTML']"), '0') as int64)
+            ) as loading_cpu_time
+        from `httparchive.pages.2019_07_01_*`
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

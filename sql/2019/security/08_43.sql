@@ -1,13 +1,10 @@
 # 08_43: HTTP vs HTTPS
-SELECT
-  client,
-  COUNTIF(STARTS_WITH(url, 'https://')) AS https,
-  COUNTIF(STARTS_WITH(url, 'http://')) AS http,
-  ROUND((COUNTIF(STARTS_WITH(url, 'https://')) / COUNT(0)) * 100, 2) AS pct_https,
-  ROUND((COUNTIF(STARTS_WITH(url, 'http://')) / COUNT(0)) * 100, 2) AS pct_http
-FROM
-  `httparchive.almanac.summary_requests`
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client
+select
+    client,
+    countif(starts_with(url, 'https://')) as https,
+    countif(starts_with(url, 'http://')) as http,
+    round((countif(starts_with(url, 'https://')) / count(0)) * 100, 2) as pct_https,
+    round((countif(starts_with(url, 'http://')) / count(0)) * 100, 2) as pct_http
+from `httparchive.almanac.summary_requests`
+where date = '2019-07-01'
+group by client

@@ -1,46 +1,34 @@
-#standardSQL
+# standardSQL
 # Percent of certain texts containing keywords indicating privacy-related links
+with
+    privacy_link_texts as (
+        select
+            _table_suffix as client,
+            array(
+                select distinct lower(json_value(p, '$.text'))
+                from
+                    unnest(
+                        json_query_array(
+                            json_value(payload, '$._privacy'), '$.privacy_wording_links'
+                        )
+                    ) as p
+            ) as texts_per_site
+        from `httparchive.pages.2021_07_01_*`
+    ),
 
-WITH privacy_link_texts AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    ARRAY(
-      SELECT DISTINCT
-        LOWER(JSON_VALUE(p, '$.text'))
-      FROM
-        UNNEST(JSON_QUERY_ARRAY(JSON_VALUE(payload, '$._privacy'), '$.privacy_wording_links')) AS p
-    ) AS texts_per_site
-  FROM
-    `httparchive.pages.2021_07_01_*`
-),
+    totals as (
+        select _table_suffix as client, count(0) as total_websites
+        from `httparchive.pages.2021_07_01_*`
+        group by client
+    )
 
-totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_websites
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  GROUP BY
-    client
-)
-
-SELECT
-  client,
-  text,
-  COUNT(0) AS number_of_websites_with_text,
-  total_websites,
-  COUNT(0) / total_websites AS pct_websites_with_text
-FROM
-  privacy_link_texts
-JOIN
-  totals
-USING (client),
-  UNNEST(texts_per_site) text
-GROUP BY
-  client,
-  text,
-  total_websites
-ORDER BY
-  client,
-  number_of_websites_with_text DESC,
-  text
+select
+    client,
+    text,
+    count(0) as number_of_websites_with_text,
+    total_websites,
+    count(0) / total_websites as pct_websites_with_text
+from privacy_link_texts
+join totals using (client), unnest(texts_per_site) text
+group by client, text, total_websites
+order by client, number_of_websites_with_text desc, text

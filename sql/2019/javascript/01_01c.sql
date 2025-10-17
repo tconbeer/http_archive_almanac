@@ -1,21 +1,20 @@
-#standardSQL
+# standardSQL
 # 01_01c: Histogram of JS bytes
-SELECT
-  bin AS kbytes,
-  volume,
-  ROUND(pdf * 100, 2) AS pdf,
-  ROUND(SUM(pdf) OVER (ORDER BY bin) * 100, 2) AS cdf
-FROM (
-  SELECT
-    *,
-    volume / SUM(volume) OVER () AS pdf
-  FROM (
-    SELECT
-      COUNT(0) AS volume,
-      CAST(FLOOR(bytesJS / 10240) * 10 AS INT64) AS bin
-    FROM
-      `httparchive.summary_pages.2019_07_01_*`
-    GROUP BY
-      bin) )
-ORDER BY
-  bin
+select
+    bin as kbytes,
+    volume,
+    round(pdf * 100, 2) as pdf,
+    round(sum(pdf) over (order by bin) * 100, 2) as cdf
+from
+    (
+        select *, volume / sum(volume) over () as pdf
+        from
+            (
+                select
+                    count(0) as volume,
+                    cast(floor(bytesjs / 10240) * 10 as int64) as bin
+                from `httparchive.summary_pages.2019_07_01_*`
+                group by bin
+            )
+    )
+order by bin

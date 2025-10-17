@@ -1,27 +1,23 @@
-#standardSQL
+# standardSQL
 # Alt text length
-SELECT
-  client,
+select
+    client,
 
-  percentile,
-  APPROX_QUANTILES(alt_length, 1000)[OFFSET(percentile * 10)] AS alt_length
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      SAFE_CAST(alt_length_string AS INT64) AS alt_length
-    FROM
-      `httparchive.pages.2021_07_01_*`,
-      UNNEST(
-        JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.images.alt_lengths')
-      ) AS alt_length_string
-  ),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-WHERE
-  alt_length > 0
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    percentile,
+    approx_quantiles(alt_length, 1000)[offset(percentile * 10)] as alt_length
+from
+    (
+        select
+            _table_suffix as client, safe_cast(alt_length_string as int64) as alt_length
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                json_extract_array(
+                    json_extract_scalar(payload, '$._almanac'), '$.images.alt_lengths'
+                )
+            ) as alt_length_string
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+where alt_length > 0
+group by percentile, client
+order by percentile, client

@@ -1,15 +1,16 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
-RETURNS STRUCT<
-  class ARRAY<STRING>,
-  id ARRAY<STRING>,
-  attribute ARRAY<STRING>,
-  pseudo_class ARRAY<STRING>,
-  pseudo_element ARRAY<STRING>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getselectorparts(css string)
+returns
+    struct<
+        class array<string>,
+        id array<string>,
+        attribute array<string>,
+        pseudo_class array<string>,
+        pseudo_element array<string>
+    >
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -55,26 +56,21 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(num_focus_visible > 0) AS has_focus_visible,
-  COUNT(0) AS total,
-  COUNTIF(num_focus_visible > 0) / COUNT(0) AS pct_pages_focus_visible
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(pseudo_class = 'focus-visible') AS num_focus_visible
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getSelectorParts(css).pseudo_class) AS pseudo_class
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client,
-    page)
-GROUP BY
-  client
+    countif(num_focus_visible > 0) as has_focus_visible,
+    count(0) as total,
+    countif(num_focus_visible > 0) / count(0) as pct_pages_focus_visible
+from
+    (
+        select
+            client, page, countif(pseudo_class = 'focus-visible') as num_focus_visible
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getselectorparts(css).pseudo_class) as pseudo_class
+        where date = '2021-07-01'
+        group by client, page
+    )
+group by client

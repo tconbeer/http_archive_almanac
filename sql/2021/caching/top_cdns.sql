@@ -1,24 +1,15 @@
-#standardSQL
+# standardSQL
 # Adoption of top CDNs
-SELECT
-  client,
-  cdn,
-  COUNT(0) AS freq,
-  total,
-  COUNT(0) / total AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total,
-    ARRAY_CONCAT_AGG(SPLIT(cdn, ', ')) AS cdn_list
-  FROM
-    `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY
-    client),
-  UNNEST(cdn_list) AS cdn
-GROUP BY
-  client,
-  cdn,
-  total
-ORDER BY
-  pct DESC
+select client, cdn, count(0) as freq, total, count(0) / total as pct
+from
+    (
+        select
+            _table_suffix as client,
+            count(0) as total,
+            array_concat_agg(split(cdn, ', ')) as cdn_list
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by client
+    ),
+    unnest(cdn_list) as cdn
+group by client, cdn, total
+order by pct desc

@@ -1,16 +1,12 @@
-SELECT
-  client,
-  SUM(size.code) / SUM(size.total) AS code_pct,
-  SUM(size.init) / SUM(size.total) AS init_pct,
-  SUM(size.descriptors) / SUM(size.total) AS descriptors_pct,
-  SUM(size.externals) / SUM(size.total) AS externals_pct,
-  SUM(size.types) / SUM(size.total) AS types_pct,
-  SUM(size.custom) / SUM(size.total) AS custom_pct
-FROM
-  `httparchive.almanac.wasm_stats`
-WHERE
-  date = '2021-09-01'
-GROUP BY
-  client
-ORDER BY
-  client
+select
+    client,
+    sum(size.code) / sum(size.total) as code_pct,
+    sum(size.init) / sum(size.total) as init_pct,
+    sum(size.descriptors) / sum(size.total) as descriptors_pct,
+    sum(size.externals) / sum(size.total) as externals_pct,
+    sum(size.types) / sum(size.total) as types_pct,
+    sum(size.custom) / sum(size.total) as custom_pct
+from `httparchive.almanac.wasm_stats`
+where date = '2021-09-01'
+group by client
+order by client

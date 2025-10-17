@@ -1,47 +1,28 @@
-#standardSQL
+# standardSQL
 # Distribution of CMS page kilobytes per resource type
-SELECT
-  percentile,
-  client,
-  type,
-  APPROX_QUANTILES(requests, 1000)[OFFSET(percentile * 10)] AS requests,
-  ROUND(APPROX_QUANTILES(bytes, 1000)[OFFSET(percentile * 10)] / 1024, 2) AS kbytes
-FROM (
-  SELECT
+select
+    percentile,
     client,
     type,
-    COUNT(0) AS requests,
-    SUM(respSize) AS bytes
-  FROM (
-    SELECT
-      client,
-      page,
-      type,
-      respSize
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2020-08-01')
-  JOIN (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      url AS page
-    FROM
-      `httparchive.technologies.2020_08_01_*`
-    WHERE
-      category = 'CMS')
-  USING
-    (client, page)
-  GROUP BY
-    client,
-    type,
-    page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  type
-ORDER BY
-  percentile,
-  client,
-  kbytes DESC
+    approx_quantiles(requests, 1000)[offset(percentile * 10)] as requests,
+    round(approx_quantiles(bytes, 1000)[offset(percentile * 10)] / 1024, 2) as kbytes
+from
+    (
+        select client, type, count(0) as requests, sum(respsize) as bytes
+        from
+            (
+                select client, page, type, respsize
+                from `httparchive.almanac.requests`
+                where date = '2020-08-01'
+            )
+        join
+            (
+                select _table_suffix as client, url as page
+                from `httparchive.technologies.2020_08_01_*`
+                where category = 'CMS'
+            ) using (client, page)
+        group by client, type, page
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client, type
+order by percentile, client, kbytes desc

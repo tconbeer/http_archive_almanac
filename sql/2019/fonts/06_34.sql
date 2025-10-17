@@ -1,15 +1,11 @@
-#standardSQL
+# standardSQL
 # 06_34: Web fonts loaded per page
-SELECT
-  _TABLE_SUFFIX AS client,
-  reqFont AS fonts,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX), 2) AS pct
-FROM
-  `httparchive.summary_pages.2019_07_01_*`
-GROUP BY
-  client,
-  fonts
-ORDER BY
-  freq / total DESC
+select
+    _table_suffix as client,
+    reqfont as fonts,
+    count(0) as freq,
+    sum(count(0)) over (partition by _table_suffix) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by _table_suffix), 2) as pct
+from `httparchive.summary_pages.2019_07_01_*`
+group by client, fonts
+order by freq / total desc

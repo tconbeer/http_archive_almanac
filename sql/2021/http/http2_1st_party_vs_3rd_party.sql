@@ -1,41 +1,40 @@
 # standardSQL
 # HTTP/2 % 1st Party versus 3rd Party
-SELECT
-  percentile,
-  client,
-  is_third_party,
-  APPROX_QUANTILES(http2_3_pct, 1000)[OFFSET(percentile * 10)] AS http2_3_pct
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
     is_third_party,
-    COUNTIF(LOWER(http_version) IN ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050')) / COUNT(0) AS http2_3_pct
-  FROM (
-    SELECT
-      client,
-      page,
-      url,
-      type,
-      respSize,
-      protocol AS http_version,
-      NET.HOST(url) IN (SELECT domain FROM `httparchive.almanac.third_parties` WHERE date = '2021-07-01') AS is_third_party
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2021-07-01')
-  WHERE
-    type = 'script'
-  GROUP BY
-    client,
-    page,
-    is_third_party),
-  UNNEST(GENERATE_ARRAY(1, 100)) AS percentile
-GROUP BY
-  percentile,
-  client,
-  is_third_party
-ORDER BY
-  percentile,
-  client,
-  is_third_party
+    approx_quantiles(http2_3_pct, 1000)[offset(percentile * 10)] as http2_3_pct
+from
+    (
+        select
+            client,
+            page,
+            is_third_party,
+            countif(
+                lower(http_version) in ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050')
+            )
+            / count(0) as http2_3_pct
+        from
+            (
+                select
+                    client,
+                    page,
+                    url,
+                    type,
+                    respsize,
+                    protocol as http_version,
+                    net.host(url) in (
+                        select domain
+                        from `httparchive.almanac.third_parties`
+                        where date = '2021-07-01'
+                    ) as is_third_party
+                from `httparchive.almanac.requests`
+                where date = '2021-07-01'
+            )
+        where type = 'script'
+        group by client, page, is_third_party
+    ),
+    unnest(generate_array(1, 100)) as percentile
+group by percentile, client, is_third_party
+order by percentile, client, is_third_party

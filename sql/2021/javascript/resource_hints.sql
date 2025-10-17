@@ -1,7 +1,8 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getResourceHintAttrs(payload STRING)
-RETURNS ARRAY<STRUCT<name STRING, attribute STRING, value STRING>>
-LANGUAGE js AS '''
+# standardSQL
+create temporary function getresourcehintattrs(payload string)
+returns array<struct<name string, attribute string, value string>>
+language js
+as '''
 var hints = new Set(['preload', 'prefetch']);
 var attributes = ['as'];
 try {
@@ -26,21 +27,22 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(DISTINCT IF(script_hint, page, NULL)) AS pages,
-  COUNT(DISTINCT page) AS total,
-  COUNT(DISTINCT IF(script_hint, page, NULL)) / COUNT(DISTINCT page) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    hint.name IN ('prefetch', 'preload') AND hint.value = 'script' AS script_hint
-  FROM
-    `httparchive.pages.2021_07_01_*`
-  LEFT JOIN
-    UNNEST(getResourceHintAttrs(payload)) AS hint)
-GROUP BY
-  client
+select
+    client,
+    count(distinct if(script_hint, page, null)) as pages,
+    count(distinct page) as total,
+    count(distinct if(script_hint, page, null)) / count(distinct page) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            hint.name in ('prefetch', 'preload')
+            and hint.value = 'script' as script_hint
+        from `httparchive.pages.2021_07_01_*`
+        left join unnest(getresourcehintattrs(payload)) as hint
+    )
+group by client

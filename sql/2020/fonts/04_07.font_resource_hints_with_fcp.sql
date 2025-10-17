@@ -1,6 +1,6 @@
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS ARRAY < STRUCT < name STRING, href STRING >>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns
+    array <struct <name string, href string >> language js as '''
 var hints = new Set(['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch']);
 try {
     var $ = JSON.parse(payload);
@@ -19,44 +19,42 @@ try {
 } catch (e) {
     return [];
 }
-''';
-SELECT
-  client,
-  name,
-  COUNT(DISTINCT page) AS pages,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total,
-  COUNT(DISTINCT page) / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS pct_hints,
-  APPROX_QUANTILES(fcp, 1000)[OFFSET(500)] AS median_fcp,
-  APPROX_QUANTILES(lcp, 1000)[OFFSET(500)] AS median_lcp
-FROM (
-  SELECT DISTINCT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    hint.name,
-    CAST(JSON_EXTRACT_SCALAR(payload,
-        "$['_chromeUserTiming.firstContentfulPaint']") AS INT64) AS fcp,
-    CAST(JSON_EXTRACT_SCALAR(payload,
-        "$['_chromeUserTiming.LargestContentfulPaint']") AS INT64) AS lcp
-  FROM
-    `httparchive.pages.2020_08_01_*`
-  LEFT JOIN
-    UNNEST(getResourceHints(payload)) AS hint)
-LEFT JOIN (
-  SELECT
+'''
+;
+select
     client,
-    page,
-    type
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01')
-USING
-  (client, page)
-WHERE
-  type = 'font'
-GROUP BY
-  client,
-  name,
-  type
-ORDER BY
-  pct_hints DESC
+    name,
+    count(distinct page) as pages,
+    sum(count(distinct page)) over (partition by client) as total,
+    count(distinct page)
+    / sum(count(distinct page)) over (partition by client) as pct_hints,
+    approx_quantiles(fcp, 1000)[offset(500)] as median_fcp,
+    approx_quantiles(lcp, 1000)[offset(500)] as median_lcp
+from
+    (
+        select distinct
+            _table_suffix as client,
+            url as page,
+            hint.name,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.firstContentfulPaint']"
+                ) as int64
+            ) as fcp,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.LargestContentfulPaint']"
+                ) as int64
+            ) as lcp
+        from `httparchive.pages.2020_08_01_*`
+        left join unnest(getresourcehints(payload)) as hint
+    )
+left join
+    (
+        select client, page, type
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01'
+    ) using (client, page)
+where type = 'font'
+group by client, name, type
+order by pct_hints desc

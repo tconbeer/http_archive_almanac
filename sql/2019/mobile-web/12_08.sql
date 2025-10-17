@@ -1,18 +1,22 @@
-#standardSQL
-
+# standardSQL
 # password-inputs-can-be-pasted-into
+select
+    count(0) as total_pages,
+    countif(password_score is not null) as applicable_pages,
 
-SELECT
-  COUNT(0) AS total_pages,
-  COUNTIF(password_score IS NOT NULL) AS applicable_pages,
-
-  COUNTIF(CAST(password_score AS NUMERIC) = 1) AS total_allowing,
-  ROUND(COUNTIF(CAST(password_score AS NUMERIC) = 1) * 100 / COUNTIF(password_score IS NOT NULL), 2) AS perc_allowing
-FROM
-  (
-    SELECT
-      url,
-      JSON_EXTRACT_SCALAR(report, '$.audits.password-inputs-can-be-pasted-into.score') AS password_score
-    FROM
-      `httparchive.lighthouse.2019_07_01_mobile`
-  )
+    countif(cast(password_score as numeric) = 1) as total_allowing,
+    round(
+        countif(cast(password_score as numeric) = 1)
+        * 100
+        / countif(password_score is not null),
+        2
+    ) as perc_allowing
+from
+    (
+        select
+            url,
+            json_extract_scalar(
+                report, '$.audits.password-inputs-can-be-pasted-into.score'
+            ) as password_score
+        from `httparchive.lighthouse.2019_07_01_mobile`
+    )

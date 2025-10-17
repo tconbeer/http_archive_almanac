@@ -1,19 +1,19 @@
-#standardSQL
+# standardSQL
 # 09_20: % of mobile pages with valid aria attribute values, scored by Lighthouse
-SELECT
-  is_valid,
-  COUNT(0) AS pages,
-  SUM(COUNT(0)) OVER () AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (), 2) AS pct
-FROM (
-  SELECT
-    JSON_EXTRACT_SCALAR(report, "$.audits['aria-valid-attr-value'].score") = '1' AS is_valid
-  FROM
-    `httparchive.lighthouse.2019_07_01_mobile`)
-WHERE
-  # Ignore pages with no aria-* attributes
-  is_valid IS NOT NULL
-GROUP BY
-  is_valid
-ORDER BY
-  pages DESC
+select
+    is_valid,
+    count(0) as pages,
+    sum(count(0)) over () as total,
+    round(count(0) * 100 / sum(count(0)) over (), 2) as pct
+from
+    (
+        select
+            json_extract_scalar(report, "$.audits['aria-valid-attr-value'].score")
+            = '1' as is_valid
+        from `httparchive.lighthouse.2019_07_01_mobile`
+    )
+where
+    # Ignore pages with no aria-* attributes
+    is_valid is not null
+group by is_valid
+order by pages desc

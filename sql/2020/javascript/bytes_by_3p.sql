@@ -1,33 +1,29 @@
-#standardSQL
+# standardSQL
 # Distribution of 1P/3P JS bytes
-SELECT
-  percentile,
-  client,
-  host,
-  APPROX_QUANTILES(kbytes, 1000)[OFFSET(percentile * 10)] AS kbytes
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    page,
-    IF(NET.HOST(url) IN (
-      SELECT domain FROM `httparchive.almanac.third_parties` WHERE date = '2020-08-01' AND category != 'hosting'
-    ), 'third party', 'first party') AS host,
-    SUM(respSize) / 1024 AS kbytes
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01' AND
-    type = 'script'
-  GROUP BY
-    client,
-    page,
-    host),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  host
-ORDER BY
-  percentile,
-  client,
-  host
+    host,
+    approx_quantiles(kbytes, 1000)[offset(percentile * 10)] as kbytes
+from
+    (
+        select
+            client,
+            page,
+            if(
+                net.host(url) in (
+                    select domain
+                    from `httparchive.almanac.third_parties`
+                    where date = '2020-08-01' and category != 'hosting'
+                ),
+                'third party',
+                'first party'
+            ) as host,
+            sum(respsize) / 1024 as kbytes
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01' and type = 'script'
+        group by client, page, host
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client, host
+order by percentile, client, host

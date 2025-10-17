@@ -1,7 +1,11 @@
-#standardSQL
+# standardSQL
 # Max TBT
-
-SELECT
-  MAX(CAST(JSON_EXTRACT_SCALAR(report, '$.audits.total-blocking-time.numericValue') AS FLOAT64)) AS maxTbt
-FROM
-  `httparchive.lighthouse.2021_07_01_mobile`
+select
+    max(
+        cast(
+            json_extract_scalar(
+                report, '$.audits.total-blocking-time.numericValue'
+            ) as float64
+        )
+    ) as maxtbt
+from `httparchive.lighthouse.2021_07_01_mobile`

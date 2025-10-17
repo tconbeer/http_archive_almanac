@@ -1,21 +1,30 @@
-#standardSQL
+# standardSQL
 # Video elements track usage
-SELECT
-  client,
-  COUNT(0) AS total_sites,
-  COUNTIF(total_videos > 0) AS total_with_video,
-  COUNTIF(total_with_track > 0) AS total_with_tracks,
+select
+    client,
+    count(0) as total_sites,
+    countif(total_videos > 0) as total_with_video,
+    countif(total_with_track > 0) as total_with_tracks,
 
-  SUM(total_with_track) / SUM(total_videos) AS pct_videos_with_tracks,
-  COUNTIF(total_videos > 0) / COUNT(0) AS pct_sites_with_videos,
-  COUNTIF(total_with_track > 0) / COUNTIF(total_videos > 0) AS pct_video_sites_with_tracks
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.videos.total') AS INT64) AS total_videos,
-    CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.videos.total_with_track') AS INT64) AS total_with_track
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
+    sum(total_with_track) / sum(total_videos) as pct_videos_with_tracks,
+    countif(total_videos > 0) / count(0) as pct_sites_with_videos,
+    countif(total_with_track > 0)
+    / countif(total_videos > 0) as pct_video_sites_with_tracks
+from
+    (
+        select
+            _table_suffix as client,
+            cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'), '$.videos.total'
+                ) as int64
+            ) as total_videos,
+            cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'),
+                    '$.videos.total_with_track'
+                ) as int64
+            ) as total_with_track
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

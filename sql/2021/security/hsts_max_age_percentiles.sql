@@ -1,22 +1,24 @@
-#standardSQL
+# standardSQL
 # Distribution of max-age value of Strict-Transport-Security header
-SELECT
-  client,
-  percentile,
-  APPROX_QUANTILES(max_age, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS max_age
-FROM (
-  SELECT
+select
     client,
-    SAFE_CAST(REGEXP_EXTRACT(REGEXP_EXTRACT(respOtherHeaders, r'(?i)strict-transport-security =([^,]+)'), r'(?i)max-age=\s*(-?\d+)') AS NUMERIC) AS max_age
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-),
-UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    percentile,
+    approx_quantiles(max_age, 1000 ignore nulls)[offset(percentile * 10)] as max_age
+from
+    (
+        select
+            client,
+            safe_cast(
+                regexp_extract(
+                    regexp_extract(
+                        respotherheaders, r'(?i)strict-transport-security =([^,]+)'
+                    ),
+                    r'(?i)max-age=\s*(-?\d+)'
+                ) as numeric
+            ) as max_age
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

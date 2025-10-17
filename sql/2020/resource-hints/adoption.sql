@@ -1,8 +1,17 @@
-#standardSQL
+# standardSQL
 # 21_01: % of sites that use each type of hint.
-CREATE TEMPORARY FUNCTION getResourceHints(payload STRING)
-RETURNS STRUCT<preload BOOLEAN, prefetch BOOLEAN, preconnect BOOLEAN, prerender BOOLEAN, `dns-prefetch` BOOLEAN>
-LANGUAGE js AS '''
+create temporary function getresourcehints(payload string)
+returns
+    struct<
+        preload boolean,
+        prefetch boolean,
+        preconnect boolean,
+        prerender boolean,
+        `dns-prefetch` boolean
+    >
+language js
+as
+    '''
 var hints = ['preload', 'prefetch', 'preconnect', 'prerender', 'dns-prefetch'];
 try {
   var $ = JSON.parse(payload);
@@ -17,25 +26,24 @@ try {
     return results;
   }, {});
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNTIF(hints.preload) AS preload,
-  COUNTIF(hints.preload) / COUNT(0) AS pct_preload,
-  COUNTIF(hints.prefetch) AS prefetch,
-  COUNTIF(hints.prefetch) / COUNT(0) AS pct_prefetch,
-  COUNTIF(hints.preconnect) AS preconnect,
-  COUNTIF(hints.preconnect) / COUNT(0) AS pct_preconnect,
-  COUNTIF(hints.prerender) AS prerender,
-  COUNTIF(hints.prerender) / COUNT(0) AS pct_prerender,
-  COUNTIF(hints.`dns-prefetch`) AS dns_prefetch,
-  COUNTIF(hints.`dns-prefetch`) / COUNT(0) AS pct_dns_prefetch
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    getResourceHints(payload) AS hints
-  FROM
-    `httparchive.pages.2020_08_01_*`)
-GROUP BY
-  client
+select
+    client,
+    countif(hints.preload) as preload,
+    countif(hints.preload) / count(0) as pct_preload,
+    countif(hints.prefetch) as prefetch,
+    countif(hints.prefetch) / count(0) as pct_prefetch,
+    countif(hints.preconnect) as preconnect,
+    countif(hints.preconnect) / count(0) as pct_preconnect,
+    countif(hints.prerender) as prerender,
+    countif(hints.prerender) / count(0) as pct_prerender,
+    countif(hints.`dns-prefetch`) as dns_prefetch,
+    countif(hints.`dns-prefetch`) / count(0) as pct_dns_prefetch
+from
+    (
+        select _table_suffix as client, getresourcehints(payload) as hints
+        from `httparchive.pages.2020_08_01_*`
+    )
+group by client

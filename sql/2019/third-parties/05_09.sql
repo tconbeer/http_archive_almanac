@@ -1,24 +1,21 @@
-#standardSQL
+# standardSQL
 # Top 100 third party requests by request volume
-SELECT
-  requestUrl,
-  COUNT(0) AS totalRequests,
-  SUM(requestBytes) AS totalBytes,
-  ROUND(COUNT(0) * 100 / MAX(t2.totalRequestCount), 2) AS percentRequestCount
-FROM (
-  SELECT
-    url AS requestUrl,
-    respBodySize AS requestBytes
-  FROM
-    `httparchive.almanac.summary_requests`
-  WHERE
-    date = '2019-07-01'
-),
-(
-  SELECT COUNT(0) AS totalRequestCount FROM `httparchive.almanac.summary_requests` WHERE date = '2019-07-01'
-)
-GROUP BY
-  requestUrl
-ORDER BY
-  totalRequests DESC
-LIMIT 100
+select
+    requesturl,
+    count(0) as totalrequests,
+    sum(requestbytes) as totalbytes,
+    round(count(0) * 100 / max(t2.totalrequestcount), 2) as percentrequestcount
+from
+    (
+        select url as requesturl, respbodysize as requestbytes
+        from `httparchive.almanac.summary_requests`
+        where date = '2019-07-01'
+    ),
+    (
+        select count(0) as totalrequestcount
+        from `httparchive.almanac.summary_requests`
+        where date = '2019-07-01'
+    )
+group by requesturl
+order by totalrequests desc
+limit 100

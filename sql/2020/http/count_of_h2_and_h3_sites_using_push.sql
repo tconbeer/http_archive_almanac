@@ -1,28 +1,26 @@
 # standardSQL
 # Count of H2 and H3 Sites using Push
-SELECT
-  client,
-  http_version,
-  COUNT(DISTINCT IF(was_pushed, page, NULL)) AS num_pages_with_push,
-  COUNT(DISTINCT page) AS total,
-  COUNT(DISTINCT IF(was_pushed, page, NULL)) / COUNT(DISTINCT page) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    JSON_EXTRACT_SCALAR(payload, '$._protocol') AS http_version,
-    JSON_EXTRACT_SCALAR(payload, '$._was_pushed') = '1' AS was_pushed
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01' AND
+    http_version,
+    count(distinct if(was_pushed, page, null)) as num_pages_with_push,
+    count(distinct page) as total,
+    count(distinct if(was_pushed, page, null)) / count(distinct page) as pct
+from
     (
-      LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'http/2' OR
-      LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE '%quic%' OR
-      LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'h3%' OR
-      LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'http/3%'
+        select
+            client,
+            page,
+            json_extract_scalar(payload, '$._protocol') as http_version,
+            json_extract_scalar(payload, '$._was_pushed') = '1' as was_pushed
+        from `httparchive.almanac.requests`
+        where
+            date = '2020-08-01'
+            and (
+                lower(json_extract_scalar(payload, '$._protocol')) like 'http/2'
+                or lower(json_extract_scalar(payload, '$._protocol')) like '%quic%'
+                or lower(json_extract_scalar(payload, '$._protocol')) like 'h3%'
+                or lower(json_extract_scalar(payload, '$._protocol')) like 'http/3%'
+            )
     )
-)
-GROUP BY
-  client,
-  http_version
+group by client, http_version

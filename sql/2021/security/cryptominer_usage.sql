@@ -1,15 +1,10 @@
-#standardSQL
-SELECT
-  LEFT(_TABLE_SUFFIX, 10) AS month,
-  IF(ENDS_WITH(_TABLE_SUFFIX, '_desktop'), 'desktop', 'mobile') AS client,
-  COUNTIF(category = 'Cryptominers' OR category = 'Cryptominer') AS freq,
-  COUNT(0) AS total,
-  COUNTIF(category = 'Cryptominers' OR category = 'Cryptominer') / COUNT(0) AS pct
-FROM
-  `httparchive.technologies.*`
-GROUP BY
-  _TABLE_SUFFIX
-ORDER BY
-  client,
-  month,
-  pct DESC
+# standardSQL
+select
+    left(_table_suffix, 10) as month,
+    if(ends_with(_table_suffix, '_desktop'), 'desktop', 'mobile') as client,
+    countif(category = 'Cryptominers' or category = 'Cryptominer') as freq,
+    count(0) as total,
+    countif(category = 'Cryptominers' or category = 'Cryptominer') / count(0) as pct
+from `httparchive.technologies.*`
+group by _table_suffix
+order by client, month, pct desc

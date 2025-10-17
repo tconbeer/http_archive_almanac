@@ -1,43 +1,38 @@
-#standardSQL
+# standardSQL
 # List of Vary directive names.
-SELECT
-  client,
-  ANY_VALUE(total_requests) AS total_requests,
-  ANY_VALUE(total_using_vary) AS total_using_vary,
-  vary_header,
-  ANY_VALUE(occurrences) AS occurrences,
-  ANY_VALUE(occurrences) / ANY_VALUE(total_using_vary) AS pct_of_vary,
-  ANY_VALUE(occurrences) / ANY_VALUE(total_requests) AS pct_of_total_requests,
-  ANY_VALUE(total_using_both) / ANY_VALUE(total_using_vary) AS pct_of_vary_with_cache_control,
-  ANY_VALUE(total_using_vary) / ANY_VALUE(total_requests) AS pct_using_vary
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total_requests,
-    COUNTIF(TRIM(resp_vary) != '') AS total_using_vary,
-    COUNTIF(TRIM(resp_vary) != '' AND TRIM(resp_cache_control) != '') AS total_using_both
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-  GROUP BY
-    client)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    vary_header,
-    COUNT(0) AS occurrences
-  FROM
-    `httparchive.summary_requests.2021_07_01_*`
-  LEFT JOIN
-    UNNEST(REGEXP_EXTRACT_ALL(LOWER(resp_vary), r'([a-z][^,\s="\']*)')) AS vary_header
-  GROUP BY
+select
     client,
-    vary_header)
-USING
-  (client)
-WHERE
-  vary_header IS NOT NULL
-GROUP BY
-  client,
-  vary_header
-ORDER BY
-  occurrences DESC
+    any_value(total_requests) as total_requests,
+    any_value(total_using_vary) as total_using_vary,
+    vary_header,
+    any_value(occurrences) as occurrences,
+    any_value(occurrences) / any_value(total_using_vary) as pct_of_vary,
+    any_value(occurrences) / any_value(total_requests) as pct_of_total_requests,
+    any_value(total_using_both)
+    / any_value(total_using_vary) as pct_of_vary_with_cache_control,
+    any_value(total_using_vary) / any_value(total_requests) as pct_using_vary
+from
+    (
+        select
+            _table_suffix as client,
+            count(0) as total_requests,
+            countif(trim(resp_vary) != '') as total_using_vary,
+            countif(
+                trim(resp_vary) != '' and trim(resp_cache_control) != ''
+            ) as total_using_both
+        from `httparchive.summary_requests.2021_07_01_*`
+        group by client
+    )
+join
+    (
+        select _table_suffix as client, vary_header, count(0) as occurrences
+        from `httparchive.summary_requests.2021_07_01_*`
+        left join
+            unnest(
+                regexp_extract_all(lower(resp_vary), r'([a-z][^,\s="\']*)')
+            ) as vary_header
+        group by client, vary_header
+    ) using (client)
+where vary_header is not null
+group by client, vary_header
+order by occurrences desc

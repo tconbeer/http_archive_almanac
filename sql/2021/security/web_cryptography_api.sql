@@ -1,15 +1,5 @@
-#standardSQL
-SELECT
-  client,
-  feature,
-  num_urls,
-  total_urls,
-  pct_urls
-FROM
-  `httparchive.blink_features.usage`
-WHERE
-  (feature LIKE 'Crypto%' OR
-    feature LIKE 'Subtle%') AND
-  yyyymmdd = '20210701'
-ORDER BY
-  pct_urls DESC
+# standardSQL
+select client, feature, num_urls, total_urls, pct_urls
+from `httparchive.blink_features.usage`
+where (feature like 'Crypto%' or feature like 'Subtle%') and yyyymmdd = '20210701'
+order by pct_urls desc

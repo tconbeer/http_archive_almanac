@@ -1,21 +1,30 @@
-#standardSQL
+# standardSQL
 # Audio elements track usage
-SELECT
-  client,
-  COUNT(0) AS total_sites,
-  COUNTIF(total_audios > 0) AS total_with_audio,
-  COUNTIF(total_with_track > 0) AS total_with_tracks,
+select
+    client,
+    count(0) as total_sites,
+    countif(total_audios > 0) as total_with_audio,
+    countif(total_with_track > 0) as total_with_tracks,
 
-  SUM(total_with_track) / SUM(total_audios) AS pct_audios_with_tracks,
-  COUNTIF(total_audios > 0) / COUNT(0) AS pct_sites_with_audios,
-  COUNTIF(total_with_track > 0) / COUNTIF(total_audios > 0) AS pct_audio_sites_with_tracks
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.audios.total') AS INT64) AS total_audios,
-    CAST(JSON_EXTRACT_SCALAR(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.audios.total_with_track') AS INT64) AS total_with_track
-  FROM
-    `httparchive.pages.2021_07_01_*`
-)
-GROUP BY
-  client
+    sum(total_with_track) / sum(total_audios) as pct_audios_with_tracks,
+    countif(total_audios > 0) / count(0) as pct_sites_with_audios,
+    countif(total_with_track > 0)
+    / countif(total_audios > 0) as pct_audio_sites_with_tracks
+from
+    (
+        select
+            _table_suffix as client,
+            cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'), '$.audios.total'
+                ) as int64
+            ) as total_audios,
+            cast(
+                json_extract_scalar(
+                    json_extract_scalar(payload, '$._almanac'),
+                    '$.audios.total_with_track'
+                ) as int64
+            ) as total_with_track
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

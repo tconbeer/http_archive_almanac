@@ -1,15 +1,13 @@
-#standardSQL
+# standardSQL
 # Distribution of traffic coming from mobile devices
-SELECT
-  percentile,
-  APPROX_QUANTILES(phoneDensity, 1000)[OFFSET(percentile * 10)] AS pct_traffic_from_mobile
-FROM
-  `chrome-ux-report.materialized.device_summary`,
-  UNNEST(GENERATE_ARRAY(1, 100)) AS percentile
-WHERE
-  date = '2020-08-01' AND
-  device = 'phone'
-GROUP BY
-  percentile
-ORDER BY
-  percentile
+select
+    percentile,
+    approx_quantiles(phonedensity, 1000)[
+        offset(percentile * 10)
+    ] as pct_traffic_from_mobile
+from
+    `chrome-ux-report.materialized.device_summary`,
+    unnest(generate_array(1, 100)) as percentile
+where date = '2020-08-01' and device = 'phone'
+group by percentile
+order by percentile

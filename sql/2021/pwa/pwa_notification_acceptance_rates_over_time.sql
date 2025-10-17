@@ -1,27 +1,41 @@
-#standardSQL
+# standardSQL
 # Total Noitification Acceptence Rates across all origins
 # Note: not weighted by domain popularity nor number of notifications shown
-
-SELECT
-  date,
-  IF(device = 'phone', 'mobile', device) AS client,
-  SUM(notification_permission_accept) / SUM(notification_permission_accept + notification_permission_deny + notification_permission_ignore + notification_permission_dismiss) AS accept,
-  SUM(notification_permission_deny) / SUM(notification_permission_accept + notification_permission_deny + notification_permission_ignore + notification_permission_dismiss) AS deny,
-  SUM(notification_permission_ignore) / SUM(notification_permission_accept + notification_permission_deny + notification_permission_ignore + notification_permission_dismiss) AS _ignore,
-  SUM(notification_permission_dismiss) / SUM(notification_permission_accept + notification_permission_deny + notification_permission_ignore + notification_permission_dismiss) AS dismiss
-FROM
-  `chrome-ux-report.materialized.device_summary`
-WHERE
-  (
-    notification_permission_accept IS NOT NULL OR
-    notification_permission_deny IS NOT NULL OR
-    notification_permission_ignore IS NOT NULL OR
-    notification_permission_dismiss IS NOT NULL
-  ) AND
-  device IN ('desktop', 'phone')
-GROUP BY
-  date,
-  device
-ORDER BY
-  date DESC,
-  device
+select
+    date,
+    if(device = 'phone', 'mobile', device) as client,
+    sum(notification_permission_accept) / sum(
+        notification_permission_accept
+        + notification_permission_deny
+        + notification_permission_ignore
+        + notification_permission_dismiss
+    ) as accept,
+    sum(notification_permission_deny) / sum(
+        notification_permission_accept
+        + notification_permission_deny
+        + notification_permission_ignore
+        + notification_permission_dismiss
+    ) as deny,
+    sum(notification_permission_ignore) / sum(
+        notification_permission_accept
+        + notification_permission_deny
+        + notification_permission_ignore
+        + notification_permission_dismiss
+    ) as _ignore,
+    sum(notification_permission_dismiss) / sum(
+        notification_permission_accept
+        + notification_permission_deny
+        + notification_permission_ignore
+        + notification_permission_dismiss
+    ) as dismiss
+from `chrome-ux-report.materialized.device_summary`
+where
+    (
+        notification_permission_accept is not null
+        or notification_permission_deny is not null
+        or notification_permission_ignore is not null
+        or notification_permission_dismiss is not null
+    )
+    and device in ('desktop', 'phone')
+group by date, device
+order by date desc, device

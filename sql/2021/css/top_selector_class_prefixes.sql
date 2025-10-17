@@ -1,15 +1,16 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
-RETURNS STRUCT<
-  class ARRAY<STRING>,
-  id ARRAY<STRING>,
-  attribute ARRAY<STRING>,
-  pseudo_class ARRAY<STRING>,
-  pseudo_element ARRAY<STRING>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getselectorparts(css string)
+returns
+    struct<
+        class array<string>,
+        id array<string>,
+        attribute array<string>,
+        pseudo_class array<string>,
+        pseudo_element array<string>
+    >
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -55,36 +56,40 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  pages,
-  class_prefix.value AS class,
-  class_prefix.count AS freq,
-  class_prefix.count / pages AS pct
-FROM (
-  SELECT
+select
     client,
-    COUNT(DISTINCT page) AS pages,
-    APPROX_TOP_COUNT(class_prefix, 200) AS class_prefixes
-  FROM (
-      SELECT DISTINCT
-        client,
-        page,
-        IF(LENGTH(class) > LENGTH(REGEXP_EXTRACT(class, r'^([^-]+)')), REGEXP_REPLACE(class, r'^([^-]+).*', r'\1-*'), class) AS class_prefix
-      FROM
-        `httparchive.almanac.parsed_css`
-      LEFT JOIN
-        UNNEST(getSelectorParts(css).class) AS class
-      WHERE
-        date = '2021-07-01' AND
-        # Limit the size of the CSS to avoid OOM crashes.
-        LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client),
-  UNNEST(class_prefixes) AS class_prefix
-WHERE
-  class_prefix.value IS NOT NULL
-ORDER BY
-  pct DESC
+    pages,
+    class_prefix.value as class,
+    class_prefix.count as freq,
+    class_prefix.count / pages as pct
+from
+    (
+        select
+            client,
+            count(distinct page) as pages,
+            approx_top_count(class_prefix, 200) as class_prefixes
+        from
+            (
+                select distinct
+                    client,
+                    page,
+                    if(
+                        length(class) > length(regexp_extract(class, r'^([^-]+)')),
+                        regexp_replace(class, r'^([^-]+).*', r'\1-*'),
+                        class
+                    ) as class_prefix
+                from `httparchive.almanac.parsed_css`
+                left join unnest(getselectorparts(css).class) as class
+                where
+                    date = '2021-07-01'
+                    # Limit the size of the CSS to avoid OOM crashes.
+                    and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client
+    ),
+    unnest(class_prefixes) as class_prefix
+where class_prefix.value is not null
+order by pct desc

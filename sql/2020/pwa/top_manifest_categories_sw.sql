@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # Top manifest categories - based on 2019/14_04d.sql
-CREATE TEMPORARY FUNCTION getCategories(manifest STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getcategories(manifest string)
+returns array<string>
+language js
+as '''
 try {
   var $ = JSON.parse(manifest);
   var categories = $.categories;
@@ -12,33 +14,23 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  NORMALIZE_AND_CASEFOLD(category) AS category,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  (SELECT DISTINCT
-      client,
-      body
-    FROM
-      `httparchive.almanac.manifests`
-    JOIN
-      `httparchive.almanac.service_workers`
-    USING
-      (date, client, page)
-    WHERE
-      date = '2020-08-01'),
-  UNNEST(getCategories(body)) AS category
-GROUP BY
-  client,
-  category
-HAVING
-  category IS NOT NULL
-ORDER BY
-  freq / total DESC,
-  category,
-  client
+select
+    client,
+    normalize_and_casefold(category) as category,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select distinct client, body
+        from `httparchive.almanac.manifests`
+        join `httparchive.almanac.service_workers` using (date, client, page)
+        where date = '2020-08-01'
+    ),
+    unnest(getcategories(body)) as category
+group by client, category
+having category is not null
+order by freq / total desc, category, client

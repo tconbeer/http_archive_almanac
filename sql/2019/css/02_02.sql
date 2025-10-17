@@ -1,29 +1,29 @@
-#standardSQL
+# standardSQL
 # 02_02: % of sites that use @import and @supports.
-SELECT
-  client,
-  SUM(IF(ENDS_WITH(feature, 'Import'), freq, 0)) AS freq_import,
-  SUM(IF(ENDS_WITH(feature, 'Supports'), freq, 0)) AS freq_supports,
-  total,
-  ROUND(SUM(IF(ENDS_WITH(feature, 'Import'), freq, 0)) * 100 / total, 2) AS pct_import,
-  ROUND(SUM(IF(ENDS_WITH(feature, 'Supports'), freq, 0)) * 100 / total, 2) AS pct_supports
-FROM (
-  SELECT
+select
     client,
-    feature,
-    COUNT(DISTINCT url) AS freq
-  FROM
-    `httparchive.blink_features.features`
-  WHERE
-    yyyymmdd = '20190701' AND
-    feature IN ('CSSAtRuleImport', 'CSSAtRuleSupports')
-  GROUP BY
-    client,
-    feature)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY client)
-USING
-  (client)
-GROUP BY
-  client,
-  total
+    sum(if(ends_with(feature, 'Import'), freq, 0)) as freq_import,
+    sum(if(ends_with(feature, 'Supports'), freq, 0)) as freq_supports,
+    total,
+    round(
+        sum(if(ends_with(feature, 'Import'), freq, 0)) * 100 / total, 2
+    ) as pct_import,
+    round(
+        sum(if(ends_with(feature, 'Supports'), freq, 0)) * 100 / total, 2
+    ) as pct_supports
+from
+    (
+        select client, feature, count(distinct url) as freq
+        from `httparchive.blink_features.features`
+        where
+            yyyymmdd = '20190701'
+            and feature in ('CSSAtRuleImport', 'CSSAtRuleSupports')
+        group by client, feature
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by client
+    ) using (client)
+group by client, total

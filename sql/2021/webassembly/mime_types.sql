@@ -1,14 +1,5 @@
-SELECT
-  client,
-  mimeType,
-  COUNT(0) AS count
-FROM
-  `httparchive.almanac.wasm_stats`
-WHERE
-  date = '2021-09-01'
-GROUP BY
-  client,
-  mimeType
-ORDER BY
-  client,
-  count DESC
+select client, mimetype, count(0) as count
+from `httparchive.almanac.wasm_stats`
+where date = '2021-09-01'
+group by client, mimetype
+order by client, count desc

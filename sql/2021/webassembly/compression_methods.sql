@@ -1,14 +1,5 @@
-SELECT
-  client,
-  resp_content_encoding,
-  COUNT(0) AS count
-FROM
-  `httparchive.almanac.wasm_stats`
-WHERE
-  date = '2021-09-01'
-GROUP BY
-  client,
-  resp_content_encoding
-ORDER BY
-  client,
-  count DESC
+select client, resp_content_encoding, count(0) as count
+from `httparchive.almanac.wasm_stats`
+where date = '2021-09-01'
+group by client, resp_content_encoding
+order by client, count desc

@@ -1,29 +1,38 @@
-#standardSQL
-# Subresource integrity: number of pages that use SRI (per tagname), and tagname usage for all SRI elements
-SELECT
-  client,
-  COUNTIF(sri IS NOT NULL) AS total_sris,
-  COUNT(DISTINCT url) AS total_urls,
-  COUNT(DISTINCT IF(sri IS NOT NULL, url, NULL)) AS freq,
-  COUNT(DISTINCT IF(sri IS NOT NULL, url, NULL)) / COUNT(DISTINCT url) AS pct,
-  COUNTIF(JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'script') AS freq_script_sris,
-  COUNTIF(JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'script') / COUNTIF(sri IS NOT NULL) AS pct_script_sris,
-  COUNTIF(JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'link') AS freq_link_sris,
-  COUNTIF(JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'link') / COUNTIF(sri IS NOT NULL) AS pct_link_sris,
-  COUNT(DISTINCT IF(JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'script', url, NULL)) AS freq_script_urls,
-  COUNT(DISTINCT IF(JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'script', url, NULL)) / COUNT(DISTINCT url) AS pct_script_urls,
-  COUNT(DISTINCT IF(JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'link', url, NULL)) AS freq_link_urls,
-  COUNT(DISTINCT IF(JSON_EXTRACT_SCALAR(sri, '$.tagname') = 'link', url, NULL)) / COUNT(DISTINCT url) AS pct_link_urls
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url,
-    JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.sri-integrity') AS sris
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-LEFT JOIN UNNEST(sris) AS sri
-GROUP BY
-  client
-ORDER BY
-  client,
-  pct DESC
+# standardSQL
+# Subresource integrity: number of pages that use SRI (per tagname), and tagname usage
+# for all SRI elements
+select
+    client,
+    countif(sri is not null) as total_sris,
+    count(distinct url) as total_urls,
+    count(distinct if(sri is not null, url, null)) as freq,
+    count(distinct if(sri is not null, url, null)) / count(distinct url) as pct,
+    countif(json_extract_scalar(sri, '$.tagname') = 'script') as freq_script_sris,
+    countif(json_extract_scalar(sri, '$.tagname') = 'script')
+    / countif(sri is not null) as pct_script_sris,
+    countif(json_extract_scalar(sri, '$.tagname') = 'link') as freq_link_sris,
+    countif(json_extract_scalar(sri, '$.tagname') = 'link')
+    / countif(sri is not null) as pct_link_sris,
+    count(
+        distinct if(json_extract_scalar(sri, '$.tagname') = 'script', url, null)
+    ) as freq_script_urls,
+    count(distinct if(json_extract_scalar(sri, '$.tagname') = 'script', url, null))
+    / count(distinct url) as pct_script_urls,
+    count(
+        distinct if(json_extract_scalar(sri, '$.tagname') = 'link', url, null)
+    ) as freq_link_urls,
+    count(distinct if(json_extract_scalar(sri, '$.tagname') = 'link', url, null))
+    / count(distinct url) as pct_link_urls
+from
+    (
+        select
+            _table_suffix as client,
+            url,
+            json_extract_array(
+                json_extract_scalar(payload, '$._security'), '$.sri-integrity'
+            ) as sris
+        from `httparchive.pages.2021_07_01_*`
+    )
+left join unnest(sris) as sri
+group by client
+order by client, pct desc

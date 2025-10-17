@@ -1,50 +1,115 @@
-#standardSQL
+# standardSQL
 # 17_19: Percentage of HTTPS responses by protocol
-SELECT
-  a.client, firstHtml, IFNULL(a.protocol, b.protocol) AS protocol, IFNULL(a.tlsVersion, b.tlsVersion) AS tlsVersion,
-  isSecure,
-  COUNT(0) AS total
-FROM
-  (
-    SELECT
-      client, page, url, firstHtml,
-      # WPT is inconsistent with protocol population.
-      upper(IFNULL(JSON_EXTRACT_SCALAR(payload, '$._protocol'), IFNULL(NULLIF(JSON_EXTRACT_SCALAR(payload, '$._tls_next_proto'), 'unknown'), NULLIF(concat('HTTP/', JSON_EXTRACT_SCALAR(payload, '$.response.httpVersion')), 'HTTP/')))) AS protocol,
-      JSON_EXTRACT_SCALAR(payload, '$._tls_version') AS tlsVersion,
+select
+    a.client,
+    firsthtml,
+    ifnull(a.protocol, b.protocol) as protocol,
+    ifnull(a.tlsversion, b.tlsversion) as tlsversion,
+    issecure,
+    count(0) as total
+from
+    (
+        select
+            client,
+            page,
+            url,
+            firsthtml,
+            # WPT is inconsistent with protocol population.
+            upper(
+                ifnull(
+                    json_extract_scalar(payload, '$._protocol'),
+                    ifnull(
+                        nullif(
+                            json_extract_scalar(payload, '$._tls_next_proto'), 'unknown'
+                        ),
+                        nullif(
+                            concat(
+                                'HTTP/',
+                                json_extract_scalar(payload, '$.response.httpVersion')
+                            ),
+                            'HTTP/'
+                        )
+                    )
+                )
+            ) as protocol,
+            json_extract_scalar(payload, '$._tls_version') as tlsversion,
 
-      # WPT joins CDN detection but we bias to the DNS detection which is the first entry
-      IFNULL(NULLIF(REGEXP_EXTRACT(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN') AS cdn,
-      CAST(JSON_EXTRACT(payload, '$.timings.ssl') AS INT64) AS tlstime,
+            # WPT joins CDN detection but we bias to the DNS detection which is the
+            # first entry
+            ifnull(
+                nullif(regexp_extract(_cdn_provider, r'^([^,]*).*'), ''), 'ORIGIN'
+            ) as cdn,
+            cast(json_extract(payload, '$.timings.ssl') as int64) as tlstime,
 
-      # isSecure reports what the browser thought it was going to use, but it can get upgraded with STS OR UpgradeInsecure: 1
-      IF(STARTS_WITH(url, 'https') OR JSON_EXTRACT_SCALAR(payload, '$._tls_version') IS NOT NULL OR CAST(JSON_EXTRACT(payload, '$._is_secure') AS INT64) = 1, TRUE, FALSE) AS isSecure,
-      CAST(jSON_EXTRACT(payload, '$._socket') AS INT64) AS socket
-    FROM
-      `httparchive.almanac.requests3`
-    WHERE
-      # WPT changes the response fields based on a redirect (url becomes the Location path instead of the original) causing insonsistencies in the counts, so we ignore them
-      resp_location = '' OR resp_location IS NULL
-  ) a
-LEFT JOIN
-  (
-    SELECT
-      client, page,
-      CAST(jSON_EXTRACT(payload, '$._socket') AS INT64) AS socket,
-      ANY_VALUE(upper(IFNULL(JSON_EXTRACT_SCALAR(payload, '$._protocol'), IFNULL(NULLIF(JSON_EXTRACT_SCALAR(payload, '$._tls_next_proto'), 'unknown'), NULLIF(concat('HTTP/', JSON_EXTRACT_SCALAR(payload, '$.response.httpVersion')), 'HTTP/'))))) AS protocol,
-      ANY_VALUE(JSON_EXTRACT_SCALAR(payload, '$._tls_version')) AS tlsVersion
-    FROM `httparchive.almanac.requests3`
-    WHERE
-      JSON_EXTRACT_SCALAR(payload, '$._tls_version') IS NOT NULL AND
-      IFNULL(JSON_EXTRACT_SCALAR(payload, '$._protocol'), IFNULL(NULLIF(JSON_EXTRACT_SCALAR(payload, '$._tls_next_proto'), 'unknown'), NULLIF(concat('HTTP/', JSON_EXTRACT_SCALAR(payload, '$.response.httpVersion')), 'HTTP/'))) IS NOT NULL AND
-      jSON_EXTRACT(payload, '$._socket') IS NOT NULL
-    GROUP BY client, page, socket
-  ) b ON (a.client = b.client AND a.page = b.page AND a.socket = b.socket)
+            # isSecure reports what the browser thought it was going to use, but it
+            # can get upgraded with STS OR UpgradeInsecure: 1
+            if(
+                starts_with(url, 'https')
+                or json_extract_scalar(payload, '$._tls_version') is not null
+                or cast(json_extract(payload, '$._is_secure') as int64) = 1,
+                true,
+                false
+            ) as issecure,
+            cast(json_extract(payload, '$._socket') as int64) as socket
+        from `httparchive.almanac.requests3`
+        where
+            # WPT changes the response fields based on a redirect (url becomes the
+            # Location path instead of the original) causing insonsistencies in the
+            # counts, so we ignore them
+            resp_location = '' or resp_location is null
+    ) a
+left join
+    (
+        select
+            client,
+            page,
+            cast(json_extract(payload, '$._socket') as int64) as socket,
+            any_value(
+                upper(
+                    ifnull(
+                        json_extract_scalar(payload, '$._protocol'),
+                        ifnull(
+                            nullif(
+                                json_extract_scalar(payload, '$._tls_next_proto'),
+                                'unknown'
+                            ),
+                            nullif(
+                                concat(
+                                    'HTTP/',
+                                    json_extract_scalar(
+                                        payload, '$.response.httpVersion'
+                                    )
+                                ),
+                                'HTTP/'
+                            )
+                        )
+                    )
+                )
+            ) as protocol,
+            any_value(json_extract_scalar(payload, '$._tls_version')) as tlsversion
+        from `httparchive.almanac.requests3`
+        where
+            json_extract_scalar(payload, '$._tls_version') is not null
+            and ifnull(
+                json_extract_scalar(payload, '$._protocol'),
+                ifnull(
+                    nullif(
+                        json_extract_scalar(payload, '$._tls_next_proto'), 'unknown'
+                    ),
+                    nullif(
+                        concat(
+                            'HTTP/',
+                            json_extract_scalar(payload, '$.response.httpVersion')
+                        ),
+                        'HTTP/'
+                    )
+                )
+            )
+            is not null
+            and json_extract(payload, '$._socket') is not null
+        group by client, page, socket
+    ) b
+    on (a.client = b.client and a.page = b.page and a.socket = b.socket)
 
-GROUP BY
-  client,
-  protocol,
-  tlsVersion,
-  firstHtml,
-  isSecure
-ORDER BY
-  total DESC
+group by client, protocol, tlsversion, firsthtml, issecure
+order by total desc

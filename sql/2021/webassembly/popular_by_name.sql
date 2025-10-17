@@ -1,27 +1,22 @@
-SELECT
-  client,
-  CASE
-    WHEN REGEXP_CONTAINS(url, r'/(hyphenopoly|patterns).*/[a-z-]{2,5}\.wasm')
-      THEN '(hyphenopoly dictionary)'
-    WHEN ENDS_WITH(url, '.unityweb')
-      THEN '(unityweb app)'
-    ELSE
-      REGEXP_REPLACE(
-        REGEXP_EXTRACT(LOWER(url), r'.*/([^./?]*)'), -- lowercase & extract filename between last `/` and `.` or `?`
-        r'-[0-9a-f]{20,32}$', -- trim trailing hashes to transform `name-0abc43234[...]` to `name`
-        ''
-      )
-  END AS name,
-  COUNT(0) AS count,
-  COUNT(DISTINCT filename) AS count_versions,
-  COUNT(DISTINCT NET.REG_DOMAIN(url)) AS count_serving_hosts,
-  MIN(url) AS url
-FROM
-  `httparchive.almanac.wasm_stats`
-WHERE
-  date = '2021-09-01'
-GROUP BY
-  client,
-  name
-ORDER BY
-  count DESC
+select
+    client,
+    case
+        when regexp_contains(url, r'/(hyphenopoly|patterns).*/[a-z-]{2,5}\.wasm')
+        then '(hyphenopoly dictionary)'
+        when ends_with(url, '.unityweb')
+        then '(unityweb app)'
+        else
+            regexp_replace(
+                regexp_extract(lower(url), r'.*/([^./?]*)'),  -- lowercase & extract filename between last `/` and `.` or `?`
+                r'-[0-9a-f]{20,32}$',  -- trim trailing hashes to transform `name-0abc43234[...]` to `name`
+                ''
+            )
+    end as name,
+    count(0) as count,
+    count(distinct filename) as count_versions,
+    count(distinct net.reg_domain(url)) as count_serving_hosts,
+    min(url) as url
+from `httparchive.almanac.wasm_stats`
+where date = '2021-09-01'
+group by client, name
+order by count desc

@@ -1,43 +1,49 @@
-#standardSQL
+# standardSQL
 # usage of different directives for allow attribute on iframes
-CREATE TEMP FUNCTION getNumWithAllowAttribute(payload STRING) AS ((
-  SELECT
-    COUNT(0)
-  FROM
-    UNNEST(JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.iframe-allow-sandbox')) AS iframeAttr
-  WHERE
-    JSON_EXTRACT_SCALAR(iframeAttr, '$.allow') IS NOT NULL
-));
+create temp function getnumwithallowattribute(payload string)
+as
+    (
+        (
+            select count(0)
+            from
+                unnest(
+                    json_extract_array(
+                        json_extract_scalar(payload, '$._security'),
+                        '$.iframe-allow-sandbox'
+                    )
+                ) as iframeattr
+            where json_extract_scalar(iframeattr, '$.allow') is not null
+        )
+    )
+;
 
-SELECT
-  client,
-  SPLIT(TRIM(allow_attr), ' ')[OFFSET(0)] AS directive,
-  total_iframes_with_allow,
-  COUNT(0) AS freq,
-  COUNT(0) / total_iframes_with_allow AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._security'), '$.iframe-allow-sandbox') AS iframeAttrs
-  FROM
-    `httparchive.pages.2020_08_01_*`),
-  UNNEST(iframeAttrs) AS iframeAttr,
-  UNNEST(REGEXP_EXTRACT_ALL(JSON_EXTRACT_SCALAR(iframeAttr, '$.allow'), r'(?i)([^,;]+)')) AS allow_attr
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    SUM(getNumWithAllowAttribute(payload)) AS total_iframes_with_allow
-  FROM
-    `httparchive.pages.2020_08_01_*`
-  GROUP BY
-    client
-) USING (client)
-GROUP BY
-  client,
-  directive,
-  total_iframes_with_allow
-HAVING
-  pct > 0.001
-ORDER BY
-  client,
-  pct DESC
+select
+    client,
+    split(trim(allow_attr), ' ')[offset(0)] as directive,
+    total_iframes_with_allow,
+    count(0) as freq,
+    count(0) / total_iframes_with_allow as pct
+from
+    (
+        select
+            _table_suffix as client,
+            json_extract_array(
+                json_extract_scalar(payload, '$._security'), '$.iframe-allow-sandbox'
+            ) as iframeattrs
+        from `httparchive.pages.2020_08_01_*`
+    ),
+    unnest(iframeattrs) as iframeattr,
+    unnest(
+        regexp_extract_all(json_extract_scalar(iframeattr, '$.allow'), r'(?i)([^,;]+)')
+    ) as allow_attr
+join
+    (
+        select
+            _table_suffix as client,
+            sum(getnumwithallowattribute(payload)) as total_iframes_with_allow
+        from `httparchive.pages.2020_08_01_*`
+        group by client
+    ) using (client)
+group by client, directive, total_iframes_with_allow
+having pct > 0.001
+order by client, pct desc

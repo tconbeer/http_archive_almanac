@@ -1,48 +1,50 @@
-#standardSQL
-# Prevalence of mimetype - file extension mismatches among all requests. Non-SVG images are ignored.
-WITH mimtype_file_ext_pairs AS (
-  SELECT
-    client,
-    LOWER(mimetype) AS mimetype,
-    LOWER(ext) AS file_extension,
-    SUM(COUNT(0)) OVER (PARTITION BY client) AS total_requests,
-    COUNT(0) AS count_pair
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
+# standardSQL
+# Prevalence of mimetype - file extension mismatches among all requests. Non-SVG
+# images are ignored.
+with
+    mimtype_file_ext_pairs as (
+        select
+            client,
+            lower(mimetype) as mimetype,
+            lower(ext) as file_extension,
+            sum(count(0)) over (partition by client) as total_requests,
+            count(0) as count_pair
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+        group by client, mimetype, file_extension
+    )
+
+select
     client,
     mimetype,
-    file_extension
-)
-
-SELECT
-  client,
-  mimetype,
-  file_extension,
-  total_requests,
-  SUM(MIN(count_pair)) OVER (PARTITION BY client) AS count_mismatches,
-  SUM(MIN(count_pair)) OVER (PARTITION BY client) / total_requests AS pct_mismatches,
-  MIN(count_pair) AS count_pair,
-  MIN(count_pair) / SUM(MIN(count_pair)) OVER (PARTITION BY client) AS pct_pair
-FROM
-  mimtype_file_ext_pairs
-WHERE
-  mimetype IS NOT NULL AND
-  mimetype != '' AND
-  file_extension IS NOT NULL AND
-  file_extension != '' AND
-  mimetype NOT LIKE CONCAT('%', file_extension) AND
-  NOT (REGEXP_CONTAINS(mimetype, '(application|text)/(x-)*javascript') AND REGEXP_CONTAINS(file_extension, r'(?i)^m?js$')) AND
-  NOT (mimetype = 'image/svg+xml' AND REGEXP_CONTAINS(file_extension, r'(?i)^svg$')) AND
-  NOT (mimetype = 'audio/mpeg' AND REGEXP_CONTAINS(file_extension, r'(?i)^mp3$')) AND
-  NOT (STARTS_WITH(mimetype, 'image/') AND REGEXP_CONTAINS(file_extension, r'(?i)^(apng|avif|bmp|cur|gif|jpeg|jpg|jfif|ico|pjpeg|pjp|png|tif|tiff|webp)$'))
-GROUP BY
-  client,
-  total_requests,
-  mimetype,
-  file_extension
-ORDER BY
-  count_pair DESC
-LIMIT 100
+    file_extension,
+    total_requests,
+    sum(min(count_pair)) over (partition by client) as count_mismatches,
+    sum(min(count_pair)) over (partition by client) / total_requests as pct_mismatches,
+    min(count_pair) as count_pair,
+    min(count_pair) / sum(min(count_pair)) over (partition by client) as pct_pair
+from mimtype_file_ext_pairs
+where
+    mimetype is not null
+    and mimetype != ''
+    and file_extension is not null
+    and file_extension != ''
+    and mimetype not like concat('%', file_extension)
+    and not (
+        regexp_contains(mimetype, '(application|text)/(x-)*javascript')
+        and regexp_contains(file_extension, r'(?i)^m?js$')
+    )
+    and not (
+        mimetype = 'image/svg+xml' and regexp_contains(file_extension, r'(?i)^svg$')
+    )
+    and not (mimetype = 'audio/mpeg' and regexp_contains(file_extension, r'(?i)^mp3$'))
+    and not (
+        starts_with(mimetype, 'image/')
+        and regexp_contains(
+            file_extension,
+            r'(?i)^(apng|avif|bmp|cur|gif|jpeg|jpg|jfif|ico|pjpeg|pjp|png|tif|tiff|webp)$'
+        )
+    )
+group by client, total_requests, mimetype, file_extension
+order by count_pair desc
+limit 100

@@ -1,9 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSupports(css STRING)
-RETURNS ARRAY<STRING>
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getsupports(css string)
+returns array<string>
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {};
@@ -44,23 +44,18 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  supports,
-  COUNT(DISTINCT page) AS pages,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM
-  `httparchive.almanac.parsed_css`,
-  UNNEST(getSupports(css)) AS supports
-WHERE
-  date = '2020-08-01'
-GROUP BY
-  client,
-  supports
-ORDER BY
-  pct DESC
-LIMIT 300
+select
+    client,
+    supports,
+    count(distinct page) as pages,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from `httparchive.almanac.parsed_css`, unnest(getsupports(css)) as supports
+where date = '2020-08-01'
+group by client, supports
+order by pct desc
+limit 300

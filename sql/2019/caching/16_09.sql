@@ -1,37 +1,27 @@
-#standardSQL
+# standardSQL
 # 16_09: Use of Vary (how many dimensions, what headers, etc.)
-SELECT
-  client,
-  all_requests,
-  total_with_vary,
-  header_name,
-  COUNT(0) AS occurrences,
-  ROUND(COUNT(0) * 100 / total_with_vary, 2) AS pct_of_vary,
-  ROUND(COUNT(0) * 100 / all_requests, 2) AS pct_all_requests
-FROM
-  `httparchive.almanac.requests`,
-  UNNEST(REGEXP_EXTRACT_ALL(LOWER(resp_vary), r'([a-z][^,\s="\']*)')) AS header_name
-JOIN (
-  SELECT
-    date,
+select
     client,
-    COUNT(0) AS all_requests,
-    COUNTIF(TRIM(resp_vary) != '') AS total_with_vary
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01'
-  GROUP BY
-    date,
-    client
-)
-USING (date, client)
-WHERE
-  date = '2019-07-01'
-GROUP BY
-  client,
-  all_requests,
-  total_with_vary,
-  header_name
-ORDER BY
-  occurrences DESC
+    all_requests,
+    total_with_vary,
+    header_name,
+    count(0) as occurrences,
+    round(count(0) * 100 / total_with_vary, 2) as pct_of_vary,
+    round(count(0) * 100 / all_requests, 2) as pct_all_requests
+from
+    `httparchive.almanac.requests`,
+    unnest(regexp_extract_all(lower(resp_vary), r'([a-z][^,\s="\']*)')) as header_name
+join
+    (
+        select
+            date,
+            client,
+            count(0) as all_requests,
+            countif(trim(resp_vary) != '') as total_with_vary
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01'
+        group by date, client
+    ) using (date, client)
+where date = '2019-07-01'
+group by client, all_requests, total_with_vary, header_name
+order by occurrences desc

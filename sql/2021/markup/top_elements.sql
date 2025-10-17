@@ -1,8 +1,10 @@
-#standardSQL
+# standardSQL
 # Top used elements
-
-CREATE TEMPORARY FUNCTION get_element_types_info(element_count_string STRING)
-RETURNS ARRAY<STRUCT<name STRING, freq INT64>> LANGUAGE js AS '''
+create temporary function get_element_types_info(element_count_string string)
+returns array<struct<name string, freq int64>>
+language js
+as
+    '''
 try {
     if (!element_count_string) return []; // 2019 had a few cases
 
@@ -15,21 +17,20 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  element_type_info.name,
-  SUM(element_type_info.freq) AS freq, # total count from all pages
-  SUM(element_type_info.freq) / SUM(SUM(element_type_info.freq)) OVER (PARTITION BY _TABLE_SUFFIX) AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`,
-  UNNEST(get_element_types_info(JSON_EXTRACT_SCALAR(payload, '$._element_count'))) AS element_type_info
-GROUP BY
-  client,
-  element_type_info.name
-ORDER BY
-  pct DESC,
-  client,
-  freq DESC
-LIMIT 1000
+select
+    _table_suffix as client,
+    element_type_info.name,
+    sum(element_type_info.freq) as freq,  # total count from all pages
+    sum(element_type_info.freq)
+    / sum(sum(element_type_info.freq)) over (partition by _table_suffix) as pct
+from
+    `httparchive.pages.2021_07_01_*`,
+    unnest(
+        get_element_types_info(json_extract_scalar(payload, '$._element_count'))
+    ) as element_type_info
+group by client, element_type_info.name
+order by pct desc, client, freq desc
+limit 1000

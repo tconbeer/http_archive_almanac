@@ -1,14 +1,11 @@
-#standardSQL
+# standardSQL
 # 21_05: Usage of Guess.js
-SELECT
-  client,
-  COUNT(DISTINCT IF(REGEXP_CONTAINS(body, r'__GUESS__'), page, NULL)) AS guess,
-  COUNT(0) AS total,
-  COUNT(DISTINCT IF(REGEXP_CONTAINS(body, r'__GUESS__'), page, NULL)) / COUNT(0) AS pct
-FROM
-  `httparchive.almanac.summary_response_bodies`
-WHERE
-  date = '2020-08-01' AND
-  type = 'script'
-GROUP BY
-  client
+select
+    client,
+    count(distinct if(regexp_contains(body, r'__GUESS__'), page, null)) as guess,
+    count(0) as total,
+    count(distinct if(regexp_contains(body, r'__GUESS__'), page, null))
+    / count(0) as pct
+from `httparchive.almanac.summary_response_bodies`
+where date = '2020-08-01' and type = 'script'
+group by client

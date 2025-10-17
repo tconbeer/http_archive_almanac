@@ -1,20 +1,12 @@
-#standardSQL
+# standardSQL
 # HTML response: content language
-
-SELECT
-  _TABLE_SUFFIX AS client,
-  LOWER(resp_content_language) AS resp_content_language,
-  COUNT(0) AS freq,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX)) AS pct
-FROM
-  `httparchive.summary_requests.2021_07_01_*`
-WHERE
-  firstHtml
-GROUP BY
-  client,
-  resp_content_language
-QUALIFY
-  freq >= 100
-ORDER BY
-  freq DESC,
-  client
+select
+    _table_suffix as client,
+    lower(resp_content_language) as resp_content_language,
+    count(0) as freq,
+    safe_divide(count(0), sum(count(0)) over (partition by _table_suffix)) as pct
+from `httparchive.summary_requests.2021_07_01_*`
+where firsthtml
+group by client, resp_content_language
+qualify freq >= 100
+order by freq desc, client

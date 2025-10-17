@@ -1,22 +1,15 @@
-#standardSQL
+# standardSQL
 # 10_16: <h1> length
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(LENGTH(h1), 1000)[OFFSET(percentile * 10)] AS h1_length
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    REGEXP_EXTRACT(body, '(?i)<h1>([^(</h1>)]*)</h1>') AS h1
-  FROM
-    `httparchive.almanac.summary_response_bodies`
-  WHERE
-    date = '2019-07-01' AND
-    firstHtml),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(length(h1), 1000)[offset(percentile * 10)] as h1_length
+from
+    (
+        select client, regexp_extract(body, '(?i)<h1>([^(</h1>)]*)</h1>') as h1
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client
+order by percentile, client

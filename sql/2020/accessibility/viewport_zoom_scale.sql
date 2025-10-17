@@ -1,28 +1,35 @@
-#standardSQL
+# standardSQL
 # Disabled zooming and scaling via the viewport tag
-SELECT
-  client,
-  COUNT(0) AS total_sites,
-  COUNTIF(has_meta_viewport) AS total_viewports,
-  COUNTIF(not_scalable) AS total_no_scale,
-  COUNTIF(max_scale_1_or_less) AS total_locked_max_scale,
-  COUNTIF(not_scalable OR max_scale_1_or_less) AS total_either,
-
-  COUNTIF(not_scalable) / COUNT(0) AS perc_sites_no_scale,
-  COUNTIF(max_scale_1_or_less) / COUNT(0) AS perc_sites_locked_max_scale,
-  COUNTIF(not_scalable OR max_scale_1_or_less) / COUNT(0) AS perc_sites_either
-FROM (
-  SELECT
+select
     client,
-    meta_viewport IS NOT NULL AS has_meta_viewport,
-    REGEXP_EXTRACT(meta_viewport, r'(?i)user-scalable\s*=\s*(no|0)') IS NOT NULL AS not_scalable,
-    SAFE_CAST(REGEXP_EXTRACT(meta_viewport, r'(?i)maximum-scale\s*=\s*([0-9]*\.[0-9]+|[0-9]+)') AS FLOAT64) <= 1 AS max_scale_1_or_less
-  FROM (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      JSON_EXTRACT_SCALAR(payload, '$._meta_viewport') AS meta_viewport
-    FROM
-      `httparchive.pages.2020_08_01_*`
-  )
-)
-GROUP BY client
+    count(0) as total_sites,
+    countif(has_meta_viewport) as total_viewports,
+    countif(not_scalable) as total_no_scale,
+    countif(max_scale_1_or_less) as total_locked_max_scale,
+    countif(not_scalable or max_scale_1_or_less) as total_either,
+
+    countif(not_scalable) / count(0) as perc_sites_no_scale,
+    countif(max_scale_1_or_less) / count(0) as perc_sites_locked_max_scale,
+    countif(not_scalable or max_scale_1_or_less) / count(0) as perc_sites_either
+from
+    (
+        select
+            client,
+            meta_viewport is not null as has_meta_viewport,
+            regexp_extract(meta_viewport, r'(?i)user-scalable\s*=\s*(no|0)')
+            is not null as not_scalable,
+            safe_cast(
+                regexp_extract(
+                    meta_viewport, r'(?i)maximum-scale\s*=\s*([0-9]*\.[0-9]+|[0-9]+)'
+                ) as float64
+            )
+            <= 1 as max_scale_1_or_less
+        from
+            (
+                select
+                    _table_suffix as client,
+                    json_extract_scalar(payload, '$._meta_viewport') as meta_viewport
+                from `httparchive.pages.2020_08_01_*`
+            )
+    )
+group by client

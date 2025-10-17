@@ -1,25 +1,20 @@
 # standardSQL
 # Percentiles of sites that load resources of HTTP/2 or above
-SELECT
-  client,
-  percentile,
-  APPROX_QUANTILES(http2_3_pct, 1000)[OFFSET(percentile * 10)] AS http2_or_above
-FROM (
-  SELECT
+select
     client,
-    page,
-    COUNTIF(LOWER(protocol) IN ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050')) / COUNT(0) AS http2_3_pct
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client,
-    page),
-  UNNEST(GENERATE_ARRAY(1, 100)) AS percentile
-GROUP BY
-  client,
-  percentile
-ORDER BY
-  client,
-  percentile
+    percentile,
+    approx_quantiles(http2_3_pct, 1000)[offset(percentile * 10)] as http2_or_above
+from
+    (
+        select
+            client,
+            page,
+            countif(lower(protocol) in ('http/2', 'http/3', 'quic', 'h3-29', 'h3-q050'))
+            / count(0) as http2_3_pct
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+        group by client, page
+    ),
+    unnest(generate_array(1, 100)) as percentile
+group by client, percentile
+order by client, percentile

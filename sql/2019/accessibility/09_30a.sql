@@ -1,14 +1,20 @@
-#standardSQL
+# standardSQL
 # 09_30a: Sites that have associated labels for their form elements
-SELECT
-  COUNT(0) AS total_sites,
-  COUNTIF(label_score IS NOT NULL) AS total_applicable,
-  COUNTIF(CAST(label_score AS NUMERIC) = 1) AS total_sufficient,
-  ROUND(COUNTIF(CAST(label_score AS NUMERIC) = 1) * 100 / COUNTIF(label_score IS NOT NULL), 2) AS perc_in_applicable,
-  ROUND(COUNTIF(CAST(label_score AS NUMERIC) = 1) * 100 / COUNT(0), 2) AS perc_in_all_sites
-FROM (
-  SELECT
-    JSON_EXTRACT_SCALAR(report, '$.audits.label.score') AS label_score
-  FROM
-    `httparchive.lighthouse.2019_07_01_mobile`
-)
+select
+    count(0) as total_sites,
+    countif(label_score is not null) as total_applicable,
+    countif(cast(label_score as numeric) = 1) as total_sufficient,
+    round(
+        countif(cast(label_score as numeric) = 1)
+        * 100
+        / countif(label_score is not null),
+        2
+    ) as perc_in_applicable,
+    round(
+        countif(cast(label_score as numeric) = 1) * 100 / count(0), 2
+    ) as perc_in_all_sites
+from
+    (
+        select json_extract_scalar(report, '$.audits.label.score') as label_score
+        from `httparchive.lighthouse.2019_07_01_mobile`
+    )

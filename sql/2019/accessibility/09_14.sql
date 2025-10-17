@@ -1,25 +1,25 @@
-#standardSQL
+# standardSQL
 # 09_14: % pages using aria-keyshortcuts, accesskey attrs
-SELECT
-  client,
-  COUNTIF(aria_keyshortcuts) AS freq_aria_keyshortcuts,
-  COUNTIF(accesskey) AS freq_accesskey,
-  total,
-  ROUND(COUNTIF(aria_keyshortcuts) * 100 / total, 2) AS pct_aria_keyshortcuts,
-  ROUND(COUNTIF(accesskey) * 100 / total, 2) AS pct_accesskey
-FROM (
-  SELECT
+select
     client,
-    REGEXP_CONTAINS(body, '(?i)<[^>]+aria-keyshortcuts=') AS aria_keyshortcuts,
-    REGEXP_CONTAINS(body, '(?i)<[^>]+accesskey=') AS accesskey
-  FROM
-    `httparchive.almanac.summary_response_bodies`
-  WHERE
-    date = '2019-07-01' AND
-    firstHtml)
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING (client)
-GROUP BY
-  client,
-  total
+    countif(aria_keyshortcuts) as freq_aria_keyshortcuts,
+    countif(accesskey) as freq_accesskey,
+    total,
+    round(countif(aria_keyshortcuts) * 100 / total, 2) as pct_aria_keyshortcuts,
+    round(countif(accesskey) * 100 / total, 2) as pct_accesskey
+from
+    (
+        select
+            client,
+            regexp_contains(body, '(?i)<[^>]+aria-keyshortcuts=') as aria_keyshortcuts,
+            regexp_contains(body, '(?i)<[^>]+accesskey=') as accesskey
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client)
+group by client, total

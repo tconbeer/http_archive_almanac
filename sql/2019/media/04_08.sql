@@ -1,20 +1,19 @@
-#standardSQL
+# standardSQL
 # 04_08: Pages with <picture><img></picture>
-SELECT
-  client,
-  COUNTIF(has_picture_img) AS has_picture_img,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(has_picture_img) * 100 / COUNT(0), 2) AS pct
-FROM (
-  SELECT
+select
     client,
-    REGEXP_CONTAINS(body, r'(?si)<picture.*?<img.*?/picture>') AS has_picture_img
-  FROM
-    `httparchive.almanac.summary_response_bodies`
-  WHERE
-    date = '2019-07-01' AND
-    firstHtml)
-GROUP BY
-  client
-ORDER BY
-  client DESC
+    countif(has_picture_img) as has_picture_img,
+    count(0) as total,
+    round(countif(has_picture_img) * 100 / count(0), 2) as pct
+from
+    (
+        select
+            client,
+            regexp_contains(
+                body, r'(?si)<picture.*?<img.*?/picture>'
+            ) as has_picture_img
+        from `httparchive.almanac.summary_response_bodies`
+        where date = '2019-07-01' and firsthtml
+    )
+group by client
+order by client desc

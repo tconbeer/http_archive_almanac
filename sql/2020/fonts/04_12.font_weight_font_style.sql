@@ -1,7 +1,9 @@
-#standardSQL
-#font_weight_font_style
-CREATE TEMPORARY FUNCTION getFonts(css STRING)
-RETURNS ARRAY<STRUCT<weight STRING, stretch STRING, style STRING>> LANGUAGE js AS '''
+# standardSQL
+# font_weight_font_style
+create temporary function getfonts(css string)
+returns array<struct<weight string, stretch string, style string>>
+language js
+as '''
 try {
     var reduceValues = (values, rule) => {
         if ('rules' in rule) {
@@ -33,41 +35,33 @@ try {
 } catch (e) {
     return [null];
 }
-''';
-SELECT
-  client,
-  style,
-  weight,
-  stretch,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT DISTINCT
+'''
+;
+select
     client,
-    page,
-    font.style AS style,
-    font.weight AS weight,
-    font.stretch AS stretch
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN UNNEST(getFonts(css)) AS font
-  WHERE
-    date = '2020-08-01')
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.summary_pages.2020_08_01_*`
-  GROUP BY
-    client)
-USING
-  (client)
-GROUP BY
-  client,
-  style,
-  weight,
-  stretch
-ORDER BY
-  pct DESC
+    style,
+    weight,
+    stretch,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select distinct
+            client,
+            page,
+            font.style as style,
+            font.weight as weight,
+            font.stretch as stretch
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getfonts(css)) as font
+        where date = '2020-08-01'
+    )
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by client
+    ) using (client)
+group by client, style, weight, stretch
+order by pct desc
