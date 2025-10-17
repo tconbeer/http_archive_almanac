@@ -1,6 +1,5 @@
 # standardSQL
-# Prevalence of security headers set in a first-party context; count by number of
-# hosts.
+# Prevalence of security headers set in a first-party context; count by number of hosts.
 create temporary function hasheader(headers string, headername string)
 returns bool deterministic
 language js

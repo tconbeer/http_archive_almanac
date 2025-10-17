@@ -94,8 +94,7 @@ left join
             # How many times an input requesting this type of data (email or phone)
             # occurs
             count(0) as total_type_occurences,
-            # How many sites have an input requesting this type of data (email or
-            # phone)
+            # How many sites have an input requesting this type of data (email or phone)
             count(distinct url) as total_pages_with_type
         from
             `httparchive.pages.2021_07_01_mobile`,

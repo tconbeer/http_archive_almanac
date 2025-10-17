@@ -1,6 +1,5 @@
 # standardSQL
-# Security feature adoption grouped by sites frequently visited from different
-# countries
+# Security feature adoption grouped by sites frequently visited from different countries
 create temp function getnumsecurityheaders(headers string)
 as
     (

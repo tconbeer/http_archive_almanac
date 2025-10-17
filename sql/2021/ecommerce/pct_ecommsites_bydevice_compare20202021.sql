@@ -1,8 +1,8 @@
 # standardSQL
 # 13_02: % of eCommerce tagged sites by device
-# # Carry 2020 and 2021 data in run
-# # This query is built using 2019 query from
-# https://github.com/HTTPArchive/almanac.httparchive.org/blob/main/sql/2019/13_Ecommerce/13_02b.sql but this commit fixes a flaw in 2019 query. See - https://github.com/HTTPArchive/almanac.httparchive.org/issues/1810
+## carry 2020 and 2021 data in run ## this query is built
+using 2019 query
+from https:  -- github.com/HTTPArchive/almanac.httparchive.org/blob/main/sql/2019/13_Ecommerce/13_02b.sql but this commit fixes a flaw in 2019 query. See - https://github.com/HTTPArchive/almanac.httparchive.org/issues/1810
 select
     _table_suffix as client,
     2021 as year,

@@ -29,4 +29,3 @@ order by
     # GetUserMediaCameraDisallowedByFeaturePolicyInCrossOriginIframe
     # GetUserMediaMicDisallowedByFeaturePolicyInCrossOriginIframe
     # MicrophoneDisabledByFeaturePolicyEstimate
-    

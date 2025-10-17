@@ -9,4 +9,3 @@ order by
 
     # relevant Blink features:
     # DNT: NavigatorDoNotTrack
-    

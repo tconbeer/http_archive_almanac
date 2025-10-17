@@ -457,7 +457,7 @@ from
         from
             `httparchive.almanac.parsed_css`,
             unnest(getshorthandvaluecounts(css)) as shorthand,
-            unnest(shorthand. values) as value
+            unnest(shorthand.values) as value
         where date = '2020-08-01'
     ),
     unnest([10, 25, 50, 75, 90]) as percentile
