@@ -1,24 +1,26 @@
-#standardSQL
+# standardSQL
 # 07_07c: TTFB phone distribution
-SELECT
-  fast,
-  avg,
-  slow
-FROM (
-  SELECT
-    device,
-    ROUND(SAFE_DIVIDE(fast_ttfb, fast_ttfb + avg_ttfb + slow_ttfb) * 100, 2) AS fast,
-    ROUND(SAFE_DIVIDE(avg_ttfb, fast_ttfb + avg_ttfb + slow_ttfb) * 100, 2) AS avg,
-    ROUND(SAFE_DIVIDE(slow_ttfb, fast_ttfb + avg_ttfb + slow_ttfb) * 100, 2) AS slow,
-    ROW_NUMBER() OVER (ORDER BY fast_ttfb DESC) AS row,
-    COUNT(0) OVER () AS n
-  FROM
-    `chrome-ux-report.materialized.device_summary`
-  WHERE
-    yyyymm = '201907' AND
-    fast_ttfb + avg_ttfb + slow_ttfb > 0 AND
-    device = 'phone'
-  ORDER BY
-    fast DESC)
-WHERE
-  MOD(row, CAST(FLOOR(n / 1000) AS INT64)) = 0
+select fast, avg, slow
+from
+    (
+        select
+            device,
+            round(
+                safe_divide(fast_ttfb, fast_ttfb + avg_ttfb + slow_ttfb) * 100, 2
+            ) as fast,
+            round(
+                safe_divide(avg_ttfb, fast_ttfb + avg_ttfb + slow_ttfb) * 100, 2
+            ) as avg,
+            round(
+                safe_divide(slow_ttfb, fast_ttfb + avg_ttfb + slow_ttfb) * 100, 2
+            ) as slow,
+            row_number() over (order by fast_ttfb desc) as row,
+            count(0) over () as n
+        from `chrome-ux-report.materialized.device_summary`
+        where
+            yyyymm = '201907'
+            and fast_ttfb + avg_ttfb + slow_ttfb > 0
+            and device = 'phone'
+        order by fast desc
+    )
+where mod(row, cast(floor(n / 1000) as int64)) = 0

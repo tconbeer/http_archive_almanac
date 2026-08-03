@@ -1,38 +1,30 @@
-#standardSQL
+# standardSQL
 # 13_11: Top cdn providers
-SELECT
-  client,
-  canonicalDomain AS provider,
-  COUNT(DISTINCT page) AS freq_pages,
-  COUNT(0) AS freq_requests,
-  total AS total_pages,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_requests,
-  COUNT(DISTINCT page) / total AS pct_pages,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct_requests
-FROM
-  `httparchive.almanac.summary_requests`
-JOIN (
-  SELECT _TABLE_SUFFIX AS client, url AS page
-  FROM `httparchive.technologies.2021_07_01_*`
-  WHERE category = 'Ecommerce')
-USING
-  (client, page)
-JOIN
-  `httparchive.almanac.third_parties`
-ON
-  NET.HOST(url) = domain
-JOIN (
-  SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total
-  FROM `httparchive.summary_pages.2021_07_01_*`
-  GROUP BY _TABLE_SUFFIX)
-USING
-  (client)
-WHERE
-  `httparchive.almanac.summary_requests`.date = '2021-07-01' AND
-  lower(category) = 'cdn'
-GROUP BY
-  client,
-  total,
-  provider
-ORDER BY
-  freq_requests / total DESC
+select
+    client,
+    canonicaldomain as provider,
+    count(distinct page) as freq_pages,
+    count(0) as freq_requests,
+    total as total_pages,
+    sum(count(0)) over (partition by client) as total_requests,
+    count(distinct page) / total as pct_pages,
+    count(0) / sum(count(0)) over (partition by client) as pct_requests
+from `httparchive.almanac.summary_requests`
+join
+    (
+        select _table_suffix as client, url as page
+        from `httparchive.technologies.2021_07_01_*`
+        where category = 'Ecommerce'
+    ) using (client, page)
+join `httparchive.almanac.third_parties` on net.host(url) = domain
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2021_07_01_*`
+        group by _table_suffix
+    ) using (client)
+where
+    `httparchive.almanac.summary_requests`.date = '2021-07-01'
+    and lower(category) = 'cdn'
+group by client, total, provider
+order by freq_requests / total desc

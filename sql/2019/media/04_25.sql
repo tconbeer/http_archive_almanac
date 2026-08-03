@@ -1,21 +1,16 @@
-#standardSQL
+# standardSQL
 # 04_25: % of pages having WebXR frameworks
-SELECT
-  client,
-  framework,
-  COUNT(DISTINCT page) AS pages
-FROM (
-  SELECT
-    client,
-    page,
-    REGEXP_EXTRACT(LOWER(url), '(aframe|babylon|argon)(?:\\.min)?\\.js') AS framework
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01' AND
-    type = 'script')
-WHERE
-  framework IS NOT NULL
-GROUP BY
-  client,
-  framework
+select client, framework, count(distinct page) as pages
+from
+    (
+        select
+            client,
+            page,
+            regexp_extract(
+                lower(url), '(aframe|babylon|argon)(?:\\.min)?\\.js'
+            ) as framework
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01' and type = 'script'
+    )
+where framework is not null
+group by client, framework

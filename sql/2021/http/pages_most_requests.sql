@@ -1,18 +1,13 @@
 # standardSQL
 # Pages loading most number of requests
-SELECT
-  client,
-  page,
-  COUNT(0) AS numberOfRequests,
-  SUM(respHeadersSize) / 1024 AS ResponseHeaderSizeKiB,
-  SUM(respBodySize) / 1024 AS ResponseBodySizeKiB
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2021-07-01'
-GROUP BY
-  client,
-  page
-ORDER BY
-  COUNT(0) DESC
-LIMIT 100
+select
+    client,
+    page,
+    count(0) as numberofrequests,
+    sum(respheaderssize) / 1024 as responseheadersizekib,
+    sum(respbodysize) / 1024 as responsebodysizekib
+from `httparchive.almanac.requests`
+where date = '2021-07-01'
+group by client, page
+order by count(0) desc
+limit 100

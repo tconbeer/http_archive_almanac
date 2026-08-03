@@ -1,68 +1,56 @@
-#standardSQL
+# standardSQL
 # CMS popularity per geo
-WITH geo_summary AS (
-  SELECT
-    `chrome-ux-report`.experimental.GET_COUNTRY(country_code) AS geo,
-    IF(device = 'desktop', 'desktop', 'mobile') AS client,
-    origin,
-    COUNT(DISTINCT origin) OVER (PARTITION BY country_code, IF(device = 'desktop', 'desktop', 'mobile')) AS total
-  FROM
-    `chrome-ux-report.materialized.country_summary`
-  WHERE
-    # We're intentionally using May 2021 CrUX data here.
-    # That's because there's a two month lag between CrUX and HA datasets.
-    # Since we're only JOINing with the CrUX dataset to see which URLs
-    # belong to different countries (as opposed to CWV field data)
-    # it's not necessary to look at the 202107 dataset.
-    yyyymm = 202105
-  UNION ALL
-  SELECT
-    'ALL' AS geo,
-    IF(device = 'desktop', 'desktop', 'mobile') AS client,
-    origin,
-    COUNT(DISTINCT origin) OVER (PARTITION BY IF(device = 'desktop', 'desktop', 'mobile')) AS total
-  FROM
-    `chrome-ux-report.materialized.device_summary`
-  WHERE
-    yyyymm = 202105
-)
+with
+    geo_summary as (
+        select
+            `chrome-ux-report`.experimental.get_country(country_code) as geo,
+            if(device = 'desktop', 'desktop', 'mobile') as client,
+            origin,
+            count(distinct origin) over (
+                partition by country_code, if(device = 'desktop', 'desktop', 'mobile')
+            ) as total
+        from `chrome-ux-report.materialized.country_summary`
+        where
+            # We're intentionally using May 2021 CrUX data here.
+            # That's because there's a two month lag between CrUX and HA datasets.
+            # Since we're only JOINing with the CrUX dataset to see which URLs
+            # belong to different countries (as opposed to CWV field data)
+            # it's not necessary to look at the 202107 dataset.
+            yyyymm = 202105
+        union all
+        select
+            'ALL' as geo,
+            if(device = 'desktop', 'desktop', 'mobile') as client,
+            origin,
+            count(distinct origin) over (
+                partition by if(device = 'desktop', 'desktop', 'mobile')
+            ) as total
+        from `chrome-ux-report.materialized.device_summary`
+        where yyyymm = 202105
+    )
 
-SELECT
-  *
-FROM (
-  SELECT
-    client,
-    geo,
-    cms,
-    COUNT(0) AS pages,
-    ANY_VALUE(total) AS total,
-    COUNT(DISTINCT url) / ANY_VALUE(total) AS pct
-  FROM (
-    SELECT DISTINCT
-      geo,
-      client,
-      CONCAT(origin, '/') AS url,
-      total
-    FROM
-      geo_summary
-  ) JOIN (
-    SELECT DISTINCT
-      _TABLE_SUFFIX AS client,
-      category,
-      app AS cms,
-      url
-    FROM
-      `httparchive.technologies.2021_07_01_*`
-    WHERE
-      app IS NOT NULL AND
-      category = 'CMS' AND
-      app != ''
-  ) USING (client, url)
-  GROUP BY
-    client,
-    geo,
-    cms)
-WHERE
-  pages > 1000
-ORDER BY
-  pages DESC
+select *
+from
+    (
+        select
+            client,
+            geo,
+            cms,
+            count(0) as pages,
+            any_value(total) as total,
+            count(distinct url) / any_value(total) as pct
+        from
+            (
+                select distinct geo, client, concat(origin, '/') as url, total
+                from geo_summary
+            )
+        join
+            (
+                select distinct _table_suffix as client, category, app as cms, url
+                from `httparchive.technologies.2021_07_01_*`
+                where app is not null and category = 'CMS' and app != ''
+            ) using (client, url)
+        group by client, geo, cms
+    )
+where pages > 1000
+order by pages desc

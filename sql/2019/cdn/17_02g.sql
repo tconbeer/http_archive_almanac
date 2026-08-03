@@ -1,21 +1,20 @@
-#standardSQL
+# standardSQL
 # 17_02g: % of Pages using a JS CDN Host
-SELECT
-  *,
-  ROUND(100 * pageUseCount / totalPagesCount, 2) AS Pct # doing the Pct calc causes memory problems with bigquery
-FROM
-  (
-    SELECT
-      client,
-      IF(respBodySize > 0 AND REGEXP_CONTAINS(resp_content_type, r'javascript|css|font'), NET.HOST(url), NULL) AS host,
-      COUNT(DISTINCT page) AS pageUseCount,
-      SUM(COUNTIF(firstHtml)) OVER (PARTITION BY client) AS totalPagesCount
-    FROM `httparchive.almanac.requests3`
-    GROUP BY
-      client,
-      host
-  )
-WHERE host IS NOT NULL AND pageUseCount > 1000
-ORDER BY
-  client DESC,
-  pageUseCount DESC
+select *, round(100 * pageusecount / totalpagescount, 2) as pct  # doing the Pct calc causes memory problems with bigquery
+from
+    (
+        select
+            client,
+            if(
+                respbodysize > 0
+                and regexp_contains(resp_content_type, r'javascript|css|font'),
+                net.host(url),
+                null
+            ) as host,
+            count(distinct page) as pageusecount,
+            sum(countif(firsthtml)) over (partition by client) as totalpagescount
+        from `httparchive.almanac.requests3`
+        group by client, host
+    )
+where host is not null and pageusecount > 1000
+order by client desc, pageusecount desc

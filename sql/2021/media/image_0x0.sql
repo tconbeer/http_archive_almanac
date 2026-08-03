@@ -1,6 +1,17 @@
-CREATE TEMPORARY FUNCTION getPixelInfo(responsiveImagesJsonString STRING)
-RETURNS ARRAY<STRUCT<imgURL STRING, approximateResourceWidth INT64, approximateResourceHeight INT64, byteSize INT64, isPixel BOOL, isDataURL BOOL>>
-LANGUAGE js AS '''
+create temporary function getpixelinfo(responsiveimagesjsonstring string)
+returns
+    array<
+        struct<
+            imgurl string,
+            approximateresourcewidth int64,
+            approximateresourceheight int64,
+            bytesize int64,
+            ispixel bool,
+            isdataurl bool
+        >
+    >
+language js
+as '''
 const parsed = JSON.parse(responsiveImagesJsonString);
 if (parsed && parsed.map) {
   const dataRegEx = new RegExp('^data');
@@ -9,36 +20,39 @@ if (parsed && parsed.map) {
     isDataURL: dataRegEx.test(d.url)
   }));
 }
-''';
+'''
+;
 
-WITH imgs AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    isPixel,
-    isDataURL
-  FROM
-    `httparchive.pages.2021_07_01_*`,
-    UNNEST(getPixelInfo(JSON_QUERY(JSON_VALUE(payload, '$._responsive_images'), '$.responsive-images')))
-),
+with
+    imgs as (
+        select _table_suffix as client, ispixel, isdataurl
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                getpixelinfo(
+                    json_query(
+                        json_value(payload, '$._responsive_images'),
+                        '$.responsive-images'
+                    )
+                )
+            )
+    ),
 
-counts AS (
-  SELECT
+    counts as (
+        select
+            client,
+            count(0) as total_imgs,
+            countif(ispixel) as zero_pixel_imgs,
+            countif(ispixel and isdataurl) as zero_pixel_data_urls
+        from imgs
+        group by client
+    )
+
+select
     client,
-    COUNT(0) AS total_imgs,
-    COUNTIF(isPixel) AS zero_pixel_imgs,
-    COUNTIF(isPixel AND isDataURL) AS zero_pixel_data_urls
-  FROM
-    imgs
-  GROUP BY
-    client
-)
-
-SELECT
-  client,
-  total_imgs,
-  zero_pixel_imgs,
-  zero_pixel_data_urls,
-  SAFE_DIVIDE(zero_pixel_imgs, total_imgs) AS pct_zero_pixel_imgs,
-  SAFE_DIVIDE(zero_pixel_data_urls, total_imgs) AS pct_zero_pixel_data_urls
-FROM
-  counts
+    total_imgs,
+    zero_pixel_imgs,
+    zero_pixel_data_urls,
+    safe_divide(zero_pixel_imgs, total_imgs) as pct_zero_pixel_imgs,
+    safe_divide(zero_pixel_data_urls, total_imgs) as pct_zero_pixel_data_urls
+from counts

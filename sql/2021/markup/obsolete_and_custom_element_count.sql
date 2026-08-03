@@ -1,14 +1,17 @@
-#standardSQL
+# standardSQL
 # pages element_count metrics grouped by device
-
 # returns all the data we need from _element_count
-CREATE TEMPORARY FUNCTION get_element_count_info(element_count_string STRING)
-RETURNS STRUCT<
-  contains_custom_element BOOL,
-  contains_obsolete_element BOOL,
-  contains_details_element BOOL,
-  contains_summary_element BOOL
-> LANGUAGE js AS '''
+create temporary function get_element_count_info(element_count_string string)
+returns
+    struct<
+        contains_custom_element bool,
+        contains_obsolete_element bool,
+        contains_details_element bool,
+        contains_summary_element bool
+    >
+language js
+as
+    '''
 var result = {};
 try {
     if (!element_count_string) return result;
@@ -29,30 +32,36 @@ try {
 
 } catch (e) {}
 return result;
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(0) AS total,
+select
+    client,
+    count(0) as total,
 
-  # % of pages with obsolete elements related
-  COUNTIF(element_count_info.contains_obsolete_element) / COUNT(0) AS pct_contains_obsolete_element,
+    # % of pages with obsolete elements related
+    countif(element_count_info.contains_obsolete_element)
+    / count(0) as pct_contains_obsolete_element,
 
-  # % of pages with custom elements
-  COUNTIF(element_count_info.contains_custom_element) / COUNT(0) AS pct_contains_custom_element,
+    # % of pages with custom elements
+    countif(element_count_info.contains_custom_element)
+    / count(0) as pct_contains_custom_element,
 
-  # % of pages with details and summary elements
-  COUNTIF(element_count_info.contains_details_element AND element_count_info.contains_summary_element) / COUNT(0) AS pct_contains_details_and_summary_element
+    # % of pages with details and summary elements
+    countif(
+        element_count_info.contains_details_element
+        and element_count_info.contains_summary_element
+    )
+    / count(0) as pct_contains_details_and_summary_element
 
-FROM
-  (
-    SELECT
-      _TABLE_SUFFIX AS client,
-      get_element_count_info(JSON_EXTRACT_SCALAR(payload, '$._element_count')) AS element_count_info
-    FROM
-      `httparchive.pages.2021_07_01_*`
-  )
-GROUP BY
-  client
-ORDER BY
-  client
+from
+    (
+        select
+            _table_suffix as client,
+            get_element_count_info(
+                json_extract_scalar(payload, '$._element_count')
+            ) as element_count_info
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client
+order by client

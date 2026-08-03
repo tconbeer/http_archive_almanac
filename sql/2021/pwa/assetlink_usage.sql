@@ -1,61 +1,47 @@
-#standardSQL
+# standardSQL
 # assetlink usage
-
-SELECT
-  'PWA sites' AS type,
-  _TABLE_SUFFIX AS client,
-  COUNT(0) AS freq,
-  total,
-  COUNT(0) / total AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`
-JOIN
-  (
-    SELECT
-      _TABLE_SUFFIX,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    WHERE
-      JSON_EXTRACT(payload, '$._pwa.manifests') != '[]' AND
-      JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
-    GROUP BY
-      _TABLE_SUFFIX
-  )
-USING (_TABLE_SUFFIX)
-WHERE
-  JSON_EXTRACT(payload, '$._pwa.serviceWorkerHeuristic') = 'true' AND
-  JSON_EXTRACT(payload, '$._pwa.manifests') != '[]' AND
-  JSON_EXTRACT_SCALAR(JSON_VALUE(payload, '$._well-known'), "$['/.well-known/assetlinks.json'].found") = 'true'
-GROUP BY
-  client,
-  total
-UNION ALL
-SELECT
-  'All sites' AS type,
-  _TABLE_SUFFIX AS client,
-  COUNT(0) AS freq,
-  total,
-  COUNT(0) / total AS pct
-FROM
-  `httparchive.pages.2021_07_01_*`
-JOIN
-  (
-    SELECT
-      _TABLE_SUFFIX,
-      COUNT(0) AS total
-    FROM
-      `httparchive.pages.2021_07_01_*`
-    GROUP BY
-      _TABLE_SUFFIX
-  )
-USING (_TABLE_SUFFIX)
-WHERE
-  JSON_EXTRACT_SCALAR(JSON_VALUE(payload, '$._well-known'), "$['/.well-known/assetlinks.json'].found") = 'true'
-GROUP BY
-  client,
-  total
-ORDER BY
-  type DESC,
-  freq / total DESC,
-  client
+select
+    'PWA sites' as type,
+    _table_suffix as client,
+    count(0) as freq,
+    total,
+    count(0) / total as pct
+from `httparchive.pages.2021_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2021_07_01_*`
+        where
+            json_extract(payload, '$._pwa.manifests') != '[]'
+            and json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+        group by _table_suffix
+    ) using (_table_suffix)
+where
+    json_extract(payload, '$._pwa.serviceWorkerHeuristic') = 'true'
+    and json_extract(payload, '$._pwa.manifests') != '[]'
+    and json_extract_scalar(
+        json_value(payload, '$._well-known'), "$['/.well-known/assetlinks.json'].found"
+    )
+    = 'true'
+group by client, total
+union all
+select
+    'All sites' as type,
+    _table_suffix as client,
+    count(0) as freq,
+    total,
+    count(0) / total as pct
+from `httparchive.pages.2021_07_01_*`
+join
+    (
+        select _table_suffix, count(0) as total
+        from `httparchive.pages.2021_07_01_*`
+        group by _table_suffix
+    ) using (_table_suffix)
+where
+    json_extract_scalar(
+        json_value(payload, '$._well-known'), "$['/.well-known/assetlinks.json'].found"
+    )
+    = 'true'
+group by client, total
+order by type desc, freq / total desc, client

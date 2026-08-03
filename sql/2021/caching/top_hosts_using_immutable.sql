@@ -1,21 +1,15 @@
-#standardSQL
+# standardSQL
 # The top domains to use immutable Cache-Control directive.
-SELECT
-  _TABLE_SUFFIX AS client,
-  NET.HOST(url) AS host,
-  COUNT(DISTINCT pageid) AS pages,
-  COUNT(0) AS requests,
-  SUM(COUNT(DISTINCT pageid)) OVER () AS total_pages,
-  SUM(COUNT(0)) OVER () AS total_requests,
-  COUNT(0) / SUM(COUNT(0)) OVER () AS pct_requests
-FROM
-  `httparchive.summary_requests.2021_07_01_*`
-WHERE
-  REGEXP_CONTAINS(resp_cache_control, r'(?i)immutable')
-GROUP BY
-  client,
-  domain
-ORDER BY
-  client,
-  pct_requests DESC
-LIMIT 200
+select
+    _table_suffix as client,
+    net.host(url) as host,
+    count(distinct pageid) as pages,
+    count(0) as requests,
+    sum(count(distinct pageid)) over () as total_pages,
+    sum(count(0)) over () as total_requests,
+    count(0) / sum(count(0)) over () as pct_requests
+from `httparchive.summary_requests.2021_07_01_*`
+where regexp_contains(resp_cache_control, r'(?i)immutable')
+group by client, domain
+order by client, pct_requests desc
+limit 200

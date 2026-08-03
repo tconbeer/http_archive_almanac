@@ -1,13 +1,5 @@
-#standardSQL
+# standardSQL
 # Usage of Credential Manager
-SELECT
-  client,
-  feature,
-  num_urls AS freq,
-  total_urls AS total,
-  pct_urls AS pct
-FROM
-  `httparchive.blink_features.usage`
-WHERE
-  yyyymmdd = '20200801' AND
-  feature = 'CredentialManagerGet'
+select client, feature, num_urls as freq, total_urls as total, pct_urls as pct
+from `httparchive.blink_features.usage`
+where yyyymmdd = '20200801' and feature = 'CredentialManagerGet'

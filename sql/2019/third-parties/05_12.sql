@@ -1,62 +1,112 @@
-#standardSQL
-# Percentile breakdown page-relative percentage of total bytes that are from third party requests broken down by third party category.
-SELECT
-  client,
-  COUNT(0) AS numberOfPages,
-  APPROX_QUANTILES(numberOfThirdPartyBytes / numberOfBytes, 100) AS percentThirdPartyBytesQuantiles,
-  APPROX_QUANTILES(numberOfAdBytes / numberOfBytes, 100) AS percentAdBytesQuantiles,
-  APPROX_QUANTILES(numberOfAnalyticsBytes / numberOfBytes, 100) AS percentAnalyticsBytesQuantiles,
-  APPROX_QUANTILES(numberOfSocialBytes / numberOfBytes, 100) AS percentSocialBytesQuantiles,
-  APPROX_QUANTILES(numberOfVideoBytes / numberOfBytes, 100) AS percentVideoBytesQuantiles,
-  APPROX_QUANTILES(numberOfUtilityBytes / numberOfBytes, 100) AS percentUtilityBytesQuantiles,
-  APPROX_QUANTILES(numberOfHostingBytes / numberOfBytes, 100) AS percentHostingBytesQuantiles,
-  APPROX_QUANTILES(numberOfMarketingBytes / numberOfBytes, 100) AS percentMarketingBytesQuantiles,
-  APPROX_QUANTILES(numberOfCustomerSuccessBytes / numberOfBytes, 100) AS percentCustomerSuccessBytesQuantiles,
-  APPROX_QUANTILES(numberOfContentBytes / numberOfBytes, 100) AS percentContentBytesQuantiles,
-  APPROX_QUANTILES(numberOfCdnBytes / numberOfBytes, 100) AS percentCdnBytesQuantiles,
-  APPROX_QUANTILES(numberOfTagManagerBytes / numberOfBytes, 100) AS percentTagManagerBytesQuantiles,
-  APPROX_QUANTILES(numberOfOtherBytes / numberOfBytes, 100) AS percentOtherBytesQuantiles
-FROM (
-  SELECT
+# standardSQL
+# Percentile breakdown page-relative percentage of total bytes that are from third
+# party requests broken down by third party category.
+select
     client,
-    pageUrl,
-    COUNT(0) AS numberOfRequests,
-    SUM(requestBytes) AS numberOfBytes,
-    SUM(IF(thirdPartyDomain IS NULL, requestBytes, 0)) AS numberOfFirstPartyBytes,
-    SUM(IF(thirdPartyDomain IS NOT NULL, requestBytes, 0)) AS numberOfThirdPartyBytes,
-    SUM(IF(thirdPartyCategory = 'ad', requestBytes, 0)) AS numberOfAdBytes,
-    SUM(IF(thirdPartyCategory = 'analytics', requestBytes, 0)) AS numberOfAnalyticsBytes,
-    SUM(IF(thirdPartyCategory = 'social', requestBytes, 0)) AS numberOfSocialBytes,
-    SUM(IF(thirdPartyCategory = 'video', requestBytes, 0)) AS numberOfVideoBytes,
-    SUM(IF(thirdPartyCategory = 'utility', requestBytes, 0)) AS numberOfUtilityBytes,
-    SUM(IF(thirdPartyCategory = 'hosting', requestBytes, 0)) AS numberOfHostingBytes,
-    SUM(IF(thirdPartyCategory = 'marketing', requestBytes, 0)) AS numberOfMarketingBytes,
-    SUM(IF(thirdPartyCategory = 'customer-success', requestBytes, 0)) AS numberOfCustomerSuccessBytes,
-    SUM(IF(thirdPartyCategory = 'content', requestBytes, 0)) AS numberOfContentBytes,
-    SUM(IF(thirdPartyCategory = 'cdn', requestBytes, 0)) AS numberOfCdnBytes,
-    SUM(IF(thirdPartyCategory = 'tag-manager', requestBytes, 0)) AS numberOfTagManagerBytes,
-    SUM(IF(thirdPartyCategory = 'other' OR thirdPartyCategory IS NULL, requestBytes, 0)) AS numberOfOtherBytes
-  FROM (
-    SELECT
-      client,
-      page AS pageUrl,
-      respBodySize AS requestBytes,
-      DomainsOver50Table.requestDomain AS thirdPartyDomain,
-      ThirdPartyTable.category AS thirdPartyCategory
-    FROM
-      `httparchive.almanac.summary_requests`
-    LEFT JOIN
-      `lighthouse-infrastructure.third_party_web.2019_07_01` AS ThirdPartyTable
-    ON NET.HOST(url) = ThirdPartyTable.domain
-    LEFT JOIN
-      `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains` AS DomainsOver50Table
-    ON NET.HOST(url) = DomainsOver50Table.requestDomain
-    WHERE
-      date = '2019-07-01'
-  )
-  GROUP BY
-    client,
-    pageUrl
-)
-GROUP BY
-  client
+    count(0) as numberofpages,
+    approx_quantiles(
+        numberofthirdpartybytes / numberofbytes, 100
+    ) as percentthirdpartybytesquantiles,
+    approx_quantiles(numberofadbytes / numberofbytes, 100) as percentadbytesquantiles,
+    approx_quantiles(
+        numberofanalyticsbytes / numberofbytes, 100
+    ) as percentanalyticsbytesquantiles,
+    approx_quantiles(
+        numberofsocialbytes / numberofbytes, 100
+    ) as percentsocialbytesquantiles,
+    approx_quantiles(
+        numberofvideobytes / numberofbytes, 100
+    ) as percentvideobytesquantiles,
+    approx_quantiles(
+        numberofutilitybytes / numberofbytes, 100
+    ) as percentutilitybytesquantiles,
+    approx_quantiles(
+        numberofhostingbytes / numberofbytes, 100
+    ) as percenthostingbytesquantiles,
+    approx_quantiles(
+        numberofmarketingbytes / numberofbytes, 100
+    ) as percentmarketingbytesquantiles,
+    approx_quantiles(
+        numberofcustomersuccessbytes / numberofbytes, 100
+    ) as percentcustomersuccessbytesquantiles,
+    approx_quantiles(
+        numberofcontentbytes / numberofbytes, 100
+    ) as percentcontentbytesquantiles,
+    approx_quantiles(numberofcdnbytes / numberofbytes, 100) as percentcdnbytesquantiles,
+    approx_quantiles(
+        numberoftagmanagerbytes / numberofbytes, 100
+    ) as percenttagmanagerbytesquantiles,
+    approx_quantiles(
+        numberofotherbytes / numberofbytes, 100
+    ) as percentotherbytesquantiles
+from
+    (
+        select
+            client,
+            pageurl,
+            count(0) as numberofrequests,
+            sum(requestbytes) as numberofbytes,
+            sum(
+                if(thirdpartydomain is null, requestbytes, 0)
+            ) as numberoffirstpartybytes,
+            sum(
+                if(thirdpartydomain is not null, requestbytes, 0)
+            ) as numberofthirdpartybytes,
+            sum(if(thirdpartycategory = 'ad', requestbytes, 0)) as numberofadbytes,
+            sum(
+                if(thirdpartycategory = 'analytics', requestbytes, 0)
+            ) as numberofanalyticsbytes,
+            sum(
+                if(thirdpartycategory = 'social', requestbytes, 0)
+            ) as numberofsocialbytes,
+            sum(
+                if(thirdpartycategory = 'video', requestbytes, 0)
+            ) as numberofvideobytes,
+            sum(
+                if(thirdpartycategory = 'utility', requestbytes, 0)
+            ) as numberofutilitybytes,
+            sum(
+                if(thirdpartycategory = 'hosting', requestbytes, 0)
+            ) as numberofhostingbytes,
+            sum(
+                if(thirdpartycategory = 'marketing', requestbytes, 0)
+            ) as numberofmarketingbytes,
+            sum(
+                if(thirdpartycategory = 'customer-success', requestbytes, 0)
+            ) as numberofcustomersuccessbytes,
+            sum(
+                if(thirdpartycategory = 'content', requestbytes, 0)
+            ) as numberofcontentbytes,
+            sum(if(thirdpartycategory = 'cdn', requestbytes, 0)) as numberofcdnbytes,
+            sum(
+                if(thirdpartycategory = 'tag-manager', requestbytes, 0)
+            ) as numberoftagmanagerbytes,
+            sum(
+                if(
+                    thirdpartycategory = 'other' or thirdpartycategory is null,
+                    requestbytes,
+                    0
+                )
+            ) as numberofotherbytes
+        from
+            (
+                select
+                    client,
+                    page as pageurl,
+                    respbodysize as requestbytes,
+                    domainsover50table.requestdomain as thirdpartydomain,
+                    thirdpartytable.category as thirdpartycategory
+                from `httparchive.almanac.summary_requests`
+                left join
+                    `lighthouse-infrastructure.third_party_web.2019_07_01`
+                    as thirdpartytable
+                    on net.host(url) = thirdpartytable.domain
+                left join
+                    `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains`
+                    as domainsover50table
+                    on net.host(url) = domainsover50table.requestdomain
+                where date = '2019-07-01'
+            )
+        group by client, pageurl
+    )
+group by client

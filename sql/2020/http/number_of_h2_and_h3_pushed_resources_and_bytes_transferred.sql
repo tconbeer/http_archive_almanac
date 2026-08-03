@@ -1,39 +1,34 @@
 # standardSQL
 # Number of H2 and H3 Pushed Resources and bytes transferred
-SELECT
-  percentile,
-  client,
-  http_version,
-  COUNT(DISTINCT page) AS num_pages,
-  APPROX_QUANTILES(num_requests, 1000)[OFFSET(percentile * 10)] AS pushed_requests,
-  APPROX_QUANTILES(kb_transfered, 1000)[OFFSET(percentile * 10)] AS kb_transfered
-FROM (
-    SELECT
-      client,
-      page,
-      JSON_EXTRACT_SCALAR(payload, '$._protocol') AS http_version,
-      SUM(CAST(JSON_EXTRACT_SCALAR(payload, '$._bytesIn') AS INT64) / 1024) AS kb_transfered,
-      COUNT(0) AS num_requests
-    FROM
-      `httparchive.almanac.requests`
-    WHERE
-      date = '2020-08-01' AND
-      JSON_EXTRACT_SCALAR(payload, '$._was_pushed') = '1' AND
-      (
-        LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'http/2' OR
-        LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE '%quic%' OR
-        LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'h3%' OR
-        LOWER(JSON_EXTRACT_SCALAR(payload, '$._protocol')) LIKE 'http/3%'
-      )
-    GROUP BY
-      client,
-      http_version,
-      page),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  http_version
-ORDER BY
-  percentile,
-  client
+select
+    percentile,
+    client,
+    http_version,
+    count(distinct page) as num_pages,
+    approx_quantiles(num_requests, 1000)[offset(percentile * 10)] as pushed_requests,
+    approx_quantiles(kb_transfered, 1000)[offset(percentile * 10)] as kb_transfered
+from
+    (
+        select
+            client,
+            page,
+            json_extract_scalar(payload, '$._protocol') as http_version,
+            sum(
+                cast(json_extract_scalar(payload, '$._bytesIn') as int64) / 1024
+            ) as kb_transfered,
+            count(0) as num_requests
+        from `httparchive.almanac.requests`
+        where
+            date = '2020-08-01'
+            and json_extract_scalar(payload, '$._was_pushed') = '1'
+            and (
+                lower(json_extract_scalar(payload, '$._protocol')) like 'http/2'
+                or lower(json_extract_scalar(payload, '$._protocol')) like '%quic%'
+                or lower(json_extract_scalar(payload, '$._protocol')) like 'h3%'
+                or lower(json_extract_scalar(payload, '$._protocol')) like 'http/3%'
+            )
+        group by client, http_version, page
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+group by percentile, client, http_version
+order by percentile, client

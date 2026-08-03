@@ -1,18 +1,12 @@
-#standardSQL
+# standardSQL
 # 06_03: counts the font types (format)
-SELECT
-  client,
-  LOWER(IFNULL(REGEXP_EXTRACT(mimeType, '/(?:x-)?(?:font-)?(.*)'), ext)) AS mime_type,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2019-07-01' AND
-  type = 'font'
-GROUP BY
-  client,
-  mime_type
-ORDER BY
-  freq / total DESC
+select
+    client,
+    lower(ifnull(regexp_extract(mimetype, '/(?:x-)?(?:font-)?(.*)'), ext)) as mime_type,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.requests`
+where date = '2019-07-01' and type = 'font'
+group by client, mime_type
+order by freq / total desc

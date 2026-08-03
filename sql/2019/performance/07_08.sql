@@ -1,11 +1,10 @@
-#standardSQL
+# standardSQL
 # 07_08: % fast TTFB using FCP-like thresholds
-SELECT
-  ROUND(COUNTIF(fast_ttfb >= .75) * 100 / COUNT(0), 2) AS pct_fast_ttfb,
-  ROUND(COUNTIF(NOT(slow_ttfb >= .25) AND NOT(fast_ttfb >= .75)) * 100 / COUNT(0), 2) AS pct_avg_ttfb,
-  ROUND(COUNTIF(slow_ttfb >= .25) * 100 / COUNT(0), 2) AS pct_slow_ttfb
-FROM
-  `chrome-ux-report.materialized.metrics_summary`
-WHERE
-  date = '2019-07-01' AND
-  fast_ttfb + avg_ttfb + slow_ttfb > 0
+select
+    round(countif(fast_ttfb >= .75) * 100 / count(0), 2) as pct_fast_ttfb,
+    round(
+        countif(not (slow_ttfb >= .25) and not (fast_ttfb >= .75)) * 100 / count(0), 2
+    ) as pct_avg_ttfb,
+    round(countif(slow_ttfb >= .25) * 100 / count(0), 2) as pct_slow_ttfb
+from `chrome-ux-report.materialized.metrics_summary`
+where date = '2019-07-01' and fast_ttfb + avg_ttfb + slow_ttfb > 0

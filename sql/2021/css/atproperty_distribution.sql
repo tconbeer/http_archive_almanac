@@ -1,6 +1,9 @@
-#standardSQL
+# standardSQL
 # Distribution of @property rules per page
-CREATE TEMP FUNCTION countAtProperties(css STRING) RETURNS ARRAY<INT64> LANGUAGE js AS '''
+create temp function countatproperties(css string)
+returns array<int64>
+language js
+as '''
 try {
   var $ = JSON.parse(css);
   return $.stylesheet.rules.flatMap(rule => {
@@ -14,30 +17,25 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  APPROX_QUANTILES(atprops_per_page, 1000)[OFFSET(percentile * 10)] AS atprops_per_page
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    SUM(num_atprops) AS atprops_per_page
-  FROM
-    `httparchive.almanac.parsed_css`,
-    UNNEST(countAtProperties(css)) AS num_atprops
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client,
-    page),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-WHERE
-  atprops_per_page > 0
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+    approx_quantiles(atprops_per_page, 1000)[
+        offset(percentile * 10)
+    ] as atprops_per_page
+from
+    (
+        select client, sum(num_atprops) as atprops_per_page
+        from
+            `httparchive.almanac.parsed_css`,
+            unnest(countatproperties(css)) as num_atprops
+        where date = '2021-07-01'
+        group by client, page
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+where atprops_per_page > 0
+group by percentile, client
+order by percentile, client

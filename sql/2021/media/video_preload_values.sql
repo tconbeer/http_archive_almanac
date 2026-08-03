@@ -1,37 +1,48 @@
-#standardSQL
+# standardSQL
 # preload attribute values
-
-SELECT
-  date,
-  client,
-  IF(preload_value = '', '(empty)', preload_value) AS preload_value,
-  COUNT(0) AS preload_value_count,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY date, client)) AS preload_value_pct
-FROM
-  (
-    SELECT
-      '2021-07-01' AS date,
-      _TABLE_SUFFIX AS client,
-      LOWER(IFNULL(JSON_EXTRACT_SCALAR(video_nodes, '$.preload'), '(preload not used)')) AS preload_value
-    FROM
-      `httparchive.pages.2021_07_01_*`,
-      UNNEST(JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.videos.nodes')) AS video_nodes
-    UNION ALL
-    SELECT
-      '2020-08-01' AS date,
-      _TABLE_SUFFIX AS client,
-      LOWER(IFNULL(JSON_EXTRACT_SCALAR(video_nodes, '$.preload'), '(preload not used)')) AS preload_value
-    FROM
-      `httparchive.pages.2020_08_01_*`,
-      UNNEST(JSON_EXTRACT_ARRAY(JSON_EXTRACT_SCALAR(payload, '$._almanac'), '$.videos.nodes')) AS video_nodes
-  )
-GROUP BY
-  date,
-  client,
-  preload_value
-QUALIFY
-  preload_value_count > 10
-ORDER BY
-  date,
-  client,
-  preload_value_count DESC;
+select
+    date,
+    client,
+    if(preload_value = '', '(empty)', preload_value) as preload_value,
+    count(0) as preload_value_count,
+    safe_divide(
+        count(0), sum(count(0)) over (partition by date, client)
+    ) as preload_value_pct
+from
+    (
+        select
+            '2021-07-01' as date,
+            _table_suffix as client,
+            lower(
+                ifnull(
+                    json_extract_scalar(video_nodes, '$.preload'), '(preload not used)'
+                )
+            ) as preload_value
+        from
+            `httparchive.pages.2021_07_01_*`,
+            unnest(
+                json_extract_array(
+                    json_extract_scalar(payload, '$._almanac'), '$.videos.nodes'
+                )
+            ) as video_nodes
+        union all
+        select
+            '2020-08-01' as date,
+            _table_suffix as client,
+            lower(
+                ifnull(
+                    json_extract_scalar(video_nodes, '$.preload'), '(preload not used)'
+                )
+            ) as preload_value
+        from
+            `httparchive.pages.2020_08_01_*`,
+            unnest(
+                json_extract_array(
+                    json_extract_scalar(payload, '$._almanac'), '$.videos.nodes'
+                )
+            ) as video_nodes
+    )
+group by date, client, preload_value
+qualify preload_value_count > 10
+order by date, client, preload_value_count desc
+;

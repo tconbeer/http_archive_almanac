@@ -1,13 +1,17 @@
-SELECT
-  client,
-  COUNTIF(num_video_nodes > 0) AS pages,
-  COUNT(0) AS total,
-  COUNTIF(num_video_nodes > 0) / COUNT(0) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    CAST(JSON_VALUE(JSON_VALUE(payload, '$._media'), '$.num_video_nodes') AS INT64) AS num_video_nodes
-  FROM
-    `httparchive.pages.2021_07_01_*`)
-GROUP BY
-  client
+select
+    client,
+    countif(num_video_nodes > 0) as pages,
+    count(0) as total,
+    countif(num_video_nodes > 0) / count(0) as pct
+from
+    (
+        select
+            _table_suffix as client,
+            cast(
+                json_value(
+                    json_value(payload, '$._media'), '$.num_video_nodes'
+                ) as int64
+            ) as num_video_nodes
+        from `httparchive.pages.2021_07_01_*`
+    )
+group by client

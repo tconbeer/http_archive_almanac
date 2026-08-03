@@ -1,26 +1,22 @@
-#standardSQL
+# standardSQL
 # 07_03: Percentiles of TTFB for CDN
-SELECT
-  client,
-  cdn,
-  COUNT(0) AS requests,
-  APPROX_QUANTILES(ttfb, 1000)[OFFSET(100)] AS p10,
-  APPROX_QUANTILES(ttfb, 1000)[OFFSET(250)] AS p25,
-  APPROX_QUANTILES(ttfb, 1000)[OFFSET(500)] AS p50,
-  APPROX_QUANTILES(ttfb, 1000)[OFFSET(750)] AS p75,
-  APPROX_QUANTILES(ttfb, 1000)[OFFSET(900)] AS p90
-FROM (
-  SELECT
+select
     client,
-    CAST(JSON_EXTRACT(payload, '$._ttfb_ms') AS INT64) AS ttfb,
-    _cdn_provider AS cdn
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01' AND
-    _cdn_provider != '')
-GROUP BY
-  client,
-  cdn
-ORDER BY
-  requests DESC
+    cdn,
+    count(0) as requests,
+    approx_quantiles(ttfb, 1000)[offset(100)] as p10,
+    approx_quantiles(ttfb, 1000)[offset(250)] as p25,
+    approx_quantiles(ttfb, 1000)[offset(500)] as p50,
+    approx_quantiles(ttfb, 1000)[offset(750)] as p75,
+    approx_quantiles(ttfb, 1000)[offset(900)] as p90
+from
+    (
+        select
+            client,
+            cast(json_extract(payload, '$._ttfb_ms') as int64) as ttfb,
+            _cdn_provider as cdn
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01' and _cdn_provider != ''
+    )
+group by client, cdn
+order by requests desc

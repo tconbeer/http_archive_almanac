@@ -1,7 +1,9 @@
-#standardSQL
+# standardSQL
 # 03_03a: % of pages with custom elements ("slang")
-CREATE TEMPORARY FUNCTION containsCustomElement(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function containscustomelement(payload string)
+returns boolean
+language js
+as '''
 try {
   var $ = JSON.parse(payload);
   var elements = JSON.parse($._element_count)
@@ -9,13 +11,12 @@ try {
 } catch (e) {
   return false;
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(containsCustomElement(payload)) AS pages,
-  ROUND(COUNTIF(containsCustomElement(payload)) * 100 / COUNT(0), 2) AS pct_pages
-FROM
-  `httparchive.pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(containscustomelement(payload)) as pages,
+    round(countif(containscustomelement(payload)) * 100 / count(0), 2) as pct_pages
+from `httparchive.pages.2019_07_01_*`
+group by client

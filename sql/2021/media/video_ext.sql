@@ -1,5 +1,5 @@
-SELECT _TABLE_SUFFIX AS client, ext, COUNT(ext) AS cnt
-FROM `httparchive.summary_requests.2021_07_01_*`
-WHERE mimetype LIKE '%video%'
-GROUP BY client, ext
-ORDER BY cnt DESC
+select _table_suffix as client, ext, count(ext) as cnt
+from `httparchive.summary_requests.2021_07_01_*`
+where mimetype like '%video%'
+group by client, ext
+order by cnt desc

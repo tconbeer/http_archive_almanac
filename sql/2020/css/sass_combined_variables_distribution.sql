@@ -1,6 +1,9 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION countCombinedVariables(payload STRING) RETURNS
-ARRAY<STRUCT<usage STRING, freq INT64>> LANGUAGE js AS '''
+# standardSQL
+create temporary function countcombinedvariables(payload string)
+returns array<struct<usage string, freq int64>>
+language js
+as
+    '''
 try {
   var $ = JSON.parse(payload);
   var scss = JSON.parse($['_sass']);
@@ -12,27 +15,21 @@ try {
 } catch (e) {
   return [];
 }
-''';
+'''
+;
 
-SELECT
-  percentile,
-  client,
-  usage,
-  APPROX_QUANTILES(freq, 1000 IGNORE NULLS)[OFFSET(percentile * 10)] AS freq
-FROM (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    var.usage,
-    var.freq
-  FROM
-    `httparchive.pages.2020_08_01_*`,
-    UNNEST(countCombinedVariables(payload)) AS var),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client,
-  usage
-ORDER BY
-  percentile,
-  client,
-  usage
+select
+    percentile,
+    client,
+    usage,
+    approx_quantiles(freq, 1000 ignore nulls)[offset(percentile * 10)] as freq
+from
+    (
+        select _table_suffix as client, var.usage, var.freq
+        from
+            `httparchive.pages.2020_08_01_*`,
+            unnest(countcombinedvariables(payload)) as var
+    ),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client, usage
+order by percentile, client, usage

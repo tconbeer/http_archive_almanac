@@ -1,12 +1,18 @@
-#standardSQL
+# standardSQL
 # Sites with perfect scores on the properly sized images audit
-SELECT
-  COUNTIF(properly_sized_images_score IS NOT NULL) AS total_applicable,
-  COUNTIF(properly_sized_images_score = 1) AS total_with_properly_sized_images,
-  COUNTIF(properly_sized_images_score = 1) / COUNTIF(properly_sized_images_score IS NOT NULL) AS perc_with_properly_sized_images
-FROM (
-  SELECT
-    SAFE_CAST(JSON_EXTRACT_SCALAR(report, '$.audits.uses-responsive-images.score') AS NUMERIC) AS properly_sized_images_score
-  FROM
-    `httparchive.lighthouse.2020_08_01_mobile`
-)
+select
+    countif(properly_sized_images_score is not null) as total_applicable,
+    countif(properly_sized_images_score = 1) as total_with_properly_sized_images,
+    countif(properly_sized_images_score = 1) / countif(
+        properly_sized_images_score is not null
+    ) as perc_with_properly_sized_images
+from
+    (
+        select
+            safe_cast(
+                json_extract_scalar(
+                    report, '$.audits.uses-responsive-images.score'
+                ) as numeric
+            ) as properly_sized_images_score
+        from `httparchive.lighthouse.2020_08_01_mobile`
+    )

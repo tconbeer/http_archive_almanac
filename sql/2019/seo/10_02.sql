@@ -1,19 +1,14 @@
-#standardSQL
+# standardSQL
 # 10_02: lang attribute usage and mistakes (lang='en')
-# source: https://discuss.httparchive.org/t/what-are-the-invalid-uses-of-the-lang-attribute/1022
-SELECT
-  client,
-  LOWER(REGEXP_EXTRACT(body, '(?i)<html[^>]*lang=[\'"]?([a-z]{2})')) AS lang,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (PARTITION BY client), 2) AS pct
-FROM
-  `httparchive.almanac.summary_response_bodies`
-WHERE
-  date = '2019-07-01' AND
-  firstHtml
-GROUP BY
-  client,
-  lang
-ORDER BY
-  freq / total DESC
+# source:
+# https://discuss.httparchive.org/t/what-are-the-invalid-uses-of-the-lang-attribute/1022
+select
+    client,
+    lower(regexp_extract(body, '(?i)<html[^>]*lang=[\'"]?([a-z]{2})')) as lang,
+    count(0) as freq,
+    sum(count(0)) over (partition by client) as total,
+    round(count(0) * 100 / sum(count(0)) over (partition by client), 2) as pct
+from `httparchive.almanac.summary_response_bodies`
+where date = '2019-07-01' and firsthtml
+group by client, lang
+order by freq / total desc

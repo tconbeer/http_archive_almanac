@@ -1,17 +1,17 @@
-#standardSQL
+# standardSQL
 # 08_07: Autheticated cipher suites
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(REGEXP_CONTAINS(cipher, r'GCM|CCM|POLY1305')) AS authenticated_cipher_count,
-  COUNT(0) AS total,
-  ROUND(COUNTIF(REGEXP_CONTAINS(cipher, r'GCM|CCM|POLY1305')) * 100 / COUNT(0), 2) AS pct
-FROM (
-  SELECT
-    _TABLE_SUFFIX,
-    JSON_EXTRACT(payload, '$._securityDetails.cipher') AS cipher
-  FROM
-    `httparchive.requests.2019_07_01_*`)
-WHERE
-  cipher IS NOT NULL
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(regexp_contains(cipher, r'GCM|CCM|POLY1305')) as authenticated_cipher_count,
+    count(0) as total,
+    round(
+        countif(regexp_contains(cipher, r'GCM|CCM|POLY1305')) * 100 / count(0), 2
+    ) as pct
+from
+    (
+        select
+            _table_suffix, json_extract(payload, '$._securityDetails.cipher') as cipher
+        from `httparchive.requests.2019_07_01_*`
+    )
+where cipher is not null
+group by client

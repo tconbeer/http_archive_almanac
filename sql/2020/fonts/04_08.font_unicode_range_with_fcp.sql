@@ -1,7 +1,9 @@
-#standardSQL
-#font_unicode_range_with_fcp
-CREATE TEMPORARY FUNCTION getFonts(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+# standardSQL
+# font_unicode_range_with_fcp
+create temporary function getfonts(css string)
+returns array<string>
+language js
+as '''
 try {
     var reduceValues = (values, rule) => {
         if ('rules' in rule) {
@@ -25,49 +27,42 @@ try {
 } catch (e) {
     return [null];
 }
-''';
-SELECT
-  client,
-  CASE
-    WHEN unicode != ' ' THEN 'unicode_ranges'
-    ELSE 'none'
-  END AS use_unicode,
-  COUNT(DISTINCT page) AS pages,
-  SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS total,
-  COUNT(DISTINCT page) / SUM(COUNT(DISTINCT page)) OVER (PARTITION BY client) AS pct_range,
-  APPROX_QUANTILES(fcp, 1000)[OFFSET(500)] AS median_fcp,
-  APPROX_QUANTILES(lcp, 1000)[OFFSET(500)] AS median_lcp
-FROM (
-  SELECT
+'''
+;
+select
     client,
-    page,
-    unicode
-  FROM
-    `httparchive.almanac.parsed_css`
-  LEFT JOIN
-    UNNEST(getFonts(css)) AS unicode
-  WHERE
-    date = '2020-08-01'
-  GROUP BY
-    client,
-    page,
-    unicode)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    CAST(JSON_EXTRACT_SCALAR(payload,
-        "$['_chromeUserTiming.firstContentfulPaint']") AS INT64) AS fcp,
-    CAST(JSON_EXTRACT_SCALAR(payload,
-        "$['_chromeUserTiming.LargestContentfulPaint']") AS INT64) AS lcp
-  FROM
-    `httparchive.pages.2020_08_01_*`
-  GROUP BY
-    _TABLE_SUFFIX, page, payload)
-USING
-  (client, page)
-GROUP BY
-  client,
-  use_unicode
-ORDER BY
-  pages, client DESC
+    case when unicode != ' ' then 'unicode_ranges' else 'none' end as use_unicode,
+    count(distinct page) as pages,
+    sum(count(distinct page)) over (partition by client) as total,
+    count(distinct page)
+    / sum(count(distinct page)) over (partition by client) as pct_range,
+    approx_quantiles(fcp, 1000)[offset(500)] as median_fcp,
+    approx_quantiles(lcp, 1000)[offset(500)] as median_lcp
+from
+    (
+        select client, page, unicode
+        from `httparchive.almanac.parsed_css`
+        left join unnest(getfonts(css)) as unicode
+        where date = '2020-08-01'
+        group by client, page, unicode
+    )
+join
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.firstContentfulPaint']"
+                ) as int64
+            ) as fcp,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.LargestContentfulPaint']"
+                ) as int64
+            ) as lcp
+        from `httparchive.pages.2020_08_01_*`
+        group by _table_suffix, page, payload
+    ) using (client, page)
+group by client, use_unicode
+order by pages, client desc

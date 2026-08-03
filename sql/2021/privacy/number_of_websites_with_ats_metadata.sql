@@ -1,15 +1,21 @@
-#standardSQL
+# standardSQL
 # Counts of pages with Ads Transparency Spotlight metadata
-
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNT(0) AS number_of_websites,
-  COUNTIF(JSON_VALUE(JSON_VALUE(payload, '$._privacy'), '$.ads_transparency_spotlight.present') = 'true') AS number_of_websites_ats,
-  COUNTIF(JSON_VALUE(JSON_VALUE(payload, '$._privacy'), '$.ads_transparency_spotlight.present') = 'true') / COUNT(0) AS pct_websites_ats
-FROM
-  `httparchive.pages.2021_07_01_*`
-GROUP BY
-  client
-ORDER BY
-  client,
-  number_of_websites
+select
+    _table_suffix as client,
+    count(0) as number_of_websites,
+    countif(
+        json_value(
+            json_value(payload, '$._privacy'), '$.ads_transparency_spotlight.present'
+        )
+        = 'true'
+    ) as number_of_websites_ats,
+    countif(
+        json_value(
+            json_value(payload, '$._privacy'), '$.ads_transparency_spotlight.present'
+        )
+        = 'true'
+    )
+    / count(0) as pct_websites_ats
+from `httparchive.pages.2021_07_01_*`
+group by client
+order by client, number_of_websites

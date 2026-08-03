@@ -1,61 +1,91 @@
-#standardSQL
-# Percentile breakdown page-relative percentage of requests that are third party requests broken down by third party category.
-SELECT
-  client,
-  COUNT(0) AS numberOfPages,
-  COUNTIF(numberOfThirdPartyRequests > 0) AS numberOfPagesWithThirdParty,
-  APPROX_QUANTILES(numberOfThirdPartyRequests / numberOfRequests, 100) AS percentThirdPartyRequestsQuantiles,
-  APPROX_QUANTILES(numberOfAdRequests / numberOfRequests, 100) AS percentAdRequestsQuantiles,
-  APPROX_QUANTILES(numberOfAnalyticsRequests / numberOfRequests, 100) AS percentAnalyticsRequestsQuantiles,
-  APPROX_QUANTILES(numberOfSocialRequests / numberOfRequests, 100) AS percentSocialRequestsQuantiles,
-  APPROX_QUANTILES(numberOfVideoRequests / numberOfRequests, 100) AS percentVideoRequestsQuantiles,
-  APPROX_QUANTILES(numberOfUtilityRequests / numberOfRequests, 100) AS percentUtilityRequestsQuantiles,
-  APPROX_QUANTILES(numberOfHostingRequests / numberOfRequests, 100) AS percentHostingRequestsQuantiles,
-  APPROX_QUANTILES(numberOfMarketingRequests / numberOfRequests, 100) AS percentMarketingRequestsQuantiles,
-  APPROX_QUANTILES(numberOfCustomerSuccessRequests / numberOfRequests, 100) AS percentCustomerSuccessRequestsQuantiles,
-  APPROX_QUANTILES(numberOfContentRequests / numberOfRequests, 100) AS percentContentRequestsQuantiles,
-  APPROX_QUANTILES(numberOfCdnRequests / numberOfRequests, 100) AS percentCdnRequestsQuantiles,
-  APPROX_QUANTILES(numberOfTagManagerRequests / numberOfRequests, 100) AS percentTagManagerRequestsQuantiles,
-  APPROX_QUANTILES(numberOfOtherRequests / numberOfRequests, 100) AS percentOtherRequestsQuantiles
-FROM (
-  SELECT
+# standardSQL
+# Percentile breakdown page-relative percentage of requests that are third party
+# requests broken down by third party category.
+select
     client,
-    pageUrl,
-    COUNT(0) AS numberOfRequests,
-    COUNTIF(thirdPartyDomain IS NULL) AS numberOfFirstPartyRequests,
-    COUNTIF(thirdPartyDomain IS NOT NULL) AS numberOfThirdPartyRequests,
-    COUNTIF(thirdPartyCategory = 'ad') AS numberOfAdRequests,
-    COUNTIF(thirdPartyCategory = 'analytics') AS numberOfAnalyticsRequests,
-    COUNTIF(thirdPartyCategory = 'social') AS numberOfSocialRequests,
-    COUNTIF(thirdPartyCategory = 'video') AS numberOfVideoRequests,
-    COUNTIF(thirdPartyCategory = 'utility') AS numberOfUtilityRequests,
-    COUNTIF(thirdPartyCategory = 'hosting') AS numberOfHostingRequests,
-    COUNTIF(thirdPartyCategory = 'marketing') AS numberOfMarketingRequests,
-    COUNTIF(thirdPartyCategory = 'customer-success') AS numberOfCustomerSuccessRequests,
-    COUNTIF(thirdPartyCategory = 'content') AS numberOfContentRequests,
-    COUNTIF(thirdPartyCategory = 'cdn') AS numberOfCdnRequests,
-    COUNTIF(thirdPartyCategory = 'tag-manager') AS numberOfTagManagerRequests,
-    COUNTIF(thirdPartyCategory = 'other' OR thirdPartyCategory IS NULL) AS numberOfOtherRequests
-  FROM (
-    SELECT
-      client,
-      page AS pageUrl,
-      DomainsOver50Table.requestDomain AS thirdPartyDomain,
-      ThirdPartyTable.category AS thirdPartyCategory
-    FROM
-      `httparchive.almanac.summary_requests`
-    LEFT JOIN
-      `lighthouse-infrastructure.third_party_web.2019_07_01` AS ThirdPartyTable
-    ON NET.HOST(url) = ThirdPartyTable.domain
-    LEFT JOIN
-      `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains` AS DomainsOver50Table
-    ON NET.HOST(url) = DomainsOver50Table.requestDomain
-    WHERE
-      date = '2019-07-01'
-  )
-  GROUP BY
-    client,
-    pageUrl
-)
-GROUP BY
-  client
+    count(0) as numberofpages,
+    countif(numberofthirdpartyrequests > 0) as numberofpageswiththirdparty,
+    approx_quantiles(
+        numberofthirdpartyrequests / numberofrequests, 100
+    ) as percentthirdpartyrequestsquantiles,
+    approx_quantiles(
+        numberofadrequests / numberofrequests, 100
+    ) as percentadrequestsquantiles,
+    approx_quantiles(
+        numberofanalyticsrequests / numberofrequests, 100
+    ) as percentanalyticsrequestsquantiles,
+    approx_quantiles(
+        numberofsocialrequests / numberofrequests, 100
+    ) as percentsocialrequestsquantiles,
+    approx_quantiles(
+        numberofvideorequests / numberofrequests, 100
+    ) as percentvideorequestsquantiles,
+    approx_quantiles(
+        numberofutilityrequests / numberofrequests, 100
+    ) as percentutilityrequestsquantiles,
+    approx_quantiles(
+        numberofhostingrequests / numberofrequests, 100
+    ) as percenthostingrequestsquantiles,
+    approx_quantiles(
+        numberofmarketingrequests / numberofrequests, 100
+    ) as percentmarketingrequestsquantiles,
+    approx_quantiles(
+        numberofcustomersuccessrequests / numberofrequests, 100
+    ) as percentcustomersuccessrequestsquantiles,
+    approx_quantiles(
+        numberofcontentrequests / numberofrequests, 100
+    ) as percentcontentrequestsquantiles,
+    approx_quantiles(
+        numberofcdnrequests / numberofrequests, 100
+    ) as percentcdnrequestsquantiles,
+    approx_quantiles(
+        numberoftagmanagerrequests / numberofrequests, 100
+    ) as percenttagmanagerrequestsquantiles,
+    approx_quantiles(
+        numberofotherrequests / numberofrequests, 100
+    ) as percentotherrequestsquantiles
+from
+    (
+        select
+            client,
+            pageurl,
+            count(0) as numberofrequests,
+            countif(thirdpartydomain is null) as numberoffirstpartyrequests,
+            countif(thirdpartydomain is not null) as numberofthirdpartyrequests,
+            countif(thirdpartycategory = 'ad') as numberofadrequests,
+            countif(thirdpartycategory = 'analytics') as numberofanalyticsrequests,
+            countif(thirdpartycategory = 'social') as numberofsocialrequests,
+            countif(thirdpartycategory = 'video') as numberofvideorequests,
+            countif(thirdpartycategory = 'utility') as numberofutilityrequests,
+            countif(thirdpartycategory = 'hosting') as numberofhostingrequests,
+            countif(thirdpartycategory = 'marketing') as numberofmarketingrequests,
+            countif(
+                thirdpartycategory = 'customer-success'
+            ) as numberofcustomersuccessrequests,
+            countif(thirdpartycategory = 'content') as numberofcontentrequests,
+            countif(thirdpartycategory = 'cdn') as numberofcdnrequests,
+            countif(thirdpartycategory = 'tag-manager') as numberoftagmanagerrequests,
+            countif(
+                thirdpartycategory = 'other' or thirdpartycategory is null
+            ) as numberofotherrequests
+        from
+            (
+                select
+                    client,
+                    page as pageurl,
+                    domainsover50table.requestdomain as thirdpartydomain,
+                    thirdpartytable.category as thirdpartycategory
+                from `httparchive.almanac.summary_requests`
+                left join
+                    `lighthouse-infrastructure.third_party_web.2019_07_01`
+                    as thirdpartytable
+                    on net.host(url) = thirdpartytable.domain
+                left join
+                    `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains`
+                    as domainsover50table
+                    on net.host(url) = domainsover50table.requestdomain
+                where date = '2019-07-01'
+            )
+        group by client, pageurl
+    )
+group by client

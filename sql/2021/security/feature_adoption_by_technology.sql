@@ -1,77 +1,114 @@
-#standardSQL
+# standardSQL
 # Adoption of features based on the technology that is used
-WITH totals AS (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    category,
-    app,
-    COUNT(url) AS total_pages_with_technology,
-    COUNT(DISTINCT IF(STARTS_WITH(url, 'https'), url, NULL)) AS total_https_pages
-  FROM
-    `httparchive.technologies.2021_07_01_*`
-  GROUP BY
+with
+    totals as (
+        select
+            _table_suffix as client,
+            category,
+            app,
+            count(url) as total_pages_with_technology,
+            count(
+                distinct if(starts_with(url, 'https'), url, null)
+            ) as total_https_pages
+        from `httparchive.technologies.2021_07_01_*`
+        group by client, category, app
+    )
+
+select
     client,
     category,
-    app
-)
-
-SELECT
-  client,
-  category,
-  app,
-  headername,
-  total_pages_with_technology,
-  total_https_pages,
-  COUNT(DISTINCT IF(REGEXP_CONTAINS(respOtherHeaders, CONCAT('(?i)', headername, ' ')), url, NULL)) AS freq,
-  SAFE_DIVIDE(COUNT(DISTINCT IF(REGEXP_CONTAINS(respOtherHeaders, CONCAT('(?i)', headername, ' ')), url, NULL)), total_pages_with_technology) AS pct,
-  SAFE_DIVIDE(COUNT(DISTINCT IF(REGEXP_CONTAINS(respOtherHeaders, CONCAT('(?i)', headername, ' ')) AND STARTS_WITH(url, 'https'), url, NULL)), total_https_pages) AS pct_https
-FROM (
-  SELECT
+    app,
+    headername,
     total_pages_with_technology,
     total_https_pages,
-    t._TABLE_SUFFIX AS client,
-    t.category,
-    t.app,
-    respOtherHeaders,
-    r.urlShort AS url,
-    firstHtml
-  FROM
-    `httparchive.summary_requests.2021_07_01_*` AS r
-  INNER JOIN
-    `httparchive.summary_pages.2021_07_01_*` AS p
-  ON
-    r._TABLE_SUFFIX = p._TABLE_SUFFIX AND
-    r.pageid = p.pageid
-  INNER JOIN
-    `httparchive.technologies.2021_07_01_*` AS t
-  ON
-    p._TABLE_SUFFIX = t._TABLE_SUFFIX AND
-    p.urlShort = t.url
-  INNER JOIN
-    totals
-  ON
-    t._TABLE_SUFFIX = totals.client AND
-    t.category = totals.category AND
-    t.app = totals.app
-  WHERE
-    firstHtml
-),
-UNNEST(['Content-Security-Policy', 'Content-Security-Policy-Report-Only', 'Cross-Origin-Embedder-Policy', 'Cross-Origin-Opener-Policy',
-        'Cross-Origin-Resource-Policy', 'Expect-CT', 'Feature-Policy', 'Permissions-Policy', 'Referrer-Policy', 'Report-To',
-        'Strict-Transport-Security', 'X-Content-Type-Options', 'X-Frame-Options', 'X-XSS-Protection']) AS headername
-GROUP BY
-  client,
-  category,
-  app,
-  headername,
-  total_pages_with_technology,
-  total_https_pages
-HAVING
-  total_pages_with_technology >= 1000 AND
-  category IN UNNEST(['Blogs', 'CDN', 'Web frameworks', 'Programming languages', 'CMS', 'Ecommerce', 'PaaS', 'Security']) AND
-  pct >= 0.50
-ORDER BY
-  client,
-  category,
-  app,
-  headername
+    count(
+        distinct if(
+            regexp_contains(respotherheaders, concat('(?i)', headername, ' ')),
+            url,
+            null
+        )
+    ) as freq,
+    safe_divide(
+        count(
+            distinct if(
+                regexp_contains(respotherheaders, concat('(?i)', headername, ' ')),
+                url,
+                null
+            )
+        ),
+        total_pages_with_technology
+    ) as pct,
+    safe_divide(
+        count(
+            distinct if(
+                regexp_contains(respotherheaders, concat('(?i)', headername, ' '))
+                and starts_with(url, 'https'),
+                url,
+                null
+            )
+        ),
+        total_https_pages
+    ) as pct_https
+from
+    (
+        select
+            total_pages_with_technology,
+            total_https_pages,
+            t._table_suffix as client,
+            t.category,
+            t.app,
+            respotherheaders,
+            r.urlshort as url,
+            firsthtml
+        from `httparchive.summary_requests.2021_07_01_*` as r
+        inner join
+            `httparchive.summary_pages.2021_07_01_*` as p
+            on r._table_suffix = p._table_suffix
+            and r.pageid = p.pageid
+        inner join
+            `httparchive.technologies.2021_07_01_*` as t
+            on p._table_suffix = t._table_suffix
+            and p.urlshort = t.url
+        inner join
+            totals
+            on t._table_suffix = totals.client
+            and t.category = totals.category
+            and t.app = totals.app
+        where firsthtml
+    ),
+    unnest(
+        [
+            'Content-Security-Policy',
+            'Content-Security-Policy-Report-Only',
+            'Cross-Origin-Embedder-Policy',
+            'Cross-Origin-Opener-Policy',
+            'Cross-Origin-Resource-Policy',
+            'Expect-CT',
+            'Feature-Policy',
+            'Permissions-Policy',
+            'Referrer-Policy',
+            'Report-To',
+            'Strict-Transport-Security',
+            'X-Content-Type-Options',
+            'X-Frame-Options',
+            'X-XSS-Protection'
+        ]
+    ) as headername
+group by
+    client, category, app, headername, total_pages_with_technology, total_https_pages
+having
+    total_pages_with_technology >= 1000
+    and category in unnest(
+        [
+            'Blogs',
+            'CDN',
+            'Web frameworks',
+            'Programming languages',
+            'CMS',
+            'Ecommerce',
+            'PaaS',
+            'Security'
+        ]
+    )
+    and pct >= 0.50
+order by client, category, app, headername

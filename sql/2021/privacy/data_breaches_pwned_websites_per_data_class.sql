@@ -1,18 +1,11 @@
-#standardSQL
+# standardSQL
 # HaveIBeenPwned breaches by type of data breached, e.g., email addresses
 # https://docs.google.com/spreadsheets/d/148SxZICZ24O44roIuEkRgbpIobWXpqLxegCDhIiX8XA/edit#gid=1158689200
-
-SELECT
-  data_class,
-  COUNT(DISTINCT Title) AS number_of_breaches,
-  SUM(PwnCount) AS number_of_affected_accounts
-FROM
-  `httparchive.almanac.breaches`,
-  UNNEST(JSON_VALUE_ARRAY(DataClasses)) AS data_class
-WHERE
-  date = '2021-07-01' AND
-  BreachDate BETWEEN '2020-08-01' AND '2021-07-31'
-GROUP BY
-  data_class
-ORDER BY
-  number_of_breaches DESC
+select
+    data_class,
+    count(distinct title) as number_of_breaches,
+    sum(pwncount) as number_of_affected_accounts
+from `httparchive.almanac.breaches`, unnest(json_value_array(dataclasses)) as data_class
+where date = '2021-07-01' and breachdate between '2020-08-01' and '2021-07-31'
+group by data_class
+order by number_of_breaches desc

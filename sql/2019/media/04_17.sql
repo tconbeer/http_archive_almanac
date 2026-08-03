@@ -1,29 +1,26 @@
-#standardSQL
+# standardSQL
 # 04_17: Video player size
-SELECT
-  percentile,
-  client,
-  player,
-  SUM(COUNT(0)) OVER (PARTITION BY client, player) AS requests,
-  ROUND(APPROX_QUANTILES(respSize, 1000)[OFFSET(percentile * 10)] / 1024, 2) AS kbytes
-FROM (
-  SELECT
+select
+    percentile,
     client,
-    respSize,
-    LOWER(REGEXP_EXTRACT(url, '(?i)(hls|video|shaka|jwplayer|brightcove-player-loader|flowplayer)[(?:\\.min)]?\\.js')) AS player
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2019-07-01' AND
-    type = 'script'),
-  UNNEST([10, 25, 50, 75, 90]) AS percentile
-WHERE
-  player IS NOT NULL
-GROUP BY
-  percentile,
-  client,
-  player
-ORDER BY
-  percentile,
-  client,
-  kbytes DESC
+    player,
+    sum(count(0)) over (partition by client, player) as requests,
+    round(approx_quantiles(respsize, 1000)[offset(percentile * 10)] / 1024, 2) as kbytes
+from
+    (
+        select
+            client,
+            respsize,
+            lower(
+                regexp_extract(
+                    url,
+                    '(?i)(hls|video|shaka|jwplayer|brightcove-player-loader|flowplayer)[(?:\\.min)]?\\.js'
+                )
+            ) as player
+        from `httparchive.almanac.requests`
+        where date = '2019-07-01' and type = 'script'
+    ),
+    unnest([10, 25, 50, 75, 90]) as percentile
+where player is not null
+group by percentile, client, player
+order by percentile, client, kbytes desc

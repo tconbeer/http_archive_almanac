@@ -1,19 +1,15 @@
-SELECT
-  client,
-  sizes,
-  COUNT(0) AS freq,
-  SUM(COUNT(0)) OVER (PARTITION BY 0) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY 0) AS pct
-FROM
-  `httparchive.almanac.summary_response_bodies`,
-  UNNEST(REGEXP_EXTRACT_ALL(body, r'(?im)<(?:source|img)[^>]*sizes=[\'"]?([^\'"]*)')) AS sizes
-WHERE
-  date = '2021-07-01' AND
-  firstHtml
-GROUP BY
-  client,
-  sizes
-ORDER BY
-  freq DESC
-LIMIT
-  100
+select
+    client,
+    sizes,
+    count(0) as freq,
+    sum(count(0)) over (partition by 0) as total,
+    count(0) / sum(count(0)) over (partition by 0) as pct
+from
+    `httparchive.almanac.summary_response_bodies`,
+    unnest(
+        regexp_extract_all(body, r'(?im)<(?:source|img)[^>]*sizes=[\'"]?([^\'"]*)')
+    ) as sizes
+where date = '2021-07-01' and firsthtml
+group by client, sizes
+order by freq desc
+limit 100

@@ -1,25 +1,18 @@
-#standardSQL
+# standardSQL
 # images mimetype vs extension
-SELECT
-  client,
-  ext,
-  mimetype,
-  COUNT(0) AS ext_mime_image_count,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_images,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client)) AS total_image_pct,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client, ext)) AS ext_pct,
-  SAFE_DIVIDE(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY client, mimetype)) AS mime_pct
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2020-08-01' AND
-  type = 'image'
-GROUP BY
-  client,
-  ext,
-  mimetype
-HAVING
-  ext_mime_image_count > 10000
-ORDER BY
-  ext_mime_image_count DESC,
-  client
+select
+    client,
+    ext,
+    mimetype,
+    count(0) as ext_mime_image_count,
+    sum(count(0)) over (partition by client) as total_images,
+    safe_divide(count(0), sum(count(0)) over (partition by client)) as total_image_pct,
+    safe_divide(count(0), sum(count(0)) over (partition by client, ext)) as ext_pct,
+    safe_divide(
+        count(0), sum(count(0)) over (partition by client, mimetype)
+    ) as mime_pct
+from `httparchive.almanac.requests`
+where date = '2020-08-01' and type = 'image'
+group by client, ext, mimetype
+having ext_mime_image_count > 10000
+order by ext_mime_image_count desc, client

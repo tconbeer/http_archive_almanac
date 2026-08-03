@@ -1,7 +1,9 @@
-#standardSQL
-#icon_fonts
-CREATE TEMPORARY FUNCTION checksSupports(css STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+# standardSQL
+# icon_fonts
+create temporary function checkssupports(css string)
+returns array<string>
+language js
+as '''
 try {
     var reduceValues = (values, rule) => {
         if (rule.type == 'stylesheet' && rule.supports.toLowerCase().includes('icon')) {
@@ -14,22 +16,27 @@ try {
 } catch (e) {
     return [];
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  COUNT(DISTINCT page) AS pages,
-  total_page,
-  COUNT(DISTINCT page) / total_page AS pct_ficon
-FROM
-  `httparchive.almanac.parsed_css`
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total_page FROM `httparchive.summary_pages.2020_08_01_*` GROUP BY _TABLE_SUFFIX)
-USING
-  (client)
-WHERE
-  ARRAY_LENGTH(checksSupports(css)) > 0 AND date = '2020-08-01' OR url LIKE '%fontawesome%' OR url LIKE '%icomoon%' OR url LIKE '%fontello%' OR url LIKE '%iconic%'
-GROUP BY
-  client, url, total_page
-ORDER BY
-  client, pages DESC
+select
+    client,
+    count(distinct page) as pages,
+    total_page,
+    count(distinct page) / total_page as pct_ficon
+from `httparchive.almanac.parsed_css`
+join
+    (
+        select _table_suffix as client, count(0) as total_page
+        from `httparchive.summary_pages.2020_08_01_*`
+        group by _table_suffix
+    ) using (client)
+where
+    array_length(checkssupports(css)) > 0
+    and date = '2020-08-01'
+    or url like '%fontawesome%'
+    or url like '%icomoon%'
+    or url like '%fontello%'
+    or url like '%iconic%'
+group by client, url, total_page
+order by client, pages desc

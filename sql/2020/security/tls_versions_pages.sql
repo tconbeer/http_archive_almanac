@@ -1,25 +1,22 @@
-#standardSQL
+# standardSQL
 # Distribution of TLS versions on all TLS-enabled web pages
-SELECT
-  client,
-  tls_version,
-  SUM(COUNT(0)) OVER (PARTITION BY client) AS total_pages,
-  COUNT(0) AS freq,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client) AS pct
-FROM (
-  SELECT
+select
     client,
-    IFNULL(JSON_EXTRACT_SCALAR(payload, '$._tls_version'), JSON_EXTRACT_SCALAR(payload, '$._securityDetails.protocol')) AS tls_version
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01' AND
-    STARTS_WITH(url, 'https') AND
-    firstHtml)
-WHERE
-  tls_version IS NOT NULL
-GROUP BY
-  client,
-  tls_version
-ORDER BY
-  pct DESC
+    tls_version,
+    sum(count(0)) over (partition by client) as total_pages,
+    count(0) as freq,
+    count(0) / sum(count(0)) over (partition by client) as pct
+from
+    (
+        select
+            client,
+            ifnull(
+                json_extract_scalar(payload, '$._tls_version'),
+                json_extract_scalar(payload, '$._securityDetails.protocol')
+            ) as tls_version
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01' and starts_with(url, 'https') and firsthtml
+    )
+where tls_version is not null
+group by client, tls_version
+order by pct desc

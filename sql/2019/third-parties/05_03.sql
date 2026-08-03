@@ -1,30 +1,29 @@
-#standardSQL
-# Percentage of requests that are third party requests broken down by third party category by resource type.
-SELECT
-  client,
-  thirdPartyCategory,
-  contentType,
-  COUNT(0) AS totalRequests,
-  ROUND(COUNT(0) * 100 / SUM(COUNT(0)) OVER (), 4) AS percentRequests
-FROM (
-  SELECT
+# standardSQL
+# Percentage of requests that are third party requests broken down by third party
+# category by resource type.
+select
     client,
-    type AS contentType,
-    IFNULL(ThirdPartyTable.category,
-      IF(DomainsOver50Table.requestDomain IS NULL, 'first-party', 'other')
-    ) AS thirdPartyCategory
-  FROM
-    `httparchive.almanac.summary_requests`
-  LEFT JOIN
-    `lighthouse-infrastructure.third_party_web.2019_07_01` AS ThirdPartyTable
-  ON NET.HOST(url) = ThirdPartyTable.domain
-  LEFT JOIN
-    `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains` AS DomainsOver50Table
-  ON NET.HOST(url) = DomainsOver50Table.requestDomain
-  WHERE
-    date = '2019-07-01'
-)
-GROUP BY
-  client,
-  thirdPartyCategory,
-  contentType
+    thirdpartycategory,
+    contenttype,
+    count(0) as totalrequests,
+    round(count(0) * 100 / sum(count(0)) over (), 4) as percentrequests
+from
+    (
+        select
+            client,
+            type as contenttype,
+            ifnull(
+                thirdpartytable.category,
+                if(domainsover50table.requestdomain is null, 'first-party', 'other')
+            ) as thirdpartycategory
+        from `httparchive.almanac.summary_requests`
+        left join
+            `lighthouse-infrastructure.third_party_web.2019_07_01` as thirdpartytable
+            on net.host(url) = thirdpartytable.domain
+        left join
+            `lighthouse-infrastructure.third_party_web.2019_07_01_all_observed_domains`
+            as domainsover50table
+            on net.host(url) = domainsover50table.requestdomain
+        where date = '2019-07-01'
+    )
+group by client, thirdpartycategory, contenttype

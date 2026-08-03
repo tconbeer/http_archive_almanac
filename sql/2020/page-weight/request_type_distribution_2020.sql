@@ -1,21 +1,17 @@
-#standardSQL
+# standardSQL
 # 18_02: Distribution of requests by resource type and client
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  APPROX_QUANTILES(reqTotal, 1000)[OFFSET(percentile * 10)] AS total_req,
-  APPROX_QUANTILES(reqHtml, 1000)[OFFSET(percentile * 10)] AS html_req,
-  APPROX_QUANTILES(reqJS, 1000)[OFFSET(percentile * 10)] AS js_req,
-  APPROX_QUANTILES(reqCSS, 1000)[OFFSET(percentile * 10)] AS css_req,
-  APPROX_QUANTILES(reqImg, 1000)[OFFSET(percentile * 10)] AS img_req,
-  APPROX_QUANTILES(reqJson, 1000)[OFFSET(percentile * 10)] AS json_req,
-  APPROX_QUANTILES(reqOther, 1000)[OFFSET(percentile * 10)] AS other_req
-FROM
-  `httparchive.summary_pages.2020_08_01_*`,
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  client,
-  percentile
+select
+    percentile,
+    _table_suffix as client,
+    approx_quantiles(reqtotal, 1000)[offset(percentile * 10)] as total_req,
+    approx_quantiles(reqhtml, 1000)[offset(percentile * 10)] as html_req,
+    approx_quantiles(reqjs, 1000)[offset(percentile * 10)] as js_req,
+    approx_quantiles(reqcss, 1000)[offset(percentile * 10)] as css_req,
+    approx_quantiles(reqimg, 1000)[offset(percentile * 10)] as img_req,
+    approx_quantiles(reqjson, 1000)[offset(percentile * 10)] as json_req,
+    approx_quantiles(reqother, 1000)[offset(percentile * 10)] as other_req
+from
+    `httparchive.summary_pages.2020_08_01_*`,
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by client, percentile

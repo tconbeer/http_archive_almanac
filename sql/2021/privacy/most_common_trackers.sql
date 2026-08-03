@@ -1,68 +1,49 @@
-#standardSQL
-# Pages that deploy a certain tracker (as defined by WhoTracks.me, i.e., one tracker can run on multiple domains)
+# standardSQL
+# Pages that deploy a certain tracker (as defined by WhoTracks.me, i.e., one tracker
+# can run on multiple domains)
+create temp function istrackercategory(category string)
+returns bool
+as
+    (
+        category = 'advertising'
+        or category = 'pornvertising'
+        or category = 'site_analytics'
+        or category = 'social_media'
+    )
+;
 
-CREATE TEMP FUNCTION isTrackerCategory(category STRING)
-RETURNS BOOL
-AS (
-  category = 'advertising' OR
-  category = 'pornvertising' OR
-  category = 'site_analytics' OR
-  category = 'social_media'
-);
+with
+    whotracksme as (
+        select domain, category, tracker
+        from `httparchive.almanac.whotracksme`
+        where date = '2021-07-01'
+    ),
 
-WITH whotracksme AS (
-  SELECT
-    domain,
-    category,
-    tracker
-  FROM
-    `httparchive.almanac.whotracksme`
-  WHERE
-    date = '2021-07-01'
-),
+    totals as (
+        select client, count(distinct page) as total_websites
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+        group by client
+    )
 
-totals AS (
-  SELECT
+select
     client,
-    COUNT(DISTINCT page) AS total_websites
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-  GROUP BY
-    client
-)
-
-SELECT
-  client,
-  tracker,
-  category,
-  tracker || ' (' || category || ')' AS tracker_and_category,
-  isTrackerCategory(category) AS isTracker,
-  COUNT(DISTINCT page) AS number_of_websites,
-  total_websites,
-  COUNT(DISTINCT page) / total_websites AS pct_websites
-FROM
-  `httparchive.almanac.requests`
-JOIN
-  whotracksme
-ON (
-  NET.HOST(urlShort) = domain OR
-  ENDS_WITH(NET.HOST(urlShort), CONCAT('.', domain))
-)
-JOIN
-  totals
-USING (client)
-WHERE
-  date = '2021-07-01' AND
-  NET.REG_DOMAIN(page) != NET.REG_DOMAIN(urlShort) -- third party
-GROUP BY
-  client,
-  tracker,
-  category,
-  isTracker,
-  total_websites
-ORDER BY
-  pct_websites DESC,
-  client
-LIMIT 1000
+    tracker,
+    category,
+    tracker || ' (' || category || ')' as tracker_and_category,
+    istrackercategory(category) as istracker,
+    count(distinct page) as number_of_websites,
+    total_websites,
+    count(distinct page) / total_websites as pct_websites
+from `httparchive.almanac.requests`
+join
+    whotracksme
+    on (
+        net.host(urlshort) = domain
+        or ends_with(net.host(urlshort), concat('.', domain))
+    )
+join totals using (client)
+where date = '2021-07-01' and net.reg_domain(page) != net.reg_domain(urlshort)  -- third party
+group by client, tracker, category, istracker, total_websites
+order by pct_websites desc, client
+limit 1000

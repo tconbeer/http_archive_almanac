@@ -1,31 +1,30 @@
-#standardSQL
+# standardSQL
 # Histogram of JS bytes by 3P
-SELECT
-  client,
-  host,
-  IF(kbytes < 100, FLOOR(kbytes / 5) * 5, 100) AS kbytes,
-  COUNT(DISTINCT page) AS pages,
-  COUNT(0) AS requests,
-  SUM(COUNT(0)) OVER (PARTITION BY client, host) AS total,
-  COUNT(0) / SUM(COUNT(0)) OVER (PARTITION BY client, host) AS pct
-FROM (
-  SELECT
+select
     client,
-    page,
-    IF(NET.HOST(url) IN (
-      SELECT domain FROM `httparchive.almanac.third_parties` WHERE date = '2020-08-01' AND category != 'hosting'
-    ), 'third party', 'first party') AS host,
-    respSize / 1024 AS kbytes
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-08-01' AND
-    type = 'script')
-GROUP BY
-  client,
-  host,
-  kbytes
-ORDER BY
-  kbytes,
-  client,
-  host
+    host,
+    if(kbytes < 100, floor(kbytes / 5) * 5, 100) as kbytes,
+    count(distinct page) as pages,
+    count(0) as requests,
+    sum(count(0)) over (partition by client, host) as total,
+    count(0) / sum(count(0)) over (partition by client, host) as pct
+from
+    (
+        select
+            client,
+            page,
+            if(
+                net.host(url) in (
+                    select domain
+                    from `httparchive.almanac.third_parties`
+                    where date = '2020-08-01' and category != 'hosting'
+                ),
+                'third party',
+                'first party'
+            ) as host,
+            respsize / 1024 as kbytes
+        from `httparchive.almanac.requests`
+        where date = '2020-08-01' and type = 'script'
+    )
+group by client, host, kbytes
+order by kbytes, client, host

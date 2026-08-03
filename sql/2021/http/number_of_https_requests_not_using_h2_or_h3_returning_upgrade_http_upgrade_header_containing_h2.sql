@@ -1,7 +1,11 @@
 # standardSQL
-# Number of HTTPS requests not using H2 or H3 returning upgrade HTTP header containing H2
-CREATE TEMPORARY FUNCTION extractHTTPHeader(HTTPheaders STRING, header STRING)
-RETURNS STRING LANGUAGE js AS """
+# Number of HTTPS requests not using H2 or H3 returning upgrade HTTP header containing
+# H2
+create temporary function extracthttpheader(httpheaders string, header string)
+returns string
+language js
+as
+    """
 try {
   var headers = JSON.parse(HTTPheaders);
 
@@ -12,22 +16,20 @@ try {
 } catch (e) {
   return "";
 }
-""";
+"""
+;
 
-SELECT
-  client,
-  firstHtml,
-  COUNTIF(extractHTTPHeader(response_headers, 'upgrade') LIKE '%h2%') AS num_requests,
-  COUNT(0) AS total
-FROM
-  `httparchive.almanac.requests`
-WHERE
-  date = '2021-07-01' AND
-  url LIKE 'https://%' AND
-  LOWER(protocol) != 'http/2' AND
-  LOWER(protocol) NOT LIKE '%quic%' AND
-  LOWER(protocol) NOT LIKE 'h3%' AND
-  LOWER(protocol) != 'http/3'
-GROUP BY
-  client,
-  firstHtml
+select
+    client,
+    firsthtml,
+    countif(extracthttpheader(response_headers, 'upgrade') like '%h2%') as num_requests,
+    count(0) as total
+from `httparchive.almanac.requests`
+where
+    date = '2021-07-01'
+    and url like 'https://%'
+    and lower(protocol) != 'http/2'
+    and lower(protocol) not like '%quic%'
+    and lower(protocol) not like 'h3%'
+    and lower(protocol) != 'http/3'
+group by client, firsthtml

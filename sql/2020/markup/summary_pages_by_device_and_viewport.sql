@@ -1,12 +1,15 @@
-#standardSQL
+# standardSQL
 # Viewport M219
+create temp function as_percent(freq float64, total float64)
+returns float64
+as (round(safe_divide(freq, total), 4))
+;
 
-CREATE TEMP FUNCTION AS_PERCENT (freq FLOAT64, total FLOAT64) RETURNS FLOAT64 AS (
-  ROUND(SAFE_DIVIDE(freq, total), 4)
-);
-
-CREATE TEMPORARY FUNCTION normalise(content STRING)
-RETURNS STRING LANGUAGE js AS '''
+create temporary function normalise(content string)
+returns string
+language js
+as
+    '''
 try {
   // split by ,
   // trim
@@ -18,19 +21,15 @@ try {
 } catch (e) {
   return '';
 }
-''';
+'''
+;
 
-SELECT
-  _TABLE_SUFFIX AS client,
-  normalise(meta_viewport) AS meta_viewport,
-  COUNT(0) AS freq,
-  AS_PERCENT(COUNT(0), SUM(COUNT(0)) OVER (PARTITION BY _TABLE_SUFFIX)) AS pct_m219
-FROM
-  `httparchive.summary_pages.2020_08_01_*`
-GROUP BY
-  client,
-  meta_viewport
-ORDER BY
-  freq DESC,
-  client
-LIMIT 100
+select
+    _table_suffix as client,
+    normalise(meta_viewport) as meta_viewport,
+    count(0) as freq,
+    as_percent(count(0), sum(count(0)) over (partition by _table_suffix)) as pct_m219
+from `httparchive.summary_pages.2020_08_01_*`
+group by client, meta_viewport
+order by freq desc, client
+limit 100

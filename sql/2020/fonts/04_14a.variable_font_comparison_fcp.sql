@@ -1,48 +1,49 @@
-#standardSQL
-#variable_font_comparison_fcp
-SELECT
-  client,
-  variable_fonts > 0 AS uses_variable_fonts,
-  COUNT(DISTINCT IF(variable_fonts > 0, page, NULL)) AS pages_with_variable_fonts,
-  total,
-  COUNT(DISTINCT IF(variable_fonts > 0, page, NULL)) / total AS pct,
-  APPROX_QUANTILES(fcp, 1000)[OFFSET(500)] AS median_fcp,
-  APPROX_QUANTILES(lcp, 1000)[OFFSET(500)] AS median_lcp
-FROM (
-  SELECT
+# standardSQL
+# variable_font_comparison_fcp
+select
     client,
-    page,
-    COUNTIF(REGEXP_CONTAINS(JSON_EXTRACT(payload, '$._font_details.table_sizes'), '(?i)gvar')) AS variable_fonts
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2020-09-01'
-  GROUP BY
-    client,
-    page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    url AS page,
-    CAST(JSON_EXTRACT_SCALAR(payload, "$['_chromeUserTiming.firstContentfulPaint']") AS INT64) AS fcp,
-    CAST(JSON_EXTRACT_SCALAR(payload, "$['_chromeUserTiming.LargestContentfulPaint']") AS INT64) AS lcp
-  FROM
-    `httparchive.pages.2020_09_01_*`
-  GROUP BY
-    _TABLE_SUFFIX, url, payload )
-USING
-  (client, page)
-JOIN (
-  SELECT
-    _TABLE_SUFFIX AS client,
-    COUNT(0) AS total
-  FROM
-    `httparchive.pages.2020_09_01_*`
-  GROUP BY
-    _TABLE_SUFFIX )
-USING
-  (client)
-GROUP BY
-  client,
-  total,
-  uses_variable_fonts
+    variable_fonts > 0 as uses_variable_fonts,
+    count(distinct if(variable_fonts > 0, page, null)) as pages_with_variable_fonts,
+    total,
+    count(distinct if(variable_fonts > 0, page, null)) / total as pct,
+    approx_quantiles(fcp, 1000)[offset(500)] as median_fcp,
+    approx_quantiles(lcp, 1000)[offset(500)] as median_lcp
+from
+    (
+        select
+            client,
+            page,
+            countif(
+                regexp_contains(
+                    json_extract(payload, '$._font_details.table_sizes'), '(?i)gvar'
+                )
+            ) as variable_fonts
+        from `httparchive.almanac.requests`
+        where date = '2020-09-01'
+        group by client, page
+    )
+join
+    (
+        select
+            _table_suffix as client,
+            url as page,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.firstContentfulPaint']"
+                ) as int64
+            ) as fcp,
+            cast(
+                json_extract_scalar(
+                    payload, "$['_chromeUserTiming.LargestContentfulPaint']"
+                ) as int64
+            ) as lcp
+        from `httparchive.pages.2020_09_01_*`
+        group by _table_suffix, url, payload
+    ) using (client, page)
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.pages.2020_09_01_*`
+        group by _table_suffix
+    ) using (client)
+group by client, total, uses_variable_fonts

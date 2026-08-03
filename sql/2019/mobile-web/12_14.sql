@@ -1,9 +1,9 @@
-#standardSQL
-
+# standardSQL
 # input attributes
-
-CREATE TEMPORARY FUNCTION getInputAttributes(payload STRING)
-RETURNS ARRAY<STRING> LANGUAGE js AS '''
+create temporary function getinputattributes(payload string)
+returns array<string>
+language js
+as '''
   var attrs = [];
   try {
     var $ = JSON.parse(payload);
@@ -17,10 +17,13 @@ RETURNS ARRAY<STRING> LANGUAGE js AS '''
   } catch (e) {
     return [];
   }
-''';
+'''
+;
 
-CREATE TEMPORARY FUNCTION hasInputs(payload STRING)
-RETURNS BOOLEAN LANGUAGE js AS '''
+create temporary function hasinputs(payload string)
+returns boolean
+language js
+as '''
   try {
     var $ = JSON.parse(payload);
     var almanac = JSON.parse($._almanac);
@@ -33,21 +36,25 @@ RETURNS BOOLEAN LANGUAGE js AS '''
   } catch (e) {
     return 0;
   }
-''';
+'''
+;
 
-SELECT
-  total_pages_with_inputs,
-  SUM(COUNT(0)) OVER () AS total_inputs,
-  input_attributes,
+select
+    total_pages_with_inputs,
+    sum(count(0)) over () as total_inputs,
+    input_attributes,
 
-  COUNT(input_attributes) AS occurence,
-  COUNT(DISTINCT url) AS total_pages_using,
-  ROUND(COUNT(input_attributes) * 100 / SUM(COUNT(0)) OVER (), 2) AS occurence_perc,
-  ROUND(COUNT(DISTINCT url) * 100 / total_pages_with_inputs, 2) AS perc_of_pages_using
-FROM
-  `httparchive.pages.2019_07_01_mobile`,
-  UNNEST(getInputAttributes(payload)) AS input_attributes,
-  (SELECT COUNTIF(hasInputs(payload)) AS total_pages_with_inputs FROM `httparchive.pages.2019_07_01_mobile`)
-GROUP BY input_attributes, total_pages_with_inputs
-ORDER BY perc_of_pages_using DESC
-LIMIT 1000
+    count(input_attributes) as occurence,
+    count(distinct url) as total_pages_using,
+    round(count(input_attributes) * 100 / sum(count(0)) over (), 2) as occurence_perc,
+    round(count(distinct url) * 100 / total_pages_with_inputs, 2) as perc_of_pages_using
+from
+    `httparchive.pages.2019_07_01_mobile`,
+    unnest(getinputattributes(payload)) as input_attributes,
+    (
+        select countif(hasinputs(payload)) as total_pages_with_inputs
+        from `httparchive.pages.2019_07_01_mobile`
+    )
+group by input_attributes, total_pages_with_inputs
+order by perc_of_pages_using desc
+limit 1000

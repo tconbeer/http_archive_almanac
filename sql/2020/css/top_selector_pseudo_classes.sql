@@ -1,15 +1,16 @@
-#standardSQL
-CREATE TEMPORARY FUNCTION getSelectorParts(css STRING)
-RETURNS STRUCT<
-  class ARRAY<STRING>,
-  id ARRAY<STRING>,
-  attribute ARRAY<STRING>,
-  pseudo_class ARRAY<STRING>,
-  pseudo_element ARRAY<STRING>
->
-LANGUAGE js
-OPTIONS (library = "gs://httparchive/lib/css-utils.js")
-AS '''
+# standardSQL
+create temporary function getselectorparts(css string)
+returns
+    struct<
+        class array<string>,
+        id array<string>,
+        attribute array<string>,
+        pseudo_class array<string>,
+        pseudo_element array<string>
+    >
+language js
+options (library = "gs://httparchive/lib/css-utils.js")
+as '''
 try {
   function compute(ast) {
     let ret = {
@@ -55,36 +56,33 @@ try {
 } catch (e) {
   return null;
 }
-''';
+'''
+;
 
-SELECT
-  client,
-  pages,
-  pseudo_class.value AS pseudo_class,
-  pseudo_class.count AS freq,
-  pseudo_class.count / pages AS pct
-FROM (
-  SELECT
+select
     client,
-    COUNT(DISTINCT page) AS pages,
-    APPROX_TOP_COUNT(pseudo_class, 100) AS pseudo_classes
-  FROM (
-      SELECT DISTINCT
-        client,
-        page,
-        pseudo_class
-      FROM
-        `httparchive.almanac.parsed_css`
-      LEFT JOIN
-        UNNEST(getSelectorParts(css).pseudo_class) AS pseudo_class
-      WHERE
-        date = '2020-08-01' AND
-        # Limit the size of the CSS to avoid OOM crashes.
-        LENGTH(css) < 0.1 * 1024 * 1024)
-  GROUP BY
-    client),
-  UNNEST(pseudo_classes) AS pseudo_class
-WHERE
-  pseudo_class.value IS NOT NULL
-ORDER BY
-  pct DESC
+    pages,
+    pseudo_class.value as pseudo_class,
+    pseudo_class.count as freq,
+    pseudo_class.count / pages as pct
+from
+    (
+        select
+            client,
+            count(distinct page) as pages,
+            approx_top_count(pseudo_class, 100) as pseudo_classes
+        from
+            (
+                select distinct client, page, pseudo_class
+                from `httparchive.almanac.parsed_css`
+                left join unnest(getselectorparts(css).pseudo_class) as pseudo_class
+                where
+                    date = '2020-08-01'
+                    # Limit the size of the CSS to avoid OOM crashes.
+                    and length(css) < 0.1 * 1024 * 1024
+            )
+        group by client
+    ),
+    unnest(pseudo_classes) as pseudo_class
+where pseudo_class.value is not null
+order by pct desc

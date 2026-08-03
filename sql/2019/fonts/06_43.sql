@@ -1,27 +1,27 @@
-#standardSQL
+# standardSQL
 # 06_43: Top color font formats
-SELECT
-  client,
-  format,
-  COUNT(0) AS freq,
-  COUNT(DISTINCT page) AS pages,
-  total,
-  ROUND(COUNT(0) * 100 / total, 2) AS pct,
-  ROUND(COUNT(DISTINCT page) * 100 / total, 2) AS pct_pages
-FROM
-  `httparchive.almanac.requests`
-JOIN
-  (SELECT _TABLE_SUFFIX AS client, COUNT(0) AS total FROM `httparchive.summary_pages.2019_07_01_*` GROUP BY _TABLE_SUFFIX)
-USING
-  (client),
-  # Color fonts have any of sbix, cbdt, svg or colr tables.
-  UNNEST(REGEXP_EXTRACT_ALL(JSON_EXTRACT(payload, '$._font_details.table_sizes'), '(?i)(sbix|cbdt|svg|colr)')) AS format
-WHERE
-  date = '2019-07-01' AND
-  type = 'font'
-GROUP BY
-  client,
-  total,
-  format
-ORDER BY
-  freq / total DESC
+select
+    client,
+    format,
+    count(0) as freq,
+    count(distinct page) as pages,
+    total,
+    round(count(0) * 100 / total, 2) as pct,
+    round(count(distinct page) * 100 / total, 2) as pct_pages
+from `httparchive.almanac.requests`
+join
+    (
+        select _table_suffix as client, count(0) as total
+        from `httparchive.summary_pages.2019_07_01_*`
+        group by _table_suffix
+    ) using (client),
+    # Color fonts have any of sbix, cbdt, svg or colr tables.
+    unnest(
+        regexp_extract_all(
+            json_extract(payload, '$._font_details.table_sizes'),
+            '(?i)(sbix|cbdt|svg|colr)'
+        )
+    ) as format
+where date = '2019-07-01' and type = 'font'
+group by client, total, format
+order by freq / total desc

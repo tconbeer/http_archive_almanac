@@ -1,56 +1,81 @@
-#standardSQL
-# Cookie attributes (HttpOnly, Secure, SameSite, __Secure- and __Host- prefixes) for cookies set on first-party and third-party requests
-CREATE TEMPORARY FUNCTION getSetCookieHeaders(headers STRING)
-RETURNS ARRAY<STRING> DETERMINISTIC
-LANGUAGE js AS '''
+# standardSQL
+# Cookie attributes (HttpOnly, Secure, SameSite, __Secure- and __Host- prefixes) for
+# cookies set on first-party and third-party requests
+create temporary function getsetcookieheaders(headers string)
+returns array<string> deterministic
+language js
+as '''
   const parsed_headers = JSON.parse(headers);
   const cookies = parsed_headers.filter(h => h.name.match(/set-cookie/i));
   const cookieValues = cookies.map(h => h.value);
   return cookieValues;
-''';
+'''
+;
 
-SELECT
-  client,
-  party,
-  COUNT(0) AS total_cookies,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*httponly')) AS count_httponly,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*httponly')) / COUNT(0) AS pct_httponly,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*secure')) AS count_secure,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*secure')) / COUNT(0) AS pct_secure,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*samesite\s*=')) AS count_samesite,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*samesite\s*=')) / COUNT(0) AS pct_samesite,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*samesite\s*=\s*lax')) AS count_samesite_lax,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*samesite\s*=\s*lax')) / COUNT(0) AS pct_samesite_lax,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*samesite\s*=\s*strict')) AS count_samesite_strict,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*samesite\s*=\s*strict')) / COUNT(0) AS pct_samesite_strict,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*samesite\s*=\s*none')) AS count_samesite_none,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*samesite\s*=\s*none')) / COUNT(0) AS pct_samesite_none,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*sameparty')) AS count_sameparty,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*sameparty')) / COUNT(0) AS pct_sameparty,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*max-age\s*=\s*.+')) AS count_max_age,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*max-age\s*=\s*.+')) / COUNT(0) AS pct_max_age,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*expires\s*=\s*.+')) AS count_expires,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i);.*expires\s*=\s*.+')) / COUNT(0) AS pct_expires,
-  COUNTIF(NOT(REGEXP_CONTAINS(cookie_value, r'(?i);.*max-age\s*=\s*.+') OR REGEXP_CONTAINS(cookie_value, r'(?i);.*expires\s*=\s*.+'))) AS count_session,
-  COUNTIF(NOT(REGEXP_CONTAINS(cookie_value, r'(?i);.*max-age\s*=\s*.+') OR REGEXP_CONTAINS(cookie_value, r'(?i);.*expires\s*=\s*.+'))) / COUNT(0) AS pct_session,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i)^\s*__Secure-')) AS count_secure_prefix,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i)^\s*__Secure-')) / COUNT(0) AS pct_secure_prefix,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i)^\s*__Host-')) AS count_host_prefix,
-  COUNTIF(REGEXP_CONTAINS(cookie_value, r'(?i)^\s*__Host-')) / COUNT(0) AS pct_host_prefix
-FROM (
-  SELECT
+select
     client,
-    getSetCookieHeaders(response_headers) AS cookie_values,
-    IF(NET.REG_DOMAIN(url) = NET.REG_DOMAIN(page), 1, 3) AS party
-  FROM
-    `httparchive.almanac.requests`
-  WHERE
-    date = '2021-07-01'
-),
-UNNEST(cookie_values) AS cookie_value
-GROUP BY
-  client,
-  party
-ORDER BY
-  client,
-  party
+    party,
+    count(0) as total_cookies,
+    countif(regexp_contains(cookie_value, r'(?i);.*httponly')) as count_httponly,
+    countif(regexp_contains(cookie_value, r'(?i);.*httponly'))
+    / count(0) as pct_httponly,
+    countif(regexp_contains(cookie_value, r'(?i);.*secure')) as count_secure,
+    countif(regexp_contains(cookie_value, r'(?i);.*secure')) / count(0) as pct_secure,
+    countif(regexp_contains(cookie_value, r'(?i);.*samesite\s*=')) as count_samesite,
+    countif(regexp_contains(cookie_value, r'(?i);.*samesite\s*='))
+    / count(0) as pct_samesite,
+    countif(
+        regexp_contains(cookie_value, r'(?i);.*samesite\s*=\s*lax')
+    ) as count_samesite_lax,
+    countif(regexp_contains(cookie_value, r'(?i);.*samesite\s*=\s*lax'))
+    / count(0) as pct_samesite_lax,
+    countif(
+        regexp_contains(cookie_value, r'(?i);.*samesite\s*=\s*strict')
+    ) as count_samesite_strict,
+    countif(regexp_contains(cookie_value, r'(?i);.*samesite\s*=\s*strict'))
+    / count(0) as pct_samesite_strict,
+    countif(
+        regexp_contains(cookie_value, r'(?i);.*samesite\s*=\s*none')
+    ) as count_samesite_none,
+    countif(regexp_contains(cookie_value, r'(?i);.*samesite\s*=\s*none'))
+    / count(0) as pct_samesite_none,
+    countif(regexp_contains(cookie_value, r'(?i);.*sameparty')) as count_sameparty,
+    countif(regexp_contains(cookie_value, r'(?i);.*sameparty'))
+    / count(0) as pct_sameparty,
+    countif(regexp_contains(cookie_value, r'(?i);.*max-age\s*=\s*.+')) as count_max_age,
+    countif(regexp_contains(cookie_value, r'(?i);.*max-age\s*=\s*.+'))
+    / count(0) as pct_max_age,
+    countif(regexp_contains(cookie_value, r'(?i);.*expires\s*=\s*.+')) as count_expires,
+    countif(regexp_contains(cookie_value, r'(?i);.*expires\s*=\s*.+'))
+    / count(0) as pct_expires,
+    countif(
+        not (
+            regexp_contains(cookie_value, r'(?i);.*max-age\s*=\s*.+')
+            or regexp_contains(cookie_value, r'(?i);.*expires\s*=\s*.+')
+        )
+    ) as count_session,
+    countif(
+        not (
+            regexp_contains(cookie_value, r'(?i);.*max-age\s*=\s*.+')
+            or regexp_contains(cookie_value, r'(?i);.*expires\s*=\s*.+')
+        )
+    )
+    / count(0) as pct_session,
+    countif(regexp_contains(cookie_value, r'(?i)^\s*__Secure-')) as count_secure_prefix,
+    countif(regexp_contains(cookie_value, r'(?i)^\s*__Secure-'))
+    / count(0) as pct_secure_prefix,
+    countif(regexp_contains(cookie_value, r'(?i)^\s*__Host-')) as count_host_prefix,
+    countif(regexp_contains(cookie_value, r'(?i)^\s*__Host-'))
+    / count(0) as pct_host_prefix
+from
+    (
+        select
+            client,
+            getsetcookieheaders(response_headers) as cookie_values,
+            if(net.reg_domain(url) = net.reg_domain(page), 1, 3) as party
+        from `httparchive.almanac.requests`
+        where date = '2021-07-01'
+    ),
+    unnest(cookie_values) as cookie_value
+group by client, party
+order by client, party

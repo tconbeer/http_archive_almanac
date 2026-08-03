@@ -1,13 +1,11 @@
-#standardSQL
+# standardSQL
 # 02_19: Distribution of stylesheets per page
-SELECT
-  _TABLE_SUFFIX AS client,
-  APPROX_QUANTILES(reqCSS, 1000)[OFFSET(100)] AS p10,
-  APPROX_QUANTILES(reqCSS, 1000)[OFFSET(250)] AS p25,
-  APPROX_QUANTILES(reqCSS, 1000)[OFFSET(500)] AS p50,
-  APPROX_QUANTILES(reqCSS, 1000)[OFFSET(750)] AS p75,
-  APPROX_QUANTILES(reqCSS, 1000)[OFFSET(900)] AS p90
-FROM
-  `httparchive.summary_pages.2019_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    approx_quantiles(reqcss, 1000)[offset(100)] as p10,
+    approx_quantiles(reqcss, 1000)[offset(250)] as p25,
+    approx_quantiles(reqcss, 1000)[offset(500)] as p50,
+    approx_quantiles(reqcss, 1000)[offset(750)] as p75,
+    approx_quantiles(reqcss, 1000)[offset(900)] as p90
+from `httparchive.summary_pages.2019_07_01_*`
+group by client

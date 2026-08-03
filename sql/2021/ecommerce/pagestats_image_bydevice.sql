@@ -1,28 +1,22 @@
-#standardSQL
+# standardSQL
 # 13_06: Distribution of image stats for 2021
-SELECT
-  percentile,
-  _TABLE_SUFFIX AS client,
-  APPROX_QUANTILES(reqImg, 1000)[OFFSET(percentile * 10)] AS image_count,
-  APPROX_QUANTILES(bytesImg, 1000)[OFFSET(percentile * 10)] / 1024 AS image_kbytes
-FROM
-  `httparchive.summary_pages.2021_07_01_*`
-JOIN (
-  SELECT DISTINCT
-    _TABLE_SUFFIX,
-    url
-  FROM `httparchive.technologies.2021_07_01_*`
-  WHERE category = 'Ecommerce' AND
+select
+    percentile,
+    _table_suffix as client,
+    approx_quantiles(reqimg, 1000)[offset(percentile * 10)] as image_count,
+    approx_quantiles(bytesimg, 1000)[offset(percentile * 10)] / 1024 as image_kbytes
+from `httparchive.summary_pages.2021_07_01_*`
+join
     (
-      app != 'Cart Functionality' AND
-      app != 'Google Analytics Enhanced eCommerce'
-    )
-  )
-USING (_TABLE_SUFFIX, url),
-  UNNEST([10, 25, 50, 75, 90, 100]) AS percentile
-GROUP BY
-  percentile,
-  client
-ORDER BY
-  percentile,
-  client
+        select distinct _table_suffix, url
+        from `httparchive.technologies.2021_07_01_*`
+        where
+            category = 'Ecommerce'
+            and (
+                app != 'Cart Functionality'
+                and app != 'Google Analytics Enhanced eCommerce'
+            )
+    ) using (_table_suffix, url),
+    unnest([10, 25, 50, 75, 90, 100]) as percentile
+group by percentile, client
+order by percentile, client

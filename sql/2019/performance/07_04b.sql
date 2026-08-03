@@ -1,21 +1,23 @@
-#standardSQL
+# standardSQL
 # 07_04b: % fast FID per PSI by device
-SELECT
-  device,
-  ROUND(COUNTIF(fast_fid >= .95) * 100 / COUNT(0), 2) AS pct_fast_fid,
-  ROUND(COUNTIF(NOT(slow_fid >= .05) AND NOT(fast_fid >= .95)) * 100 / COUNT(0), 2) AS pct_avg_fid,
-  ROUND(COUNTIF(slow_fid >= .05) * 100 / COUNT(0), 2) AS pct_slow_fid
-FROM (
-  SELECT
+select
     device,
-    SAFE_DIVIDE(fast_fid, fast_fid + avg_fid + slow_fid) AS fast_fid,
-    SAFE_DIVIDE(avg_fid, fast_fid + avg_fid + slow_fid) AS avg_fid,
-    SAFE_DIVIDE(slow_fid, fast_fid + avg_fid + slow_fid) AS slow_fid
-  FROM
-    `chrome-ux-report.materialized.device_summary`
-  WHERE
-    yyyymm = '201907' AND
-    fast_fid + avg_fid + slow_fid > 0 AND
-    device IN ('desktop', 'phone'))
-GROUP BY
-  device
+    round(countif(fast_fid >= .95) * 100 / count(0), 2) as pct_fast_fid,
+    round(
+        countif(not (slow_fid >= .05) and not (fast_fid >= .95)) * 100 / count(0), 2
+    ) as pct_avg_fid,
+    round(countif(slow_fid >= .05) * 100 / count(0), 2) as pct_slow_fid
+from
+    (
+        select
+            device,
+            safe_divide(fast_fid, fast_fid + avg_fid + slow_fid) as fast_fid,
+            safe_divide(avg_fid, fast_fid + avg_fid + slow_fid) as avg_fid,
+            safe_divide(slow_fid, fast_fid + avg_fid + slow_fid) as slow_fid
+        from `chrome-ux-report.materialized.device_summary`
+        where
+            yyyymm = '201907'
+            and fast_fid + avg_fid + slow_fid > 0
+            and device in ('desktop', 'phone')
+    )
+group by device

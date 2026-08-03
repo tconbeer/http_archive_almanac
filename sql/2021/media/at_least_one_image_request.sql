@@ -1,9 +1,7 @@
-SELECT
-  _TABLE_SUFFIX AS client,
-  COUNTIF(reqImg > 0) AS atLeastOneImgReqCount,
-  COUNT(0) AS total,
-  SAFE_DIVIDE(COUNTIF(reqImg > 0), COUNT(0)) AS atLeastOneImgReqPct
-FROM
-  `httparchive.summary_pages.2021_07_01_*`
-GROUP BY
-  client
+select
+    _table_suffix as client,
+    countif(reqimg > 0) as atleastoneimgreqcount,
+    count(0) as total,
+    safe_divide(countif(reqimg > 0), count(0)) as atleastoneimgreqpct
+from `httparchive.summary_pages.2021_07_01_*`
+group by client
